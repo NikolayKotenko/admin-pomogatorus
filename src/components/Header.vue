@@ -5,14 +5,18 @@
         dark
         clipped-left
         app
+        color="#353e47"
     >
       <template v-if="drawer">
-        <v-icon small>
-          mdi-arrow
+        <div class="header-logo" style="width: 256px; height: 100%; background: lightblue">
+
+        </div>
+        <v-icon color="#6d767f" style="cursor: pointer; padding: 0 10px" @click="drawer = false">
+          mdi-arrow-left
         </v-icon>
       </template>
       <template v-else>
-        <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+        <v-app-bar-nav-icon @click="drawer = true" style="margin-left: 5px" class="burger"></v-app-bar-nav-icon>
       </template>
 
         <v-chip
@@ -28,37 +32,20 @@
 
       <v-spacer></v-spacer>
 
-      <v-menu
-          left
-          bottom
-      >
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-              icon
-              v-bind="attrs"
-              v-on="on"
-          >
-            <v-icon>mdi-dots-vertical</v-icon>
-          </v-btn>
-        </template>
-
-        <v-list>
-          <v-list-item
-              v-for="n in 5"
-              :key="n"
-              @click="() => {}"
-          >
-            <v-list-item-title>Option {{ n }}</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
+      <v-icon color="primary" large>mdi-menu-down</v-icon>
     </v-app-bar>
 
     <v-navigation-drawer
         v-model="drawer"
         app
         clipped
+        color="#353e47"
     >
+      <div style="background-image: url('https://www.gettyimages.pt/gi-resources/images/Homepage/Hero/PT/PT_hero_42_153645159.jpg'); width: 100%; height: 100px;">
+        <v-list-item-avatar>
+          <v-img src="https://randomuser.me/api/portraits/women/85.jpg"></v-img>
+        </v-list-item-avatar>
+      </div>
       <v-list
           nav
           dense
@@ -96,6 +83,8 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-
+<style lang="scss">
+.v-toolbar--dense .v-toolbar__content, .v-toolbar--dense .v-toolbar__extension {
+  padding-left: 0 !important;
+}
 </style>
