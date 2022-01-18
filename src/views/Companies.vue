@@ -12,8 +12,73 @@
 
         </div>
       </div>
-      <div class="companies-container-wrapper-main">
-        <v-data-table
+      <table class="companies-container-wrapper-main">
+        <thead class="companies-container-wrapper-main-header">
+          <tr>
+            <th class="companies-container-wrapper-main-header__title">
+              <v-checkbox
+                  class="companies-container-wrapper-main-header__title__checkbox"
+                  dense hide-details
+              ></v-checkbox>
+              <img
+                  class="companies-container-wrapper-main-header__title__sort"
+                  :src="require('/src/assets/svg/sort_arrow.svg')" alt="">
+            </th>
+            <th
+                class="companies-container-wrapper-main-header__title"
+                v-for="(title, index) in titles"
+                :key="index"
+            >
+              <span class="companies-container-wrapper-main-header__title__text">{{ title.TEXT }}</span>
+              <img
+                  class="companies-container-wrapper-main-header__title__sort"
+                  :src="require('/src/assets/svg/sort_arrow.svg')" alt="">
+            </th>
+            <th class="companies-container-wrapper-main-header__title">
+              <span class="companies-container-wrapper-main-header__title__text">Доступные действия</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody
+          class="companies-container-wrapper-main-items"
+        >
+        <tr
+          v-for="(row, index) in listItems"
+          :key="index"
+        >
+          <td>
+            <v-checkbox dense hide-details></v-checkbox>
+          </td>
+          <td>
+            {{ row.NAME }}
+          </td>
+          <td>
+            {{ row.ADDRESS }}
+          </td>
+          <td>
+            {{ row.DATE }}
+          </td>
+          <td>
+            {{ row.EMAIL }}
+          </td>
+          <td>
+            {{ row.TELEPHONE }}
+          </td>
+          <td>
+            {{ row.WEB }}
+          </td>
+          <td>
+            {{ row.INSTAGRAM }}
+          </td>
+          <td style="width: 100px; height: 70px">
+            <img :src="(row.LOGO)" style="object-fit: contain; width: 100%; height: 100%">
+          </td>
+          <td>
+
+          </td>
+        </tr>
+        </tbody>
+<!--        <v-data-table
             :headers="headers"
             :items="desserts"
             sort-by="calories"
@@ -162,8 +227,8 @@
               Reset
             </v-btn>
           </template>
-        </v-data-table>
-      </div>
+        </v-data-table>-->
+      </table>
     </div>
 
   </div>
@@ -173,6 +238,134 @@
 export default {
   name: "Companies",
   data: () => ({
+    titles: [
+      {
+        ID: 1,
+        TEXT: 'Имя компании',
+        VALUE: 'name',
+      },
+      {
+        ID: 2,
+        TEXT: 'Адресс компании',
+        VALUE: 'address',
+      },
+      {
+        ID: 3,
+        TEXT: 'Дата создания',
+        VALUE: 'date',
+      },
+      {
+        ID: 4,
+        TEXT: 'Email',
+        VALUE: 'email',
+      },
+      {
+        ID: 5,
+        TEXT: 'Телефон компании',
+        VALUE: 'telephone',
+      },
+      {
+        ID: 6,
+        TEXT: 'Сайт компании',
+        VALUE: 'web',
+      },
+      {
+        ID: 7,
+        TEXT: 'Инстаграм компании',
+        VALUE: 'instagram',
+      },
+      {
+        ID: 8,
+        TEXT: 'Логотип компании',
+        VALUE: 'logo',
+      },
+    ],
+    listItems: [
+      {
+        ID: 1,
+        CODE: 'GIDRUSS',
+        NAME: 'ГИДРУСС',
+        ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
+        DATE: '2021-01-17 10:08:00',
+        EMAIL: 'gidruss@mail.ru',
+        TELEPHONE: '+7 (951) 212-06-88',
+        WEB: 'https://gidruss.ru',
+        INSTAGRAM: 'https://instagram.com/gidruss_official',
+        LOGO: 'https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png',
+      },
+      {
+        ID: 2,
+        CODE: 'GIDRUSS',
+        NAME: 'ГИДРУСС',
+        ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
+        DATE: '2021-01-17 10:08:00',
+        EMAIL: 'gidruss@mail.ru',
+        TELEPHONE: '+7 (951) 212-06-88',
+        WEB: 'https://gidruss.ru',
+        INSTAGRAM: 'https://instagram.com/gidruss_official',
+        LOGO: 'https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png',
+      },
+      {
+        ID: 3,
+        CODE: 'GIDRUSS',
+        NAME: 'ГИДРУСС',
+        ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
+        DATE: '2021-01-17 10:08:00',
+        EMAIL: 'gidruss@mail.ru',
+        TELEPHONE: '+7 (951) 212-06-88',
+        WEB: 'https://gidruss.ru',
+        INSTAGRAM: 'https://instagram.com/gidruss_official',
+        LOGO: 'https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png',
+      },
+      {
+        ID: 4,
+        CODE: 'GIDRUSS',
+        NAME: 'ГИДРУСС',
+        ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
+        DATE: '2021-01-17 10:08:00',
+        EMAIL: 'gidruss@mail.ru',
+        TELEPHONE: '+7 (951) 212-06-88',
+        WEB: 'https://gidruss.ru',
+        INSTAGRAM: 'https://instagram.com/gidruss_official',
+        LOGO: 'https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png',
+      },
+      {
+        ID: 5,
+        CODE: 'GIDRUSS',
+        NAME: 'ГИДРУСС',
+        ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
+        DATE: '2021-01-17 10:08:00',
+        EMAIL: 'gidruss@mail.ru',
+        TELEPHONE: '+7 (951) 212-06-88',
+        WEB: 'https://gidruss.ru',
+        INSTAGRAM: 'https://instagram.com/gidruss_official',
+        LOGO: 'https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png',
+      },
+      {
+        ID: 6,
+        CODE: 'GIDRUSS',
+        NAME: 'ГИДРУСС',
+        ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
+        DATE: '2021-01-17 10:08:00',
+        EMAIL: 'gidruss@mail.ru',
+        TELEPHONE: '+7 (951) 212-06-88',
+        WEB: 'https://gidruss.ru',
+        INSTAGRAM: 'https://instagram.com/gidruss_official',
+        LOGO: 'https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png',
+      },
+      {
+        ID: 7,
+        CODE: 'GIDRUSS',
+        NAME: 'ГИДРУСС',
+        ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
+        DATE: '2021-01-17 10:08:00',
+        EMAIL: 'gidruss@mail.ru',
+        TELEPHONE: '+7 (951) 212-06-88',
+        WEB: 'https://gidruss.ru',
+        INSTAGRAM: 'https://instagram.com/gidruss_official',
+        LOGO: 'https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png',
+      },
+    ],
     dialog: false,
     dialogDelete: false,
     headers: [
@@ -347,9 +540,142 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+//::v-deep .v-data-table-header {
+//  background: #f9fafc !important;
+//}
+
+table {
+  display: grid;
+  border-collapse: collapse;
+  min-width: 100%;
+  grid-template-columns:
+    minmax(150px, 1fr)
+    minmax(150px, 1.67fr)
+    minmax(150px, 1.67fr)
+    minmax(150px, 1.67fr)
+    minmax(150px, 3.33fr)
+    minmax(150px, 1.67fr)
+    minmax(150px, 3.33fr)
+    minmax(150px, 1.67fr)
+    minmax(150px, 1.67fr)
+    minmax(150px, 1.67fr);
+}
+
+thead,
+tbody,
+tr {
+  display: contents;
+}
+
+th,
+td {
+  padding: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+th {
+  //position: sticky;
+  top: 0;
+  background: #6c7ae0;
+  text-align: left;
+  font-weight: normal;
+  font-size: 1.1rem;
+  color: white;
+  img {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+th:last-child {
+  border: 0;
+}
+
+td {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  color: #808080;
+}
+
+tr:nth-child(even) td {
+  //background: #f8f6ff;
+}
+
 .companies-container {
   width: 100%;
   height: 100%;
   background: #eef2f5;
+  .companies-container-buttons {
+    padding-bottom: 20px;
+  }
+  .companies-container-wrapper {
+    max-width: 1420px;
+    background: #FFFFFF;
+    box-shadow: 0  0 5px rgba(0, 0, 0, 0.2);
+    margin: 0 auto;
+    .companies-container-wrapper-header {
+      &__views {
+
+      }
+      &__search {
+
+      }
+    }
+    /*.companies-container-wrapper-main {
+      width: 100%;
+      .companies-container-wrapper-main-header {
+        background: #f9fafc;
+        border-bottom: 1px solid rgba(211,211,211, .6);
+        -webkit-background-clip: padding-box;
+        background-clip: padding-box;
+        &__title {
+          display: grid;
+          grid-template-columns: auto auto;
+          align-items: end;
+          border: 1px solid;
+          //column-gap: 5px;
+          width: 100%;
+          height: 100%;
+          padding: 0 5px;
+          &__checkbox {
+          }
+          &__sort {
+            margin-top: 5px;
+            width: 10px;
+            height: 10px;
+            justify-self: end;
+            align-self: start;
+          }
+          &__text {
+            color: gray;
+            font-size: 14px;
+          }
+        }
+      }
+      .companies-container-wrapper-main-items {
+        width: 100%;
+        height: 80px;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 5% 1fr 2fr 0.5fr 1fr 1fr 1fr 2fr 1fr 1fr;
+        align-items: end;
+        justify-items: start;
+        //padding: 0 5px 5px 5px;
+        //padding-bottom: 5px;
+        font-size: 14px;
+        color: gray;
+        //border-bottom: 1px solid rgba(211,211,211, .4);
+        div {
+          display: grid;
+          width: 100%;
+          height: 100%;
+          border: 1px solid;
+          padding: 0 5px;
+        }
+      }
+    }*/
+  }
 }
 </style>
