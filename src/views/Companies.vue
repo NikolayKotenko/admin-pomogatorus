@@ -108,7 +108,7 @@
             {{ row.INSTAGRAM }}
           </td>
           <td style="width: 100px">
-            <img :src="(row.LOGO)" style="object-fit: contain; width: 100%; height: 100%">
+            <img :src="(row.LOGO)" alt="" style="object-fit: contain; width: 100%; height: 100%">
           </td>
           <td class="buttons">
             <v-btn
@@ -117,7 +117,7 @@
                 style="font-size: 12px"
             >
               <v-icon small color="white">mdi-pencil-box-multiple</v-icon>
-              <span class="companies-container-buttons__text" @click="onShowCard()">Изменить</span>
+              <span class="companies-container-buttons__text" @click="onShowCard(row)">Изменить</span>
             </v-btn>
             <v-btn
                 color="error"
@@ -181,93 +181,98 @@
     >
       <v-card>
         <v-card-title>
-          <span class="text-h5">User Profile</span>
+          <span class="text-h5">{{ companyTitle }}</span>
         </v-card-title>
         <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col
-                  cols="12"
-                  sm="6"
-                  md="4"
-              >
-                <v-text-field
-                    label="Legal first name*"
-                    required
-                ></v-text-field>
-              </v-col>
-              <v-col
-                  cols="12"
-                  sm="6"
-                  md="4"
-              >
-                <v-text-field
-                    label="Legal middle name"
-                    hint="example of helper text only on focus"
-                ></v-text-field>
-              </v-col>
-              <v-col
-                  cols="12"
-                  sm="6"
-                  md="4"
-              >
-                <v-text-field
-                    label="Legal last name*"
-                    hint="example of persistent helper text"
-                    persistent-hint
-                    required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-text-field
-                    label="Email*"
-                    required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-text-field
-                    label="Password*"
-                    type="password"
-                    required
-                ></v-text-field>
-              </v-col>
-              <v-col
-                  cols="12"
-                  sm="6"
-              >
-                <v-select
-                    :items="['0-17', '18-29', '30-54', '54+']"
-                    label="Age*"
-                    required
-                ></v-select>
-              </v-col>
-              <v-col
-                  cols="12"
-                  sm="6"
-              >
-                <v-autocomplete
-                    :items="['Skiing', 'Ice hockey', 'Soccer', 'Basketball', 'Hockey', 'Reading', 'Writing', 'Coding', 'Basejump']"
-                    label="Interests"
-                    multiple
-                ></v-autocomplete>
-              </v-col>
-            </v-row>
-          </v-container>
-          <small>*indicates required field</small>
+          <v-form v-model="valid">
+            <v-container>
+              <v-row>
+                <v-col
+                    cols="12"
+                >
+                  <v-text-field
+                      hide-details
+                      clearable
+                      label="Имя компании"
+                      v-model="curCompany.NAME"
+                      :rules="nameRules"
+                      required
+                  ></v-text-field>
+                </v-col>
+                <v-col
+                    cols="12"
+                >
+                  <v-text-field
+                      hide-details
+                      clearable
+                      label="Адрес компании"
+                      v-model="curCompany.ADDRESS"
+                  ></v-text-field>
+                </v-col>
+                <v-col
+                    cols="12"
+                >
+                  <v-text-field
+                      hide-details
+                      clearable
+                      label="Email"
+                      v-model="curCompany.EMAIL"
+                  ></v-text-field>
+                </v-col>
+                <v-col
+                    cols="12"
+                >
+                  <v-text-field
+                      hide-details
+                      clearable
+                      label="Телефон компании"
+                      v-model="curCompany.TELEPHONE"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12">
+                  <v-text-field
+                      hide-details
+                      clearable
+                      label="Сайт компании"
+                      v-model="curCompany.WEB"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12">
+                  <v-text-field
+                      hide-details
+                      clearable
+                      label="Инстаграм компании"
+                      v-model="curCompany.INSTAGRAM"
+                  ></v-text-field>
+                </v-col>
+                <v-col
+                    cols="12"
+                >
+                  <v-file-input
+                      accept="image/*"
+                      label="Логотип компании"
+                      clearable
+                      v-model="file"
+                      @change="showLog()"
+                  ></v-file-input>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-form>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
               color="blue darken-1"
               text
-              @click="dialog = false"
+              @click="showCard = false"
           >
             Close
           </v-btn>
           <v-btn
               color="blue darken-1"
               text
-              @click="dialog = false"
+              @click="showCard = false"
           >
             Save
           </v-btn>
@@ -289,7 +294,7 @@ export default {
       },
       {
         ID: 2,
-        TEXT: 'Адресс компании',
+        TEXT: 'Адрес компании',
         VALUE: 'address',
       },
       {
@@ -413,6 +418,14 @@ export default {
     selectedCount: 10,
     page: 1,
     showCard: false,
+    curCompany: {},
+    companyTitle: 'Новая кмопания',
+    valid: false,
+    nameRules: [
+      v => !!v || 'Обязательное поле',
+      v => v.length <= 30 || 'Не должно содержать больше 30 символов',
+    ],
+    file: [],
   }),
   created () {
   },
@@ -421,9 +434,16 @@ export default {
   watch: {
   },
   methods: {
-    onShowCard() {
+    onShowCard(row) {
+      for (let key in row) {
+        this.curCompany[key] = row[key]
+      }
+      this.companyTitle = row['NAME']
       this.showCard = true
     },
+    showLog() {
+      console.log(this.file)
+    }
   },
 }
 </script>
