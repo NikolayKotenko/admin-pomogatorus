@@ -24,10 +24,18 @@
             text-color="primary"
             style="cursor: pointer"
         >
-          <v-icon small left>
-            mdi-briefcase
-          </v-icon>
-          Рабочий стол
+          <router-link to="/" style="text-decoration: none">
+            <v-icon small left>
+              mdi-briefcase
+            </v-icon>
+            Рабочий стол
+          </router-link>
+          <div v-if="!!Object.keys($route.meta).includes('ru_name')" style="padding-left: 10px">
+            <v-icon small left>
+              mdi-chevron-right
+            </v-icon>
+            <span>{{ $route.meta.ru_name }}</span>
+          </div>
         </v-chip>
 
       <v-spacer></v-spacer>

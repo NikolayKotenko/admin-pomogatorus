@@ -14,7 +14,10 @@ const routes = [
   {
     path: '/companies',
     name: 'Companies',
-    component: Companies
+    component: Companies,
+    meta: {
+      ru_name: 'Компании'
+    },
   }
   // {
   //   path: '/about',

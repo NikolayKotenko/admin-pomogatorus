@@ -4,6 +4,7 @@
       <v-btn
           color="green lighten-1"
           class="text-capitalize"
+          @click="createCompany()"
       >
         <v-icon small color="white">mdi-plus-circle</v-icon>
         <span class="companies-container-buttons__text">Добавить</span>
@@ -11,6 +12,8 @@
       <v-btn
           color="error"
           class="text-capitalize"
+          @click="deleteCompany()"
+          :disabled="!selectedItems.length"
       >
         <v-icon small color="white">mdi-trash-can</v-icon>
         <span class="companies-container-buttons__text">Удалить выбранное</span>
@@ -49,6 +52,7 @@
               <v-checkbox
                   class="companies-container-wrapper-main-header__title__checkbox"
                   dense hide-details
+                  @click="selectAll()"
               ></v-checkbox>
               <img
                   class="companies-container-wrapper-main-header__title__sort"
@@ -84,7 +88,11 @@
           :key="index"
         >
           <td>
-            <v-checkbox dense hide-details></v-checkbox>
+            <v-checkbox
+                dense hide-details
+                v-model="row.SELECTED"
+                @click="setSelect(row)"
+            ></v-checkbox>
           </td>
           <td>
             {{ row.NAME }}
@@ -115,13 +123,15 @@
                 color="blue lighten-1"
                 class="text-capitalize"
                 style="font-size: 12px"
+                @click="onEditCard(row)"
             >
               <v-icon small color="white">mdi-pencil-box-multiple</v-icon>
-              <span class="companies-container-buttons__text" @click="onShowCard(row)">Изменить</span>
+              <span class="companies-container-buttons__text">Изменить</span>
             </v-btn>
             <v-btn
                 color="error"
                 class="text-capitalize"
+                @click="onDelCard(row)"
             >
               <v-icon small color="white">mdi-trash-can</v-icon>
               <span class="companies-container-buttons__text">Удалить</span>
@@ -129,6 +139,7 @@
             <v-btn
                 color="orange lighten-1"
                 class="text-capitalize"
+                @click="onShowCard(row)"
             >
               <v-icon small color="white">mdi-eye</v-icon>
               <span class="companies-container-buttons__text">Просмотр</span>
@@ -155,7 +166,7 @@
               elevation="0"
               class="text-capitalize"
           >
-
+            {{1}}
           </v-btn>
           <v-btn
               elevation="0"
@@ -166,10 +177,6 @@
               mdi-chevron-right
             </v-icon>
           </v-btn>
-<!--          <v-pagination-->
-<!--              v-model="page"-->
-<!--              :length="6"-->
-<!--          ></v-pagination>-->
         </div>
       </div>
     </div>
@@ -196,6 +203,7 @@
                       label="Имя компании"
                       v-model="curCompany.NAME"
                       :rules="nameRules"
+                      :disabled="!editable"
                       required
                   ></v-text-field>
                 </v-col>
@@ -207,6 +215,7 @@
                       clearable
                       label="Адрес компании"
                       v-model="curCompany.ADDRESS"
+                      :disabled="!editable"
                   ></v-text-field>
                 </v-col>
                 <v-col
@@ -217,6 +226,7 @@
                       clearable
                       label="Email"
                       v-model="curCompany.EMAIL"
+                      :disabled="!editable"
                   ></v-text-field>
                 </v-col>
                 <v-col
@@ -227,6 +237,7 @@
                       clearable
                       label="Телефон компании"
                       v-model="curCompany.TELEPHONE"
+                      :disabled="!editable"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12">
@@ -235,6 +246,7 @@
                       clearable
                       label="Сайт компании"
                       v-model="curCompany.WEB"
+                      :disabled="!editable"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12">
@@ -243,6 +255,7 @@
                       clearable
                       label="Инстаграм компании"
                       v-model="curCompany.INSTAGRAM"
+                      :disabled="!editable"
                   ></v-text-field>
                 </v-col>
                 <v-col
@@ -253,8 +266,9 @@
                       label="Логотип компании"
                       clearable
                       v-model="file"
-                      @change="showLog()"
+                      :disabled="!editable"
                   ></v-file-input>
+                <!-- @change="showLog(file)" -->
                 </v-col>
               </v-row>
             </v-container>
@@ -265,16 +279,47 @@
           <v-btn
               color="blue darken-1"
               text
-              @click="showCard = false"
+              @click="closeCard()"
           >
-            Close
+            Закрыть
           </v-btn>
           <v-btn
               color="blue darken-1"
               text
-              @click="showCard = false"
+              @click="saveCreate()"
           >
-            Save
+            Сохранить изменения
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog
+        v-model="delCard"
+        max-width="600"
+    >
+      <v-card>
+        <v-card-title>
+          <span class="text-h5">Вы точно хотите удалить компанию?</span>
+        </v-card-title>
+        <v-card-text>
+          {{ companyTitle }} будет удалена из списка компаний со всеми данными
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+              color="blue darken-1"
+              text
+              @click="deleteCard()"
+          >
+            Да
+          </v-btn>
+          <v-btn
+              color="blue darken-1"
+              text
+              @click="delCard = false"
+          >
+            Нет
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -332,6 +377,7 @@ export default {
       {
         ID: 1,
         CODE: 'GIDRUSS',
+        SELECTED: false,
         NAME: 'ГИДРУСС',
         ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
         DATE: '2021-01-17 10:08:00',
@@ -344,6 +390,7 @@ export default {
       {
         ID: 2,
         CODE: 'GIDRUSS',
+        SELECTED: false,
         NAME: 'ГИДРУСС',
         ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
         DATE: '2021-01-17 10:08:00',
@@ -356,6 +403,7 @@ export default {
       {
         ID: 3,
         CODE: 'GIDRUSS',
+        SELECTED: false,
         NAME: 'ГИДРУСС',
         ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
         DATE: '2021-01-17 10:08:00',
@@ -368,6 +416,7 @@ export default {
       {
         ID: 4,
         CODE: 'GIDRUSS',
+        SELECTED: false,
         NAME: 'ГИДРУСС',
         ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
         DATE: '2021-01-17 10:08:00',
@@ -380,6 +429,7 @@ export default {
       {
         ID: 5,
         CODE: 'GIDRUSS',
+        SELECTED: false,
         NAME: 'ГИДРУСС',
         ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
         DATE: '2021-01-17 10:08:00',
@@ -392,6 +442,7 @@ export default {
       {
         ID: 6,
         CODE: 'GIDRUSS',
+        SELECTED: false,
         NAME: 'ГИДРУСС',
         ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
         DATE: '2021-01-17 10:08:00',
@@ -404,6 +455,7 @@ export default {
       {
         ID: 7,
         CODE: 'GIDRUSS',
+        SELECTED: false,
         NAME: 'ГИДРУСС',
         ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
         DATE: '2021-01-17 10:08:00',
@@ -426,6 +478,15 @@ export default {
       v => v.length <= 30 || 'Не должно содержать больше 30 символов',
     ],
     file: [],
+    // currentImage: undefined,
+    // previewImage: undefined,
+    // progress: 0,
+    // message: "",
+    imageInfos: [],
+    delCard: false,
+    editable: true,
+    allSelected: false,
+    selectedItems: [],
   }),
   created () {
   },
@@ -434,16 +495,129 @@ export default {
   watch: {
   },
   methods: {
-    onShowCard(row) {
+    createCompany() {
+      for (let key in this.listItems[0]) {
+        if (key === 'ID') {
+          this.curCompany['ID'] = this.listItems.length + 1
+        } else {
+          this.curCompany[key] = ''
+        }
+      }
+      this.companyTitle = 'Новая кмопания'
+      this.showCard = true
+    },
+    onEditCard(row) {
       for (let key in row) {
         this.curCompany[key] = row[key]
       }
       this.companyTitle = row['NAME']
       this.showCard = true
     },
-    showLog() {
-      console.log(this.file)
-    }
+    onDelCard(row) {
+      this.delCard = true
+      this.companyTitle = row.NAME
+      this.curCompany.ID = row.ID
+    },
+    deleteCard() {
+      let index = this.listItems.findIndex(i => {
+        return i.ID === this.curCompany.ID
+      })
+      if (index !== -1) this.listItems.splice(index, 1)
+      this.delCard = false
+    },
+    onShowCard(row) {
+      for (let key in row) {
+        this.curCompany[key] = row[key]
+      }
+      this.companyTitle = row['NAME']
+      this.editable = false
+      this.showCard = true
+    },
+    closeCard() {
+      this.showCard = false
+      this.editable = true
+    },
+    saveCreate() {
+      if (this.listItems.map(elem => elem.ID).includes(this.curCompany.ID)) {
+        this.listItems.map(elem => {
+          if (elem.ID === this.curCompany.ID) {
+            for (let key in this.curCompany) {
+              elem[key] = this.curCompany[key]
+            }
+          }
+        })
+      } else {
+        this.listItems.push(Object.assign({}, this.curCompany))
+      }
+      this.showCard = false
+    },
+    selectAll() {
+      if (this.allSelected) {
+        this.listItems.forEach(elem => {
+          elem.SELECTED = false
+        })
+        this.selectedItems = []
+        this.allSelected = false
+      } else {
+        this.listItems.forEach(elem => {
+          elem.SELECTED = true
+          this.selectedItems.push(elem.ID)
+        })
+        this.allSelected = true
+      }
+    },
+    deleteCompany() {
+      if (this.selectedItems.length) {
+        this.selectedItems.forEach(id => {
+          let index = this.listItems.findIndex(i => {
+            return i.ID === id
+          })
+          if (index !== -1) this.listItems.splice(index, 1)
+        })
+      }
+    },
+    setSelect(row) {
+      if (row.SELECTED) {
+        this.selectedItems.push(row.ID)
+      } else {
+        let index = this.selectedItems.findIndex(i => {
+          return i === row.ID
+        })
+        if (index !== -1) this.selectedItems.splice(index, 1)
+      }
+    },
+
+
+    /* Для добавления изображений */
+
+/*    showLog(image) {
+      this.currentImage = image;
+      this.previewImage = URL.createObjectURL(this.currentImage);
+      this.progress = 0;
+      this.message = "";
+    }*/
+    /*upload() {
+      if (!this.currentImage) {
+        this.message = "Please select an Image!";
+        return;
+      }
+      this.progress = 0;
+      UploadService.upload(this.currentImage, (event) => {
+        this.progress = Math.round((100 * event.loaded) / event.total);
+      })
+          .then((response) => {
+            this.message = response.data.message;
+            return UploadService.getFiles();
+          })
+          .then((images) => {
+            this.imageInfos = images.data;
+          })
+          .catch((err) => {
+            this.progress = 0;
+            this.message = "Could not upload the image! " + err;
+            this.currentImage = undefined;
+          });
+    },*/
   },
 }
 </script>
