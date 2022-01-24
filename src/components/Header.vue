@@ -40,7 +40,22 @@
 
       <v-spacer></v-spacer>
 
-      <v-icon color="primary" large>mdi-menu-down</v-icon>
+      <v-icon
+          v-if="$route.path === '/questions'"
+          color="green"
+          x-large
+          style="padding-left: 10px"
+      >
+        mdi-plus-thick
+      </v-icon>
+      <v-icon
+          v-else
+          color="primary"
+          large
+          style="padding-left: 10px"
+      >
+        mdi-menu-down
+      </v-icon>
     </v-app-bar>
 
     <v-navigation-drawer
@@ -114,6 +129,12 @@ export default {
         icon: 'mdi-account-group',
         title: 'Компании',
         link: '/companies'
+      },
+      {
+        id: 3,
+        icon: 'mdi-message-question',
+        title: 'Вопросы',
+        link: '/questions'
       }
     ]
   }),
