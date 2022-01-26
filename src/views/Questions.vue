@@ -3,7 +3,7 @@
     <div class="questions_wrapper">
       <div
           class="questions_wrapper__item"
-          v-for="(question, index) in test"
+          v-for="(question, index) in $store.state.listQuestions"
           :key="index"
       >
         <div class="questions_wrapper__item__top" :class="{filterShow: show_filter}">
@@ -11,12 +11,14 @@
             <span>
               {{question.name}}
             </span>
-            <span>
-
+            <span class="questions_wrapper__item__top__title__quantity">
+              [3]
             </span>
           </div>
           <div class="questions_wrapper__item__top__icons">
-
+            <v-icon color="grey lighten-1">
+              mdi-comment-text
+            </v-icon>
           </div>
         </div>
         <div class="questions_wrapper__item__bottom">
@@ -61,9 +63,44 @@
               Выбор разделов:
             </div>
             <div class="filter_modal_filters__item__chips">
-              <v-chip-group>
-
+              <v-chip-group
+                  column
+                  multiple
+              >
+                <v-chip color="#f2f5f7">
+                  <v-icon left>
+                    mdi-close-thick
+                  </v-icon>
+                  Эстетические предпочтения
+                </v-chip>
+                <v-chip color="#f2f5f7">
+                  <v-icon left>
+                    mdi-close-thick
+                  </v-icon>
+                  Выявление платежеспособности
+                </v-chip>
+                <v-chip color="#f2f5f7">
+                  <v-icon left>
+                    mdi-close-thick
+                  </v-icon>
+                  Котельная
+                </v-chip>
               </v-chip-group>
+            </div>
+          </div>
+          <div class="filter_modal_filters__item">
+            <div class="filter_modal_filters__item__title">
+              Дата последнего редактирования:
+            </div>
+            <div class="filter_modal_filters__item__chips">
+              <v-radio-group>
+                <v-radio
+                    v-for="n in 3"
+                    :key="n"
+                    :label="`Radio ${n}`"
+                    :value="n"
+                ></v-radio>
+              </v-radio-group>
             </div>
           </div>
         </div>
@@ -119,7 +156,7 @@ export default {
   },
   methods: {
     getQuestions() {
-      // this.$store.dispatch('setListQuestions')
+      this.$store.dispatch('setListQuestions')
     }
   },
 }
@@ -146,6 +183,12 @@ export default {
         border-bottom: 2px solid #539ee0;
         &__title {
           color: #539ee0;
+          &__quantity {
+            color: lightcoral;
+          }
+        }
+        &__icons {
+          padding-bottom: 2px;
         }
       }
       &__bottom {
@@ -219,6 +262,24 @@ export default {
         padding-bottom: 5px;
         width: 100%;
         font-weight: 600;
+      }
+      &__chips {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 10px 20px;
+
+        ::v-deep .v-chip .v-chip__content {
+          min-width: 100% !important;
+        }
+        ::v-deep .v-chip.v-size--default {
+          width: 100%;
+          border: 2px solid lightgray !important;
+        }
+        ::v-deep .v-chip-group--column .v-slide-group__content {
+          row-gap: 5px;
+        }
       }
     }
   }

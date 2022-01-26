@@ -45,6 +45,7 @@
           color="green"
           x-large
           style="padding-left: 10px"
+          @click="onCreate()"
       >
         mdi-plus-thick
       </v-icon>
@@ -138,6 +139,13 @@ export default {
       }
     ]
   }),
+  methods: {
+    onCreate() {
+      this.$router.push({
+        path: 'questions/detail',
+      })
+    }
+  },
 }
 </script>
 

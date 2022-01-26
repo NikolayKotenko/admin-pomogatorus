@@ -730,7 +730,7 @@ export default {
       .companies-container-wrapper-main-header__title {
         display: flex;
         justify-content: space-between;
-        align-items: end;
+        align-items: flex-end;
         position: sticky;
         top: 0;
         background: #f9fafc;

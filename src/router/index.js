@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import Desktop from "../views/Desktop";
 import Companies from "../views/Companies"
 import Questions from "../views/Questions";
+import DetailQuestion from "../components/DetailQuestion";
 
 Vue.use(VueRouter)
 
@@ -27,7 +28,15 @@ const routes = [
     meta: {
       ru_name: 'Список вопросов'
     },
-  }
+  },
+  {
+    path: '/questions/detail',
+    name: 'DetailQuestion',
+    component: DetailQuestion,
+    meta: {
+      ru_name: 'Вопрос'
+    },
+  },
   // {
   //   path: '/about',
   //   name: 'About',
