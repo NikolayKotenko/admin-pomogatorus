@@ -11,7 +11,7 @@
             hide-details
             placeholder="Введите наименование"
             required
-
+            v-model="question.name"
         >
           <template slot="append">
             <v-icon size="20" class="question_title__name__icon">mdi-lead-pencil</v-icon>
@@ -29,6 +29,8 @@
               dense
               hide-details
               flat
+              solo
+              v-model="question.title"
           ></v-textarea>
         </div>
         <div class="question_title_help">
@@ -43,6 +45,8 @@
               dense
               hide-details
               flat
+              solo
+              v-model="question.article"
           ></v-textarea>
         </div>
         <div class="question_title_help">
@@ -57,25 +61,49 @@
               dense
               hide-details
               flat
+              solo
+              v-model="question.purpose_of_question"
           ></v-textarea>
         </div>
       </div>
       <div class="question_main">
         <div class="question_main_selector">
-        <span class="question_main_selector__title">
-          Тип ответа
-        </span>
+          <span class="question_main_selector__title">
+            Тип ответа
+          </span>
           <v-autocomplete
               outlined
               dense
               hide-details
+              :items="$store.state.listTypesOfQuestions"
+              item-text="name"
+              v-model="question.id_type_answer"
           ></v-autocomplete>
         </div>
-        <div class="question_main_wrapper" v-show="false">
+        <div class="question_main_wrapper" v-show="question.id_type_answer !== null">
           <div class="question_main_wrapper__item">
-            <v-text-field></v-text-field>
+            <v-text-field
+                class="question_main_wrapper__item__value"
+                placeholder="Введите значение"
+                auto-grow
+                rows="1"
+                dense
+                hide-details
+                flat
+                solo
+                append-icon="mdi-menu-right"
+            ></v-text-field>
             <div class="divider"></div>
-            <v-textarea></v-textarea>
+            <v-textarea
+                class="question_main_wrapper__item__description"
+                placeholder="Введите примечание"
+                auto-grow
+                rows="1"
+                dense
+                hide-details
+                flat
+                solo
+            ></v-textarea>
           </div>
         </div>
       </div>
@@ -84,11 +112,13 @@
             hide-details
             class="question_settings__checkbox"
             label="Допускается развернутый ответ"
+            v-model="question.state_detailed_response"
         ></v-checkbox>
         <v-checkbox
             hide-details
             class="question_settings__checkbox"
             label="Наличие вложения в ответе"
+            v-model="question.state_attachment_response"
         ></v-checkbox>
       </div>
       <div class="question_tags">
@@ -137,7 +167,16 @@
 export default {
   name: "CreateQuestion",
   data: () => ({
+    question: {
+      name: '',
+      title: '',
+      article: '',
+      purpose_of_question: '',
+      id_type_answer: null,
+      state_detailed_response: 0,
+      state_attachment_response: 0,
 
+    },
   }),
   mounted() {
     this.getTypes()
@@ -157,25 +196,68 @@ export default {
   .form {
     display: flex;
     flex-direction: column;
-    row-gap: 10px;
+    row-gap: 5px;
     .question_title {
       &__name {
-
+        padding-bottom: 7px;
+      }
+      ::v-deep .v-text-field.v-text-field--enclosed:not(.v-text-field--rounded) > .v-input__control > .v-input__slot, .v-text-field.v-text-field--enclosed .v-text-field__details {
+        padding: 0 !important;
+      }
+      ::v-deep .v-textarea textarea {
+        color: gray;
+        margin: 0 !important;
+      }
+      ::v-deep .v-text-field.v-text-field--solo.v-input--dense > .v-input__control {
+        min-height: 30px !important;
       }
       .question_title_help {
         display: flex;
         flex-direction: column;
-        padding-top: 7px;
+        //padding-top: 7px;
         &__title {
-
+          color: black;
+          font-weight: 600;
         }
         &__description {
-
+          color: lightgray;
+          font-size: 13px;
         }
       }
     }
     .question_main {
-
+      padding-bottom: 7px;
+      .question_main_selector {
+        display: flex;
+        flex-direction: column;
+        row-gap: 5px;
+        ::v-deep .v-text-field input {
+          font-size: 14px !important;
+        }
+        &__title {
+          color: #7e8d9a;
+          font-weight: 600;
+        }
+      }
+      .question_main_wrapper {
+        border: 1px solid lightgray;
+        &__item {
+          &__value {
+            font-size: 14px;
+          }
+          ::v-deep .v-text-field.v-text-field--enclosed:not(.v-text-field--rounded) > .v-input__control > .v-input__slot, .v-text-field.v-text-field--enclosed .v-text-field__details {
+            padding: 0 6px!important;
+          }
+          .divider {
+            border-bottom: 1px dashed;
+            width: 15%;
+            margin-left: 6px;
+          }
+          &__description {
+            font-size: 14px;
+          }
+        }
+      }
     }
     .question_settings {
       display: flex;
@@ -192,6 +274,8 @@ export default {
       flex-direction: column;
       row-gap: 10px;
       &__title {
+        color: #7e8d9a;
+        font-weight: 600;
       }
       &__wrapper {
         display: flex;

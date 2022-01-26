@@ -29,7 +29,7 @@ export default new Vuex.Store({
     async setListTypesQuestions({commit}) {
       axios.get('https://api-test.agregatorus.com/dictionary/type-answers')
           .then((response) => {
-            commit('set_list_types_questions', response)
+            commit('set_list_types_questions', response.data)
           })
     }
   },
