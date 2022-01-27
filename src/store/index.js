@@ -25,6 +25,9 @@ export default new Vuex.Store({
           .then((response) => {
             commit('set_list_questions', response.data)
           })
+          .catch(() => {
+            console.log('test')
+          })
     },
     async setListTypesQuestions({commit}) {
       axios.get('https://api-test.agregatorus.com/dictionary/type-answers')

@@ -77,11 +77,17 @@
               hide-details
               :items="$store.state.listTypesOfQuestions"
               item-text="name"
+              item-value="id"
               v-model="question.id_type_answer"
+              @change="onSelect()"
           ></v-autocomplete>
         </div>
-        <div class="question_main_wrapper" v-show="question.id_type_answer !== null">
-          <div class="question_main_wrapper__item">
+        <div class="question_main_wrapper" v-if="question.id_type_answer !== null">
+          <div
+              class="question_main_wrapper__item"
+              v-for="{answer, index} in question.value_type_answer"
+              :key="index"
+          >
             <v-text-field
                 class="question_main_wrapper__item__value"
                 placeholder="Введите значение"
@@ -92,6 +98,7 @@
                 flat
                 solo
                 append-icon="mdi-menu-right"
+                v-model="answer.answer"
             ></v-text-field>
             <div class="divider"></div>
             <v-textarea
@@ -103,6 +110,7 @@
                 hide-details
                 flat
                 solo
+                v-model="answer.commentary"
             ></v-textarea>
           </div>
         </div>
@@ -175,16 +183,31 @@ export default {
       id_type_answer: null,
       state_detailed_response: 0,
       state_attachment_response: 0,
-
+      value_type_answer: null,
     },
+    id: 1,
   }),
   mounted() {
     this.getTypes()
+  },
+  watch: {
+
   },
   methods: {
     getTypes() {
       this.$store.dispatch('setListTypesQuestions')
     },
+    onSelect() {
+      if (this.id_type_answer === 5) {
+        this.value_type_answer = []
+        this.value_type_answer.push(new this.answerVariable(this.id))
+      }
+    },
+    answerVariable(id,) {
+      this.id = id
+      this.answer = ''
+      this.commentary = ''
+    }
   }
 }
 </script>
