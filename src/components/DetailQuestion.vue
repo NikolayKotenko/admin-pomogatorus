@@ -85,8 +85,8 @@
         <div class="question_main_wrapper" v-if="question.id_type_answer !== null">
           <div
               class="question_main_wrapper__item"
-              v-for="{answer, index} in question.value_type_answer"
-              :key="index"
+              v-for="answer in question.value_type_answer"
+              :key="answer.id"
           >
             <v-text-field
                 class="question_main_wrapper__item__value"
@@ -97,10 +97,12 @@
                 hide-details
                 flat
                 solo
-                append-icon="mdi-menu-right"
+                :append-icon="answer.showComentary ? 'mdi-menu-right' : 'mdi-menu-down'"
+                @click:append="answer.showComentary = !answer.showComentary"
                 v-model="answer.answer"
-            ></v-text-field>
-            <div class="divider"></div>
+            >
+            </v-text-field>
+            <div class="divider" v-if="answer.showComentary"></div>
             <v-textarea
                 class="question_main_wrapper__item__description"
                 placeholder="Введите примечание"
@@ -111,6 +113,7 @@
                 flat
                 solo
                 v-model="answer.commentary"
+                v-if="answer.showComentary"
             ></v-textarea>
           </div>
         </div>
@@ -191,22 +194,37 @@ export default {
     this.getTypes()
   },
   watch: {
-
+    'question.value_type_answer': {
+      // eslint-disable-next-line no-unused-vars
+      handler(oldValue, newValue) {
+        if (Array.isArray(this.question.value_type_answer)) {
+          if (this.question.value_type_answer[this.question.value_type_answer.length-1]?.answer) {
+            this.addVariable()
+          }
+        }
+      },
+      deep: true
+    },
   },
   methods: {
     getTypes() {
       this.$store.dispatch('setListTypesQuestions')
     },
     onSelect() {
-      if (this.id_type_answer === 5) {
-        this.value_type_answer = []
-        this.value_type_answer.push(new this.answerVariable(this.id))
+      if (this.question.id_type_answer === 5) {
+        this.question.value_type_answer = []
+        this.question.value_type_answer.push(new this.answerVariable(this.id))
       }
+    },
+    addVariable() {
+      this.id++
+      this.question.value_type_answer.push(new this.answerVariable(this.id))
     },
     answerVariable(id,) {
       this.id = id
       this.answer = ''
       this.commentary = ''
+      this.showComentary = true
     }
   }
 }
@@ -264,7 +282,9 @@ export default {
       }
       .question_main_wrapper {
         border: 1px solid lightgray;
+        border-bottom: none;
         &__item {
+          border-bottom: 1px solid lightgray;
           &__value {
             font-size: 14px;
           }
