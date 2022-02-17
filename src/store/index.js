@@ -6,8 +6,10 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    BASE_URL: process.env.NODE_ENV === 'development' ? 'https://api-test.agregatorus.com' : 'https://api.agregatorus.com',
     listQuestions: [],
     listTypesOfQuestions: [],
+    listGeneralTags: [],
   },
   mutations: {
     set_list_questions(state, result) {
@@ -18,10 +20,14 @@ export default new Vuex.Store({
       state.listTypesOfQuestions = []
       state.listTypesOfQuestions = result
     },
+    set_list_general_tags(state, result) {
+      state.listGeneralTags = []
+      state.listGeneralTags = result
+    },
   },
   actions: {
     async setListQuestions({commit}) {
-      axios.get('https://api-test.agregatorus.com/entity/questions')
+      axios.get(`${this.state.BASE_URL}/entity/questions`)
           .then((response) => {
             commit('set_list_questions', response.data)
           })
@@ -30,11 +36,17 @@ export default new Vuex.Store({
           })
     },
     async setListTypesQuestions({commit}) {
-      axios.get('https://api-test.agregatorus.com/dictionary/type-answers')
+      axios.get(`${this.state.BASE_URL}/dictionary/type-answers`)
           .then((response) => {
             commit('set_list_types_questions', response.data)
           })
-    }
+    },
+    async getGeneralTags({commit}) {
+      axios.get(`${this.state.BASE_URL}/dictionary/tags`)
+          .then((response) => {
+            commit('set_list_general_tags', response.data)
+          })
+    },
   },
   modules: {
   }
