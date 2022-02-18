@@ -12,25 +12,25 @@
               hide-details
               placeholder="Введите наименование"
               required
-              v-model="question.name.value"
+              v-model="getNewQuestion.name.value"
               solo
               flat
-              @focus="onFocus(question.name)"
-              @focusout="outFocus(question.name)"
+              @focus="onFocus(getNewQuestion.name)"
+              @focusout="outFocus(getNewQuestion.name)"
           >
             <template slot="append">
-              <v-icon size="20" class="question_title__name__icon" :color="question.name.focused ? 'primary' : ''">
+              <v-icon size="20" class="question_title__name__icon" :color="getNewQuestion.name.focused ? 'primary' : ''">
                 mdi-lead-pencil
               </v-icon>
             </template>
           </v-text-field>
           <div class="question_title_help">
-        <span class="question_title_help__title" :class="{focused: question.title.focused}">
+        <span class="question_title_help__title" :class="{focused: getNewQuestion.title.focused}">
           Подсказка
         </span>
             <v-textarea
                 class="question_title_help__description"
-                :class="{inputFocused: question.title.focused}"
+                :class="{inputFocused: getNewQuestion.title.focused}"
                 placeholder="Введите подсказку для вопроса"
                 auto-grow
                 rows="1"
@@ -38,18 +38,18 @@
                 hide-details
                 flat
                 solo
-                v-model="question.title.value"
-                @focus="onFocus(question.title)"
-                @focusout="outFocus(question.title)"
+                v-model="getNewQuestion.title.value"
+                @focus="onFocus(getNewQuestion.title)"
+                @focusout="outFocus(getNewQuestion.title)"
             ></v-textarea>
           </div>
           <div class="question_title_help">
-        <span class="question_title_help__title" :class="{focused: question.article.focused}">
+        <span class="question_title_help__title" :class="{focused: getNewQuestion.article.focused}">
           Разъясняющий текст
         </span>
             <v-textarea
                 class="question_title_help__description"
-                :class="{inputFocused: question.article.focused}"
+                :class="{inputFocused: getNewQuestion.article.focused}"
                 placeholder="Введите разъясняющий текст"
                 auto-grow
                 rows="1"
@@ -57,18 +57,18 @@
                 hide-details
                 flat
                 solo
-                v-model="question.article.value"
-                @focus="onFocus(question.article)"
-                @focusout="outFocus(question.article)"
+                v-model="getNewQuestion.article.value"
+                @focus="onFocus(getNewQuestion.article)"
+                @focusout="outFocus(getNewQuestion.article)"
             ></v-textarea>
           </div>
           <div class="question_title_help">
-        <span class="question_title_help__title" :class="{focused: question.purpose_of_question.focused}">
+        <span class="question_title_help__title" :class="{focused: getNewQuestion.purpose_of_question.focused}">
           Цель вопроса
         </span>
             <v-textarea
                 class="question_title_help__description"
-                :class="{inputFocused: question.purpose_of_question.focused}"
+                :class="{inputFocused: getNewQuestion.purpose_of_question.focused}"
                 placeholder="Введите цель вопроса"
                 auto-grow
                 rows="1"
@@ -76,15 +76,15 @@
                 hide-details
                 flat
                 solo
-                v-model="question.purpose_of_question.value"
-                @focus="onFocus(question.purpose_of_question)"
-                @focusout="outFocus(question.purpose_of_question)"
+                v-model="getNewQuestion.purpose_of_question.value"
+                @focus="onFocus(getNewQuestion.purpose_of_question)"
+                @focusout="outFocus(getNewQuestion.purpose_of_question)"
             ></v-textarea>
           </div>
         </div>
         <div class="question_main">
           <div class="question_main_selector">
-          <span class="question_main_selector__title" :class="{focused: question.id_type_answer.focused}">
+          <span class="question_main_selector__title" :class="{focused: getNewQuestion.id_type_answer.focused}">
             Тип ответа
           </span>
             <v-autocomplete
@@ -92,24 +92,25 @@
                 dense
                 hide-details
                 placeholder="Выберите тип"
-                :items="$store.state.listTypesOfQuestions"
+                :items="getListTypesOfQuestions"
                 item-text="name"
                 item-value="id"
-                v-model="question.id_type_answer.value"
+                v-model="getNewQuestion.id_type_answer.value"
                 @change="onSelect()"
-                @focus="onFocus(question.id_type_answer)"
-                @focusout="outFocus(question.id_type_answer)"
+                @focus="onFocus(getNewQuestion.id_type_answer)"
+                @focusout="outFocus(getNewQuestion.id_type_answer)"
             ></v-autocomplete>
           </div>
-          <div class="question_main_wrapper" v-if="question.id_type_answer.value !== null">
+          <div class="question_main_wrapper" v-if="getNewQuestion.id_type_answer.value !== null">
             <transition-group name="list">
               <div
                   class="question_main_wrapper__item"
-                  v-for="answer in question.value_type_answer"
+                  v-for="answer in getNewQuestion.value_type_answer"
                   :key="answer.id"
               >
                 <v-text-field
                     class="question_main_wrapper__item__value"
+                    :class="{inputFocused: answer.focused}"
                     placeholder="Введите значение"
                     auto-grow
                     rows="1"
@@ -120,13 +121,14 @@
                     :append-icon="answer.showComentary ? 'mdi-menu-right' : 'mdi-menu-down'"
                     @click:append="answer.showComentary = !answer.showComentary"
                     v-model="answer.answer"
-                    @focus="onFocus(question.id_type_answer)"
-                    @focusout="outFocus(question.id_type_answer)"
+                    @focus="onFocus(getNewQuestion.id_type_answer, answer.id);"
+                    @focusout="outFocus(getNewQuestion.id_type_answer, answer.id)"
                 >
                 </v-text-field>
                 <div class="divider" v-if="answer.showComentary"></div>
                 <v-textarea
                     class="question_main_wrapper__item__description"
+                    :class="{inputFocused: answer.focused}"
                     placeholder="Введите примечание"
                     auto-grow
                     rows="1"
@@ -136,8 +138,8 @@
                     solo
                     v-model="answer.commentary"
                     v-if="answer.showComentary"
-                    @focus="onFocus(question.id_type_answer)"
-                    @focusout="outFocus(question.id_type_answer)"
+                    @focus="onFocus(getNewQuestion.id_type_answer, answer.id)"
+                    @focusout="outFocus(getNewQuestion.id_type_answer, answer.id)"
                 ></v-textarea>
               </div>
             </transition-group>
@@ -148,40 +150,17 @@
               hide-details
               class="question_settings__checkbox"
               label="Допускается развернутый ответ"
-              v-model="question.state_detailed_response"
+              v-model="getNewQuestion.state_detailed_response"
           ></v-checkbox>
           <v-checkbox
               hide-details
               class="question_settings__checkbox"
               label="Наличие вложения в ответе"
-              v-model="question.state_attachment_response"
+              v-model="getNewQuestion.state_attachment_response"
           ></v-checkbox>
         </div>
-        <div class="question_tags">
-          <span class="question_tags__title">
-            Разделы
-          </span>
-          <div class="question_tags__wrapper" v-if="question.tags.length">
-            <v-chip
-                class="question_tags__wrapper__chip"
-                v-for="item in question.tags"
-                :key="item.id"
-            >
-              <v-icon left @click="removeTag(item)">
-                mdi-close
-              </v-icon>
-              {{ item.name }}
-            </v-chip>
-          </div>
-          <div class="question_tags__bottom">
-            <v-chip color="green lighten-1" text-color="white" @click="addTag()">
-              <v-icon left color="white">
-                mdi-plus
-              </v-icon>
-              Новый тег
-            </v-chip>
-          </div>
-        </div>
+        <!-- Tags Component -->
+        <question-tags/>
       </div>
       <div class="question_footer">
         <v-btn
@@ -198,143 +177,92 @@
         </v-btn>
       </div>
     </v-form>
-    <v-dialog
-        v-model="showCreateTag"
-        max-width="600"
-    >
-      <v-card>
-        <v-card-title>
-          <span class="text-h6" style="text-align: center; width: 100%">Добавить тэг к вопросу</span>
-        </v-card-title>
-        <v-card-text>
-          <v-combobox
-              v-model="newTag"
-              :items="$store.state.listGeneralTags"
-              item-text="name"
-          >
-          </v-combobox>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn
-              color="blue darken-1"
-              text
-          >
-            Отмена
-          </v-btn>
-          <v-spacer></v-spacer>
-          <v-btn
-              color="blue darken-1"
-              text
-          >
-            Добавить
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+
+    <!--  MODALS  -->
   </div>
 </template>
 
 <script>
+import {mapGetters} from 'vuex'
+
+import QuestionTags from "./QuestionTags";
+
 export default {
   name: "CreateQuestion",
+  components: {QuestionTags},
   data: () => ({
-    question: {
-      name: {
-        value: '',
-        focused: false,
-      },
-      title: {
-        value: '',
-        focused: false,
-      },
-      article: {
-        value: '',
-        focused: false,
-      },
-      purpose_of_question: {
-        value: '',
-        focused: false,
-      },
-      id_type_answer: {
-        value: null,
-        focused: false
-      },
-      state_detailed_response: 0,
-      state_attachment_response: 0,
-      value_type_answer: null,
-      tags: [
-        {
-          id: 1,
-          name: 'Эстетические предпочтения'
-        },
-        {
-          id: 2,
-          name: 'Выявление платежеспособности'
-        },
-        {
-          id: 3,
-          name: 'Котельная'
-        },
-      ],
-    },
-    id: 1,
-    showCreateTag: false,
-    newTag: '',
+    lastIdAnswer: 1,
   }),
   mounted() {
     this.getTypes()
   },
   watch: {
-    'question.value_type_answer': {
+    '$store.state.QuestionsModule.newQuestion.value_type_answer': {
       // eslint-disable-next-line no-unused-vars
       handler(oldValue, newValue) {
-        if (Array.isArray(this.question.value_type_answer)) {
-          if (this.question.value_type_answer[this.question.value_type_answer.length - 1]?.answer) {
+        if (Array.isArray(this.$store.state.QuestionsModule.newQuestion.value_type_answer)) {
+          if (this.$store.state.QuestionsModule.newQuestion.value_type_answer[this.$store.state.QuestionsModule.newQuestion.value_type_answer.length - 1]?.answer) {
             this.addVariable()
-          } else if (this.question.value_type_answer[this.question.value_type_answer.length - 2]?.answer === '') {
-            this.question.value_type_answer.splice(this.question.value_type_answer.length - 1, 1)
+          } else if (
+              this.$store.state.QuestionsModule.newQuestion.value_type_answer[this.$store.state.QuestionsModule.newQuestion.value_type_answer.length - 2]?.answer === '' &&
+              this.$store.state.QuestionsModule.newQuestion.value_type_answer[this.$store.state.QuestionsModule.newQuestion.value_type_answer.length - 2]?.commentary === ''
+          ) {
+            this.$store.state.QuestionsModule.newQuestion.value_type_answer.splice(this.$store.state.QuestionsModule.newQuestion.value_type_answer.length - 1, 1)
           }
         }
       },
       deep: true
     },
   },
+  computed: {
+    ...mapGetters([
+        'getNewQuestion',
+        'getListTypesOfQuestions'
+    ]),
+  },
   methods: {
     getTypes() {
       this.$store.dispatch('setListTypesQuestions')
     },
     onSelect() {
-      if (this.question.id_type_answer.value === 5) {
-        this.question.value_type_answer = []
-        this.question.value_type_answer.push(new this.answerVariable(this.id))
-      } else this.question.value_type_answer = []
+      if (this.$store.state.QuestionsModule.newQuestion.id_type_answer.value === 5) {
+        this.$store.state.QuestionsModule.newQuestion.value_type_answer = []
+        this.$store.state.QuestionsModule.newQuestion.value_type_answer.push(new this.answerVariable(this.lastIdAnswer))
+      } else this.$store.state.QuestionsModule.newQuestion.value_type_answer = []
     },
     addVariable() {
-      this.id++
-      this.question.value_type_answer.push(new this.answerVariable(this.id))
+      this.lastIdAnswer++
+      this.$store.state.QuestionsModule.newQuestion.value_type_answer.push(new this.answerVariable(this.lastIdAnswer))
     },
-    onFocus(obj) {
+    onFocus(obj, id) {
       obj.focused = true
+      if (id) {
+        console.log(id)
+        let index = this.$store.state.QuestionsModule.newQuestion.value_type_answer.findIndex(elem => {
+          return elem.id === id
+        })
+        if (index !== -1) {
+          this.$store.state.QuestionsModule.newQuestion.value_type_answer[index].focused = true
+          console.log(this.$store.state.QuestionsModule.newQuestion.value_type_answer[index].focused)
+        }
+      }
     },
-    outFocus(obj) {
+    outFocus(obj, id) {
       obj.focused = false
-    },
-    removeTag(item) {
-      let index = this.question.tags.findIndex(elem => {
-        return elem.id === item.id
-      })
-      if (index !== -1) this.question.tags.splice(index, 1)
-    },
-    addTag() {
-      this.showCreateTag = true
-      this.$store.dispatch('getGeneralTags')
+      if (id) {
+        let index = this.$store.state.QuestionsModule.newQuestion.value_type_answer.findIndex(elem => {
+          return elem.id === id
+        })
+        if (index !== -1) this.$store.state.QuestionsModule.newQuestion.value_type_answer[index].focused = false
+      }
     },
     answerVariable(id,) {
       this.id = id
       this.answer = ''
       this.commentary = ''
       this.showComentary = true
-    }
+      this.focused = false
+    },
   }
 }
 </script>
@@ -416,16 +344,11 @@ export default {
           &__description {
             color: lightgray;
             font-size: 13px;
+            transition: all .6s ease-in-out;
 
             ::v-deep textarea {
               line-height: 20px;
               font-weight: 500;
-            }
-          }
-
-          .inputFocused {
-            ::v-deep textarea {
-              color: black !important;
             }
           }
         }
@@ -460,6 +383,10 @@ export default {
 
             &__value {
               font-size: 14px;
+              ::v-deep input {
+                color: darkgray;
+                transition: all .6s ease-in-out;
+              }
             }
 
             ::v-deep .v-text-field.v-text-field--enclosed:not(.v-text-field--rounded) > .v-input__control > .v-input__slot, .v-text-field.v-text-field--enclosed .v-text-field__details {
@@ -474,6 +401,10 @@ export default {
 
             &__description {
               font-size: 14px;
+              ::v-deep textarea {
+                color: darkgray;
+                transition: all .6s ease-in-out;
+              }
             }
           }
         }
@@ -487,27 +418,6 @@ export default {
         ::v-deep .v-input--selection-controls {
           padding: 0 !important;
           margin: 0 !important;
-        }
-      }
-
-      .question_tags {
-        display: flex;
-        flex-direction: column;
-        row-gap: 10px;
-
-        &__title {
-          color: #7e8d9a;
-          font-weight: 600;
-        }
-
-        &__wrapper {
-          &__chip {
-            margin-bottom: 10px;
-          }
-
-          &__chip:last-child {
-            margin-bottom: 0 !important;
-          }
         }
       }
     }
@@ -531,5 +441,13 @@ export default {
 
 .focused {
   color: #f7c325 !important;
+}
+.inputFocused {
+  ::v-deep textarea {
+    color: black !important;
+  }
+  ::v-deep input {
+    color: black !important;
+  }
 }
 </style>
