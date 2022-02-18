@@ -55,6 +55,14 @@ export default {
             state.listGeneralTags = []
             state.listGeneralTags = result
         },
+        set_new_question(state, result) {
+            for (let key in state.newQuestion) {
+                if (Object.keys(result).includes(key)) {
+                    state.newQuestion[key] = result[key]
+                }
+            }
+
+        }
     },
     actions: {
         async setListQuestions({commit}) {
@@ -76,28 +84,28 @@ export default {
                 })
         },
         async getGeneralTags({commit}) {
-            return new Promise((resole) => {
+            return new Promise((resolve) => {
                 this.tagsLoaded = true
                 axios.get(`${this.state.BASE_URL}/dictionary/tags`)
                     .then((response) => {
                         this.tagsLoaded = false
                         commit('set_list_general_tags', response.data)
-                        resole()
+                        resolve()
                     })
                     .catch(() => {
                         this.tagsLoaded = false
-                        resole()
+                        resolve()
                         console.log('test')
                     })
             })
         },
         async setNewTagToList({dispatch, state}, newTag) {
-            return new Promise((resole) => {
+            return new Promise((resolve) => {
                 state.tagsLoaded = true
                 let bodyFormData = new FormData()
                 bodyFormData.append('name', newTag)
                 axios.post(`${this.state.BASE_URL}/dictionary/tags`, bodyFormData)
-                    .then(function (response) {
+                    .then((response) => {
                         //handle success
                         console.log(response);
                         dispatch('getGeneralTags').then(() => {
@@ -105,15 +113,24 @@ export default {
                                 return elem.name === newTag
                             })
                             state.tagsLoaded = false
-                            resole()
+                            resolve()
                         })
                     })
-                    .catch(function (response) {
+                    .catch((response) => {
                         //handle error
                         state.tagsLoaded = false
-                        resole()
+                        resolve()
                         console.log(response.body);
                     });
+            })
+        },
+        async getDetailQuestion({commit}, id) {
+            return new Promise((resolve) => {
+                axios.get(`${this.state.BASE_URL}/entity/questions/${id}`)
+                    .then((response) => {
+                        commit('set_new_question', response.data)
+                        resolve()
+                    })
             })
         },
     },

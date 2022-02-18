@@ -3,7 +3,7 @@ import VueRouter from 'vue-router'
 import Desktop from "../views/Desktop";
 import Companies from "../views/Companies"
 import Questions from "../views/Questions";
-import DetailQuestion from "../components/DetailQuestion";
+import DetailQuestion from "../components/questions/DetailQuestion";
 
 Vue.use(VueRouter)
 
@@ -30,7 +30,7 @@ const routes = [
     },
   },
   {
-    path: '/questions/detail',
+    path: '/questions/:action',
     name: 'DetailQuestion',
     component: DetailQuestion,
     meta: {

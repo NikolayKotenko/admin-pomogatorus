@@ -3,12 +3,12 @@
     <div class="questions_wrapper">
       <div
           class="questions_wrapper__item"
-          v-for="(question, index) in $store.state.listQuestions"
+          v-for="(question, index) in $store.state.QuestionsModule.listQuestions"
           :key="index"
       >
         <div class="questions_wrapper__item__top" :class="{filterShow: show_filter}">
           <div class="questions_wrapper__item__top__title" :class="{filterShow: show_filter}">
-            <span>
+            <span @click="onShowDetailQuestion(question)">
               {{question.name}}
             </span>
             <span class="questions_wrapper__item__top__title__quantity">
@@ -157,6 +157,13 @@ export default {
   methods: {
     getQuestions() {
       this.$store.dispatch('setListQuestions')
+    },
+    onShowDetailQuestion(question) {
+      this.$router.push({
+        name: 'DetailQuestion',
+        params: {action: 'edit'},
+        query: {id_question: question.id}
+      })
     }
   },
 }

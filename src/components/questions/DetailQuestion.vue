@@ -172,6 +172,7 @@
         <v-btn
             color="blue darken-1"
             text
+            v-if="$route.params.action === 'create'"
         >
           Создать
         </v-btn>
@@ -194,6 +195,7 @@ export default {
     lastIdAnswer: 1,
   }),
   mounted() {
+    this.initializeQuery()
     this.getTypes()
   },
   watch: {
@@ -221,6 +223,11 @@ export default {
     ]),
   },
   methods: {
+    initializeQuery() {
+      if (Object.keys(this.$route.query).length && Object.keys(this.$route.query).includes('id_question')) {
+        this.$store.dispatch('getDetailQuestion', this.$route.query.id_question)
+      }
+    },
     getTypes() {
       this.$store.dispatch('setListTypesQuestions')
     },

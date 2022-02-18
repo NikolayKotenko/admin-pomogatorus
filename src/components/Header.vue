@@ -142,7 +142,8 @@ export default {
   methods: {
     onCreate() {
       this.$router.push({
-        path: 'questions/detail',
+        name: 'DetailQuestion',
+        params: {action: 'create'},
       })
     }
   },
