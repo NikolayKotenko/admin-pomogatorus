@@ -3,6 +3,7 @@
     <v-form
         class="form"
         ref="form"
+        @submit.prevent="onSubmit"
     >
       <div class="question_content">
         <div class="question_title">
@@ -179,6 +180,7 @@
           <v-btn
               color="blue darken-1"
               text
+              type="submit"
           >
             Создать
           </v-btn>
@@ -221,6 +223,7 @@
 </template>
 
 <script>
+import {required} from 'vuelidate/lib/validators'
 import {mapGetters} from 'vuex'
 
 import QuestionTags from "./QuestionTags";
@@ -257,6 +260,14 @@ export default {
       tags: [],
     },
   }),
+  validations: {
+    newQuestion: {
+      name: {
+        value: {required}
+      }
+    },
+    validationGroup: ['newQuestion.name.value']
+  },
   mounted() {
     this.initializeQuery()
     this.getTypes()
@@ -336,10 +347,12 @@ export default {
       this.showComentary = true
       this.focused = false
     },
-    validate () {
-      this.$refs.form.validate()
-      console.log(this.valid)
-    },
+    onSubmit() {
+      if (this.$v.$invalid) {
+        this.$v.$touch();
+        return;
+      }
+    }
   },
   beforeDestroy() {
     this.$store.state.QuestionsModule.newQuestion._all_tags = []
