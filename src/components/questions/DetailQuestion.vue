@@ -11,26 +11,26 @@
               dense
               hide-details
               placeholder="Введите наименование"
-              required
-              v-model="getNewQuestion.name.value"
+              v-model="newQuestion.name.value"
               solo
               flat
-              @focus="onFocus(getNewQuestion.name)"
-              @focusout="outFocus(getNewQuestion.name)"
+              @focus="onFocus(newQuestion.name)"
+              @focusout="outFocus(newQuestion.name)"
+              :loading="$store.state.QuestionsModule.loadingQuestion"
           >
             <template slot="append">
-              <v-icon size="20" class="question_title__name__icon" :color="getNewQuestion.name.focused ? 'primary' : ''">
+              <v-icon size="20" class="question_title__name__icon" :color="newQuestion.name.focused ? 'primary' : ''">
                 mdi-lead-pencil
               </v-icon>
             </template>
           </v-text-field>
           <div class="question_title_help">
-        <span class="question_title_help__title" :class="{focused: getNewQuestion.title.focused}">
+        <span class="question_title_help__title" :class="{focused: newQuestion.title.focused}">
           Подсказка
         </span>
             <v-textarea
                 class="question_title_help__description"
-                :class="{inputFocused: getNewQuestion.title.focused}"
+                :class="{inputFocused: newQuestion.title.focused}"
                 placeholder="Введите подсказку для вопроса"
                 auto-grow
                 rows="1"
@@ -38,18 +38,19 @@
                 hide-details
                 flat
                 solo
-                v-model="getNewQuestion.title.value"
-                @focus="onFocus(getNewQuestion.title)"
-                @focusout="outFocus(getNewQuestion.title)"
+                v-model="newQuestion.title.value"
+                @focus="onFocus(newQuestion.title)"
+                @focusout="outFocus(newQuestion.title)"
+                :loading="$store.state.QuestionsModule.loadingQuestion"
             ></v-textarea>
           </div>
           <div class="question_title_help">
-        <span class="question_title_help__title" :class="{focused: getNewQuestion.article.focused}">
+        <span class="question_title_help__title" :class="{focused: newQuestion.article.focused}">
           Разъясняющий текст
         </span>
             <v-textarea
                 class="question_title_help__description"
-                :class="{inputFocused: getNewQuestion.article.focused}"
+                :class="{inputFocused: newQuestion.article.focused}"
                 placeholder="Введите разъясняющий текст"
                 auto-grow
                 rows="1"
@@ -57,18 +58,19 @@
                 hide-details
                 flat
                 solo
-                v-model="getNewQuestion.article.value"
-                @focus="onFocus(getNewQuestion.article)"
-                @focusout="outFocus(getNewQuestion.article)"
+                v-model="newQuestion.article.value"
+                @focus="onFocus(newQuestion.article)"
+                @focusout="outFocus(newQuestion.article)"
+                :loading="$store.state.QuestionsModule.loadingQuestion"
             ></v-textarea>
           </div>
           <div class="question_title_help">
-        <span class="question_title_help__title" :class="{focused: getNewQuestion.purpose_of_question.focused}">
+        <span class="question_title_help__title" :class="{focused: newQuestion.purpose_of_question.focused}">
           Цель вопроса
         </span>
             <v-textarea
                 class="question_title_help__description"
-                :class="{inputFocused: getNewQuestion.purpose_of_question.focused}"
+                :class="{inputFocused: newQuestion.purpose_of_question.focused}"
                 placeholder="Введите цель вопроса"
                 auto-grow
                 rows="1"
@@ -76,15 +78,16 @@
                 hide-details
                 flat
                 solo
-                v-model="getNewQuestion.purpose_of_question.value"
-                @focus="onFocus(getNewQuestion.purpose_of_question)"
-                @focusout="outFocus(getNewQuestion.purpose_of_question)"
+                v-model="newQuestion.purpose_of_question.value"
+                @focus="onFocus(newQuestion.purpose_of_question)"
+                @focusout="outFocus(newQuestion.purpose_of_question)"
+                :loading="$store.state.QuestionsModule.loadingQuestion"
             ></v-textarea>
           </div>
         </div>
         <div class="question_main">
           <div class="question_main_selector">
-          <span class="question_main_selector__title" :class="{focused: getNewQuestion.id_type_answer.focused}">
+          <span class="question_main_selector__title" :class="{focused: newQuestion.id_type_answer.focused}">
             Тип ответа
           </span>
             <v-autocomplete
@@ -95,17 +98,18 @@
                 :items="getListTypesOfQuestions"
                 item-text="name"
                 item-value="id"
-                v-model="getNewQuestion.id_type_answer.value"
+                v-model="newQuestion.id_type_answer.value"
                 @change="onSelect()"
-                @focus="onFocus(getNewQuestion.id_type_answer)"
-                @focusout="outFocus(getNewQuestion.id_type_answer)"
+                @focus="onFocus(newQuestion.id_type_answer)"
+                @focusout="outFocus(newQuestion.id_type_answer)"
+                :loading="$store.state.QuestionsModule.loadingQuestion"
             ></v-autocomplete>
           </div>
-          <div class="question_main_wrapper" v-if="getNewQuestion.id_type_answer.value !== null">
+          <div class="question_main_wrapper" v-if="newQuestion.id_type_answer.value !== null">
             <transition-group name="list">
               <div
                   class="question_main_wrapper__item"
-                  v-for="answer in getNewQuestion.value_type_answer"
+                  v-for="answer in newQuestion.value_type_answer"
                   :key="answer.id"
               >
                 <v-text-field
@@ -121,8 +125,8 @@
                     :append-icon="answer.showComentary ? 'mdi-menu-right' : 'mdi-menu-down'"
                     @click:append="answer.showComentary = !answer.showComentary"
                     v-model="answer.answer"
-                    @focus="onFocus(getNewQuestion.id_type_answer, answer.id);"
-                    @focusout="outFocus(getNewQuestion.id_type_answer, answer.id)"
+                    @focus="onFocus(newQuestion.id_type_answer, answer.id);"
+                    @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
                 >
                 </v-text-field>
                 <div class="divider" v-if="answer.showComentary"></div>
@@ -138,8 +142,8 @@
                     solo
                     v-model="answer.commentary"
                     v-if="answer.showComentary"
-                    @focus="onFocus(getNewQuestion.id_type_answer, answer.id)"
-                    @focusout="outFocus(getNewQuestion.id_type_answer, answer.id)"
+                    @focus="onFocus(newQuestion.id_type_answer, answer.id)"
+                    @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
                 ></v-textarea>
               </div>
             </transition-group>
@@ -150,33 +154,66 @@
               hide-details
               class="question_settings__checkbox"
               label="Допускается развернутый ответ"
-              v-model="getNewQuestion.state_detailed_response"
+              v-model="newQuestion.state_detailed_response"
+              :loading="$store.state.QuestionsModule.loadingQuestion"
           ></v-checkbox>
           <v-checkbox
               hide-details
               class="question_settings__checkbox"
               label="Наличие вложения в ответе"
-              v-model="getNewQuestion.state_attachment_response"
+              v-model="newQuestion.state_attachment_response"
+              :loading="$store.state.QuestionsModule.loadingQuestion"
           ></v-checkbox>
         </div>
         <!-- Tags Component -->
         <question-tags/>
       </div>
       <div class="question_footer">
-        <v-btn
-            color="red darken-1"
-            text
-        >
-          Очистить
-        </v-btn>
-        <v-btn
-            color="blue darken-1"
-            text
-            v-if="$route.params.action === 'create'"
-        >
-          Создать
-        </v-btn>
+        <template v-if="$route.params.action === 'create'">
+          <v-btn
+              color="red darken-1"
+              text
+          >
+            Очистить
+          </v-btn>
+          <v-btn
+              color="blue darken-1"
+              text
+          >
+            Создать
+          </v-btn>
+        </template>
+        <template v-else>
+          <v-btn
+              color="red darken-1"
+              text
+          >
+            Удалить
+          </v-btn>
+          <v-btn
+              color="blue darken-1"
+              text
+          >
+            Сохранить изменения
+          </v-btn>
+        </template>
       </div>
+
+      <!-- LOADER -->
+      <v-overlay
+          :z-index="2"
+          :absolute="true"
+          :value="$store.state.QuestionsModule.loadingQuestion"
+      >
+        <v-progress-circular
+            style="margin: auto"
+            width="4"
+            :size="70"
+            color="blue"
+            :indeterminate="true"
+            v-if="$store.state.QuestionsModule.loadingQuestion"
+        ></v-progress-circular>
+      </v-overlay>
     </v-form>
 
     <!--  MODALS  -->
@@ -193,23 +230,49 @@ export default {
   components: {QuestionTags},
   data: () => ({
     lastIdAnswer: 1,
+    newQuestion: {
+      name: {
+        value: '',
+        focused: false,
+      },
+      title: {
+        value: '',
+        focused: false,
+      },
+      article: {
+        value: '',
+        focused: false,
+      },
+      purpose_of_question: {
+        value: '',
+        focused: false,
+      },
+      id_type_answer: {
+        value: null,
+        focused: false
+      },
+      state_detailed_response: 0,
+      state_attachment_response: 0,
+      value_type_answer: null,
+      tags: [],
+    },
   }),
   mounted() {
     this.initializeQuery()
     this.getTypes()
   },
   watch: {
-    '$store.state.QuestionsModule.newQuestion.value_type_answer': {
+    'newQuestion.value_type_answer': {
       // eslint-disable-next-line no-unused-vars
       handler(oldValue, newValue) {
-        if (Array.isArray(this.$store.state.QuestionsModule.newQuestion.value_type_answer)) {
-          if (this.$store.state.QuestionsModule.newQuestion.value_type_answer[this.$store.state.QuestionsModule.newQuestion.value_type_answer.length - 1]?.answer) {
+        if (Array.isArray(this.newQuestion.value_type_answer)) {
+          if (this.newQuestion.value_type_answer[this.newQuestion.value_type_answer.length - 1]?.answer) {
             this.addVariable()
           } else if (
-              this.$store.state.QuestionsModule.newQuestion.value_type_answer[this.$store.state.QuestionsModule.newQuestion.value_type_answer.length - 2]?.answer === '' &&
-              this.$store.state.QuestionsModule.newQuestion.value_type_answer[this.$store.state.QuestionsModule.newQuestion.value_type_answer.length - 2]?.commentary === ''
+              this.newQuestion.value_type_answer[this.newQuestion.value_type_answer.length - 2]?.answer === '' &&
+              this.newQuestion.value_type_answer[this.newQuestion.value_type_answer.length - 2]?.commentary === ''
           ) {
-            this.$store.state.QuestionsModule.newQuestion.value_type_answer.splice(this.$store.state.QuestionsModule.newQuestion.value_type_answer.length - 1, 1)
+            this.newQuestion.value_type_answer.splice(this.newQuestion.value_type_answer.length - 1, 1)
           }
         }
       },
@@ -218,49 +281,52 @@ export default {
   },
   computed: {
     ...mapGetters([
-        'getNewQuestion',
         'getListTypesOfQuestions'
     ]),
   },
   methods: {
     initializeQuery() {
       if (Object.keys(this.$route.query).length && Object.keys(this.$route.query).includes('id_question')) {
-        this.$store.dispatch('getDetailQuestion', this.$route.query.id_question)
+        this.$store.dispatch('getDetailQuestion', this.$route.query.id_question).then(() => {
+          if (this.$store.state.QuestionsModule.newQuestion.name) {
+            this.newQuestion = this.$store.state.QuestionsModule.newQuestion
+          }
+        })
       }
     },
     getTypes() {
       this.$store.dispatch('setListTypesQuestions')
     },
     onSelect() {
-      if (this.$store.state.QuestionsModule.newQuestion.id_type_answer.value === 5) {
-        this.$store.state.QuestionsModule.newQuestion.value_type_answer = []
-        this.$store.state.QuestionsModule.newQuestion.value_type_answer.push(new this.answerVariable(this.lastIdAnswer))
-      } else this.$store.state.QuestionsModule.newQuestion.value_type_answer = []
+      if (this.newQuestion.id_type_answer.value === 5) {
+        this.newQuestion.value_type_answer = []
+        this.newQuestion.value_type_answer.push(new this.answerVariable(this.lastIdAnswer))
+      } else this.newQuestion.value_type_answer = []
     },
     addVariable() {
       this.lastIdAnswer++
-      this.$store.state.QuestionsModule.newQuestion.value_type_answer.push(new this.answerVariable(this.lastIdAnswer))
+      this.newQuestion.value_type_answer.push(new this.answerVariable(this.lastIdAnswer))
     },
     onFocus(obj, id) {
       obj.focused = true
       if (id) {
         console.log(id)
-        let index = this.$store.state.QuestionsModule.newQuestion.value_type_answer.findIndex(elem => {
+        let index = this.newQuestion.value_type_answer.findIndex(elem => {
           return elem.id === id
         })
         if (index !== -1) {
-          this.$store.state.QuestionsModule.newQuestion.value_type_answer[index].focused = true
-          console.log(this.$store.state.QuestionsModule.newQuestion.value_type_answer[index].focused)
+          this.newQuestion.value_type_answer[index].focused = true
+          console.log(this.newQuestion.value_type_answer[index].focused)
         }
       }
     },
     outFocus(obj, id) {
       obj.focused = false
       if (id) {
-        let index = this.$store.state.QuestionsModule.newQuestion.value_type_answer.findIndex(elem => {
+        let index = this.newQuestion.value_type_answer.findIndex(elem => {
           return elem.id === id
         })
-        if (index !== -1) this.$store.state.QuestionsModule.newQuestion.value_type_answer[index].focused = false
+        if (index !== -1) this.newQuestion.value_type_answer[index].focused = false
       }
     },
     answerVariable(id,) {
@@ -270,6 +336,14 @@ export default {
       this.showComentary = true
       this.focused = false
     },
+    validate () {
+      this.$refs.form.validate()
+      console.log(this.valid)
+    },
+  },
+  beforeDestroy() {
+    this.$store.state.QuestionsModule.newQuestion._all_tags = []
+    this.$store.commit('reset_questions_tags')
   }
 }
 </script>

@@ -1,12 +1,17 @@
 import axios from "axios";
 
+/* DEFAULT STATE */
+
+/* CONSTRUCTORS */
+
 export default {
     state: {
+        /* LIST QUESTIONS */
         listQuestions: [],
         listTypesOfQuestions: [],
-        listGeneralTags: [],
-        tagsLoaded: false,
-        createdTag: {},
+
+        /* DETAIL QUESTION */
+        loadingQuestion: false,
         newQuestion: {
             name: {
                 value: '',
@@ -31,8 +36,13 @@ export default {
             state_detailed_response: 0,
             state_attachment_response: 0,
             value_type_answer: null,
-            tags: [],
+            _all_tags: [],
         },
+
+        /* TAGS */
+        listGeneralTags: [],
+        tagsLoaded: false,
+        createdTag: {},
         showCreateTag: false,
         newTag: '',
         tagSearch: null,
@@ -55,20 +65,44 @@ export default {
             state.listGeneralTags = []
             state.listGeneralTags = result
         },
+        reset_questions_tags(state) {
+            state.tagsLoaded = false
+            state.createdTag = {}
+            state.showCreateTag = false
+            state.newTag = ''
+            state.tagSearch = null
+            state.tagError = {
+                isError: false,
+                errObj: {
+                    name: '',
+                },
+            }
+            state.showAddTag = false
+        },
         set_new_question(state, result) {
-            for (let key in state.newQuestion) {
-                if (Object.keys(result).includes(key)) {
+            for (let key in result) {
+                if (
+                    (key === 'name') ||
+                    (key === 'title') ||
+                    (key === 'article') ||
+                    (key === 'purpose_of_question') ||
+                    (key === 'id_type_answer')
+                ) {
+                    state.newQuestion[key] =  {
+                        value: result[key],
+                        focused: false
+                    }
+                } else {
                     state.newQuestion[key] = result[key]
                 }
             }
-
         }
     },
     actions: {
         async setListQuestions({commit}) {
             axios.get(`${this.state.BASE_URL}/entity/questions`)
                 .then((response) => {
-                    commit('set_list_questions', response.data)
+                    commit('set_list_questions', response.data.data)
                 })
                 .catch(() => {
                     console.log('test')
@@ -83,17 +117,17 @@ export default {
                     console.log('test')
                 })
         },
-        async getGeneralTags({commit}) {
+        async getGeneralTags({commit, state}) {
             return new Promise((resolve) => {
-                this.tagsLoaded = true
+                state.tagsLoaded = true
                 axios.get(`${this.state.BASE_URL}/dictionary/tags`)
                     .then((response) => {
-                        this.tagsLoaded = false
+                        state.tagsLoaded = false
                         commit('set_list_general_tags', response.data)
                         resolve()
                     })
                     .catch(() => {
-                        this.tagsLoaded = false
+                        state.tagsLoaded = false
                         resolve()
                         console.log('test')
                     })
@@ -124,25 +158,31 @@ export default {
                     });
             })
         },
-        async getDetailQuestion({commit}, id) {
+        async getDetailQuestion({commit, state}, id) {
+            state.loadingQuestion = true
             return new Promise((resolve) => {
                 axios.get(`${this.state.BASE_URL}/entity/questions/${id}`)
                     .then((response) => {
                         commit('set_new_question', response.data)
+                        state.loadingQuestion = false
                         resolve()
+                    })
+                    .catch((response) => {
+                        //handle error
+                        state.loadingQuestion = false
+                        resolve()
+                        console.log(response.body);
                     })
             })
         },
     },
     getters: {
-        getNewQuestion(state) {
-            return state.newQuestion
-        },
         getListTypesOfQuestions(state) {
             return state.listTypesOfQuestions
         },
+        // FIXME: tag
         getTags(state) {
-            return state.newQuestion.tags
+            return state.newQuestion._all_tags
         }
     },
 }

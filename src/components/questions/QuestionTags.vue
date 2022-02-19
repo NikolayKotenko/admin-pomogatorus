@@ -48,6 +48,7 @@
               :error="$store.state.QuestionsModule.tagError.isError"
               :error-messages="$store.state.QuestionsModule.tagError.isError ? 'Такой тэг уже добавлен' : []"
               @change="checkForTagError()"
+              @update:search-input="checkForTagError()"
           >
           </v-combobox>
         </v-card-text>
@@ -64,7 +65,7 @@
               color="blue darken-1"
               text
               @click="createNewTag()"
-              :disabled="($store.state.QuestionsModule.tagError.errObj.name === $store.state.QuestionsModule.tagSearch) || !$store.state.QuestionsModule.tagSearch"
+              :disabled="$store.state.QuestionsModule.tagError.isError || !$store.state.QuestionsModule.tagSearch"
           >
             Добавить
           </v-btn>
@@ -98,7 +99,7 @@ export default {
         return elem.name.replace(/\s/g, '').toLowerCase() === this.$store.state.QuestionsModule.tagSearch.replace(/\s/g, '').toLowerCase()
       })) {
         this.$store.dispatch('setNewTagToList', this.$store.state.QuestionsModule.tagSearch).then(() => {
-          this.$store.state.QuestionsModule.newQuestion.tags.push(Object.assign({}, this.$store.state.QuestionsModule.createdTag))
+          this.$store.state.QuestionsModule.newQuestion._all_tags.push(Object.assign({}, this.$store.state.QuestionsModule.createdTag))
           this.$store.state.QuestionsModule.createdTag = {}
           this.$store.state.QuestionsModule.showCreateTag = false
           this.$store.state.QuestionsModule.newTag = ''
@@ -108,12 +109,12 @@ export default {
           return elem.name === this.$store.state.QuestionsModule.tagSearch
         })
         if (index !== -1) this.$store.state.QuestionsModule.newTag = this.$store.state.QuestionsModule.listGeneralTags[index]
-        if (this.$store.state.QuestionsModule.newQuestion.tags.some (elem => {
+        if (this.$store.state.QuestionsModule.newQuestion._all_tags.some (elem => {
           return elem.name.replace(/\s/g, '').toLowerCase() === this.$store.state.QuestionsModule.newTag.name.replace(/\s/g, '').toLowerCase()
         })) {
           this.$store.state.QuestionsModule.tagError = Object.assign({}, {'isError': true, 'errObj': this.$store.state.QuestionsModule.newTag})
         } else {
-          this.$store.state.QuestionsModule.newQuestion.tags.push(this.$store.state.QuestionsModule.newTag)
+          this.$store.state.QuestionsModule.newQuestion._all_tags.push(this.$store.state.QuestionsModule.newTag)
           this.$store.state.QuestionsModule.tagError = Object.assign({}, {'isError': false, 'errObj': {}})
           this.$store.state.QuestionsModule.newTag = ''
           this.$store.state.QuestionsModule.showCreateTag = false
@@ -121,16 +122,22 @@ export default {
       }
     },
     removeTag(item) {
-      let index = this.$store.state.QuestionsModule.newQuestion.tags.findIndex(elem => {
+      let index = this.$store.state.QuestionsModule.newQuestion._all_tags.findIndex(elem => {
         return elem.id === item.id
       })
-      if (index !== -1) this.$store.state.QuestionsModule.newQuestion.tags.splice(index, 1)
+      if (index !== -1) this.$store.state.QuestionsModule.newQuestion._all_tags.splice(index, 1)
     },
     checkForTagError() {
       setTimeout(() => {
         console.log('changed')
         if (Object.keys(this.$store.state.QuestionsModule.tagError.errObj).length) {
-          this.$store.state.QuestionsModule.tagError.isError = this.$store.state.QuestionsModule.tagSearch === this.$store.state.QuestionsModule.tagError.errObj.name;
+          if (this.$store.state.QuestionsModule.tagSearch) {
+            this.$store.state.QuestionsModule.tagError.isError = (
+                this.$store.state.QuestionsModule.tagSearch.replace(/\s/g, '').toLowerCase() ===
+                this.$store.state.QuestionsModule.tagError.errObj.name.replace(/\s/g, '').toLowerCase()
+            );
+          } else this.$store.state.QuestionsModule.tagError.isError = false
+
         }
       })
     },
