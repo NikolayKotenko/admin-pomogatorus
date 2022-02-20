@@ -98,7 +98,7 @@
             <span class="question_main_selector__title" :class="{focused: newQuestion.id_type_answer.focused}">
               Тип ответа
             </span>
-            <v-autocomplete
+            <v-select
                 outlined
                 dense
                 hide-details
@@ -112,7 +112,7 @@
                 @focusout="outFocus(newQuestion.id_type_answer)"
                 :loading="$store.state.QuestionsModule.loadingQuestion"
                 :class="{invalidSelector: !newQuestion.id_type_answer.value && $v.newQuestion.id_type_answer.$dirty && !$v.newQuestion.id_type_answer.required}"
-            ></v-autocomplete>
+            ></v-select>
             <small
                 v-if="!newQuestion.id_type_answer.value && $v.newQuestion.id_type_answer.$dirty && !$v.newQuestion.id_type_answer.required"
                 style="color: lightcoral"
@@ -121,47 +121,62 @@
             </small>
           </div>
           <div class="question_main_wrapper" v-if="newQuestion.id_type_answer.value !== null">
-            <transition-group name="list">
-              <div
-                  class="question_main_wrapper__item"
-                  v-for="answer in newQuestion.value_type_answer"
-                  :key="answer.id"
-              >
-                <v-text-field
-                    class="question_main_wrapper__item__value"
-                    :class="{inputFocused: answer.focused}"
-                    placeholder="Введите значение"
-                    auto-grow
-                    rows="1"
-                    dense
-                    hide-details
-                    flat
-                    solo
-                    :append-icon="answer.showComentary ? 'mdi-menu-right' : 'mdi-menu-down'"
-                    @click:append="answer.showComentary = !answer.showComentary"
-                    v-model="answer.answer"
-                    @focus="onFocus(newQuestion.id_type_answer, answer.id);"
-                    @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
+            <template v-if="newQuestion.id_type_answer.value === 5">
+              <transition-group name="list">
+                <div
+                    class="question_main_wrapper__item"
+                    v-for="answer in newQuestion.value_type_answer"
+                    :key="answer.id"
                 >
-                </v-text-field>
-                <div class="divider" v-if="answer.showComentary"></div>
-                <v-textarea
-                    class="question_main_wrapper__item__description"
-                    :class="{inputFocused: answer.focused}"
-                    placeholder="Введите примечание"
-                    auto-grow
-                    rows="1"
-                    dense
-                    hide-details
-                    flat
-                    solo
-                    v-model="answer.commentary"
-                    v-if="answer.showComentary"
-                    @focus="onFocus(newQuestion.id_type_answer, answer.id)"
-                    @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
-                ></v-textarea>
-              </div>
-            </transition-group>
+                  <v-text-field
+                      class="question_main_wrapper__item__value"
+                      :class="{inputFocused: answer.focused}"
+                      placeholder="Введите значение"
+                      auto-grow
+                      rows="1"
+                      dense
+                      hide-details
+                      flat
+                      solo
+                      :append-icon="answer.showComentary ? 'mdi-menu-right' : 'mdi-menu-down'"
+                      @click:append="answer.showComentary = !answer.showComentary"
+                      v-model="answer.answer"
+                      @focus="onFocus(newQuestion.id_type_answer, answer.id);"
+                      @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
+                  >
+                  </v-text-field>
+                  <div class="divider" v-if="answer.showComentary"></div>
+                  <v-textarea
+                      class="question_main_wrapper__item__description"
+                      :class="{inputFocused: answer.focused}"
+                      placeholder="Введите примечание"
+                      auto-grow
+                      rows="1"
+                      dense
+                      hide-details
+                      flat
+                      solo
+                      v-model="answer.commentary"
+                      v-if="answer.showComentary"
+                      @focus="onFocus(newQuestion.id_type_answer, answer.id)"
+                      @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
+                  ></v-textarea>
+                </div>
+              </transition-group>
+            </template>
+            <template v-if="newQuestion.id_type_answer.value === 1">
+              <v-text-field
+                  :class="{inputFocused: newQuestion.value_type_answer.focused}"
+                  placeholder="Введите значение"
+                  dense
+                  hide-details
+                  flat
+                  solo
+                  v-model="newQuestion.value_type_answer"
+                  @focus="onFocus(newQuestion.id_type_answer)"
+                  @focusout="outFocus(newQuestion.id_type_answer,)"
+              ></v-text-field>
+            </template>
           </div>
         </div>
         <div class="question_settings">
@@ -476,6 +491,10 @@ export default {
           display: flex;
           flex-direction: column;
           row-gap: 5px;
+
+          ::v-deep .v-input {
+            font-size: 13px !important;
+          }
 
           ::v-deep .v-text-field input {
             font-size: 14px !important;
