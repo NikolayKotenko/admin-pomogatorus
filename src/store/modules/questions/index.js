@@ -12,6 +12,7 @@ export default {
 
         /* DETAIL QUESTION */
         loadingQuestion: false,
+        loadingRequest: false,
         newQuestion: {
             name: {
                 value: '',
@@ -123,7 +124,7 @@ export default {
                 axios.get(`${this.state.BASE_URL}/dictionary/tags`)
                     .then((response) => {
                         state.tagsLoaded = false
-                        commit('set_list_general_tags', response.data)
+                        commit('set_list_general_tags', response.data.data)
                         resolve()
                     })
                     .catch(() => {
@@ -173,6 +174,48 @@ export default {
                         resolve()
                         console.log(response.body);
                     })
+            })
+        },
+        async concateAllData({state}, data) {
+            state.loadingRequest = true
+            return new Promise((resolve) => {
+                let bodyFormData = new FormData()
+                for (let key in data) {
+                    if (key === 'value_type_answer') {
+                        let arr = []
+                        let obj = {}
+                        data[key].map(elem => {
+                            if (elem.answer) {
+                                obj.id = elem.id
+                                obj.answer = elem.answer
+                                obj.commentary = elem.commentary
+                                arr.push(obj)
+                                obj = {}
+                            }
+                        })
+                        bodyFormData.append(key, JSON.stringify(arr))
+                    } else {
+                        if (typeof data[key] === 'object') {
+                            if (data[key].value) {
+                                bodyFormData.append(key, data[key].value)
+                            }
+                        } else bodyFormData.append(key, data[key])
+                    }
+                }
+                bodyFormData.append('name_param_env', '')
+                axios.post(`${this.state.BASE_URL}/entity/questions`, bodyFormData)
+                    .then((response) => {
+                        //handle success
+                        state.loadingRequest = false
+                        resolve()
+                        console.log(response);
+                    })
+                    .catch((response) => {
+                        //handle error
+                        state.loadingRequest = false
+                        resolve()
+                        console.log(response.body);
+                    });
             })
         },
     },

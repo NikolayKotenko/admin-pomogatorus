@@ -371,7 +371,8 @@ export default {
         this.$v.$touch();
         return;
       }
-      alert('УСПЕХ')
+      this.$store.dispatch('concateAllData', this.newQuestion)
+      // alert('УСПЕХ')
     }
   },
   beforeDestroy() {
