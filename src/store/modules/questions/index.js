@@ -1,8 +1,41 @@
 import axios from "axios";
 
 /* DEFAULT STATE */
+const defaultQuestion = {
+        name: {
+            value: '',
+            focused: false,
+        },
+        title: {
+            value: '',
+            focused: false,
+        },
+        article: {
+            value: '',
+            focused: false,
+        },
+        purpose_of_question: {
+            value: '',
+            focused: false,
+        },
+        id_type_answer: {
+            value: null,
+            focused: false
+        },
+        state_detailed_response: 0,
+        state_attachment_response: 0,
+        value_type_answer: null,
+        _all_tags: [],
+    }
 
 /* CONSTRUCTORS */
+function AnswerVariable(answer) {
+    this.id = answer.id
+    this.answer = answer.answer
+    this.commentary = answer.commentary
+    this.showComentary = true
+    this.focused = false
+}
 
 export default {
     state: {
@@ -39,6 +72,7 @@ export default {
             value_type_answer: null,
             _all_tags: [],
         },
+        nonEditState: {},
 
         /* TAGS */
         listGeneralTags: [],
@@ -54,10 +88,12 @@ export default {
         showAddTag: false,
     },
     mutations: {
+        /* LIST QUESTIONS */
         set_list_questions(state, result) {
             state.listQuestions = []
             state.listQuestions = result
         },
+        /* DETAIL QUESTION */
         set_list_types_questions(state, result) {
             state.listTypesOfQuestions = []
             state.listTypesOfQuestions = result
@@ -81,6 +117,7 @@ export default {
             state.showAddTag = false
         },
         set_new_question(state, result) {
+            state.newQuestion = Object.assign({}, defaultQuestion)
             for (let key in result) {
                 if (
                     (key === 'name') ||
@@ -93,21 +130,40 @@ export default {
                         value: result[key],
                         focused: false
                     }
-                } else {
-                    state.newQuestion[key] = result[key]
-                }
+                } else if (key === 'value_type_answer') {
+                    // FIXME: парсинг чет страдает
+                    if (result['id_type_answer'] !== 1 && result['id_type_answer'] !== 2) {
+                        let parsed = null
+                        parsed = JSON.parse(JSON.parse(result[key]))
+                        if (Array.isArray(parsed)) {
+                            state.newQuestion[key] = []
+                            parsed.forEach(elem => {
+                                state.newQuestion[key].push(new AnswerVariable(elem))
+                            })
+                        } else {
+                            state.newQuestion[key] = []
+                        }
+                    } else {
+                        state.newQuestion[key] = JSON.parse(result[key])
+                    }
+                } else state.newQuestion[key] = result[key]
             }
+            state.nonEditState = Object.assign({}, state.newQuestion)
         }
     },
     actions: {
         async setListQuestions({commit}) {
-            axios.get(`${this.state.BASE_URL}/entity/questions`)
-                .then((response) => {
-                    commit('set_list_questions', response.data.data)
-                })
-                .catch(() => {
-                    console.log('test')
-                })
+            return new Promise((resolve, reject) => {
+                axios.get(`${this.state.BASE_URL}/entity/questions`)
+                    .then((response) => {
+                        commit('set_list_questions', response.data.data)
+                        resolve()
+                    })
+                    .catch((error) => {
+                        console.log('test')
+                        reject(error)
+                    })
+            })
         },
         async setListTypesQuestions({commit}) {
             axios.get(`${this.state.BASE_URL}/dictionary/type-answers`)
@@ -161,22 +217,22 @@ export default {
         },
         async getDetailQuestion({commit, state}, id) {
             state.loadingQuestion = true
-            return new Promise((resolve) => {
+            return new Promise((resolve, reject) => {
                 axios.get(`${this.state.BASE_URL}/entity/questions/${id}`)
                     .then((response) => {
-                        commit('set_new_question', response.data)
+                        commit('set_new_question', response.data.data)
                         state.loadingQuestion = false
                         resolve()
                     })
-                    .catch((response) => {
+                    .catch((error) => {
                         //handle error
                         state.loadingQuestion = false
-                        resolve()
-                        console.log(response.body);
+                        reject(error)
+                        console.log(error.body);
                     })
             })
         },
-        async concateAllData({state}, data) {
+        async concateAllData({dispatch, state}, data) {
             state.loadingRequest = true
             return new Promise((resolve) => {
                 let bodyFormData = new FormData()
@@ -209,7 +265,11 @@ export default {
                     .then((response) => {
                         //handle success
                         state.loadingRequest = false
-                        resolve()
+                        dispatch('setListQuestions').then(() => {
+                            dispatch('createRelationTag', data.name.value).then(() => {
+                                resolve()
+                            })
+                        })
                         console.log(response);
                     })
                     .catch((response) => {
@@ -218,8 +278,35 @@ export default {
                         resolve()
                         console.log(response.body);
                     });
+            }).then(() => {
             })
         },
+        createRelationTag({state}, name) {
+            return new Promise((resolve, reject) => {
+                if (state.newQuestion._all_tags.length) {
+                    console.log(name)
+                    let finded = state.listQuestions.filter(elem => {
+                        return elem.name === name
+                    })
+                    console.log(finded)
+                    state.newQuestion._all_tags.forEach(tag => {
+                        let tagsFormData = new FormData()
+                        tagsFormData.append('id_tag', tag.id)
+                        tagsFormData.append('id_question', finded[0].id)
+                        // tagsFormData.append('id_answer', finded[0].id_type_answer)
+                        axios.post(`${this.state.BASE_URL}/m-to-m/tags`, tagsFormData)
+                            .then((response) => {
+                                console.log(response)
+                                resolve()
+                            })
+                            .catch((error) => {
+                                console.log(error)
+                                reject(error)
+                            })
+                    })
+                }
+            })
+        }
     },
     getters: {
         getListTypesOfQuestions(state) {

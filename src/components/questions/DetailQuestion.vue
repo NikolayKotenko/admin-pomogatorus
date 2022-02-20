@@ -132,7 +132,7 @@
             </small>
           </div>
           <!-- INPUTS -->
-          <template v-if="newQuestion.id_type_answer.value !== null">
+          <template v-if="newQuestion.id_type_answer.value !== 1 && newQuestion.id_type_answer.value !== 2 && !!newQuestion.id_type_answer.value">
             <div class="question_main_wrapper" v-if="newQuestion.id_type_answer.value !== 6 && newQuestion.id_type_answer.value !== 7">
               <transition-group name="list">
                 <div
@@ -258,6 +258,7 @@
           <v-btn
               color="red darken-1"
               text
+              @click="resetFields"
           >
             Очистить
           </v-btn>
@@ -403,6 +404,26 @@ export default {
           (this.rangeError)
       )
     },
+    // computedNonEdited() {
+    //     return Object.keys(this.$store.state.QuestionsModule.nonEditState).length ? Object.keys(this.$store.state.QuestionsModule.nonEditState).map(elem => {
+    //       console.log(elem)
+    //       if (typeof this.$store.state.QuestionsModule.nonEditState[elem] === 'object') {
+    //         if (Array.isArray(this.$store.state.QuestionsModule.nonEditState[elem])) {
+    //           if (this.$store.state.QuestionsModule.nonEditState[elem].length) {
+    //             this.$store.state.QuestionsModule.nonEditState[elem].map(i => {
+    //               return this.newQuestion[elem].some(elem => {
+    //                 elem.id === i.id
+    //               })
+    //             })
+    //           }
+    //         } else {
+    //           return this.$store.state.QuestionsModule.nonEditState[elem].value === this.newQuestion[elem].value
+    //         }
+    //       } else {
+    //         return this.$store.state.QuestionsModule.nonEditState[elem] === this.newQuestion[elem]
+    //       }
+    //     }).some(elem => elem === false) : false
+    // },
   },
   methods: {
     initializeQuery() {
@@ -410,6 +431,9 @@ export default {
         this.$store.dispatch('getDetailQuestion', this.$route.query.id_question).then(() => {
           if (this.$store.state.QuestionsModule.newQuestion.name) {
             this.newQuestion = this.$store.state.QuestionsModule.newQuestion
+            if (Array.isArray(this.$store.state.QuestionsModule.newQuestion.value_type_answer)) {
+              this.lastIdAnswer = this.$store.state.QuestionsModule.newQuestion.value_type_answer.length
+            }
           }
         })
       }
@@ -453,6 +477,21 @@ export default {
         })
         if (index !== -1) this.newQuestion.value_type_answer[index].focused = false
       }
+    },
+    resetFields() {
+      // FIXME: clear STORAGE
+      for (let key in this.newQuestion) {
+        if (typeof this.newQuestion[key] === 'object') {
+          if (Array.isArray(this.newQuestion[key])) {
+            this.newQuestion[key] = []
+          } else this.newQuestion[key].value = ''
+        } else {
+          if (key === 'value_type_answer') {
+            this.newQuestion[key] = null
+          } else this.newQuestion[key] = 0
+        }
+      }
+      this.lastIdAnswer = 1
     },
     onSubmit() {
       if (this.$v.$invalid) {
