@@ -111,7 +111,7 @@ export default {
         async setListTypesQuestions({commit}) {
             axios.get(`${this.state.BASE_URL}/dictionary/type-answers`)
                 .then((response) => {
-                    commit('set_list_types_questions', response.data)
+                    commit('set_list_types_questions', response.data.data)
                 })
                 .catch(() => {
                     console.log('test')

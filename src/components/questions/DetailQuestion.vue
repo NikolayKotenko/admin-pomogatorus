@@ -3,8 +3,8 @@
     <v-form
         class="form"
         ref="form"
-        @submit.prevent="onSubmit"
     >
+<!--      @submit.prevent="onSubmit" -->
       <div class="question_content">
         <div class="question_title">
           <v-text-field
@@ -18,6 +18,7 @@
               @focus="onFocus(newQuestion.name)"
               @focusout="outFocus(newQuestion.name)"
               :loading="$store.state.QuestionsModule.loadingQuestion"
+              :class="{invalid: !newQuestion.name.value && $v.newQuestion.name.$dirty && !$v.newQuestion.name.required}"
           >
             <template slot="append">
               <v-icon size="20" class="question_title__name__icon" :color="newQuestion.name.focused ? 'primary' : ''">
@@ -25,10 +26,16 @@
               </v-icon>
             </template>
           </v-text-field>
+          <small
+              v-if="!newQuestion.name.value && $v.newQuestion.name.$dirty && !$v.newQuestion.name.required"
+              style="color: lightcoral"
+          >
+            Поле обязательно для заполнения
+          </small>
           <div class="question_title_help">
-        <span class="question_title_help__title" :class="{focused: newQuestion.title.focused}">
-          Подсказка
-        </span>
+            <span class="question_title_help__title" :class="{focused: newQuestion.title.focused}">
+              Подсказка
+            </span>
             <v-textarea
                 class="question_title_help__description"
                 :class="{inputFocused: newQuestion.title.focused}"
@@ -46,9 +53,9 @@
             ></v-textarea>
           </div>
           <div class="question_title_help">
-        <span class="question_title_help__title" :class="{focused: newQuestion.article.focused}">
-          Разъясняющий текст
-        </span>
+          <span class="question_title_help__title" :class="{focused: newQuestion.article.focused}">
+            Разъясняющий текст
+          </span>
             <v-textarea
                 class="question_title_help__description"
                 :class="{inputFocused: newQuestion.article.focused}"
@@ -66,9 +73,9 @@
             ></v-textarea>
           </div>
           <div class="question_title_help">
-        <span class="question_title_help__title" :class="{focused: newQuestion.purpose_of_question.focused}">
-          Цель вопроса
-        </span>
+          <span class="question_title_help__title" :class="{focused: newQuestion.purpose_of_question.focused}">
+            Цель вопроса
+          </span>
             <v-textarea
                 class="question_title_help__description"
                 :class="{inputFocused: newQuestion.purpose_of_question.focused}"
@@ -88,9 +95,9 @@
         </div>
         <div class="question_main">
           <div class="question_main_selector">
-          <span class="question_main_selector__title" :class="{focused: newQuestion.id_type_answer.focused}">
-            Тип ответа
-          </span>
+            <span class="question_main_selector__title" :class="{focused: newQuestion.id_type_answer.focused}">
+              Тип ответа
+            </span>
             <v-autocomplete
                 outlined
                 dense
@@ -104,7 +111,14 @@
                 @focus="onFocus(newQuestion.id_type_answer)"
                 @focusout="outFocus(newQuestion.id_type_answer)"
                 :loading="$store.state.QuestionsModule.loadingQuestion"
+                :class="{invalidSelector: !newQuestion.id_type_answer.value && $v.newQuestion.id_type_answer.$dirty && !$v.newQuestion.id_type_answer.required}"
             ></v-autocomplete>
+            <small
+                v-if="!newQuestion.id_type_answer.value && $v.newQuestion.id_type_answer.$dirty && !$v.newQuestion.id_type_answer.required"
+                style="color: lightcoral"
+            >
+              Поле обязательно для заполнения
+            </small>
           </div>
           <div class="question_main_wrapper" v-if="newQuestion.id_type_answer.value !== null">
             <transition-group name="list">
@@ -180,7 +194,8 @@
           <v-btn
               color="blue darken-1"
               text
-              type="submit"
+              @click.prevent="onSubmit"
+              :disabled="!newQuestion.name.value && $v.newQuestion.name.$dirty && !$v.newQuestion.name.required"
           >
             Создать
           </v-btn>
@@ -223,7 +238,8 @@
 </template>
 
 <script>
-import {required} from 'vuelidate/lib/validators'
+import { required } from 'vuelidate/lib/validators'
+
 import {mapGetters} from 'vuex'
 
 import QuestionTags from "./QuestionTags";
@@ -231,6 +247,17 @@ import QuestionTags from "./QuestionTags";
 export default {
   name: "CreateQuestion",
   components: {QuestionTags},
+  validations: {
+    newQuestion: {
+      name: {
+        value: {required}
+      },
+      id_type_answer: {
+        value: {required}
+      }
+    },
+    validationGroup: ['newQuestion.name.value', 'newQuestion.id_type_answer.value']
+  },
   data: () => ({
     lastIdAnswer: 1,
     newQuestion: {
@@ -260,14 +287,6 @@ export default {
       tags: [],
     },
   }),
-  validations: {
-    newQuestion: {
-      name: {
-        value: {required}
-      }
-    },
-    validationGroup: ['newQuestion.name.value']
-  },
   mounted() {
     this.initializeQuery()
     this.getTypes()
@@ -352,6 +371,7 @@ export default {
         this.$v.$touch();
         return;
       }
+      alert('УСПЕХ')
     }
   },
   beforeDestroy() {
@@ -522,6 +542,21 @@ export default {
       display: flex;
       justify-content: space-between
     }
+  }
+}
+
+.invalid {
+  border-bottom: 2px solid lightcoral !important;
+  color: lightcoral !important;
+  ::v-deep .v-text-field input {
+    color: lightcoral !important;
+  }
+}
+
+.invalidSelector {
+  //border-color: lightcoral !important;
+  ::v-deep fieldset {
+    border-color: lightcoral !important;
   }
 }
 

@@ -49,6 +49,7 @@
               :error-messages="$store.state.QuestionsModule.tagError.isError ? 'Такой тэг уже добавлен' : []"
               @change="checkForTagError()"
               @update:search-input="checkForTagError()"
+              :disabled="!$store.state.QuestionsModule.listGeneralTags.length"
           >
           </v-combobox>
         </v-card-text>
