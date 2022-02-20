@@ -182,18 +182,20 @@ export default {
                 let bodyFormData = new FormData()
                 for (let key in data) {
                     if (key === 'value_type_answer') {
-                        let arr = []
-                        let obj = {}
-                        data[key].map(elem => {
-                            if (elem.answer) {
-                                obj.id = elem.id
-                                obj.answer = elem.answer
-                                obj.commentary = elem.commentary
-                                arr.push(obj)
-                                obj = {}
-                            }
-                        })
-                        bodyFormData.append(key, JSON.stringify(arr))
+                        if (Array.isArray(data[key])) {
+                            let arr = []
+                            let obj = {}
+                            data[key].map(elem => {
+                                if (elem.answer) {
+                                    obj.id = elem.id
+                                    obj.answer = elem.answer
+                                    obj.commentary = elem.commentary
+                                    arr.push(obj)
+                                    obj = {}
+                                }
+                            })
+                            bodyFormData.append(key, JSON.stringify(arr))
+                        } else bodyFormData.append(key, data[key])
                     } else {
                         if (typeof data[key] === 'object') {
                             if (data[key].value) {

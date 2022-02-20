@@ -101,6 +101,7 @@ export default {
       })) {
         this.$store.dispatch('setNewTagToList', this.$store.state.QuestionsModule.tagSearch).then(() => {
           this.$store.state.QuestionsModule.newQuestion._all_tags.push(Object.assign({}, this.$store.state.QuestionsModule.createdTag))
+          console.log(this.$store.state.QuestionsModule.createdTag)
           this.$store.state.QuestionsModule.createdTag = {}
           this.$store.state.QuestionsModule.showCreateTag = false
           this.$store.state.QuestionsModule.newTag = ''

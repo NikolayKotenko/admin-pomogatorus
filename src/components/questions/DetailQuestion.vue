@@ -78,7 +78,10 @@
           </span>
             <v-textarea
                 class="question_title_help__description"
-                :class="{inputFocused: newQuestion.purpose_of_question.focused}"
+                :class="{
+                inputFocused: newQuestion.purpose_of_question.focused,
+                invalid: !newQuestion.purpose_of_question.value && $v.newQuestion.purpose_of_question.$dirty && !$v.newQuestion.purpose_of_question.required
+                }"
                 placeholder="Введите цель вопроса"
                 auto-grow
                 rows="1"
@@ -91,8 +94,16 @@
                 @focusout="outFocus(newQuestion.purpose_of_question)"
                 :loading="$store.state.QuestionsModule.loadingQuestion"
             ></v-textarea>
+            <small
+                v-if="!newQuestion.purpose_of_question.value && $v.newQuestion.purpose_of_question.$dirty && !$v.newQuestion.purpose_of_question.required"
+                style="color: lightcoral"
+            >
+              Поле обязательно для заполнения
+            </small>
           </div>
         </div>
+
+        <!-- SELECTOR & INPUT'S -->
         <div class="question_main">
           <div class="question_main_selector">
             <span class="question_main_selector__title" :class="{focused: newQuestion.id_type_answer.focused}">
@@ -120,8 +131,9 @@
               Поле обязательно для заполнения
             </small>
           </div>
-          <div class="question_main_wrapper" v-if="newQuestion.id_type_answer.value !== null">
-            <template v-if="newQuestion.id_type_answer.value === 5">
+          <!-- INPUTS -->
+          <template v-if="newQuestion.id_type_answer.value !== null">
+            <div class="question_main_wrapper" v-if="newQuestion.id_type_answer.value !== 6 && newQuestion.id_type_answer.value !== 7">
               <transition-group name="list">
                 <div
                     class="question_main_wrapper__item"
@@ -163,21 +175,64 @@
                   ></v-textarea>
                 </div>
               </transition-group>
-            </template>
-            <template v-if="newQuestion.id_type_answer.value === 1">
-              <v-text-field
-                  :class="{inputFocused: newQuestion.value_type_answer.focused}"
-                  placeholder="Введите значение"
-                  dense
-                  hide-details
-                  flat
-                  solo
-                  v-model="newQuestion.value_type_answer"
-                  @focus="onFocus(newQuestion.id_type_answer)"
-                  @focusout="outFocus(newQuestion.id_type_answer,)"
-              ></v-text-field>
-            </template>
-          </div>
+            </div>
+            <div
+                class="question_main_wrapper"
+                :class="{rangeError: rangeError}"
+                v-else
+            >
+              <transition-group name="list">
+                <div
+                    class="question_main_wrapper__item"
+                    v-for="answer in newQuestion.value_type_answer"
+                    :key="answer.id"
+                >
+                  <v-text-field
+                      class="question_main_wrapper__item__value"
+                      :class="{inputFocused: answer.focused}"
+                      :placeholder="answer.placeholder"
+                      auto-grow
+                      rows="1"
+                      dense
+                      hide-details
+                      flat
+                      solo
+                      v-model="answer.answer"
+                      @focus="onFocus(newQuestion.id_type_answer, answer.id);"
+                      @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
+                      type="number"
+                  >
+                    <template slot="prepend-inner">
+                      <v-icon small :color="answer.focused ? 'black' : ''">
+                        mdi-minus
+                      </v-icon>
+                    </template>
+                    <template slot="append">
+                      <v-icon small :color="answer.focused ? 'black' : ''">
+                        mdi-plus
+                      </v-icon>
+                    </template>
+                  </v-text-field>
+                </div>
+              </transition-group>
+            </div>
+            <small v-if="rangeError" style="color: lightcoral">
+              Неккоректные значения
+            </small>
+<!--            <div class="question_main_wrapper bordered" v-if="newQuestion.id_type_answer.value === 2">-->
+<!--              <v-textarea-->
+<!--                  :class="{inputFocused: newQuestion.id_type_answer.focused}"-->
+<!--                  placeholder="Введите значение"-->
+<!--                  dense-->
+<!--                  hide-details-->
+<!--                  flat-->
+<!--                  solo-->
+<!--                  v-model="newQuestion.value_type_answer"-->
+<!--                  @focus="onFocus(newQuestion.id_type_answer)"-->
+<!--                  @focusout="outFocus(newQuestion.id_type_answer,)"-->
+<!--              ></v-textarea>-->
+<!--            </div>-->
+          </template>
         </div>
         <div class="question_settings">
           <v-checkbox
@@ -210,7 +265,7 @@
               color="blue darken-1"
               text
               @click.prevent="onSubmit"
-              :disabled="!newQuestion.name.value && $v.newQuestion.name.$dirty && !$v.newQuestion.name.required"
+              :disabled="computedValidations"
           >
             Создать
           </v-btn>
@@ -267,14 +322,19 @@ export default {
       name: {
         value: {required}
       },
+      purpose_of_question: {
+        value: {required}
+      },
       id_type_answer: {
         value: {required}
       }
     },
-    validationGroup: ['newQuestion.name.value', 'newQuestion.id_type_answer.value']
+    validationGroup: ['newQuestion.name.value', 'newQuestion.id_type_answer.value', 'newQuestion.purpose_of_question.value']
   },
   data: () => ({
     lastIdAnswer: 1,
+    debounceTimeout: null,
+    rangeError: false,
     newQuestion: {
       name: {
         value: '',
@@ -311,13 +371,20 @@ export default {
       // eslint-disable-next-line no-unused-vars
       handler(oldValue, newValue) {
         if (Array.isArray(this.newQuestion.value_type_answer)) {
-          if (this.newQuestion.value_type_answer[this.newQuestion.value_type_answer.length - 1]?.answer) {
-            this.addVariable()
-          } else if (
-              this.newQuestion.value_type_answer[this.newQuestion.value_type_answer.length - 2]?.answer === '' &&
-              this.newQuestion.value_type_answer[this.newQuestion.value_type_answer.length - 2]?.commentary === ''
-          ) {
-            this.newQuestion.value_type_answer.splice(this.newQuestion.value_type_answer.length - 1, 1)
+          if (this.newQuestion.id_type_answer.value !== 6 && this.newQuestion.id_type_answer.value !== 7) {
+            if (this.newQuestion.value_type_answer[this.newQuestion.value_type_answer.length - 1]?.answer) {
+              this.addVariable()
+            } else if (
+                this.newQuestion.value_type_answer[this.newQuestion.value_type_answer.length - 2]?.answer === '' &&
+                this.newQuestion.value_type_answer[this.newQuestion.value_type_answer.length - 2]?.commentary === ''
+            ) {
+              this.newQuestion.value_type_answer.splice(this.newQuestion.value_type_answer.length - 1, 1)
+            }
+          } else {
+            if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
+            this.debounceTimeout = setTimeout(() => {
+              this.rangeError = (parseInt(this.newQuestion.value_type_answer[0].answer) > parseInt(this.newQuestion.value_type_answer[1].answer));
+            }, 500)
           }
         }
       },
@@ -328,6 +395,14 @@ export default {
     ...mapGetters([
         'getListTypesOfQuestions'
     ]),
+    computedValidations() {
+      return (
+          (!this.newQuestion.name.value && this.$v.newQuestion.name.$dirty && !this.$v.newQuestion.name.required) ||
+          (!this.newQuestion.purpose_of_question.value && this.$v.newQuestion.purpose_of_question.$dirty && !this.$v.newQuestion.purpose_of_question.required) ||
+          (!this.newQuestion.id_type_answer.value && this.$v.newQuestion.id_type_answer.$dirty && !this.$v.newQuestion.id_type_answer.required) ||
+          (this.rangeError)
+      )
+    },
   },
   methods: {
     initializeQuery() {
@@ -343,14 +418,19 @@ export default {
       this.$store.dispatch('setListTypesQuestions')
     },
     onSelect() {
-      if (this.newQuestion.id_type_answer.value === 5) {
+      if (this.newQuestion.id_type_answer.value === 6 || this.newQuestion.id_type_answer.value === 7) {
         this.newQuestion.value_type_answer = []
-        this.newQuestion.value_type_answer.push(new this.answerVariable(this.lastIdAnswer))
+        this.newQuestion.value_type_answer.push(new this.AnswerRangeMin(this.lastIdAnswer))
+        this.lastIdAnswer++
+        this.newQuestion.value_type_answer.push(new this.AnswerRangeMax(this.lastIdAnswer))
+      } else if (this.newQuestion.id_type_answer.value !== 1 && this.newQuestion.id_type_answer.value !== 2) {
+        this.newQuestion.value_type_answer = []
+        this.newQuestion.value_type_answer.push(new this.AnswerVariable(this.lastIdAnswer))
       } else this.newQuestion.value_type_answer = []
     },
     addVariable() {
       this.lastIdAnswer++
-      this.newQuestion.value_type_answer.push(new this.answerVariable(this.lastIdAnswer))
+      this.newQuestion.value_type_answer.push(new this.AnswerVariable(this.lastIdAnswer))
     },
     onFocus(obj, id) {
       obj.focused = true
@@ -374,13 +454,6 @@ export default {
         if (index !== -1) this.newQuestion.value_type_answer[index].focused = false
       }
     },
-    answerVariable(id,) {
-      this.id = id
-      this.answer = ''
-      this.commentary = ''
-      this.showComentary = true
-      this.focused = false
-    },
     onSubmit() {
       if (this.$v.$invalid) {
         this.$v.$touch();
@@ -388,7 +461,32 @@ export default {
       }
       this.$store.dispatch('concateAllData', this.newQuestion)
       // alert('УСПЕХ')
-    }
+    },
+
+    /* CONSTRUCTORS */
+    AnswerVariable(id) {
+      this.id = id
+      this.answer = ''
+      this.commentary = ''
+      this.showComentary = true
+      this.focused = false
+    },
+    AnswerRangeMin(id) {
+      this.id = id
+      this.answer = ''
+      this.commentary = ''
+      this.showComentary = true
+      this.focused = false
+      this.placeholder = 'Введите минимальное значение'
+    },
+    AnswerRangeMax(id) {
+      this.id = id
+      this.answer = ''
+      this.commentary = ''
+      this.showComentary = true
+      this.focused = false
+      this.placeholder = 'Введите максимальное значение'
+    },
   },
   beforeDestroy() {
     this.$store.state.QuestionsModule.newQuestion._all_tags = []
@@ -431,6 +529,7 @@ export default {
           border-bottom: 2px solid #1976d2;
           border-radius: 0;
           color: #1976d2 !important;
+          transition: all .6s ease-in-out;
         }
 
         ::v-deep .v-text-field.v-text-field--enclosed:not(.v-text-field--rounded) > .v-input__control > .v-input__slot, .v-text-field.v-text-field--enclosed .v-text-field__details {
@@ -474,12 +573,22 @@ export default {
           &__description {
             color: lightgray;
             font-size: 13px;
-            transition: all .6s ease-in-out;
-
-            ::v-deep textarea {
-              line-height: 20px;
-              font-weight: 500;
-            }
+            transition: color .6s ease-in-out;
+          }
+          ::v-deep .v-text-field__slot {
+            min-height: 20px !important;
+          }
+          ::v-deep .v-text-field.v-text-field--solo.v-input--dense > .v-input__control {
+            min-height: 20px !important;
+          }
+          ::v-deep textarea {
+            line-height: 20px;
+            font-weight: 500;
+            min-height: 20px !important;
+          }
+          ::v-deep v-input {
+            display: flex !important;
+            align-items: center !important;
           }
         }
       }
@@ -494,6 +603,7 @@ export default {
 
           ::v-deep .v-input {
             font-size: 13px !important;
+            font-weight: 500;
           }
 
           ::v-deep .v-text-field input {
@@ -542,6 +652,15 @@ export default {
             }
           }
         }
+        .rangeError {
+          border: 1px solid lightcoral !important;
+          .question_main_wrapper__item {
+            border-bottom: unset;
+          }
+          ::v-deep input {
+            color: lightcoral;
+          }
+        }
       }
 
       .question_settings {
@@ -557,8 +676,6 @@ export default {
     }
 
     .question_footer {
-      //position: absolute;
-      //bottom: 0;
       display: flex;
       justify-content: space-between
     }
@@ -567,6 +684,7 @@ export default {
 
 .invalid {
   border-bottom: 2px solid lightcoral !important;
+  border-radius: unset !important;
   color: lightcoral !important;
   ::v-deep .v-text-field input {
     color: lightcoral !important;
@@ -574,7 +692,6 @@ export default {
 }
 
 .invalidSelector {
-  //border-color: lightcoral !important;
   ::v-deep fieldset {
     border-color: lightcoral !important;
   }

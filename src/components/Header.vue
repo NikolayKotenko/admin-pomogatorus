@@ -30,7 +30,8 @@
             </v-icon>
             Рабочий стол
           </router-link>
-          <div v-if="!!Object.keys($route.meta).includes('ru_name')" style="padding-left: 10px">
+          <div v-if="!!Object.keys($route.meta).includes('ru_name')" style="padding-left: 10px; overflow: hidden; text-overflow: ellipsis;
+">
             <v-icon small left>
               mdi-chevron-right
             </v-icon>
