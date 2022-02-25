@@ -1,3 +1,4 @@
+import qs from 'qs';
 import axios from "axios";
 
 /* DEFAULT STATE */
@@ -232,9 +233,9 @@ export default {
                     })
             })
         },
-        async concateAllData({dispatch, state}, data) {
-            state.loadingRequest = true
+        async createQuestion({dispatch, state}, data) {
             return new Promise((resolve) => {
+                state.loadingRequest = true
                 let bodyFormData = new FormData()
                 for (let key in data) {
                     if (key === 'value_type_answer') {
@@ -278,7 +279,6 @@ export default {
                         resolve()
                         console.log(response.body);
                     });
-            }).then(() => {
             })
         },
         createRelationTag({state}, name) {
@@ -305,6 +305,88 @@ export default {
                             })
                     })
                 }
+            })
+        },
+        updateQuestion({dispatch, state}, data) {
+            return new Promise((resolve) => {
+                state.loadingRequest = true
+                const requestData = {}
+                console.log(data)
+                for (let key in data) {
+                    if (key === 'value_type_answer') {
+                        if (Array.isArray(data[key])) {
+                            let arr = []
+                            let obj = {}
+                            data[key].map(elem => {
+                                if (elem.answer) {
+                                    obj.id = elem.id
+                                    obj.answer = elem.answer
+                                    obj.commentary = elem.commentary
+                                    arr.push(obj)
+                                    obj = {}
+                                }
+                            })
+                            requestData[key] = JSON.stringify(arr)
+                        } else requestData[key] = data[key]
+                    } else if (key === 'state_attachment_response' || key === 'state_detailed_response') {
+                        if (data[key]) requestData[key] = 1
+                        else requestData[key] = 0
+                    } else {
+                        if (typeof data[key] === 'object' && !Array.isArray(data[key])) {
+                            if (data[key] !== null && data[key].value) {
+                                requestData[key] = data[key].value
+                            }
+                        } else requestData[key] = data[key]
+                    }
+                }
+
+                const options = {
+                    method: 'PUT',
+                    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+                    data: qs.stringify(requestData),
+                    url: `${this.state.BASE_URL}/entity/questions/${data.id}`,
+                }
+                axios(options)
+                    .then((response) => {
+                        //handle success
+                        state.loadingRequest = false
+                        dispatch('setListQuestions').then(() => {
+                            dispatch('createRelationTag', data.name.value).then(() => {
+                            })
+                        })
+                        resolve()
+                        console.log(response);
+                    })
+                    .catch((response) => {
+                        //handle error
+                        state.loadingRequest = false
+                        resolve()
+                        console.log(response.body);
+                    });
+            })
+        },
+        deleteQuestion({state}, data) {
+            state.loadingRequest = true
+            return new Promise((resolve) => {
+
+                const options = {
+                    method: 'DELETE',
+                    url: `${this.state.BASE_URL}/entity/questions/${data.id}`,
+                }
+
+                axios(options)
+                    .then((response) => {
+                        //handle success
+                        state.loadingRequest = false
+                        resolve()
+                        console.log(response);
+                    })
+                    .catch((response) => {
+                        //handle error
+                        state.loadingRequest = false
+                        resolve()
+                        console.log(response.body);
+                    });
             })
         }
     },

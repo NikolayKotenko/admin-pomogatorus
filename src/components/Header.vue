@@ -143,7 +143,7 @@ export default {
   methods: {
     onCreate() {
       this.$router.push({
-        name: 'DetailQuestion',
+        name: 'Questions',
         params: {action: 'create'},
       })
     }

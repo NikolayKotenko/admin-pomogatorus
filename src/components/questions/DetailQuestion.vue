@@ -275,12 +275,14 @@
           <v-btn
               color="red darken-1"
               text
+              @click="deleteModal = true"
           >
             Удалить
           </v-btn>
           <v-btn
               color="blue darken-1"
               text
+              @click.prevent="saveDifferences()"
           >
             Сохранить изменения
           </v-btn>
@@ -305,6 +307,37 @@
     </v-form>
 
     <!--  MODALS  -->
+    <v-dialog
+        v-model="deleteModal"
+        max-width="600"
+    >
+      <v-card>
+        <v-card-title>
+          <span class="text-h6" style="font-size: 0.8em !important;">Вы точно хотите удалить вопрос?</span>
+        </v-card-title>
+        <v-card-actions>
+          <v-btn
+              color="blue darken-1"
+              text
+              @click="deleteModal = false"
+              :disabled="$store.state.QuestionsModule.loadingRequest"
+              :loading="$store.state.QuestionsModule.loadingRequest"
+          >
+            Нет
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+              color="red darken-1"
+              text
+              @click="deleteQuestion()"
+              :disabled="$store.state.QuestionsModule.loadingRequest"
+              :loading="$store.state.QuestionsModule.loadingRequest"
+          >
+            Да
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -362,6 +395,7 @@ export default {
       value_type_answer: null,
       tags: [],
     },
+    deleteModal: false,
   }),
   mounted() {
     this.initializeQuery()
@@ -427,8 +461,8 @@ export default {
   },
   methods: {
     initializeQuery() {
-      if (Object.keys(this.$route.query).length && Object.keys(this.$route.query).includes('id_question')) {
-        this.$store.dispatch('getDetailQuestion', this.$route.query.id_question).then(() => {
+      if (Object.keys(this.$route.params).length && Object.keys(this.$route.params).includes('id')) {
+        this.$store.dispatch('getDetailQuestion', this.$route.params.id).then(() => {
           if (this.$store.state.QuestionsModule.newQuestion.name) {
             this.newQuestion = this.$store.state.QuestionsModule.newQuestion
             if (Array.isArray(this.$store.state.QuestionsModule.newQuestion.value_type_answer)) {
@@ -498,8 +532,26 @@ export default {
         this.$v.$touch();
         return;
       }
-      this.$store.dispatch('concateAllData', this.newQuestion)
-      // alert('УСПЕХ')
+        this.$store.dispatch('createQuestion', this.newQuestion).then(() => {
+          this.$router.push({
+            path: '/questions'
+          })
+        })
+    },
+    saveDifferences() {
+        this.$store.dispatch('updateQuestion', this.newQuestion).then(() => {
+          this.$router.push({
+            path: '/questions'
+          })
+        })
+    },
+    deleteQuestion() {
+      this.$store.dispatch('deleteQuestion', this.newQuestion).then(() => {
+        this.deleteModal = false
+        this.$router.push({
+          path: '/questions'
+        })
+      })
     },
 
     /* CONSTRUCTORS */
@@ -754,5 +806,9 @@ export default {
   ::v-deep input {
     color: black !important;
   }
+}
+
+::v-deep .v-dialog > .v-card > .v-card__title {
+  justify-content: center;
 }
 </style>

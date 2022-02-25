@@ -30,7 +30,7 @@ const routes = [
     },
   },
   {
-    path: '/questions/:action',
+    path: '/questions/:action/:id',
     name: 'DetailQuestion',
     component: DetailQuestion,
     meta: {

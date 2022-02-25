@@ -161,8 +161,8 @@ export default {
     onShowDetailQuestion(question) {
       this.$router.push({
         name: 'DetailQuestion',
-        params: {action: 'edit'},
-        query: {id_question: question.id}
+        params: {action: 'edit', id: question.id},
+        // query: {id_question: question.id}
       })
     }
   },
