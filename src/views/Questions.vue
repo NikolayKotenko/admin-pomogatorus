@@ -33,14 +33,26 @@
     </div>
     <div class="footer">
       <div class="footer_input">
-        <input>
+        <v-text-field
+            solo
+            flat
+            dense
+            hide-details
+            placeholder="Поиск в выбранных разделах"
+            v-model="filters.filterValue"
+            :class="{inputFocused: filterValueFocused}"
+            @focus="onFocus()"
+            @focusout="outFocus()"
+        ></v-text-field>
       </div>
       <div class="footer_filter">
-        <v-icon x-large color="grey" @click="show_filter = !show_filter">
+        <v-icon x-large :color="!!show_filter ? 'blue' : 'grey'" @click="show_filter = !show_filter">
           mdi-filter-outline
         </v-icon>
       </div>
     </div>
+
+
     <v-bottom-sheet
         v-model="show_filter"
         overlay-opacity="0.1"
@@ -52,7 +64,7 @@
       >
         <div class="filter_modal_header">
           <div class="filter_modal_header__close">
-            <v-icon x-large @click="show_filter = !show_filter">
+            <v-icon x-large @click="show_filter = !show_filter" color="blue">
               mdi-close
             </v-icon>
           </div>
@@ -66,24 +78,21 @@
               <v-chip-group
                   column
                   multiple
+                  v-model="filters.filterTag"
               >
-                <v-chip color="#f2f5f7">
-                  <v-icon left>
+                <v-chip
+                    color="#f2f5f7"
+                    v-for="tag in $store.state.QuestionsModule.listGeneralTags"
+                    :key="tag.id"
+                    :value="tag.id"
+                >
+                  <v-icon left color="grey darken-2" v-if="filters.filterTag.includes(tag.id)">
+                    mdi-check-bold
+                  </v-icon>
+                  <v-icon left color="grey darken-2" v-else>
                     mdi-close-thick
                   </v-icon>
-                  Эстетические предпочтения
-                </v-chip>
-                <v-chip color="#f2f5f7">
-                  <v-icon left>
-                    mdi-close-thick
-                  </v-icon>
-                  Выявление платежеспособности
-                </v-chip>
-                <v-chip color="#f2f5f7">
-                  <v-icon left>
-                    mdi-close-thick
-                  </v-icon>
-                  Котельная
+                  {{ tag.name }}
                 </v-chip>
               </v-chip-group>
             </div>
@@ -93,25 +102,17 @@
               Дата последнего редактирования:
             </div>
             <div class="filter_modal_filters__item__chips">
-              <v-radio-group>
+              <v-radio-group
+                  v-model="filters.filterDate"
+              >
                 <v-radio
-                    v-for="n in 3"
-                    :key="n"
-                    :label="`Radio ${n}`"
-                    :value="n"
+                    v-for="(variable, index) in $store.state.QuestionsModule.listConfigDate"
+                    :key="index"
+                    :label="variable.text"
+                    :value="variable.value"
                 ></v-radio>
               </v-radio-group>
             </div>
-          </div>
-        </div>
-        <div class="filter_modal_footer">
-          <div class="filter_modal_footer_input">
-            <input>
-          </div>
-          <div class="filter_modal_footer_filter">
-            <v-icon x-large color="grey" @click="show_filter = !show_filter">
-              mdi-filter-outline
-            </v-icon>
           </div>
         </div>
       </v-sheet>
@@ -147,23 +148,53 @@ export default {
       }
     ],
     show_filter: false,
+    filterValueFocused: false,
+    filters: {
+      filterValue: null,
+      filterDate: null,
+      filterTag: [],
+    },
   }),
   mounted() {
     this.getQuestions()
+    this.getConfigDate()
+    this.getTags()
   },
   computed: {
 
+  },
+  watch: {
+    filters: {
+      handler() {
+        this.$store.dispatch('setFilteredListQuestions', this.filters)
+      },
+      deep: true
+    }
   },
   methods: {
     getQuestions() {
       this.$store.dispatch('setListQuestions')
     },
+    getConfigDate() {
+      this.$store.dispatch('setListConfigDate')
+    },
+    getTags() {
+      this.$store.dispatch('getGeneralTags')
+    },
+    getFilteredQuestions() {
+
+    },
     onShowDetailQuestion(question) {
       this.$router.push({
         name: 'DetailQuestion',
         params: {action: 'edit', id: question.id},
-        // query: {id_question: question.id}
       })
+    },
+    onFocus() {
+      this.filterValueFocused = true
+    },
+    outFocus() {
+      this.filterValueFocused = false
     }
   },
 }
@@ -222,15 +253,22 @@ export default {
     justify-content: space-between;
     align-items: center;
     column-gap: 10px;
+    z-index: 207;
     .footer_input {
       flex: 1;
       width: 100%;
-      padding-left: 10px;
-      input {
-        border: 2px solid lightgray;
-        width: 100%;
-        height: 30px;
-        background: #FFFFFF;
+      margin-left: 10px;
+      border: 2px solid lightgray;
+      border-radius: 5px;
+      ::v-deep .v-text-field input {
+        font-weight: 500;
+        color: darkgray;
+        transition: color .5s ease-in-out;
+      }
+    }
+    .inputFocused {
+      ::v-deep input {
+        color: #202020 !important;
       }
     }
   }
@@ -243,6 +281,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   position: relative;
+  z-index: 206;
   .filter_modal_header {
     position: relative;
     height: 35px;
@@ -256,7 +295,8 @@ export default {
     flex: 1;
     height: 100%;
     width: 100%;
-    padding: 0 10px 5px 10px;
+    padding: 0 10px 70px 10px;
+    overflow: scroll;
     &__item {
       display: flex;
       flex-direction: column;
@@ -277,6 +317,11 @@ export default {
         justify-content: flex-start;
         padding: 10px 20px;
 
+        ::v-deep label {
+          font-weight: 500;
+          color: #242424;
+          opacity: 0.9;
+        }
         ::v-deep .v-chip .v-chip__content {
           min-width: 100% !important;
         }
@@ -290,32 +335,14 @@ export default {
       }
     }
   }
-  .filter_modal_footer {
-    width: 100%;
-    display: flex;
-    height: 70px;
-    border-top: 3px solid darkgray;
-    column-gap: 10px;
-    padding: 10px 20px;
-    justify-content: space-between;
-    align-items: center;
-    .filter_modal_footer_input {
-      flex: 1;
-      width: 100%;
-      padding-left: 10px;
-      input {
-        border: 2px solid lightgray;
-        width: 100%;
-        height: 30px;
-        background: #FFFFFF;
-      }
-    }
-  }
 }
 .filterShow {
   color: lightgray !important;
   opacity: 0.8;
   border-color: rgba(211, 211, 211, 0.5) !important;
-  //border-color: lightgray !important;
+}
+
+::v-deep .v-dialog__content {
+  z-index: 206 !important;
 }
 </style>

@@ -43,6 +43,7 @@ export default {
         /* LIST QUESTIONS */
         listQuestions: [],
         listTypesOfQuestions: [],
+        listConfigDate: [],
 
         /* DETAIL QUESTION */
         loadingQuestion: false,
@@ -93,6 +94,10 @@ export default {
         set_list_questions(state, result) {
             state.listQuestions = []
             state.listQuestions = result
+        },
+        set_list_config_date(state, result) {
+            state.listConfigDate = []
+            state.listConfigDate = result
         },
         /* DETAIL QUESTION */
         set_list_types_questions(state, result) {
@@ -158,6 +163,40 @@ export default {
                 axios.get(`${this.state.BASE_URL}/entity/questions`)
                     .then((response) => {
                         commit('set_list_questions', response.data.data)
+                        resolve()
+                    })
+                    .catch((error) => {
+                        console.log('test')
+                        reject(error)
+                    })
+            })
+        },
+        async setListConfigDate({commit}) {
+            return new Promise((resolve, reject) => {
+                axios.get(`${this.state.BASE_URL}/entity/questions-list-config-date`)
+                    .then((response) => {
+                        commit('set_list_config_date', response.data.data)
+                        resolve()
+                    })
+                    .catch((error) => {
+                        console.log('test')
+                        reject(error)
+                    })
+            })
+        },
+        async setFilteredListQuestions(data) {
+            return new Promise((resolve, reject) => {
+
+                const {filterTag: tag, filterDate: updated_at, filterValue: name} = data
+
+                console.log(tag)
+                console.log(updated_at)
+                console.log(name)
+
+                axios.get(`${this.state.BASE_URL}/entity/questions`)
+                    .then((response) => {
+                        // commit('set_list_config_date', response.data.data)
+                        console.log(response)
                         resolve()
                     })
                     .catch((error) => {
@@ -352,9 +391,9 @@ export default {
                         state.loadingRequest = false
                         dispatch('setListQuestions').then(() => {
                             dispatch('createRelationTag', data.name.value).then(() => {
+                                resolve()
                             })
                         })
-                        resolve()
                         console.log(response);
                     })
                     .catch((response) => {
