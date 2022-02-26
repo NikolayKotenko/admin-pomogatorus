@@ -30,8 +30,18 @@
           </div>
         </div>
       </div>
+
+      <v-alert
+          v-if="$store.state.QuestionsModule.listQuestions === null || !$store.state.QuestionsModule.listQuestions.length"
+          type="error"
+          text
+          class="err-msg"
+      >
+        {{ $store.state.QuestionsModule.questionNotification }}
+      </v-alert>
+
     </div>
-    <div class="footer">
+    <v-sheet class="footer">
       <div class="footer_input">
         <v-text-field
             solo
@@ -39,7 +49,7 @@
             dense
             hide-details
             placeholder="Поиск в выбранных разделах"
-            v-model="filters.filterValue"
+            v-model="filters.name"
             :class="{inputFocused: filterValueFocused}"
             @focus="onFocus()"
             @focusout="outFocus()"
@@ -50,15 +60,32 @@
           mdi-filter-outline
         </v-icon>
       </div>
-    </div>
+    </v-sheet>
 
 
-    <v-bottom-sheet
-        v-model="show_filter"
-        overlay-opacity="0.1"
-        overlay-color="black"
+    <!-- LOADER -->
+    <v-overlay
+        :z-index="201"
+        :absolute="true"
+        :value="$store.state.QuestionsModule.loadingList"
     >
+      <v-progress-circular
+          style="margin: auto"
+          width="4"
+          :size="70"
+          color="blue"
+          :indeterminate="true"
+          v-if="$store.state.QuestionsModule.loadingList"
+      ></v-progress-circular>
+    </v-overlay>
+
+    <v-sheet
+        v-model="show_filter"
+        class="bottom_filters"
+    >
+      <transition appear name="slide-y-reverse-transition">
       <v-sheet
+          v-show="show_filter"
           class="text-center filter_modal"
           height="80vh"
       >
@@ -78,15 +105,15 @@
               <v-chip-group
                   column
                   multiple
-                  v-model="filters.filterTag"
+                  v-model="filters.tag"
               >
                 <v-chip
                     color="#f2f5f7"
                     v-for="tag in $store.state.QuestionsModule.listGeneralTags"
                     :key="tag.id"
-                    :value="tag.id"
+                    :value="tag.code"
                 >
-                  <v-icon left color="grey darken-2" v-if="filters.filterTag.includes(tag.id)">
+                  <v-icon left color="grey darken-2" v-if="filters.tag.includes(tag.code)">
                     mdi-check-bold
                   </v-icon>
                   <v-icon left color="grey darken-2" v-else>
@@ -103,7 +130,7 @@
             </div>
             <div class="filter_modal_filters__item__chips">
               <v-radio-group
-                  v-model="filters.filterDate"
+                  v-model="filters.updated_at"
               >
                 <v-radio
                     v-for="(variable, index) in $store.state.QuestionsModule.listConfigDate"
@@ -116,7 +143,8 @@
           </div>
         </div>
       </v-sheet>
-    </v-bottom-sheet>
+      </transition>
+    </v-sheet>
   </div>
 </template>
 
@@ -150,15 +178,18 @@ export default {
     show_filter: false,
     filterValueFocused: false,
     filters: {
-      filterValue: null,
-      filterDate: null,
-      filterTag: [],
+      name: null,
+      updated_at: null,
+      tag: [],
     },
+    queryObject: {},
+    debounceTimeout: null,
   }),
   mounted() {
     this.getQuestions()
     this.getConfigDate()
     this.getTags()
+    this.initializeQuery()
   },
   computed: {
 
@@ -166,7 +197,8 @@ export default {
   watch: {
     filters: {
       handler() {
-        this.$store.dispatch('setFilteredListQuestions', this.filters)
+        this.getFilteredQuestions()
+        this.changeQuery()
       },
       deep: true
     }
@@ -182,12 +214,46 @@ export default {
       this.$store.dispatch('getGeneralTags')
     },
     getFilteredQuestions() {
-
+      if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
+      this.debounceTimeout = setTimeout(() => {
+        this.$store.dispatch('setFilteredListQuestions', this.filters)
+      }, 500);
     },
     onShowDetailQuestion(question) {
       this.$router.push({
         name: 'DetailQuestion',
-        params: {action: 'edit', id: question.id},
+        params: {action: 'edit'},
+        query: {question_id: question.id}
+      })
+    },
+    initializeQuery() {
+      if (Object.keys(this.$route.query).length) {
+        for (let key in this.filters) {
+          if (Object.keys(this.$route.query).includes(key) && this.$route.query[key] !== null) {
+            if (key === 'updated_at') {
+              this.filters[key] = parseInt(this.$route.query[key])
+            } else {
+              this.filters[key] = this.$route.query[key]
+            }
+          }
+        }
+      }
+    },
+    changeQuery() {
+      for (let key in this.filters) {
+        if (Array.isArray(this.filters[key])) {
+          if (this.filters[key].length) {
+            this.queryObject[key] = this.filters[key]
+          } else delete this.queryObject[key]
+        } else {
+          if (this.filters[key]) {
+            this.queryObject[key] = this.filters[key]
+          } else delete this.queryObject[key]
+        }
+      }
+      this.$router.push({
+        path: this.$route.path,
+        query: {...this.queryObject}
       })
     },
     onFocus() {
@@ -219,14 +285,18 @@ export default {
         justify-content: space-between;
         align-items: center;
         border-bottom: 2px solid #539ee0;
+        transition: all .4s ease-in-out;
         &__title {
           color: #539ee0;
+          transition: all .4s ease-in-out;
           &__quantity {
             color: lightcoral;
+            transition: all .4s ease-in-out;
           }
         }
         &__icons {
           padding-bottom: 2px;
+          transition: all .4s ease-in-out;
         }
       }
       &__bottom {
@@ -273,6 +343,12 @@ export default {
     }
   }
 }
+.bottom_filters {
+  ::v-deep .v-sheet {
+    position: absolute;
+    bottom: 0;
+  }
+}
 .filter_modal {
   display: flex;
   flex-direction: column;
@@ -282,6 +358,7 @@ export default {
   align-items: center;
   position: relative;
   z-index: 206;
+  overflow: hidden;
   .filter_modal_header {
     position: relative;
     height: 35px;
@@ -345,4 +422,11 @@ export default {
 ::v-deep .v-dialog__content {
   z-index: 206 !important;
 }
+
+//::v-deep .slide-y-reverse-transition-enter-active {
+//  transition: opacity .6s !important;
+//}
+//::v-deep .slide-y-reverse-transition-leave-active {
+//  transition: opacity .6s !important;
+//}
 </style>

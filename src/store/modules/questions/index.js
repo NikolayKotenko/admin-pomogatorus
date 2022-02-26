@@ -44,6 +44,8 @@ export default {
         listQuestions: [],
         listTypesOfQuestions: [],
         listConfigDate: [],
+        loadingList: false,
+        questionNotification: '',
 
         /* DETAIL QUESTION */
         loadingQuestion: false,
@@ -158,15 +160,19 @@ export default {
         }
     },
     actions: {
-        async setListQuestions({commit}) {
+        /* LIST_QUESTION */
+        async setListQuestions({commit, state}) {
             return new Promise((resolve, reject) => {
+                state.loadingList = true
                 axios.get(`${this.state.BASE_URL}/entity/questions`)
                     .then((response) => {
                         commit('set_list_questions', response.data.data)
+                        state.loadingList = false
                         resolve()
                     })
                     .catch((error) => {
                         console.log('test')
+                        state.loadingList = false
                         reject(error)
                     })
             })
@@ -184,27 +190,45 @@ export default {
                     })
             })
         },
-        async setFilteredListQuestions(data) {
+        async setFilteredListQuestions({state, commit}, data) {
             return new Promise((resolve, reject) => {
 
-                const {filterTag: tag, filterDate: updated_at, filterValue: name} = data
+                state.loadingList = true
+
+                console.log(data)
+
+                const {tag, updated_at, name} = data
 
                 console.log(tag)
                 console.log(updated_at)
                 console.log(name)
 
-                axios.get(`${this.state.BASE_URL}/entity/questions`)
+                const filter = {}
+                filter['filter[tag]'] = tag
+                filter['filter[updated_at]'] = updated_at
+                filter['filter[name]'] = name
+
+                axios.get(`${this.state.BASE_URL}/entity/questions`, {
+                    params: {
+                        ...filter
+                    }
+                })
                     .then((response) => {
-                        // commit('set_list_config_date', response.data.data)
                         console.log(response)
+                        commit('set_list_questions', response.data.data)
+                        state.loadingList = false
                         resolve()
                     })
                     .catch((error) => {
-                        console.log('test')
+                        state.loadingList = false
+                        commit('set_list_questions', [])
+                        state.questionNotification = error.response.data.message
                         reject(error)
                     })
             })
         },
+
+        /* DETAIL_QUESTION */
         async setListTypesQuestions({commit}) {
             axios.get(`${this.state.BASE_URL}/dictionary/type-answers`)
                 .then((response) => {
@@ -433,7 +457,6 @@ export default {
         getListTypesOfQuestions(state) {
             return state.listTypesOfQuestions
         },
-        // FIXME: tag
         getTags(state) {
             return state.newQuestion._all_tags
         }

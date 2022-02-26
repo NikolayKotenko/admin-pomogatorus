@@ -344,7 +344,7 @@
 <script>
 import { required } from 'vuelidate/lib/validators'
 
-import {mapGetters} from 'vuex'
+import { mapGetters } from 'vuex'
 
 import QuestionTags from "./QuestionTags";
 
@@ -461,8 +461,8 @@ export default {
   },
   methods: {
     initializeQuery() {
-      if (Object.keys(this.$route.params).length && Object.keys(this.$route.params).includes('id')) {
-        this.$store.dispatch('getDetailQuestion', this.$route.params.id).then(() => {
+      if (Object.keys(this.$route.query).length && Object.keys(this.$route.query).includes('question_id')) {
+        this.$store.dispatch('getDetailQuestion', this.$route.query.question_id).then(() => {
           if (this.$store.state.QuestionsModule.newQuestion.name) {
             this.newQuestion = this.$store.state.QuestionsModule.newQuestion
             if (Array.isArray(this.$store.state.QuestionsModule.newQuestion.value_type_answer)) {

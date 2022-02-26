@@ -16,7 +16,14 @@
         </v-icon>
       </template>
       <template v-else>
-        <v-app-bar-nav-icon @click="drawer = true" style="margin-left: 5px"></v-app-bar-nav-icon>
+        <template v-if="computedArrowBurger">
+          <v-icon color="#6d767f" style="cursor: pointer; padding: 0 10px" @click="returnToList">
+            mdi-arrow-left
+          </v-icon>
+        </template>
+        <template v-else>
+          <v-app-bar-nav-icon @click="drawer = true" style="margin-left: 5px"></v-app-bar-nav-icon>
+        </template>
       </template>
 
         <v-chip
@@ -30,8 +37,7 @@
             </v-icon>
             Рабочий стол
           </router-link>
-          <div v-if="!!Object.keys($route.meta).includes('ru_name')" style="padding-left: 10px; overflow: hidden; text-overflow: ellipsis;
-">
+          <div v-if="!!Object.keys($route.meta).includes('ru_name')" style="padding-left: 10px; overflow: hidden; text-overflow: ellipsis;">
             <v-icon small left>
               mdi-chevron-right
             </v-icon>
@@ -141,13 +147,24 @@ export default {
       }
     ]
   }),
+  computed: {
+    computedArrowBurger() {
+      return (Object.keys(this.$route.params).length && Object.keys(this.$route.params).includes('action'))
+    },
+  },
   methods: {
     onCreate() {
       this.$router.push({
         name: 'DetailQuestion',
         params: {action: 'create'},
       })
-    }
+    },
+    returnToList() {
+      this.$router.push({
+        name: 'Questions',
+        path: '/questions'
+      })
+    },
   },
 }
 </script>
