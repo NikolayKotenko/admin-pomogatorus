@@ -19,6 +19,7 @@
               @focusout="outFocus(newQuestion.name)"
               :loading="$store.state.QuestionsModule.loadingQuestion"
               :class="{invalid: !newQuestion.name.value && $v.newQuestion.name.$dirty && !$v.newQuestion.name.required}"
+              @change="onChange"
           >
             <template slot="append">
               <v-icon size="20" class="question_title__name__icon" :color="newQuestion.name.focused ? 'primary' : ''">
@@ -50,6 +51,7 @@
                 @focus="onFocus(newQuestion.title)"
                 @focusout="outFocus(newQuestion.title)"
                 :loading="$store.state.QuestionsModule.loadingQuestion"
+                @change="onChange"
             ></v-textarea>
           </div>
           <div class="question_title_help">
@@ -70,6 +72,7 @@
                 @focus="onFocus(newQuestion.article)"
                 @focusout="outFocus(newQuestion.article)"
                 :loading="$store.state.QuestionsModule.loadingQuestion"
+                @change="onChange"
             ></v-textarea>
           </div>
           <div class="question_title_help">
@@ -93,6 +96,7 @@
                 @focus="onFocus(newQuestion.purpose_of_question)"
                 @focusout="outFocus(newQuestion.purpose_of_question)"
                 :loading="$store.state.QuestionsModule.loadingQuestion"
+                @change="onChange"
             ></v-textarea>
             <small
                 v-if="!newQuestion.purpose_of_question.value && $v.newQuestion.purpose_of_question.$dirty && !$v.newQuestion.purpose_of_question.required"
@@ -118,7 +122,7 @@
                 item-text="name"
                 item-value="id"
                 v-model="newQuestion.id_type_answer.value"
-                @change="onSelect()"
+                @change="onSelect(); onChange()"
                 @focus="onFocus(newQuestion.id_type_answer)"
                 @focusout="outFocus(newQuestion.id_type_answer)"
                 :loading="$store.state.QuestionsModule.loadingQuestion"
@@ -155,6 +159,7 @@
                       v-model="answer.answer"
                       @focus="onFocus(newQuestion.id_type_answer, answer.id);"
                       @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
+                      @change="onChange"
                   >
                   </v-text-field>
                   <div class="divider" v-if="answer.showComentary"></div>
@@ -172,6 +177,7 @@
                       v-if="answer.showComentary"
                       @focus="onFocus(newQuestion.id_type_answer, answer.id)"
                       @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
+                      @change="onChange"
                   ></v-textarea>
                 </div>
               </transition-group>
@@ -201,14 +207,15 @@
                       @focus="onFocus(newQuestion.id_type_answer, answer.id);"
                       @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
                       type="number"
+                      @change="onChange"
                   >
                     <template slot="prepend-inner">
-                      <v-icon small :color="answer.focused ? 'black' : ''">
+                      <v-icon small :color="answer.focused ? 'black' : ''" @click="rangeEdit('minus', answer)">
                         mdi-minus
                       </v-icon>
                     </template>
                     <template slot="append">
-                      <v-icon small :color="answer.focused ? 'black' : ''">
+                      <v-icon small :color="answer.focused ? 'black' : ''" @click="rangeEdit('plus', answer)">
                         mdi-plus
                       </v-icon>
                     </template>
@@ -219,19 +226,6 @@
             <small v-if="rangeError" style="color: lightcoral">
               Неккоректные значения
             </small>
-<!--            <div class="question_main_wrapper bordered" v-if="newQuestion.id_type_answer.value === 2">-->
-<!--              <v-textarea-->
-<!--                  :class="{inputFocused: newQuestion.id_type_answer.focused}"-->
-<!--                  placeholder="Введите значение"-->
-<!--                  dense-->
-<!--                  hide-details-->
-<!--                  flat-->
-<!--                  solo-->
-<!--                  v-model="newQuestion.value_type_answer"-->
-<!--                  @focus="onFocus(newQuestion.id_type_answer)"-->
-<!--                  @focusout="outFocus(newQuestion.id_type_answer,)"-->
-<!--              ></v-textarea>-->
-<!--            </div>-->
           </template>
         </div>
         <div class="question_settings">
@@ -241,6 +235,7 @@
               label="Допускается развернутый ответ"
               v-model="newQuestion.state_detailed_response"
               :loading="$store.state.QuestionsModule.loadingQuestion"
+              @change="onChange"
           ></v-checkbox>
           <v-checkbox
               hide-details
@@ -248,6 +243,7 @@
               label="Наличие вложения в ответе"
               v-model="newQuestion.state_attachment_response"
               :loading="$store.state.QuestionsModule.loadingQuestion"
+              @change="onChange"
           ></v-checkbox>
         </div>
         <!-- Tags Component -->
@@ -393,12 +389,14 @@ export default {
       state_detailed_response: 0,
       state_attachment_response: 0,
       value_type_answer: null,
-      tags: [],
+      _all_tags: [],
     },
     deleteModal: false,
+    deleteStorage: false,
   }),
   mounted() {
     this.initializeQuery()
+    this.initializeStorage()
     this.getTypes()
   },
   watch: {
@@ -425,6 +423,14 @@ export default {
       },
       deep: true
     },
+    '$store.state.QuestionsModule.newQuestion._all_tags': {
+      handler() {
+        console.log('tag')
+        this.newQuestion._all_tags = this.$store.state.QuestionsModule.newQuestion._all_tags
+        this.onChange()
+      },
+      deep: true
+    }
   },
   computed: {
     ...mapGetters([
@@ -472,6 +478,19 @@ export default {
         })
       }
     },
+    initializeStorage() {
+      if (Object.keys(this.$route.params).length && Object.keys(this.$route.params).includes('action')) {
+        if (this.$route.params.action === 'create') {
+          console.log('storage')
+          if (localStorage.getItem('question') !== null) {
+            this.$store.dispatch('getFromLocalStorage').then(() => {
+              this.newQuestion = this.$store.state.QuestionsModule.newQuestion
+              this.onChange()
+            })
+          }
+        }
+      }
+    },
     getTypes() {
       this.$store.dispatch('setListTypesQuestions')
     },
@@ -513,9 +532,10 @@ export default {
       }
     },
     resetFields() {
-      // FIXME: clear STORAGE
+      this.deleteStorage = true
       for (let key in this.newQuestion) {
-        if (typeof this.newQuestion[key] === 'object') {
+        console.log(key)
+        if (typeof this.newQuestion[key] === 'object' && this.newQuestion[key] !== null) {
           if (Array.isArray(this.newQuestion[key])) {
             this.newQuestion[key] = []
           } else this.newQuestion[key].value = ''
@@ -526,6 +546,10 @@ export default {
         }
       }
       this.lastIdAnswer = 1
+      this.$store.dispatch('removeLocalStorage')
+      setTimeout(() => {
+        this.deleteStorage = false
+      }, 500)
     },
     onSubmit() {
       if (this.$v.$invalid) {
@@ -533,6 +557,7 @@ export default {
         return;
       }
         this.$store.dispatch('createQuestion', this.newQuestion).then(() => {
+          this.$store.dispatch('removeLocalStorage')
           this.$router.push({
             path: '/questions'
           })
@@ -552,6 +577,38 @@ export default {
           path: '/questions'
         })
       })
+    },
+    onChange() {
+      if (!this.deleteStorage) {
+        if (this.$route.params?.action === 'create') {
+          this.$store.dispatch('setLocalStorage', this.newQuestion)
+        }
+      }
+    },
+    rangeEdit(action, answer) {
+      if (action === 'plus') {
+        if (!answer.answer) {
+          this.$nextTick(() => {
+            answer.answer = 1
+          })
+        } else {
+          this.$nextTick(() => {
+            answer.answer = parseInt(answer.answer)+1
+          })
+        }
+      } else {
+        if (!answer.answer) {
+          this.$nextTick(() => {
+            answer.answer = 0
+          })
+        } else if (parseInt(answer.answer) > 0) {
+          this.$nextTick(() => {
+            answer.answer = parseInt(answer.answer)-1
+          })
+        } else this.$nextTick(() => {
+          answer.answer = 0
+        })
+      }
     },
 
     /* CONSTRUCTORS */

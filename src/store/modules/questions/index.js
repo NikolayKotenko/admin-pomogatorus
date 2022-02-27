@@ -101,6 +101,7 @@ export default {
             state.listConfigDate = []
             state.listConfigDate = result
         },
+
         /* DETAIL QUESTION */
         set_list_types_questions(state, result) {
             state.listTypesOfQuestions = []
@@ -157,7 +158,24 @@ export default {
                 } else state.newQuestion[key] = result[key]
             }
             state.nonEditState = Object.assign({}, state.newQuestion)
-        }
+        },
+
+        /* LOCAL_STORAGE */
+        set_local_storage({state}, object) {
+            console.log(state)
+            localStorage.setItem('question', JSON.stringify(object))
+        },
+        remove_local_storage() {
+            localStorage.removeItem('question')
+        },
+        get_from_local_storage() {
+            if (localStorage.getItem('question') !== null) {
+                console.log(this.state.QuestionsModule.newQuestion)
+                console.log(JSON.parse(localStorage.getItem('question')))
+                this.state.QuestionsModule.newQuestion = Object.assign({}, defaultQuestion)
+                this.state.QuestionsModule.newQuestion = JSON.parse(localStorage.getItem('question'))
+            }
+        },
     },
     actions: {
         /* LIST_QUESTION */
@@ -192,16 +210,9 @@ export default {
         },
         async setFilteredListQuestions({state, commit}, data) {
             return new Promise((resolve, reject) => {
-
                 state.loadingList = true
 
-                console.log(data)
-
                 const {tag, updated_at, name} = data
-
-                console.log(tag)
-                console.log(updated_at)
-                console.log(name)
 
                 const filter = {}
                 filter['filter[tag]'] = tag
@@ -451,7 +462,21 @@ export default {
                         console.log(response.body);
                     });
             })
-        }
+        },
+
+        /* LOCAL_STORAGE */
+        setLocalStorage({commit}, object) {
+            commit('set_local_storage', object)
+        },
+        removeLocalStorage({commit}) {
+            commit('remove_local_storage')
+        },
+        getFromLocalStorage({commit}) {
+            return new Promise((resolve) => {
+                commit('get_from_local_storage')
+                resolve()
+            })
+        },
     },
     getters: {
         getListTypesOfQuestions(state) {

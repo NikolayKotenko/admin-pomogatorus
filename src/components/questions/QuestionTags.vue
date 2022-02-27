@@ -139,7 +139,6 @@ export default {
                 this.$store.state.QuestionsModule.tagError.errObj.name.replace(/\s/g, '').toLowerCase()
             );
           } else this.$store.state.QuestionsModule.tagError.isError = false
-
         }
       })
     },
