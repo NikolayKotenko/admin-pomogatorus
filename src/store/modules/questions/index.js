@@ -3,31 +3,32 @@ import axios from "axios";
 
 /* DEFAULT STATE */
 const defaultQuestion = {
-        name: {
-            value: '',
-            focused: false,
-        },
-        title: {
-            value: '',
-            focused: false,
-        },
-        article: {
-            value: '',
-            focused: false,
-        },
-        purpose_of_question: {
-            value: '',
-            focused: false,
-        },
-        id_type_answer: {
-            value: null,
-            focused: false
-        },
-        state_detailed_response: 0,
-        state_attachment_response: 0,
-        value_type_answer: null,
-        _all_tags: [],
-    }
+    name: {
+        value: '',
+        focused: false,
+    },
+    title: {
+        value: '',
+        focused: false,
+    },
+    article: {
+        value: '',
+        focused: false,
+    },
+    purpose_of_question: {
+        value: '',
+        focused: false,
+    },
+    id_type_answer: {
+        value: null,
+        focused: false
+    },
+    state_detailed_response: 0,
+    state_attachment_response: 0,
+    value_type_answer: null,
+    _all_tags: [],
+    mtomtags: [],
+}
 
 /* CONSTRUCTORS */
 function AnswerVariable(answer) {
@@ -75,6 +76,7 @@ export default {
             state_attachment_response: 0,
             value_type_answer: null,
             _all_tags: [],
+            mtomtags: []
         },
         nonEditState: {},
 
@@ -95,7 +97,14 @@ export default {
         /* LIST QUESTIONS */
         set_list_questions(state, result) {
             state.listQuestions = []
-            state.listQuestions = result
+            if (Array.isArray(result)) {
+                state.listQuestions = result
+            } else {
+                for (let key in result) {
+                    state.listQuestions.push(result[key])
+                }
+            }
+
         },
         set_list_config_date(state, result) {
             state.listConfigDate = []
@@ -170,8 +179,6 @@ export default {
         },
         get_from_local_storage() {
             if (localStorage.getItem('question') !== null) {
-                console.log(this.state.QuestionsModule.newQuestion)
-                console.log(JSON.parse(localStorage.getItem('question')))
                 this.state.QuestionsModule.newQuestion = Object.assign({}, defaultQuestion)
                 this.state.QuestionsModule.newQuestion = JSON.parse(localStorage.getItem('question'))
             }
@@ -310,6 +317,7 @@ export default {
         async createQuestion({dispatch, state}, data) {
             return new Promise((resolve) => {
                 state.loadingRequest = true
+                state.loadingQuestion = true
                 let bodyFormData = new FormData()
                 for (let key in data) {
                     if (key === 'value_type_answer') {
@@ -342,6 +350,7 @@ export default {
                         state.loadingRequest = false
                         dispatch('setListQuestions').then(() => {
                             dispatch('createRelationTag', data.name.value).then(() => {
+                                state.loadingQuestion = false
                                 resolve()
                             })
                         })
@@ -350,6 +359,7 @@ export default {
                     .catch((response) => {
                         //handle error
                         state.loadingRequest = false
+                        state.loadingQuestion = false
                         resolve()
                         console.log(response.body);
                     });
@@ -358,34 +368,61 @@ export default {
         createRelationTag({state}, name) {
             return new Promise((resolve, reject) => {
                 if (state.newQuestion._all_tags.length) {
-                    console.log(name)
                     let finded = state.listQuestions.filter(elem => {
                         return elem.name === name
                     })
-                    console.log(finded)
                     state.newQuestion._all_tags.forEach(tag => {
-                        let tagsFormData = new FormData()
-                        tagsFormData.append('id_tag', tag.id)
-                        tagsFormData.append('id_question', finded[0].id)
-                        // tagsFormData.append('id_answer', finded[0].id_type_answer)
-                        axios.post(`${this.state.BASE_URL}/m-to-m/tags`, tagsFormData)
-                            .then((response) => {
-                                console.log(response)
-                                resolve()
-                            })
-                            .catch((error) => {
-                                console.log(error)
-                                reject(error)
-                            })
+                        let mtmIndex = state.newQuestion.mtomtags.findIndex(elem => {
+                            return elem.id_tag === tag.id
+                        })
+                        if (mtmIndex === -1) {
+                            let tagsFormData = new FormData()
+                            tagsFormData.append('id_tag', tag.id)
+                            tagsFormData.append('id_question', finded[0].id)
+                            // tagsFormData.append('id_answer', finded[0].id_type_answer)
+                            axios.post(`${this.state.BASE_URL}/m-to-m/tags`, tagsFormData)
+                                .then((response) => {
+                                    console.log(response)
+                                    resolve()
+                                })
+                                .catch((error) => {
+                                    console.log(error)
+                                    reject(error)
+                                })
+                        }
                     })
                 }
+                resolve()
+            })
+        },
+        deleteRelationTag({state}, id) {
+            return new Promise((resolve, reject) => {
+                state.loadingQuestion = true
+
+                const options = {
+                    method: 'DELETE',
+                    url: `${this.state.BASE_URL}/m-to-m/tags/${id}`,
+                }
+
+                axios(options)
+                    .then((response) => {
+                        //handle success
+                        state.loadingQuestion = false
+                        resolve()
+                        console.log(response);
+                    })
+                    .catch((error) => {
+                        //handle error
+                        state.loadingQuestion = false
+                        reject(error)
+                    });
             })
         },
         updateQuestion({dispatch, state}, data) {
             return new Promise((resolve) => {
                 state.loadingRequest = true
+                state.loadingQuestion = true
                 const requestData = {}
-                console.log(data)
                 for (let key in data) {
                     if (key === 'value_type_answer') {
                         if (Array.isArray(data[key])) {
@@ -424,6 +461,7 @@ export default {
                     .then((response) => {
                         //handle success
                         state.loadingRequest = false
+                        state.loadingQuestion = false
                         dispatch('setListQuestions').then(() => {
                             dispatch('createRelationTag', data.name.value).then(() => {
                                 resolve()
@@ -434,6 +472,7 @@ export default {
                     .catch((response) => {
                         //handle error
                         state.loadingRequest = false
+                        state.loadingQuestion = false
                         resolve()
                         console.log(response.body);
                     });

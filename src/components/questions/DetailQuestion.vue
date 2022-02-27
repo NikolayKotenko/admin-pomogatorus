@@ -268,20 +268,22 @@
           </v-btn>
         </template>
         <template v-else>
-          <v-btn
-              color="red darken-1"
-              text
-              @click="deleteModal = true"
-          >
-            Удалить
-          </v-btn>
-          <v-btn
-              color="blue darken-1"
-              text
-              @click.prevent="saveDifferences()"
-          >
-            Сохранить изменения
-          </v-btn>
+          <template v-if="Object.keys(this.$store.state.QuestionsModule.nonEditState).length">
+            <v-btn
+                color="red darken-1"
+                text
+                @click="deleteModal = true"
+            >
+              Удалить
+            </v-btn>
+            <v-btn
+                color="blue darken-1"
+                text
+                @click.prevent="saveDifferences()"
+            >
+              Сохранить изменения
+            </v-btn>
+          </template>
         </template>
       </div>
 
@@ -390,6 +392,7 @@ export default {
       state_attachment_response: 0,
       value_type_answer: null,
       _all_tags: [],
+      mtomtags: [],
     },
     deleteModal: false,
     deleteStorage: false,
@@ -425,7 +428,6 @@ export default {
     },
     '$store.state.QuestionsModule.newQuestion._all_tags': {
       handler() {
-        console.log('tag')
         this.newQuestion._all_tags = this.$store.state.QuestionsModule.newQuestion._all_tags
         this.onChange()
       },
@@ -444,26 +446,6 @@ export default {
           (this.rangeError)
       )
     },
-    // computedNonEdited() {
-    //     return Object.keys(this.$store.state.QuestionsModule.nonEditState).length ? Object.keys(this.$store.state.QuestionsModule.nonEditState).map(elem => {
-    //       console.log(elem)
-    //       if (typeof this.$store.state.QuestionsModule.nonEditState[elem] === 'object') {
-    //         if (Array.isArray(this.$store.state.QuestionsModule.nonEditState[elem])) {
-    //           if (this.$store.state.QuestionsModule.nonEditState[elem].length) {
-    //             this.$store.state.QuestionsModule.nonEditState[elem].map(i => {
-    //               return this.newQuestion[elem].some(elem => {
-    //                 elem.id === i.id
-    //               })
-    //             })
-    //           }
-    //         } else {
-    //           return this.$store.state.QuestionsModule.nonEditState[elem].value === this.newQuestion[elem].value
-    //         }
-    //       } else {
-    //         return this.$store.state.QuestionsModule.nonEditState[elem] === this.newQuestion[elem]
-    //       }
-    //     }).some(elem => elem === false) : false
-    // },
   },
   methods: {
     initializeQuery() {
@@ -481,7 +463,6 @@ export default {
     initializeStorage() {
       if (Object.keys(this.$route.params).length && Object.keys(this.$route.params).includes('action')) {
         if (this.$route.params.action === 'create') {
-          console.log('storage')
           if (localStorage.getItem('question') !== null) {
             this.$store.dispatch('getFromLocalStorage').then(() => {
               this.newQuestion = this.$store.state.QuestionsModule.newQuestion
@@ -512,13 +493,11 @@ export default {
     onFocus(obj, id) {
       obj.focused = true
       if (id) {
-        console.log(id)
         let index = this.newQuestion.value_type_answer.findIndex(elem => {
           return elem.id === id
         })
         if (index !== -1) {
           this.newQuestion.value_type_answer[index].focused = true
-          console.log(this.newQuestion.value_type_answer[index].focused)
         }
       }
     },
@@ -534,7 +513,6 @@ export default {
     resetFields() {
       this.deleteStorage = true
       for (let key in this.newQuestion) {
-        console.log(key)
         if (typeof this.newQuestion[key] === 'object' && this.newQuestion[key] !== null) {
           if (Array.isArray(this.newQuestion[key])) {
             this.newQuestion[key] = []

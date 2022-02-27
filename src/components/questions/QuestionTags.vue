@@ -101,7 +101,6 @@ export default {
       })) {
         this.$store.dispatch('setNewTagToList', this.$store.state.QuestionsModule.tagSearch).then(() => {
           this.$store.state.QuestionsModule.newQuestion._all_tags.push(Object.assign({}, this.$store.state.QuestionsModule.createdTag))
-          console.log(this.$store.state.QuestionsModule.createdTag)
           this.$store.state.QuestionsModule.createdTag = {}
           this.$store.state.QuestionsModule.showCreateTag = false
           this.$store.state.QuestionsModule.newTag = ''
@@ -127,11 +126,22 @@ export default {
       let index = this.$store.state.QuestionsModule.newQuestion._all_tags.findIndex(elem => {
         return elem.id === item.id
       })
-      if (index !== -1) this.$store.state.QuestionsModule.newQuestion._all_tags.splice(index, 1)
+      if (index !== -1) {
+        this.$store.state.QuestionsModule.newQuestion._all_tags.splice(index, 1)
+        if (this.$route.params?.action === 'edit') {
+          if (this.$store.state.QuestionsModule.newQuestion.mtomtags.length) {
+            let mtmIndex = this.$store.state.QuestionsModule.newQuestion.mtomtags.findIndex(elem => {
+              return elem.id_tag === item.id
+            })
+            if (mtmIndex !== -1) {
+              this.$store.dispatch('deleteRelationTag', this.$store.state.QuestionsModule.newQuestion.mtomtags[mtmIndex].id)
+            }
+          }
+        }
+      }
     },
     checkForTagError() {
       setTimeout(() => {
-        console.log('changed')
         if (Object.keys(this.$store.state.QuestionsModule.tagError.errObj).length) {
           if (this.$store.state.QuestionsModule.tagSearch) {
             this.$store.state.QuestionsModule.tagError.isError = (

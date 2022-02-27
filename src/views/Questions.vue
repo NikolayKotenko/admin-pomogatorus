@@ -39,7 +39,6 @@
       >
         {{ $store.state.QuestionsModule.questionNotification }}
       </v-alert>
-
     </div>
     <v-sheet class="footer">
       <div class="footer_input">
@@ -184,6 +183,7 @@ export default {
     },
     queryObject: {},
     debounceTimeout: null,
+    getFromQuery: false
   }),
   mounted() {
     this.getQuestions()
@@ -197,8 +197,10 @@ export default {
   watch: {
     filters: {
       handler() {
-        this.getFilteredQuestions()
-        this.changeQuery()
+        if (!this.getFromQuery) {
+          this.getFilteredQuestions()
+          this.changeQuery()
+        }
       },
       deep: true
     }
@@ -227,17 +229,33 @@ export default {
       })
     },
     initializeQuery() {
+      this.getFromQuery = true
       if (Object.keys(this.$route.query).length) {
         for (let key in this.filters) {
           if (Object.keys(this.$route.query).includes(key) && this.$route.query[key] !== null) {
-            if (key === 'updated_at') {
-              this.filters[key] = parseInt(this.$route.query[key])
+            if (key === 'tag') {
+              if (Array.isArray(this.$route.query[key])) {
+                // console.log()
+                this.filters[key] = []
+                this.filters[key].push(...this.$route.query[key])
+              } else {
+                this.filters[key] = []
+                this.filters[key].push(this.$route.query[key])
+              }
             } else {
-              this.filters[key] = this.$route.query[key]
+              if (key === 'updated_at') {
+                this.filters[key] = parseInt(this.$route.query[key])
+              } else {
+                this.filters[key] = this.$route.query[key]
+              }
             }
           }
         }
       }
+      setTimeout(() => {
+        this.getFromQuery = false
+        this.getFilteredQuestions()
+      })
     },
     changeQuery() {
       for (let key in this.filters) {
