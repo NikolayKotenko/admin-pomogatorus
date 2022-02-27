@@ -32,12 +32,12 @@
       </div>
 
       <v-alert
-          v-if="$store.state.QuestionsModule.listQuestions === null || !$store.state.QuestionsModule.listQuestions.length"
+          v-if="!$store.state.QuestionsModule.loadingList && ($store.state.QuestionsModule.listQuestions === null || !$store.state.QuestionsModule.listQuestions.length)"
           type="error"
           text
           class="err-msg"
       >
-        {{ $store.state.QuestionsModule.questionNotification }}
+        {{ computedErrMsg }}
       </v-alert>
     </div>
     <v-sheet class="footer">
@@ -64,7 +64,7 @@
 
     <!-- LOADER -->
     <v-overlay
-        :z-index="201"
+        :z-index="207"
         :absolute="true"
         :value="$store.state.QuestionsModule.loadingList"
     >
@@ -151,29 +151,6 @@
 export default {
   name: "Questions",
   data: () => ({
-    test: [
-      {
-        "id": 1,
-        "name_param_env": "kotly_da_ili_da",
-        "name": "xingxiang",
-        "purpose_of_question": "Узнать чего нибудь",
-        "title": null,
-        "article": null,
-        "id_type_answer": 1,
-        "value_type_answer": "\"{'sdf': 'sdf'}\"",
-        "state_detailed_response": 0,
-        "state_attachment_response": 0,
-        "created_at": "2022-01-23T16:58:33.000000Z",
-        "updated_at": "2022-01-23T16:58:33.000000Z",
-        "typeanswer": {
-          "id": 1,
-          "code": "stroka",
-          "name": "Строка ",
-          "created_at": null,
-          "updated_at": null
-        }
-      }
-    ],
     show_filter: false,
     filterValueFocused: false,
     filters: {
@@ -186,13 +163,15 @@ export default {
     getFromQuery: false
   }),
   mounted() {
-    this.getQuestions()
+    // this.getQuestions()
     this.getConfigDate()
     this.getTags()
     this.initializeQuery()
   },
   computed: {
-
+    computedErrMsg() {
+      return (this.$store.state.QuestionsModule.questionNotification ? this.$store.state.QuestionsModule.questionNotification : 'Ничего не найдено')
+    },
   },
   watch: {
     filters: {
