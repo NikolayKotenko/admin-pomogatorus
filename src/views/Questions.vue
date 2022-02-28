@@ -12,13 +12,50 @@
               {{question.name}}
             </span>
             <span class="questions_wrapper__item__top__title__quantity">
-              [3]
+              [{{ computedAnswersCount(question) }}]
             </span>
           </div>
           <div class="questions_wrapper__item__top__icons">
-            <v-icon color="grey lighten-1">
-              mdi-comment-text
-            </v-icon>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon
+                    color="grey lighten-1"
+                    v-if="question.title"
+                    v-bind="attrs"
+                    v-on="on"
+                >
+                  mdi-comment-text
+                </v-icon>
+              </template>
+              <span>Заполнено поле комментарий</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon
+                    color="grey lighten-1"
+                    v-if="question.state_detailed_response"
+                    v-bind="attrs"
+                    v-on="on"
+                >
+                  mdi-pencil-box-outline
+                </v-icon>
+              </template>
+              <span>Возможность дать развернутый ответ</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon
+                    color="grey lighten-1"
+                    style="transform: rotate(45deg)"
+                    v-if="question.state_attachment_response"
+                    v-bind="attrs"
+                    v-on="on"
+                >
+                  mdi-paperclip
+                </v-icon>
+              </template>
+              <span>Возможность осуществлять вложение</span>
+            </v-tooltip>
           </div>
         </div>
         <div class="questions_wrapper__item__bottom">
@@ -258,7 +295,19 @@ export default {
     },
     outFocus() {
       this.filterValueFocused = false
-    }
+    },
+    computedAnswersCount(question) {
+      let result = JSON.parse(JSON.parse(question.value_type_answer))
+      if (Array.isArray(result)) {
+        if (result.length) {
+          return result.length
+        } else {
+          return 1
+        }
+      } else {
+        return JSON.parse(question.value_type_answer).length
+      }
+    },
   },
 }
 </script>
