@@ -81,10 +81,7 @@
           </span>
             <v-textarea
                 class="question_title_help__description"
-                :class="{
-                inputFocused: newQuestion.purpose_of_question.focused,
-                invalid: !newQuestion.purpose_of_question.value && $v.newQuestion.purpose_of_question.$dirty && !$v.newQuestion.purpose_of_question.required
-                }"
+                :class="{ inputFocused: newQuestion.purpose_of_question.focused }"
                 placeholder="Введите цель вопроса"
                 auto-grow
                 rows="1"
@@ -98,12 +95,31 @@
                 :loading="$store.state.QuestionsModule.loadingQuestion"
                 @change="onChange"
             ></v-textarea>
-            <small
-                v-if="!newQuestion.purpose_of_question.value && $v.newQuestion.purpose_of_question.$dirty && !$v.newQuestion.purpose_of_question.required"
-                style="color: lightcoral"
-            >
-              Поле обязательно для заполнения
-            </small>
+<!--            <v-textarea-->
+<!--                class="question_title_help__description"-->
+<!--                :class="{-->
+<!--                inputFocused: newQuestion.purpose_of_question.focused,-->
+<!--                invalid: !newQuestion.purpose_of_question.value && $v.newQuestion.purpose_of_question.$dirty && !$v.newQuestion.purpose_of_question.required-->
+<!--                }"-->
+<!--                placeholder="Введите цель вопроса"-->
+<!--                auto-grow-->
+<!--                rows="1"-->
+<!--                dense-->
+<!--                hide-details-->
+<!--                flat-->
+<!--                solo-->
+<!--                v-model="newQuestion.purpose_of_question.value"-->
+<!--                @focus="onFocus(newQuestion.purpose_of_question)"-->
+<!--                @focusout="outFocus(newQuestion.purpose_of_question)"-->
+<!--                :loading="$store.state.QuestionsModule.loadingQuestion"-->
+<!--                @change="onChange"-->
+<!--            ></v-textarea>-->
+<!--            <small-->
+<!--                v-if="!newQuestion.purpose_of_question.value && $v.newQuestion.purpose_of_question.$dirty && !$v.newQuestion.purpose_of_question.required"-->
+<!--                style="color: lightcoral"-->
+<!--            >-->
+<!--              Поле обязательно для заполнения-->
+<!--            </small>-->
           </div>
         </div>
 
@@ -346,6 +362,43 @@ import { mapGetters } from 'vuex'
 
 import QuestionTags from "./QuestionTags";
 
+
+/* INDEXEDDB */
+  /*//prefixes of implementation that we want to test
+  window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+
+  //prefixes of window.IDB objects
+  window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
+  window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange
+
+  if (!window.indexedDB) {
+    window.alert("Your browser doesn't support a stable version of IndexedDB.")
+  }
+
+  const employeeData = [];
+  let db;
+  let request = window.indexedDB.open("newDatabase", 1);
+
+  // eslint-disable-next-line no-unused-vars
+  request.onerror = function(event) {
+    console.log("error: ");
+  };
+
+  // eslint-disable-next-line no-unused-vars
+  request.onsuccess = function(event) {
+    db = request.result;
+    console.log("success: "+ db);
+  };
+
+  request.onupgradeneeded = function(event) {
+    let db = event.target.result;
+    let objectStore = db.createObjectStore("employee", {keyPath: "id"});
+
+    for (let i in employeeData) {
+      objectStore.add(employeeData[i]);
+    }
+  }*/
+
 export default {
   name: "CreateQuestion",
   components: {QuestionTags},
@@ -354,14 +407,15 @@ export default {
       name: {
         value: {required}
       },
-      purpose_of_question: {
-        value: {required}
-      },
+      // purpose_of_question: {
+      //   value: {required}
+      // },
       id_type_answer: {
         value: {required}
       }
     },
-    validationGroup: ['newQuestion.name.value', 'newQuestion.id_type_answer.value', 'newQuestion.purpose_of_question.value']
+    validationGroup: ['newQuestion.name.value', 'newQuestion.id_type_answer.value']
+    // 'newQuestion.purpose_of_question.value'
   },
   data: () => ({
     lastIdAnswer: 1,
@@ -441,7 +495,7 @@ export default {
     computedValidations() {
       return (
           (!this.newQuestion.name.value && this.$v.newQuestion.name.$dirty && !this.$v.newQuestion.name.required) ||
-          (!this.newQuestion.purpose_of_question.value && this.$v.newQuestion.purpose_of_question.$dirty && !this.$v.newQuestion.purpose_of_question.required) ||
+          // (!this.newQuestion.purpose_of_question.value && this.$v.newQuestion.purpose_of_question.$dirty && !this.$v.newQuestion.purpose_of_question.required) ||
           (!this.newQuestion.id_type_answer.value && this.$v.newQuestion.id_type_answer.$dirty && !this.$v.newQuestion.id_type_answer.required) ||
           (this.rangeError)
       )
