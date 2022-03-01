@@ -316,7 +316,8 @@ export default {
 .questions {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  min-height:100%;
+  position: relative;
   .questions_wrapper {
     display: flex;
     flex-direction: column;
@@ -370,6 +371,9 @@ export default {
     align-items: center;
     column-gap: 10px;
     z-index: 207;
+    position: sticky;
+    bottom: 0;
+    min-width: 100%;
     .footer_input {
       flex: 1;
       width: 100%;
