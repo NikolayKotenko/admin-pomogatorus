@@ -23,4 +23,4 @@ npm run lint
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<!-- <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"> -->
