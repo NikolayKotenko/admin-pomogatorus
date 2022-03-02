@@ -123,7 +123,7 @@
       <v-sheet
           v-show="show_filter"
           class="text-center filter_modal"
-          height="80vh"
+          height="79vh"
       >
         <div class="filter_modal_header">
           <div class="filter_modal_header__close">
@@ -251,7 +251,6 @@ export default {
           if (Object.keys(this.$route.query).includes(key) && this.$route.query[key] !== null) {
             if (key === 'tag') {
               if (Array.isArray(this.$route.query[key])) {
-                // console.log()
                 this.filters[key] = []
                 this.filters[key].push(...this.$route.query[key])
               } else {

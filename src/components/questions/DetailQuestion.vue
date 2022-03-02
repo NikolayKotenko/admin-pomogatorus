@@ -19,7 +19,7 @@
               @focusout="outFocus(newQuestion.name)"
               :loading="$store.state.QuestionsModule.loadingQuestion"
               :class="{invalid: !newQuestion.name.value && $v.newQuestion.name.$dirty && !$v.newQuestion.name.required}"
-              @change="onChange"
+              @input="saveDBQuestion(newQuestion)"
           >
             <template slot="append">
               <v-icon size="20" class="question_title__name__icon" :color="newQuestion.name.focused ? 'primary' : ''">
@@ -51,7 +51,7 @@
                 @focus="onFocus(newQuestion.title)"
                 @focusout="outFocus(newQuestion.title)"
                 :loading="$store.state.QuestionsModule.loadingQuestion"
-                @change="onChange"
+                @input="saveDBQuestion(newQuestion)"
             ></v-textarea>
           </div>
           <div class="question_title_help">
@@ -72,7 +72,7 @@
                 @focus="onFocus(newQuestion.article)"
                 @focusout="outFocus(newQuestion.article)"
                 :loading="$store.state.QuestionsModule.loadingQuestion"
-                @change="onChange"
+                @input="saveDBQuestion(newQuestion)"
             ></v-textarea>
           </div>
           <div class="question_title_help">
@@ -93,7 +93,7 @@
                 @focus="onFocus(newQuestion.purpose_of_question)"
                 @focusout="outFocus(newQuestion.purpose_of_question)"
                 :loading="$store.state.QuestionsModule.loadingQuestion"
-                @change="onChange"
+                @input="saveDBQuestion(newQuestion)"
             ></v-textarea>
 <!--            <v-textarea-->
 <!--                class="question_title_help__description"-->
@@ -138,7 +138,7 @@
                 item-text="name"
                 item-value="id"
                 v-model="newQuestion.id_type_answer.value"
-                @change="onSelect(); onChange()"
+                @change="onSelect(); saveDBQuestion(newQuestion)"
                 @focus="onFocus(newQuestion.id_type_answer)"
                 @focusout="outFocus(newQuestion.id_type_answer)"
                 :loading="$store.state.QuestionsModule.loadingQuestion"
@@ -175,7 +175,7 @@
                       v-model="answer.answer"
                       @focus="onFocus(newQuestion.id_type_answer, answer.id);"
                       @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
-                      @change="onChange"
+                      @input="saveDBQuestion(newQuestion)"
                   >
                   </v-text-field>
                   <div class="divider" v-if="answer.showComentary"></div>
@@ -193,7 +193,7 @@
                       v-if="answer.showComentary"
                       @focus="onFocus(newQuestion.id_type_answer, answer.id)"
                       @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
-                      @change="onChange"
+                      @input="saveDBQuestion(newQuestion)"
                   ></v-textarea>
                 </div>
               </transition-group>
@@ -223,7 +223,7 @@
                       @focus="onFocus(newQuestion.id_type_answer, answer.id);"
                       @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
                       type="number"
-                      @change="onChange"
+                      @input="saveDBQuestion(newQuestion)"
                   >
                     <template slot="prepend-inner">
                       <v-icon small :color="answer.focused ? 'black' : ''" @click="rangeEdit('minus', answer)">
@@ -251,7 +251,7 @@
               label="Допускается развернутый ответ"
               v-model="newQuestion.state_detailed_response"
               :loading="$store.state.QuestionsModule.loadingQuestion"
-              @change="onChange"
+              @change="saveDBQuestion(newQuestion)"
           ></v-checkbox>
           <v-checkbox
               hide-details
@@ -259,7 +259,7 @@
               label="Наличие вложения в ответе"
               v-model="newQuestion.state_attachment_response"
               :loading="$store.state.QuestionsModule.loadingQuestion"
-              @change="onChange"
+              @change="saveDBQuestion(newQuestion)"
           ></v-checkbox>
         </div>
         <!-- Tags Component -->
@@ -362,42 +362,11 @@ import { mapGetters } from 'vuex'
 
 import QuestionTags from "./QuestionTags";
 
-
 /* INDEXEDDB */
-  /*//prefixes of implementation that we want to test
-  window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
-
-  //prefixes of window.IDB objects
-  window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
-  window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange
-
-  if (!window.indexedDB) {
-    window.alert("Your browser doesn't support a stable version of IndexedDB.")
-  }
-
-  const employeeData = [];
-  let db;
-  let request = window.indexedDB.open("newDatabase", 1);
-
-  // eslint-disable-next-line no-unused-vars
-  request.onerror = function(event) {
-    console.log("error: ");
-  };
-
-  // eslint-disable-next-line no-unused-vars
-  request.onsuccess = function(event) {
-    db = request.result;
-    console.log("success: "+ db);
-  };
-
-  request.onupgradeneeded = function(event) {
-    let db = event.target.result;
-    let objectStore = db.createObjectStore("employee", {keyPath: "id"});
-
-    for (let i in employeeData) {
-      objectStore.add(employeeData[i]);
-    }
-  }*/
+const DB_NAME = 'questionDB'
+const STORAGE_NAME = 'question'
+const DB_VERSION = 1
+let DB;
 
 export default {
   name: "CreateQuestion",
@@ -422,6 +391,7 @@ export default {
     debounceTimeout: null,
     rangeError: false,
     newQuestion: {
+      id: 1,
       name: {
         value: '',
         focused: false,
@@ -455,6 +425,12 @@ export default {
     this.initializeQuery()
     this.initializeStorage()
     this.getTypes()
+    this.getDb()
+    if (!this.deleteStorage) {
+      if (this.$route.params?.action === 'create') {
+        this.getDBQuestion()
+      }
+    }
   },
   watch: {
     'newQuestion.value_type_answer': {
@@ -502,6 +478,97 @@ export default {
     },
   },
   methods: {
+    /* indexedDB */
+    async getDb () {
+      return new Promise((resolve, reject) => {
+        if (DB) {
+          return resolve(DB)
+        }
+        const request = window.indexedDB.open(DB_NAME, DB_VERSION)
+        request.onerror = e => {
+          console.log('Error opening db', e)
+          // eslint-disable-next-line prefer-promise-reject-errors
+          reject('Error')
+        }
+        request.onsuccess = e => {
+          DB = e.target.result
+          resolve(DB)
+        }
+        request.onupgradeneeded = e => {
+          let db = e.target.result
+          db.createObjectStore(STORAGE_NAME, { autoIncrement: true, keyPath: 'id' })
+        }
+      })
+    },
+    async deleteDBQuestion (value) {
+      const db = await this.getDb()
+      return new Promise(resolve => {
+        const trans = db.transaction([STORAGE_NAME], 'readwrite')
+        trans.oncomplete = () => {
+          resolve()
+        }
+        const store = trans.objectStore(STORAGE_NAME)
+        store.delete(value.id)
+      })
+    },
+    async getDBQuestion () {
+      if (!this.deleteStorage) {
+        if (this.$route.params?.action === 'create') {
+          let db = await this.getDb()
+          return new Promise(resolve => {
+            let trans = db.transaction([STORAGE_NAME], 'readonly')
+            trans.oncomplete = () => {
+              resolve(question)
+            }
+            const store = trans.objectStore(STORAGE_NAME)
+            const question = []
+            store.openCursor().onsuccess = e => {
+              const cursor = e.target.result
+              if (cursor) {
+                question.push(cursor.value)
+                cursor.continue()
+                this.newQuestion = question[0]
+              }
+            }
+          })
+        }
+      }
+    },
+    async saveDBQuestion(value) {
+      const refactored = {}
+      for (let key in value) {
+        if (typeof value[key] === 'object' && value[key] !== null) {
+          if (Array.isArray(value[key])) {
+            refactored[key] = value[key]
+          } else {
+            refactored[key] = {}
+            refactored[key].value = value[key].value
+            refactored[key].focused = false
+          }
+        } else {
+          if (key === 'value_type_answer') {
+            refactored[key] = value[key]
+          } else if (key === 'id') {
+            refactored[key] = value[key]
+          } else refactored[key] = value[key]
+        }
+      }
+      if (!this.deleteStorage) {
+        if (this.$route.params?.action === 'create') {
+          let db = await this.getDb()
+          return new Promise(resolve => {
+            let trans = db.transaction([STORAGE_NAME], 'readwrite')
+            trans.oncomplete = () => {
+              resolve()
+            }
+            let store = trans.objectStore(STORAGE_NAME)
+            store.put(refactored)
+          })
+        }
+      }
+    },
+
+    /* MAIN SCRIPT */
     initializeQuery() {
       if (Object.keys(this.$route.query).length && Object.keys(this.$route.query).includes('question_id')) {
         this.$store.dispatch('getDetailQuestion', this.$route.query.question_id).then(() => {
@@ -574,11 +641,15 @@ export default {
         } else {
           if (key === 'value_type_answer') {
             this.newQuestion[key] = null
+          } else if (key === 'id') {
+            this.newQuestion[key] = 1
           } else this.newQuestion[key] = 0
         }
       }
+      this.$store.state.QuestionsModule.newQuestion._all_tags = []
       this.lastIdAnswer = 1
       this.$store.dispatch('removeLocalStorage')
+      this.deleteDBQuestion(this.newQuestion)
       setTimeout(() => {
         this.deleteStorage = false
       }, 500)
@@ -588,19 +659,21 @@ export default {
         this.$v.$touch();
         return;
       }
+      this.deleteDBQuestion(this.newQuestion).then(() => {
         this.$store.dispatch('createQuestion', this.newQuestion).then(() => {
           this.$store.dispatch('removeLocalStorage')
           this.$router.push({
             path: '/questions'
           })
         })
+      })
     },
     saveDifferences() {
-        this.$store.dispatch('updateQuestion', this.newQuestion).then(() => {
-          this.$router.push({
-            path: '/questions'
-          })
+      this.$store.dispatch('updateQuestion', this.newQuestion).then(() => {
+        this.$router.push({
+          path: '/questions'
         })
+      })
     },
     deleteQuestion() {
       this.$store.dispatch('deleteQuestion', this.newQuestion).then(() => {

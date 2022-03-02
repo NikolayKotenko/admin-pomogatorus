@@ -3,6 +3,7 @@ import axios from "axios";
 
 /* DEFAULT STATE */
 const defaultQuestion = {
+    id: 1,
     name: {
         value: '',
         focused: false,
@@ -52,6 +53,7 @@ export default {
         loadingQuestion: false,
         loadingRequest: false,
         newQuestion: {
+            id: 1,
             name: {
                 value: '',
                 focused: false,
@@ -170,8 +172,8 @@ export default {
         },
 
         /* LOCAL_STORAGE */
+        // eslint-disable-next-line no-unused-vars
         set_local_storage({state}, object) {
-            console.log(state)
             localStorage.setItem('question', JSON.stringify(object))
         },
         remove_local_storage() {
