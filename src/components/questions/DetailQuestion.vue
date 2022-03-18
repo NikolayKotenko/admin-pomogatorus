@@ -7,7 +7,7 @@
 <!--      @submit.prevent="onSubmit" -->
       <div class="question_content">
         <div class="question_title">
-          <v-text-field
+          <v-textarea
               class="question_title__name"
               dense
               hide-details
@@ -15,6 +15,8 @@
               v-model="newQuestion.name.value"
               solo
               flat
+              auto-grow
+              rows="1"
               @focus="onFocus(newQuestion.name)"
               @focusout="outFocus(newQuestion.name)"
               :loading="$store.state.QuestionsModule.loadingQuestion"
@@ -26,7 +28,7 @@
                 mdi-lead-pencil
               </v-icon>
             </template>
-          </v-text-field>
+          </v-textarea>
           <small
               v-if="!newQuestion.name.value && $v.newQuestion.name.$dirty && !$v.newQuestion.name.required"
               style="color: lightcoral"
@@ -783,6 +785,30 @@ export default {
           border-radius: 0;
           color: #1976d2 !important;
           transition: all .6s ease-in-out;
+
+          ::v-deep textarea {
+            color: #1976d2 !important;
+            font-size: 16px !important;
+            font-weight: 600;
+            letter-spacing: 0.6px;
+          }
+          ::v-deep textarea::placeholder {
+            color: gray;
+            font-size: 14px !important;
+            font-weight: 400;
+            letter-spacing: 0;
+          }
+          ::v-deep .v-input__append-inner {
+            margin-top: 0 !important;
+            align-self: unset;
+          }
+          ::v-deep textarea {
+            min-height: 26px !important;
+            height: 26px;
+          }
+          ::v-deep .v-text-field.v-text-field--solo.v-input--dense > .v-input__control {
+            min-height: 26px !important;
+          }
         }
 
         ::v-deep .v-text-field.v-text-field--enclosed:not(.v-text-field--rounded) > .v-input__control > .v-input__slot, .v-text-field.v-text-field--enclosed .v-text-field__details {
@@ -795,14 +821,7 @@ export default {
         }
 
         ::v-deep .v-text-field.v-text-field--solo.v-input--dense > .v-input__control {
-          min-height: 30px !important;
-        }
-
-        ::v-deep .v-text-field input {
-          color: #1976d2 !important;
-          font-size: 16px !important;
-          font-weight: 600;
-          letter-spacing: 0.6px;
+          min-height: 26px;
         }
 
         ::v-deep .v-text-field input::placeholder {
