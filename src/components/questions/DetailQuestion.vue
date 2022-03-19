@@ -804,7 +804,7 @@ export default {
           }
           ::v-deep textarea {
             min-height: 26px !important;
-            height: 26px;
+            height: 26px !important;
           }
           ::v-deep .v-text-field.v-text-field--solo.v-input--dense > .v-input__control {
             min-height: 26px !important;

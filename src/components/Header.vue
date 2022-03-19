@@ -48,7 +48,7 @@
       <v-spacer></v-spacer>
 
       <v-icon
-          v-if="$route.path === '/questions'"
+          v-if="$route.meta.canCreate"
           color="green"
           x-large
           style="padding-left: 10px"
@@ -144,6 +144,12 @@ export default {
         icon: 'mdi-message-question',
         title: 'Вопросы',
         link: '/questions'
+      },
+      {
+        id: 4,
+        icon: 'mdi-message-text',
+        title: 'Список вопросов',
+        link: '/articles'
       }
     ]
   }),
@@ -155,14 +161,14 @@ export default {
   methods: {
     onCreate() {
       this.$router.push({
-        name: 'DetailQuestion',
-        params: {action: 'create'},
+        name: this.$route.meta.createLink.name,
+        params: this.$route.meta.createLink.params,
       })
     },
     returnToList() {
       this.$router.push({
-        name: 'Questions',
-        path: '/questions'
+        name: this.$route.meta.returnLink.name,
+        path: this.$route.meta.returnLink.path
       })
     },
   },

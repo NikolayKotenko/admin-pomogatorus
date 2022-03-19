@@ -6,6 +6,7 @@ Vue.use(Vuex)
 
 // Modules import
 import QuestionsModule from "./modules/questions";
+import TitlesModule from "./modules/titles";
 
 export default new Vuex.Store({
   state: {
@@ -16,6 +17,7 @@ export default new Vuex.Store({
   actions: {
   },
   modules: {
-    QuestionsModule
+    QuestionsModule,
+    TitlesModule
   }
 })
