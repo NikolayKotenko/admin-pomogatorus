@@ -102,7 +102,245 @@
         <!-- TEXTAREA -->
         <div class="detail-wrapper__content__textRedactor">
           <div class="detail-wrapper__content__textRedactor__header">
+            <!-- Вставить элемент в текст -->
+            <div class="detail-wrapper__content__textRedactor__header__elBlock right">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon
+                      v-bind="attrs"
+                      v-on="on"
+                  >
+                    mdi-plus
+                  </v-icon>
+                </template>
+                <span>Вставить</span>
+              </v-tooltip>
+            </div>
+            <!-- Undo/Redo -->
+            <div class="detail-wrapper__content__textRedactor__header__elBlock right">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon
+                      v-bind="attrs"
+                      v-on="on"
+                  >
+                    mdi-undo
+                  </v-icon>
+                </template>
+                <span>Отменить</span>
+              </v-tooltip>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon
+                      v-bind="attrs"
+                      v-on="on"
+                  >
+                    mdi-redo
+                  </v-icon>
+                </template>
+                <span>Вернуть</span>
+              </v-tooltip>
+            </div>
+            <!-- Жирный/курсив и т.д. -->
+            <div class="detail-wrapper__content__textRedactor__header__elBlock">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <div
+                      v-bind="attrs"
+                      v-on="on"
+                      class="detail-wrapper__content__textRedactor__header__elBlock__iconWrapper"
+                  >
+                    <v-icon>
+                      mdi-format-title
+                    </v-icon>
+                    <v-icon
+                        v-if="true"
+                        class="detail-wrapper__content__textRedactor__header__elBlock__iconWrapper__arrow"
+                    >
+                      mdi-menu-down
+                    </v-icon>
+                    <v-icon
+                        v-else
+                        class="detail-wrapper__content__textRedactor__header__elBlock__iconWrapper__arrow"
+                    >
+                      mdi-menu-up
+                    </v-icon>
+                  </div>
 
+                </template>
+                <span>Настройка текста</span>
+              </v-tooltip>
+            </div>
+            <!-- Заголовки -->
+            <div class="detail-wrapper__content__textRedactor__header__elBlock">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <div
+                      v-bind="attrs"
+                      v-on="on"
+                      class="detail-wrapper__content__textRedactor__header__elBlock__iconWrapper"
+                  >
+                    <v-icon>
+                      mdi-format-header-pound
+                    </v-icon>
+                    <v-icon
+                        v-if="true"
+                        class="detail-wrapper__content__textRedactor__header__elBlock__iconWrapper__arrow"
+                    >
+                      mdi-menu-down
+                    </v-icon>
+                    <v-icon
+                        v-else
+                        class="detail-wrapper__content__textRedactor__header__elBlock__iconWrapper__arrow"
+                    >
+                      mdi-menu-up
+                    </v-icon>
+                  </div>
+
+                </template>
+                <span>Настройка заголовка</span>
+              </v-tooltip>
+            </div>
+            <!-- Шрифты -->
+            <div class="detail-wrapper__content__textRedactor__header__elBlock">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <div
+                      v-bind="attrs"
+                      v-on="on"
+                      class="detail-wrapper__content__textRedactor__header__elBlock__iconWrapper"
+                  >
+                    <v-icon>
+                      mdi-format-font
+                    </v-icon>
+                    <v-icon
+                        v-if="true"
+                        class="detail-wrapper__content__textRedactor__header__elBlock__iconWrapper__arrow"
+                    >
+                      mdi-menu-down
+                    </v-icon>
+                    <v-icon
+                        v-else
+                        class="detail-wrapper__content__textRedactor__header__elBlock__iconWrapper__arrow"
+                    >
+                      mdi-menu-up
+                    </v-icon>
+                  </div>
+
+                </template>
+                <span>Настройка шрифта</span>
+              </v-tooltip>
+            </div>
+            <!-- Цвет текста -->
+            <div class="detail-wrapper__content__textRedactor__header__elBlock">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <div
+                      v-bind="attrs"
+                      v-on="on"
+                      class="detail-wrapper__content__textRedactor__header__elBlock__iconWrapper"
+                  >
+                    <div style="display: flex; flex-direction: column; align-items: center; position: relative">
+                      <v-icon>
+                        mdi-format-color-text
+                      </v-icon>
+                      <div style="width: 60%; height: 2px; background: black; position: absolute; top: 20px"></div>
+                    </div>
+                    <v-icon
+                        v-if="true"
+                        class="detail-wrapper__content__textRedactor__header__elBlock__iconWrapper__arrow"
+                    >
+                      mdi-menu-down
+                    </v-icon>
+                    <v-icon
+                        v-else
+                        class="detail-wrapper__content__textRedactor__header__elBlock__iconWrapper__arrow"
+                    >
+                      mdi-menu-up
+                    </v-icon>
+                  </div>
+
+                </template>
+                <span>Выбрать цвет текста</span>
+              </v-tooltip>
+            </div>
+            <!-- Выделение текста -->
+            <div class="detail-wrapper__content__textRedactor__header__elBlock">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <div
+                      v-bind="attrs"
+                      v-on="on"
+                      class="detail-wrapper__content__textRedactor__header__elBlock__iconWrapper"
+                  >
+                    <div style="display: flex; flex-direction: column; align-items: center; position: relative">
+                      <v-icon>
+                        mdi-format-color-highlight
+                      </v-icon>
+                      <div style="width: 60%; height: 2px; background: black; position: absolute; top: 20px"></div>
+                    </div>
+                    <v-icon
+                        v-if="true"
+                        class="detail-wrapper__content__textRedactor__header__elBlock__iconWrapper__arrow"
+                    >
+                      mdi-menu-down
+                    </v-icon>
+                    <v-icon
+                        v-else
+                        class="detail-wrapper__content__textRedactor__header__elBlock__iconWrapper__arrow"
+                    >
+                      mdi-menu-up
+                    </v-icon>
+                  </div>
+
+                </template>
+                <span>Выделение текста</span>
+              </v-tooltip>
+            </div>
+            <!-- Очистка форматирования -->
+            <div class="detail-wrapper__content__textRedactor__header__elBlock">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon
+                      v-bind="attrs"
+                      v-on="on"
+                  >
+                    mdi-format-clear
+                  </v-icon>
+                </template>
+                <span>Очистить форматирование</span>
+              </v-tooltip>
+            </div>
+            <!-- Форматирование -->
+            <div class="detail-wrapper__content__textRedactor__header__elBlock">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <div
+                      v-bind="attrs"
+                      v-on="on"
+                      class="detail-wrapper__content__textRedactor__header__elBlock__iconWrapper"
+                  >
+                    <v-icon>
+                      mdi-format-align-left
+                    </v-icon>
+                    <v-icon
+                        v-if="true"
+                        class="detail-wrapper__content__textRedactor__header__elBlock__iconWrapper__arrow"
+                    >
+                      mdi-menu-down
+                    </v-icon>
+                    <v-icon
+                        v-else
+                        class="detail-wrapper__content__textRedactor__header__elBlock__iconWrapper__arrow"
+                    >
+                      mdi-menu-up
+                    </v-icon>
+                  </div>
+
+                </template>
+                <span>Настройка форматирования</span>
+              </v-tooltip>
+            </div>
           </div>
           <div
               class="detail-wrapper__content__textRedactor__content"
@@ -115,7 +353,9 @@
             lorem
           </div>
         </div>
+
         <!-- Tags Component -->
+
       </div>
       <div class="question_footer">
         <template v-if="$route.params.action === 'create'">
@@ -257,6 +497,8 @@ export default {
     },
     deleteModal: false,
   }),
+  mounted() {
+  },
   methods: {
     /* indexedDB */
     async getDb () {
@@ -371,7 +613,6 @@ export default {
   },
 }
 </script>
-
 <style scoped lang="scss">
 .list-enter-active, .list-leave-active {
   transition: all .8s;
@@ -492,7 +733,32 @@ export default {
         &__header {
           background: #e9ecf4;
           width: 100%;
-          height: 20px;
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: space-between;
+          box-shadow: 0px -3px 5px -5px rgba(0, 0, 0, 0.6) inset;
+
+          &__elBlock {
+            padding: 2px 4px;
+
+            &:last-child {
+              border-right: unset;
+            }
+
+            &__iconWrapper {
+              position: relative;
+              padding-right: 10px;
+
+              &__arrow {
+                position: absolute !important;
+                right: -8px !important;
+                top: 0;
+              }
+            }
+          }
+          .right {
+            border-right: 1px solid #c3cfd9;
+          }
         }
 
         &__content {
