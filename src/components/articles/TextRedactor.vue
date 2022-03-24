@@ -9,6 +9,7 @@
               <v-icon
                   v-bind="attrs"
                   v-on="on"
+                  @click="test2()"
               >
                 mdi-plus
               </v-icon>
@@ -468,6 +469,8 @@
 </template>
 
 <script>
+import WebFontLoader from 'webfontloader';
+
 export default {
   name: "TextRedactor",
   data: () => ({
@@ -501,6 +504,11 @@ export default {
       ['#00FFFF', '#00AAAA', '#005555'],
     ],
   }),
+  created() {
+    WebFontLoader.load({
+      google: { families: ["Roboto", 'Hurricane', 'Palette Mosaic']}
+    })
+  },
   mounted() {
     this.$store.dispatch('testFont')
     // const link = document.createElement('link');
@@ -513,6 +521,10 @@ export default {
     test() {
       console.log('test')
       document.execCommand("fontName", false, 'Roboto');
+    },
+    test2() {
+      console.log('test2')
+      document.execCommand("fontName", false, 'Times New Roman');
     },
   },
 }
