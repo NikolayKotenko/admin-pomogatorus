@@ -230,6 +230,7 @@
               <v-icon
                   v-bind="attrs"
                   v-on="on"
+                  @click="test()"
               >
                 mdi-format-clear
               </v-icon>
@@ -458,6 +459,11 @@
       loremloremlorem
       lorem
     </div>
+
+    <v-autocomplete
+      :items="$store.state.TitlesModule.fonts"
+      item-text="family"
+    />
   </div>
 </template>
 
@@ -495,6 +501,20 @@ export default {
       ['#00FFFF', '#00AAAA', '#005555'],
     ],
   }),
+  mounted() {
+    this.$store.dispatch('testFont')
+    // const link = document.createElement('link');
+    // link.setAttribute('rel', 'stylesheet');
+    // link.setAttribute('type', 'text/css');
+    // link.setAttribute('href', 'https://fonts.googleapis.com/css?family=Roboto');
+    // document.head.appendChild(link);
+  },
+  methods: {
+    test() {
+      console.log('test')
+      document.execCommand("fontName", false, 'Roboto');
+    },
+  },
 }
 </script>
 

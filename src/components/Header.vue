@@ -148,7 +148,7 @@ export default {
       {
         id: 4,
         icon: 'mdi-message-text',
-        title: 'Список вопросов',
+        title: 'Статьи',
         link: '/articles'
       }
     ]
