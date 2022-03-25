@@ -4,18 +4,39 @@
       <div class="textRedactor__header__firstLine">
         <!-- Вставить элемент в текст -->
         <div class="header__elBlock right">
-          <v-tooltip bottom>
+          <v-menu
+              open-on-hover
+              bottom
+              offset-y
+              transition="scale-transition"
+          >
             <template v-slot:activator="{ on, attrs }">
               <v-icon
                   v-bind="attrs"
                   v-on="on"
-                  @click="test2()"
               >
                 mdi-plus
               </v-icon>
             </template>
-            <span>Вставить</span>
-          </v-tooltip>
+            <v-list>
+              <v-list-item>
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-icon
+                        v-bind="attrs"
+                        v-on="on"
+                        size="20"
+                        @click="test()"
+                    >
+                      mdi-format-align-left
+                    </v-icon>
+                    <v-list-item-title class="v-menu-item"> Выравнивание по левой стороне </v-list-item-title>
+                  </template>
+                  <span>Выравнивание по левой стороне</span>
+                </v-tooltip>
+              </v-list-item>
+            </v-list>
+          </v-menu>
         </div>
         <!-- Undo/Redo -->
         <div class="header__elBlock right">
@@ -231,7 +252,7 @@
               <v-icon
                   v-bind="attrs"
                   v-on="on"
-                  @click="test()"
+                  @click="test2()"
               >
                 mdi-format-clear
               </v-icon>
@@ -450,7 +471,33 @@
         </div>
       </div>
     </div>
+
     <div
+        class="textRedactor__content"
+        contenteditable="true"
+        spellcheck="false"
+        ref="ce" @input="onCeChange"
+    >
+      lorem loremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremlorem
+      lorem
+      loremloremlorem
+      lorem
+    </div>
+
+    <v-btn @click="getELEM()">
+      GET ELEM
+    </v-btn>
+
+<!--  EXPEREMENTAL  -->
+<!--    <div
+        class="textRedactor__content"
+        contenteditable="true"
+        spellcheck="false"
+        ref="ce" @input="onCeChange"
+    ></div>-->
+
+<!--  РАБОЧИЙ ВАРИАНТ БЕЗ v-model!  -->
+<!--    <div
         class="textRedactor__content"
         contenteditable="true"
         spellcheck="false"
@@ -459,17 +506,19 @@
       lorem
       loremloremlorem
       lorem
-    </div>
+    </div>-->
 
-    <v-autocomplete
-      :items="$store.state.TitlesModule.fonts"
-      item-text="family"
-    />
+<!--    <v-autocomplete-->
+<!--      :items="$store.state.TitlesModule.fonts"-->
+<!--      item-text="family"-->
+<!--    />-->
   </div>
 </template>
 
 <script>
+import Vue from "vue";
 import WebFontLoader from 'webfontloader';
+import Question from "../frontLayouts/Question";
 
 export default {
   name: "TextRedactor",
@@ -503,6 +552,16 @@ export default {
       ['#00FF00', '#00AA00', '#005500'],
       ['#00FFFF', '#00AAAA', '#005555'],
     ],
+    insert_items: [
+      {
+        componentName: '',
+        component_ruName: '',
+      }
+    ],
+    fakeContent: '',
+    instances: [
+
+    ],
   }),
   created() {
     WebFontLoader.load({
@@ -510,21 +569,63 @@ export default {
     })
   },
   mounted() {
+    this.onCeChange()
     this.$store.dispatch('testFont')
-    // const link = document.createElement('link');
-    // link.setAttribute('rel', 'stylesheet');
-    // link.setAttribute('type', 'text/css');
-    // link.setAttribute('href', 'https://fonts.googleapis.com/css?family=Roboto');
-    // document.head.appendChild(link);
+  },
+  watch: {
+  },
+  computed: {
+    content: {
+      cache: false,
+      get: function () { return this.$refs.ce.innerHTML ; },
+      set: function (val) {
+        this.$refs.ce.innerHTML  = val;
+      }
+    }
   },
   methods: {
-    test() {
-      console.log('test')
-      document.execCommand("fontName", false, 'Roboto');
+    getELEM() {
+      console.log(this.content)
+    },
+    onCeChange() {
+      // console.log(this.$refs.ce.innerHTML)
+      // console.log('this.content: ' + this.content);
     },
     test2() {
-      console.log('test2')
-      document.execCommand("fontName", false, 'Times New Roman');
+      document.execCommand("bold", false, null)
+    },
+    test() {
+      console.log('test')
+
+      let ComponentClass = Vue.extend(Question)
+      this.instances.push(new ComponentClass())
+      this.instances[0].$mount() // pass nothing
+
+      console.log('instance')
+      console.log(this.instances[0])
+      console.log('instance.$el')
+      console.log(this.instances[0].$el.innerHTML)
+
+      let sel, range, html;
+      if (window.getSelection) {
+        sel = window.getSelection();
+        if (sel.getRangeAt && sel.rangeCount) {
+          range = sel.getRangeAt(0);
+          range.collapse(false);
+          range.insertNode(this.instances[0].$el);
+        }
+      } else if (document.selection && document.selection.createRange) {
+        range = document.selection.createRange();
+        range.collapse(false);
+        html = (this.instances[0].$el.nodeType == 3) ? this.instances[0].$el.innerHTML.data : this.instances[0].$el.outerHTML;
+        range.pasteHTML(html);
+      }
+
+      // this.$refs.container.appendChild(this.instances[0].$el)
+
+      // this.content = instance.$el.outerHTML
+
+      // document.execCommand("insertHTML", false, this.instances[0].$el.innerHTML);
     },
   },
 }

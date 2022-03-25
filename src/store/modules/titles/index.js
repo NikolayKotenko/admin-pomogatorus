@@ -3,11 +3,15 @@ import axios from "axios";
 export default {
     state: {
         fonts: [],
+        dataFromChild: '',
     },
     mutations: {
         changeFonts(state, result) {
             state.fonts = result.data.items
         },
+        changeDataFromChild(state, result) {
+            state.dataFromChild = result
+        }
     },
     actions: {
         testFont({commit}) {
