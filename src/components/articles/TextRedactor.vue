@@ -19,20 +19,19 @@
               </v-icon>
             </template>
             <v-list>
-              <v-list-item>
+              <v-list-item @click="initializeSelection('questions')">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-icon
                         v-bind="attrs"
                         v-on="on"
                         size="20"
-                        @click="test()"
                     >
-                      mdi-format-align-left
+                      mdi-message-question
                     </v-icon>
-                    <v-list-item-title class="v-menu-item"> Выравнивание по левой стороне </v-list-item-title>
+                    <v-list-item-title class="v-menu-item"> Вставить вопрос </v-list-item-title>
                   </template>
-                  <span>Выравнивание по левой стороне</span>
+                  <span>Вставить вопрос</span>
                 </v-tooltip>
               </v-list-item>
             </v-list>
@@ -476,7 +475,7 @@
         class="textRedactor__content"
         contenteditable="true"
         spellcheck="false"
-        ref="ce" @input="onCeChange"
+        ref="content" @input="onContentChange"
     >
       lorem loremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremlorem
       lorem
@@ -484,29 +483,57 @@
       lorem
     </div>
 
-    <v-btn @click="getELEM()">
-      GET ELEM
-    </v-btn>
+<!--    <v-btn @click="getELEM()">-->
+<!--      GET ELEM-->
+<!--    </v-btn>-->
 
 <!--  EXPEREMENTAL  -->
 <!--    <div
         class="textRedactor__content"
         contenteditable="true"
         spellcheck="false"
-        ref="ce" @input="onCeChange"
+        ref="ce" @input="onContentChange"
     ></div>-->
 
-<!--  РАБОЧИЙ ВАРИАНТ БЕЗ v-model!  -->
-<!--    <div
-        class="textRedactor__content"
-        contenteditable="true"
-        spellcheck="false"
+    <!-- MODALS -->
+    <v-dialog
+        v-model="selectComponent"
+        max-width="600"
     >
-      lorem loremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremlorem
-      lorem
-      loremloremlorem
-      lorem
-    </div>-->
+      <v-card>
+        <v-card-title>
+          <span class="text-h6" style="font-size: 0.8em !important;">Какой вопрос?</span>
+        </v-card-title>
+        <v-card-text>
+          <v-autocomplete
+              :loading="$store.state.TitlesModule.loadingModalList"
+              :disabled="$store.state.TitlesModule.loadingModalList"
+              :items="$store.state.TitlesModule.listComponents"
+              item-text="name"
+              return-object
+              v-model="$store.state.TitlesModule.selectedComponent"
+          >
+          </v-autocomplete>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn
+              color="blue darken-1"
+              text
+              @click="selectComponent = !selectComponent"
+          >
+            Назад
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+              color="green darken-1"
+              text
+              @click="onSelectComponent()"
+          >
+            Выбрать
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
 <!--    <v-autocomplete-->
 <!--      :items="$store.state.TitlesModule.fonts"-->
@@ -517,12 +544,22 @@
 
 <script>
 import Vue from "vue";
+import store from '@/store/index.js'
 import WebFontLoader from 'webfontloader';
 import Question from "../frontLayouts/Question";
 
 export default {
   name: "TextRedactor",
   data: () => ({
+    /* MODALS */
+    selectComponent: false,
+    params_of_component: {
+      name: '',
+    },
+    range: null,
+    htmlSelected: null,
+    selecetion: null,
+
     /* EDITOR */
     line_spacing: [
       {
@@ -558,10 +595,7 @@ export default {
         component_ruName: '',
       }
     ],
-    fakeContent: '',
-    instances: [
-
-    ],
+    instances: [],
   }),
   created() {
     WebFontLoader.load({
@@ -569,17 +603,24 @@ export default {
     })
   },
   mounted() {
-    this.onCeChange()
+    this.onContentChange()
     this.$store.dispatch('testFont')
   },
   watch: {
+    'params_of_component.name': {
+      handler(v) {
+        if (v) {
+          this.$store.dispatch('getListComponents', this.params_of_component.name)
+        }
+      }
+    }
   },
   computed: {
     content: {
       cache: false,
-      get: function () { return this.$refs.ce.innerHTML ; },
+      get: function () { return this.$refs.content.innerHTML ; },
       set: function (val) {
-        this.$refs.ce.innerHTML  = val;
+        this.$refs.content.innerHTML  = val;
       }
     }
   },
@@ -587,45 +628,57 @@ export default {
     getELEM() {
       console.log(this.content)
     },
-    onCeChange() {
-      // console.log(this.$refs.ce.innerHTML)
+    onContentChange() {
+      // console.log(this.$refs.content.innerHTML)
       // console.log('this.content: ' + this.content);
     },
     test2() {
-      document.execCommand("bold", false, null)
+      document.execCommand("fontName", false, 'Palette Mosaic')
     },
-    test() {
-      console.log('test')
-
-      let ComponentClass = Vue.extend(Question)
-      this.instances.push(new ComponentClass())
-      this.instances[0].$mount() // pass nothing
-
-      console.log('instance')
-      console.log(this.instances[0])
-      console.log('instance.$el')
-      console.log(this.instances[0].$el.innerHTML)
-
-      let sel, range, html;
+    initializeSelection(componentName) {
+      // FIXME: Сделать выборку, если пользователь не указал рэндж
       if (window.getSelection) {
-        sel = window.getSelection();
-        if (sel.getRangeAt && sel.rangeCount) {
-          range = sel.getRangeAt(0);
-          range.collapse(false);
-          range.insertNode(this.instances[0].$el);
+        this.selecetion = window.getSelection();
+        if (this.selecetion.getRangeAt && this.selecetion.rangeCount) {
+          this.range = this.selecetion.getRangeAt(0);
+          this.range.collapse(false);
         }
       } else if (document.selection && document.selection.createRange) {
-        range = document.selection.createRange();
-        range.collapse(false);
-        html = (this.instances[0].$el.nodeType == 3) ? this.instances[0].$el.innerHTML.data : this.instances[0].$el.outerHTML;
-        range.pasteHTML(html);
+        this.range = document.selection.createRange();
+        this.range.collapse(false);
       }
 
-      // this.$refs.container.appendChild(this.instances[0].$el)
+      this.selectComponent = true
+      this.params_of_component.name = componentName
 
-      // this.content = instance.$el.outerHTML
+    },
+    onSelectComponent() {
+      this.$store.state.TitlesModule.countQuestion++
+      this.insertingComponent().then(() => {
+        this.selectComponent = false
+      })
+    },
+    insertingComponent() {
+      return new Promise((resolve) => {
+        let ComponentClass = Vue.extend(Question)
+        this.instances.push(new ComponentClass({
+          store,
+        }))
+        this.instances[0].$mount() // pass nothing
 
-      // document.execCommand("insertHTML", false, this.instances[0].$el.innerHTML);
+        console.log('instance')
+        console.log(this.instances[0])
+        console.log('instance.$el')
+        console.log(this.instances[0].$el.innerHTML)
+
+        if (window.getSelection) {
+          this.range.insertNode(this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el);
+        } else if (document.selection && document.selection.createRange) {
+          this.htmlSelected = (this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.nodeType == 3) ? this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.innerHTML.data : this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.outerHTML;
+          this.range.pasteHTML(this.htmlSelected);
+        }
+        resolve()
+      })
     },
   },
 }

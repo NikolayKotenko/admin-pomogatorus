@@ -11,6 +11,8 @@ import Articles from "../views/Articles";
 import DetailQuestion from "../components/questions/DetailQuestion";
 import DetailArticles from "../components/articles/DetailArticles";
 
+import Question from "../components/frontLayouts/Question";
+
 Vue.use(VueRouter)
 
 const routes = [
@@ -25,6 +27,14 @@ const routes = [
     component: Companies,
     meta: {
       ru_name: 'Компании',
+    },
+  },
+  {
+    path: '/question',
+    name: 'Question',
+    component: Question,
+    meta: {
+      ru_name: 'Вопрос',
     },
   },
   {
