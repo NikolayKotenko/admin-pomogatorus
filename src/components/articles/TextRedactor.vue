@@ -512,6 +512,7 @@
               item-text="name"
               return-object
               v-model="$store.state.TitlesModule.selectedComponent"
+              placeholder="Наименование"
           >
           </v-autocomplete>
         </v-card-text>
@@ -636,14 +637,16 @@ export default {
       document.execCommand("fontName", false, 'Palette Mosaic')
     },
     initializeSelection(componentName) {
-      // FIXME: Сделать выборку, если пользователь не указал рэндж
       if (window.getSelection) {
+        this.selecetion = null
         this.selecetion = window.getSelection();
         if (this.selecetion.getRangeAt && this.selecetion.rangeCount) {
+          this.range = null
           this.range = this.selecetion.getRangeAt(0);
           this.range.collapse(false);
         }
       } else if (document.selection && document.selection.createRange) {
+        this.range = null
         this.range = document.selection.createRange();
         this.range.collapse(false);
       }
@@ -656,6 +659,7 @@ export default {
       this.$store.state.TitlesModule.countQuestion++
       this.insertingComponent().then(() => {
         this.selectComponent = false
+        this.$store.state.TitlesModule.selectedComponent = {}
       })
     },
     insertingComponent() {
@@ -664,18 +668,28 @@ export default {
         this.instances.push(new ComponentClass({
           store,
         }))
-        this.instances[0].$mount() // pass nothing
-
-        console.log('instance')
-        console.log(this.instances[0])
-        console.log('instance.$el')
-        console.log(this.instances[0].$el.innerHTML)
+        this.instances[this.$store.state.TitlesModule.countQuestion - 1].$mount() // pass nothing
 
         if (window.getSelection) {
-          this.range.insertNode(this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el);
+          if (this.range && this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content') {
+            this.range.insertNode(this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el);
+          } else {
+            let range = document.createRange();
+            range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
+            range.collapse(false);
+            range.insertNode(this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el);
+          }
         } else if (document.selection && document.selection.createRange) {
-          this.htmlSelected = (this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.nodeType == 3) ? this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.innerHTML.data : this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.outerHTML;
-          this.range.pasteHTML(this.htmlSelected);
+          if (this.range && this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content') {
+            this.htmlSelected = (this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.nodeType == 3) ? this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.innerHTML.data : this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.outerHTML;
+            this.range.pasteHTML(this.htmlSelected);
+          } else {
+            let range = document.createRange();
+            range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
+            range.collapse(false);
+            this.htmlSelected = (this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.nodeType == 3) ? this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.innerHTML.data : this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.outerHTML;
+            range.pasteHTML(this.htmlSelected);
+          }
         }
         resolve()
       })

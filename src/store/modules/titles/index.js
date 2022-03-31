@@ -2,10 +2,12 @@ import axios from "axios";
 
 export default {
     state: {
+        /* INSERT COMPONENT */
         listComponents: [],
         loadingModalList: false,
         selectedComponent: {},
         countQuestion: 0,
+        willShow: true,
 
         /* TEST */
         fonts: [],
