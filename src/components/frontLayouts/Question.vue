@@ -1,5 +1,5 @@
 <template>
-  <div class="question_wrapper" :id="`question_wrapper-${count_of_question}`">
+  <div class="question_wrapper" contenteditable="false" :id="`question_wrapper-${count_of_question}`">
     <div class="question_wrapper__admin_controls" :style="`width: ${controls_width}px; height: ${controls_height}px`">
       <div class="question_wrapper__admin_controls__wrapper" contenteditable="false">
         <img class="question_wrapper__admin_controls__wrapper__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
@@ -71,7 +71,7 @@
 export default {
   name: "Question",
   data: () => ({
-    /*question_data: {
+/*    question_data: {
       "id": 12,
       "name_param_env": null,
       "name": "tested",
@@ -151,6 +151,7 @@ export default {
     deleteQuestion() {
       const elem = document.getElementById(`question_wrapper-${this.count_of_question}`)
       elem.remove()
+      this.$store.dispatch('deleteComponent', this.count_of_question)
     },
     getData() {
       if (Object.keys(this.$store.state.TitlesModule.selectedComponent).length) {

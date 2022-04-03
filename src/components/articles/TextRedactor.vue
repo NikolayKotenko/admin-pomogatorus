@@ -614,7 +614,19 @@ export default {
           this.$store.dispatch('getListComponents', this.params_of_component.name)
         }
       }
-    }
+    },
+    '$store.state.TitlesModule.deletedComponent': {
+      handler() {
+        console.log(this.$store.state.TitlesModule.deletedComponent)
+        if (this.$store.state.TitlesModule.deletedComponent) {
+          let index = this.instances.findIndex((elem) => {
+            return elem.$data.count_of_question === this.$store.state.TitlesModule.deletedComponent
+          })
+          if (index) this.instances.splice(index, 1)
+          this.$store.state.TitlesModule.deletedComponent = 0
+        }
+      },
+    },
   },
   computed: {
     content: {

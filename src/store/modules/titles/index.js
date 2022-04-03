@@ -8,6 +8,7 @@ export default {
         selectedComponent: {},
         countQuestion: 0,
         willShow: true,
+        deletedComponent: 0,
 
         /* TEST */
         fonts: [],
@@ -16,6 +17,9 @@ export default {
     mutations: {
         change_list_components(state, result) {
             state.listComponents = result
+        },
+        delete_component_by_id(state, id) {
+            state.deletedComponent = id
         },
 
         /* TEST */
@@ -27,10 +31,17 @@ export default {
         }
     },
     actions: {
+        deleteComponent({commit}, id) {
+          commit('delete_component_by_id', id)
+        },
         getListComponents({commit, state}, params) {
             return new Promise((resolve, reject) => {
                 state.loadingModalList = true
-                axios.get(`${this.state.BASE_URL}/entity/${params}`)
+                axios.get(`${this.state.BASE_URL}/entity/${params}`, {
+                    headers: {
+                        Authorization: '666777'
+                    },
+                })
                     .then((response) => {
                         commit('change_list_components', response.data.data)
                         state.loadingModalList = false
