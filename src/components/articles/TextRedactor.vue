@@ -483,18 +483,6 @@
       lorem
     </div>
 
-<!--    <v-btn @click="getELEM()">-->
-<!--      GET ELEM-->
-<!--    </v-btn>-->
-
-<!--  EXPEREMENTAL  -->
-<!--    <div
-        class="textRedactor__content"
-        contenteditable="true"
-        spellcheck="false"
-        ref="ce" @input="onContentChange"
-    ></div>-->
-
     <!-- MODALS -->
     <v-dialog
         v-model="selectComponent"
@@ -590,13 +578,26 @@ export default {
       ['#00FF00', '#00AA00', '#005500'],
       ['#00FFFF', '#00AAAA', '#005555'],
     ],
-    insert_items: [
+
+    /* INSERT COMPONENTS */
+
+    test_from_server: [
       {
-        componentName: '',
-        component_ruName: '',
-      }
+        id_question: 12,
+        index: 1,
+      },
+      {
+        id_question: 12,
+        index: 2,
+      },
+      {
+        id_question: 12,
+        index: 3,
+      },
     ],
+    test_content_from_server: 'lorem<div><div data-v-98078a96="" contenteditable="false" id="question_wrapper-1" class="question_wrapper"><div data-v-98078a96="" class="question_wrapper__admin_controls" style="width: 321px; height: 101.078px;"><div data-v-98078a96="" contenteditable="false" class="question_wrapper__admin_controls__wrapper"><img data-v-98078a96="" src="/img/closeIcon.9f67941f.svg" alt="close" class="question_wrapper__admin_controls__wrapper__img"></div></div><div data-v-98078a96="" class="question_wrapper__title"><h3 data-v-98078a96="">1. tested</h3><!----></div><div data-v-98078a96="" class="question_wrapper__content"><div data-v-98078a96="" class="v-input v-input--hide-details v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--solo v-text-field--is-booted v-text-field--enclosed v-text-field--placeholder"><div class="v-input__control"><div class="v-input__slot"><div class="v-text-field__slot"><input id="input-211" placeholder="Введите ответ" type="text"></div></div></div></div></div></div><br></div><div><div data-v-98078a96="" contenteditable="false" id="question_wrapper-2" class="question_wrapper"><div data-v-98078a96="" class="question_wrapper__admin_controls" style="width: 321px; height: 101.078px;"><div data-v-98078a96="" contenteditable="false" class="question_wrapper__admin_controls__wrapper"><img data-v-98078a96="" src="/img/closeIcon.9f67941f.svg" alt="close" class="question_wrapper__admin_controls__wrapper__img"></div></div><div data-v-98078a96="" class="question_wrapper__title"><h3 data-v-98078a96="">2. tested</h3><!----></div><div data-v-98078a96="" class="question_wrapper__content"><div data-v-98078a96="" class="v-input v-input--hide-details v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--solo v-text-field--is-booted v-text-field--enclosed v-text-field--placeholder"><div class="v-input__control"><div class="v-input__slot"><div class="v-text-field__slot"><input id="input-218" placeholder="Введите ответ" type="text"></div></div></div></div></div></div><br></div><div><div data-v-98078a96="" contenteditable="false" id="question_wrapper-3" class="question_wrapper"><div data-v-98078a96="" class="question_wrapper__admin_controls" style="width: 321px; height: 101.078px;"><div data-v-98078a96="" contenteditable="false" class="question_wrapper__admin_controls__wrapper"><img data-v-98078a96="" src="/img/closeIcon.9f67941f.svg" alt="close" class="question_wrapper__admin_controls__wrapper__img"></div></div><div data-v-98078a96="" class="question_wrapper__title"><h3 data-v-98078a96="">3. tested</h3><!----></div><div data-v-98078a96="" class="question_wrapper__content"><div data-v-98078a96="" class="v-input v-input--hide-details v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--solo v-text-field--is-booted v-text-field--enclosed v-text-field--placeholder"><div class="v-input__control"><div class="v-input__slot"><div class="v-text-field__slot"><input id="input-225" placeholder="Введите ответ" type="text"></div></div></div></div></div></div><br></div><div>&nbsp;loremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremlorem lorem loremloremlorem lorem </div>',
     instances: [],
+    data_of_components: [],
   }),
   created() {
     WebFontLoader.load({
@@ -606,6 +607,7 @@ export default {
   mounted() {
     this.onContentChange()
     this.$store.dispatch('testFont')
+    this.initializeContent()
   },
   watch: {
     'params_of_component.name': {
@@ -617,13 +619,26 @@ export default {
     },
     '$store.state.TitlesModule.deletedComponent': {
       handler() {
-        console.log(this.$store.state.TitlesModule.deletedComponent)
-        if (this.$store.state.TitlesModule.deletedComponent) {
+        if (this.$store.state.TitlesModule.deletedComponent !== 0) {
           let index = this.instances.findIndex((elem) => {
             return elem.$data.count_of_question === this.$store.state.TitlesModule.deletedComponent
           })
-          if (index) this.instances.splice(index, 1)
-          this.$store.state.TitlesModule.deletedComponent = 0
+          if (index !== -1) {
+            this.instances.splice(index, 1)
+            this.data_of_components.splice(index, 1)
+            let counter_instances = 1
+            this.instances.forEach(elem => {
+              elem.$data.count_of_question = counter_instances
+              counter_instances++
+            })
+            let counter_index = 1
+            this.data_of_components.forEach(elem => {
+              elem.index = counter_index
+              counter_index++
+            })
+            this.$store.state.TitlesModule.countQuestion = counter_instances-1
+            this.$store.state.TitlesModule.deletedComponent = 0
+          }
         }
       },
     },
@@ -641,13 +656,53 @@ export default {
     getELEM() {
       console.log(this.content)
     },
+    /* INITIALIZE DATA FROM BACK OR INDEXEDDB */
+    initializeContent() {
+      this.content = this.test_content_from_server
+      this.$nextTick(() => {
+        this.test_from_server.forEach(elem => {
+          this.$store.dispatch('getComponentsById', elem).then(() => {
+          })
+        })
+      })
+      /* ЗАПРОС АСИНХРОННЫЙ, А НИЖЕ НЕТ */
+      this.$store.state.TitlesModule.listComponents.sort((a,b) => {
+        return a.index - b.index
+      })
+      console.log('this.$store.state.TitlesModule.listComponents')
+      console.log(this.$store.state.TitlesModule.listComponents)
+      const arr = this.$store.state.TitlesModule.listComponents
+      // for (let i = 0; i < arr.length; i++) {
+      //   console.log(arr[i])
+      // }
+      arr.forEach((elem) => {
+        console.log(elem)
+        this.$store.state.TitlesModule.countQuestion = elem.index
+        this.$store.state.TitlesModule.selectedComponent = elem.data
+        let range = document.createRange();
+        range.selectNode(document.getElementById(`question_wrapper-${elem.index}`));
+        range.deleteContents()
+        range.collapse(false);
+        let ComponentClass = Vue.extend(Question)
+        this.instances.push(new ComponentClass({
+          store,
+        }))
+        this.instances[elem.index].$mount() // pass nothing
+        range.insertNode(this.instances[elem.index].$el)
+        this.$store.state.TitlesModule.selectedComponent = {}
+      })
+    },
+    /* FIXME: ДОБАВИТЬ ДЕБАУНС И СОХРАНЯЕМ ИЗМЕНЕНИЯ НА СЕРВЕР */
     onContentChange() {
       // console.log(this.$refs.content.innerHTML)
       // console.log('this.content: ' + this.content);
     },
+    /* FIXME: FONTNAME */
     test2() {
       document.execCommand("fontName", false, 'Palette Mosaic')
     },
+
+    /* MANIPULATING WITH INSERTING COMPONENTS */
     initializeSelection(componentName) {
       if (window.getSelection) {
         this.selecetion = null
@@ -670,6 +725,7 @@ export default {
     onSelectComponent() {
       this.$store.state.TitlesModule.countQuestion++
       this.insertingComponent().then(() => {
+        this.data_of_components.push(new this.imported_component(this.$store.state.TitlesModule.selectedComponent.id, this.$store.state.TitlesModule.countQuestion))
         this.selectComponent = false
         this.$store.state.TitlesModule.selectedComponent = {}
       })
@@ -705,6 +761,12 @@ export default {
         }
         resolve()
       })
+    },
+
+    /* CONSTRUCTORS */
+    imported_component(id_component, index) {
+      this.id_component = id_component
+      this.index = index
     },
   },
 }

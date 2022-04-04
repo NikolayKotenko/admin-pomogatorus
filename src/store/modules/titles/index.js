@@ -21,6 +21,10 @@ export default {
         delete_component_by_id(state, id) {
             state.deletedComponent = id
         },
+        changeSelectedComponent(state, {data, index}) {
+            const obj = Object.assign({}, {data, index: index})
+            state.listComponents.push(obj)
+        },
 
         /* TEST */
         changeFonts(state, result) {
@@ -33,6 +37,29 @@ export default {
     actions: {
         deleteComponent({commit}, id) {
           commit('delete_component_by_id', id)
+        },
+        getComponentsById({commit, state}, params) {
+            return new Promise((resolve, reject) => {
+
+                const {id_question, index} = params
+
+                state.loadingModalList = true
+                axios.get(`${this.state.BASE_URL}/entity/questions/${id_question}`, {
+                    headers: {
+                        Authorization: '666777'
+                    },
+                })
+                    .then((response) => {
+                        const data = response.data.data
+                        commit('changeSelectedComponent', {data, index})
+                        state.loadingModalList = false
+                        resolve()
+                    })
+                    .catch((error) => {
+                        state.loadingModalList = false
+                        reject(error)
+                    })
+            })
         },
         getListComponents({commit, state}, params) {
             return new Promise((resolve, reject) => {

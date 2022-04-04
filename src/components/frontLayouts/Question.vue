@@ -129,23 +129,6 @@ export default {
     this.getData()
   },
   computed: {
-    widthOfControls() {
-      const elem = document.getElementById(`question_wrapper-${this.count_of_question}`)
-      console.log(elem)
-      if (elem) {
-        return elem.getBoundingClientRect().width + 4;
-      } else {
-        return 0
-      }
-    },
-    heightOfControls() {
-      const elem = document.getElementById(`question_wrapper-${this.count_of_question}`)
-      if (elem) {
-        return elem.getBoundingClientRect().height + 4;
-      } else {
-        return 0
-      }
-    },
   },
   methods: {
     deleteQuestion() {
