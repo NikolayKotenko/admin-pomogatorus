@@ -1,5 +1,5 @@
 <template>
-  <div class="textRedactor">
+  <div class="textRedactor" :class="{disabled: !name}">
     <div class="textRedactor__header">
       <div class="textRedactor__header__firstLine">
         <!-- Вставить элемент в текст -->
@@ -473,7 +473,7 @@
 
     <div
         class="textRedactor__content"
-        contenteditable="true"
+        :contenteditable="!!name"
         spellcheck="false"
         ref="content" @input="onContentChange"
     >
@@ -524,6 +524,9 @@
       </v-card>
     </v-dialog>
 
+    <!-- OVERLAYS -->
+    <div class="overlay" v-if="!name"></div>
+
 <!--    <v-autocomplete-->
 <!--      :items="$store.state.TitlesModule.fonts"-->
 <!--      item-text="family"-->
@@ -534,11 +537,14 @@
 <script>
 import Vue from "vue";
 import store from '@/store/index.js'
+import vuetify from '@/plugins/vuetify'
+
 import WebFontLoader from 'webfontloader';
 import Question from "../frontLayouts/Question";
 
 export default {
   name: "TextRedactor",
+  props: ['name'],
   data: () => ({
     /* MODALS */
     selectComponent: false,
@@ -547,7 +553,7 @@ export default {
     },
     range: null,
     htmlSelected: null,
-    selecetion: null,
+    selection: null,
 
     /* EDITOR */
     line_spacing: [
@@ -578,10 +584,10 @@ export default {
       ['#00FF00', '#00AA00', '#005500'],
       ['#00FFFF', '#00AAAA', '#005555'],
     ],
+    debounceTimeout: null,
 
     /* INSERT COMPONENTS */
-
-    test_from_server: [
+    /*test_from_server: [
       {
         id_question: 12,
         index: 1,
@@ -594,8 +600,8 @@ export default {
         id_question: 12,
         index: 3,
       },
-    ],
-    test_content_from_server: 'lorem<div><div data-v-98078a96="" contenteditable="false" id="question_wrapper-1" class="question_wrapper"><div data-v-98078a96="" class="question_wrapper__admin_controls" style="width: 321px; height: 101.078px;"><div data-v-98078a96="" contenteditable="false" class="question_wrapper__admin_controls__wrapper"><img data-v-98078a96="" src="/img/closeIcon.9f67941f.svg" alt="close" class="question_wrapper__admin_controls__wrapper__img"></div></div><div data-v-98078a96="" class="question_wrapper__title"><h3 data-v-98078a96="">1. tested</h3><!----></div><div data-v-98078a96="" class="question_wrapper__content"><div data-v-98078a96="" class="v-input v-input--hide-details v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--solo v-text-field--is-booted v-text-field--enclosed v-text-field--placeholder"><div class="v-input__control"><div class="v-input__slot"><div class="v-text-field__slot"><input id="input-211" placeholder="Введите ответ" type="text"></div></div></div></div></div></div><br></div><div><div data-v-98078a96="" contenteditable="false" id="question_wrapper-2" class="question_wrapper"><div data-v-98078a96="" class="question_wrapper__admin_controls" style="width: 321px; height: 101.078px;"><div data-v-98078a96="" contenteditable="false" class="question_wrapper__admin_controls__wrapper"><img data-v-98078a96="" src="/img/closeIcon.9f67941f.svg" alt="close" class="question_wrapper__admin_controls__wrapper__img"></div></div><div data-v-98078a96="" class="question_wrapper__title"><h3 data-v-98078a96="">2. tested</h3><!----></div><div data-v-98078a96="" class="question_wrapper__content"><div data-v-98078a96="" class="v-input v-input--hide-details v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--solo v-text-field--is-booted v-text-field--enclosed v-text-field--placeholder"><div class="v-input__control"><div class="v-input__slot"><div class="v-text-field__slot"><input id="input-218" placeholder="Введите ответ" type="text"></div></div></div></div></div></div><br></div><div><div data-v-98078a96="" contenteditable="false" id="question_wrapper-3" class="question_wrapper"><div data-v-98078a96="" class="question_wrapper__admin_controls" style="width: 321px; height: 101.078px;"><div data-v-98078a96="" contenteditable="false" class="question_wrapper__admin_controls__wrapper"><img data-v-98078a96="" src="/img/closeIcon.9f67941f.svg" alt="close" class="question_wrapper__admin_controls__wrapper__img"></div></div><div data-v-98078a96="" class="question_wrapper__title"><h3 data-v-98078a96="">3. tested</h3><!----></div><div data-v-98078a96="" class="question_wrapper__content"><div data-v-98078a96="" class="v-input v-input--hide-details v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--solo v-text-field--is-booted v-text-field--enclosed v-text-field--placeholder"><div class="v-input__control"><div class="v-input__slot"><div class="v-text-field__slot"><input id="input-225" placeholder="Введите ответ" type="text"></div></div></div></div></div></div><br></div><div>&nbsp;loremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremlorem lorem loremloremlorem lorem </div>',
+    ],*/
+    // test_content_from_server: 'lorem<div><div data-v-98078a96="" contenteditable="false" id="question_wrapper-1" class="question_wrapper"><div data-v-98078a96="" class="question_wrapper__admin_controls" style="width: 321px; height: 101.078px;"><div data-v-98078a96="" contenteditable="false" class="question_wrapper__admin_controls__wrapper"><img data-v-98078a96="" src="/img/closeIcon.9f67941f.svg" alt="close" class="question_wrapper__admin_controls__wrapper__img"></div></div><div data-v-98078a96="" class="question_wrapper__title"><h3 data-v-98078a96="">1. tested</h3><!----></div><div data-v-98078a96="" class="question_wrapper__content"><div data-v-98078a96="" class="v-input v-input--hide-details v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--solo v-text-field--is-booted v-text-field--enclosed v-text-field--placeholder"><div class="v-input__control"><div class="v-input__slot"><div class="v-text-field__slot"><input id="input-211" placeholder="Введите ответ" type="text"></div></div></div></div></div></div><br></div><div><div data-v-98078a96="" contenteditable="false" id="question_wrapper-2" class="question_wrapper"><div data-v-98078a96="" class="question_wrapper__admin_controls" style="width: 321px; height: 101.078px;"><div data-v-98078a96="" contenteditable="false" class="question_wrapper__admin_controls__wrapper"><img data-v-98078a96="" src="/img/closeIcon.9f67941f.svg" alt="close" class="question_wrapper__admin_controls__wrapper__img"></div></div><div data-v-98078a96="" class="question_wrapper__title"><h3 data-v-98078a96="">2. tested</h3><!----></div><div data-v-98078a96="" class="question_wrapper__content"><div data-v-98078a96="" class="v-input v-input--hide-details v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--solo v-text-field--is-booted v-text-field--enclosed v-text-field--placeholder"><div class="v-input__control"><div class="v-input__slot"><div class="v-text-field__slot"><input id="input-218" placeholder="Введите ответ" type="text"></div></div></div></div></div></div><br></div><div><div data-v-98078a96="" contenteditable="false" id="question_wrapper-3" class="question_wrapper"><div data-v-98078a96="" class="question_wrapper__admin_controls" style="width: 321px; height: 101.078px;"><div data-v-98078a96="" contenteditable="false" class="question_wrapper__admin_controls__wrapper"><img data-v-98078a96="" src="/img/closeIcon.9f67941f.svg" alt="close" class="question_wrapper__admin_controls__wrapper__img"></div></div><div data-v-98078a96="" class="question_wrapper__title"><h3 data-v-98078a96="">3. tested</h3><!----></div><div data-v-98078a96="" class="question_wrapper__content"><div data-v-98078a96="" class="v-input v-input--hide-details v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--solo v-text-field--is-booted v-text-field--enclosed v-text-field--placeholder"><div class="v-input__control"><div class="v-input__slot"><div class="v-text-field__slot"><input id="input-225" placeholder="Введите ответ" type="text"></div></div></div></div></div></div><br></div><div>&nbsp;loremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremlorem lorem loremloremlorem lorem </div>',
     instances: [],
     data_of_components: [],
   }),
@@ -658,45 +664,55 @@ export default {
     },
     /* INITIALIZE DATA FROM BACK OR INDEXEDDB */
     initializeContent() {
-      this.content = this.test_content_from_server
-      this.$nextTick(() => {
+      if (this.test_content_from_server && this.test_from_server.length) {
+        this.content = this.test_content_from_server
+
+        const promises = []
+
         this.test_from_server.forEach(elem => {
-          this.$store.dispatch('getComponentsById', elem).then(() => {
+          promises.push(this.$store.dispatch('getComponentsById', elem))
+        })
+
+        Promise.all(promises).finally(() => {
+          this.$store.state.TitlesModule.listComponents.sort((a,b) => {
+            return a.index - b.index
+          })
+          const arr = this.$store.state.TitlesModule.listComponents
+          arr.forEach((elem) => {
+            this.$store.state.TitlesModule.countQuestion = elem.index
+            this.$store.state.TitlesModule.selectedComponent = elem.data
+            let range = document.createRange();
+            range.selectNode(document.getElementById(`question_wrapper-${elem.index}`));
+            range.deleteContents()
+            range.collapse(false);
+            let ComponentClass = Vue.extend(Question)
+            this.instances.push(new ComponentClass({
+              store,
+              vuetify,
+            }))
+            this.instances[elem.index-1].$mount() // pass nothing
+            range.insertNode(this.instances[elem.index-1].$el)
+            this.$store.state.TitlesModule.selectedComponent = {}
           })
         })
-      })
-      /* ЗАПРОС АСИНХРОННЫЙ, А НИЖЕ НЕТ */
-      this.$store.state.TitlesModule.listComponents.sort((a,b) => {
-        return a.index - b.index
-      })
-      console.log('this.$store.state.TitlesModule.listComponents')
-      console.log(this.$store.state.TitlesModule.listComponents)
-      const arr = this.$store.state.TitlesModule.listComponents
-      // for (let i = 0; i < arr.length; i++) {
-      //   console.log(arr[i])
-      // }
-      arr.forEach((elem) => {
-        console.log(elem)
-        this.$store.state.TitlesModule.countQuestion = elem.index
-        this.$store.state.TitlesModule.selectedComponent = elem.data
-        let range = document.createRange();
-        range.selectNode(document.getElementById(`question_wrapper-${elem.index}`));
-        range.deleteContents()
-        range.collapse(false);
-        let ComponentClass = Vue.extend(Question)
-        this.instances.push(new ComponentClass({
-          store,
-        }))
-        this.instances[elem.index].$mount() // pass nothing
-        range.insertNode(this.instances[elem.index].$el)
-        this.$store.state.TitlesModule.selectedComponent = {}
-      })
+      }
     },
+
     /* FIXME: ДОБАВИТЬ ДЕБАУНС И СОХРАНЯЕМ ИЗМЕНЕНИЯ НА СЕРВЕР */
     onContentChange() {
-      // console.log(this.$refs.content.innerHTML)
-      // console.log('this.content: ' + this.content);
+      if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
+      this.debounceTimeout = setTimeout(() => {
+        this.$store.state.TitlesModule.content = this.content
+      })
+      /* IF WE DELETED COMPONENT BY KEYBOARD */
+      this.instances.forEach(elem => {
+        const elem_content = document.getElementById(`question_wrapper-${elem.$data.count_of_question}`)
+        if (!elem_content) {
+          this.$store.state.TitlesModule.deletedComponent = elem.$data.count_of_question
+        }
+      })
     },
+
     /* FIXME: FONTNAME */
     test2() {
       document.execCommand("fontName", false, 'Palette Mosaic')
@@ -705,11 +721,11 @@ export default {
     /* MANIPULATING WITH INSERTING COMPONENTS */
     initializeSelection(componentName) {
       if (window.getSelection) {
-        this.selecetion = null
-        this.selecetion = window.getSelection();
-        if (this.selecetion.getRangeAt && this.selecetion.rangeCount) {
+        this.selection = null
+        this.selection = window.getSelection();
+        if (this.selection.getRangeAt && this.selection.rangeCount) {
           this.range = null
-          this.range = this.selecetion.getRangeAt(0);
+          this.range = this.selection.getRangeAt(0);
           this.range.collapse(false);
         }
       } else if (document.selection && document.selection.createRange) {
@@ -735,6 +751,7 @@ export default {
         let ComponentClass = Vue.extend(Question)
         this.instances.push(new ComponentClass({
           store,
+          vuetify,
         }))
         this.instances[this.$store.state.TitlesModule.countQuestion - 1].$mount() // pass nothing
 
@@ -769,13 +786,23 @@ export default {
       this.index = index
     },
   },
+  beforeDestroy() {
+    this.$store.state.TitlesModule.listComponents = []
+    this.$store.state.TitlesModule.selectedComponent = {}
+    this.$store.state.TitlesModule.countQuestion = 0
+  }
 }
 </script>
 
 <style scoped lang="scss">
+.disabled {
+  pointer-events: none;
+}
+
 .textRedactor {
   box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
   border-radius: 5px;
+  position: relative;
 
   &__header {
     background: #e9ecf4;
@@ -825,7 +852,16 @@ export default {
     outline: none;
     min-height: 300px;
     margin: 10px 0;
+    word-break: break-all;
   }
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.15);
 }
 
 .v-menu__content {

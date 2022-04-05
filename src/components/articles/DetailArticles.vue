@@ -35,64 +35,64 @@
             Поле обязательно для заполнения
           </small>
           <div class="detail-wrapper__content__title__help">
-            <span class="detail-wrapper__content__title__help__title" :class="{focused: newArticle.title.focused}">
-              Подсказка
+            <span class="detail-wrapper__content__title__help__title" :class="{focused: newArticle.short_header.focused}">
+              Короткое наименование
             </span>
             <v-textarea
                 class="detail-wrapper__content__title__help__description"
-                :class="{inputFocused: newArticle.title.focused}"
-                placeholder="Введите подсказку для вопроса"
+                :class="{inputFocused: newArticle.short_header.focused}"
+                placeholder="Введите короткое наименование"
                 auto-grow
                 rows="1"
                 dense
                 hide-details
                 flat
                 solo
-                v-model="newArticle.title.value"
-                @focus="onFocus(newArticle.title)"
-                @focusout="outFocus(newArticle.title)"
+                v-model="newArticle.short_header.value"
+                @focus="onFocus(newArticle.short_header)"
+                @focusout="outFocus(newArticle.short_header)"
                 :loading="$store.state.QuestionsModule.loadingQuestion"
                 @input="saveDBQuestion(newArticle)"
             ></v-textarea>
           </div>
           <div class="detail-wrapper__content__title__help">
-            <span class="detail-wrapper__content__title__help__title" :class="{focused: newArticle.article.focused}">
-              Разъясняющий текст
+            <span class="detail-wrapper__content__title__help__title" :class="{focused: newArticle.purpose_of_article.focused}">
+              Описание статьи
             </span>
             <v-textarea
                 class="detail-wrapper__content__title__help__description"
-                :class="{inputFocused: newArticle.article.focused}"
-                placeholder="Введите разъясняющий текст"
+                :class="{inputFocused: newArticle.purpose_of_article.focused}"
+                placeholder="Введите описание статьи"
                 auto-grow
                 rows="1"
                 dense
                 hide-details
                 flat
                 solo
-                v-model="newArticle.article.value"
-                @focus="onFocus(newArticle.article)"
-                @focusout="outFocus(newArticle.article)"
+                v-model="newArticle.purpose_of_article.value"
+                @focus="onFocus(newArticle.purpose_of_article)"
+                @focusout="outFocus(newArticle.purpose_of_article)"
                 :loading="$store.state.QuestionsModule.loadingQuestion"
                 @input="saveDBQuestion(newArticle)"
             ></v-textarea>
           </div>
           <div class="detail-wrapper__content__title__help">
-            <span class="detail-wrapper__content__title__help__title" :class="{focused: newArticle.purpose_of_question.focused}">
-              Цель вопроса
+            <span class="detail-wrapper__content__title__help__title" :class="{focused: newArticle.preview.focused}">
+              Анонс
             </span>
             <v-textarea
                 class="detail-wrapper__content__title__help__description"
-                :class="{ inputFocused: newArticle.purpose_of_question.focused }"
-                placeholder="Введите цель вопроса"
+                :class="{ inputFocused: newArticle.preview.focused }"
+                placeholder="Введите анонс"
                 auto-grow
                 rows="1"
                 dense
                 hide-details
                 flat
                 solo
-                v-model="newArticle.purpose_of_question.value"
-                @focus="onFocus(newArticle.purpose_of_question)"
-                @focusout="outFocus(newArticle.purpose_of_question)"
+                v-model="newArticle.preview.value"
+                @focus="onFocus(newArticle.preview)"
+                @focusout="outFocus(newArticle.preview)"
                 :loading="$store.state.QuestionsModule.loadingQuestion"
                 @input="saveDBQuestion(newArticle)"
             ></v-textarea>
@@ -100,28 +100,29 @@
         </div>
 
         <!-- TEXTAREA -->
-        <text-redactor/>
+        <text-redactor :name="newArticle.name.value"/>
 
         <!-- Tags Component -->
 
       </div>
       <div class="question_footer">
         <template v-if="$route.params.action === 'create'">
-<!--          <v-btn
+          <v-btn
               color="red darken-1"
               text
-              @click="resetFields"
+
           >
+<!-- @click="resetFields" -->
             Очистить
           </v-btn>
           <v-btn
               color="blue darken-1"
               text
               @click.prevent="onSubmit"
-              :disabled="computedValidations"
           >
+<!-- :disabled="computedValidations" -->
             Создать
-          </v-btn>-->
+          </v-btn>
         </template>
         <template v-else>
           <template v-if="Object.keys(this.$store.state.QuestionsModule.nonEditState).length">
@@ -170,7 +171,7 @@
           <span class="text-h6" style="font-size: 0.8em !important;">Вы точно хотите удалить вопрос?</span>
         </v-card-title>
         <v-card-actions>
-<!--          <v-btn
+          <v-btn
               color="blue darken-1"
               text
               @click="deleteModal = false"
@@ -183,12 +184,11 @@
           <v-btn
               color="red darken-1"
               text
-              @click="deleteQuestion()"
               :disabled="$store.state.QuestionsModule.loadingRequest"
               :loading="$store.state.QuestionsModule.loadingRequest"
           >
             Да
-          </v-btn>-->
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -223,29 +223,23 @@ export default {
         value: '',
         focused: false,
       },
-      title: {
+      short_header: {
         value: '',
         focused: false,
       },
-      article: {
+      purpose_of_article: {
         value: '',
         focused: false,
       },
-      purpose_of_question: {
+      preview: {
         value: '',
         focused: false,
       },
-      id_type_answer: {
-        value: null,
-        focused: false
-      },
-      state_detailed_response: 0,
-      state_attachment_response: 0,
-      value_type_answer: null,
       _all_tags: [],
       mtomtags: [],
     },
     deleteModal: false,
+    deleteStorage: false,
   }),
   mounted() {
   },
@@ -325,6 +319,7 @@ export default {
           } else refactored[key] = value[key]
         }
       }
+      refactored.content = this.$store.state.TitlesModule.content
       if (!this.deleteStorage) {
         if (this.$route.params?.action === 'create') {
           let db = await this.getDb()
@@ -340,6 +335,7 @@ export default {
       }
     },
 
+    /* FOCUS */
     onFocus(obj, id) {
       obj.focused = true
       if (id) {
@@ -359,6 +355,22 @@ export default {
         })
         if (index !== -1) this.newArticle.value_type_answer[index].focused = false
       }
+    },
+
+    /* CRUD */
+    onSubmit() {
+      if (this.$v.$invalid) {
+        this.$v.$touch();
+        return;
+      }
+      this.deleteDBQuestion(this.newArticle).then(() => {
+        this.$store.dispatch('createQuestion', this.newQuestion).then(() => {
+          this.$store.dispatch('removeLocalStorage')
+          this.$router.push({
+            path: '/questions'
+          })
+        })
+      })
     },
   },
 }
