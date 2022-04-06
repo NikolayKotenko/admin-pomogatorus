@@ -26,6 +26,13 @@ const defaultArticle = {
     mtomtags: [],
 }
 
+/* CONSTRUCTORS */
+function InsertedComponents(elem) {
+    this.index = elem.index
+    this.id_component = elem.id_component
+    this.type_component = elem.type_component
+}
+
 export default {
     state: {
         /* MAIN ARTICLE */
@@ -62,8 +69,22 @@ export default {
         },
         nonEditState: {},
 
+        /* TAGS */
+        listGeneralTags: [],
+        tagsLoaded: false,
+        createdTag: {},
+        showCreateTag: false,
+        newTag: '',
+        tagSearch: null,
+        tagError: {
+            isError: false,
+            errObj: {},
+        },
+        showAddTag: false,
+
         /* INSERT COMPONENT */
         listComponents: [],
+        components_after_request: [],
         loadingModalList: false,
         selectedComponent: {},
         countQuestion: 0,
@@ -88,6 +109,26 @@ export default {
 
         },
 
+        /* TAGS */
+        set_list_general_tags_article(state, result) {
+            state.listGeneralTags = []
+            state.listGeneralTags = result
+        },
+        reset_articles_tags(state) {
+            state.tagsLoaded = false
+            state.createdTag = {}
+            state.showCreateTag = false
+            state.newTag = ''
+            state.tagSearch = null
+            state.tagError = {
+                isError: false,
+                errObj: {
+                    name: '',
+                },
+            }
+            state.showAddTag = false
+        },
+
         /* DETAIL ARTICLES */
         set_new_article(state, result) {
             state.newArticle = Object.assign({}, defaultArticle)
@@ -110,6 +151,17 @@ export default {
                     } else {
                         state.content_from_server = JSON.parse(result[key])
                     }
+                } else if (key === 'inserted_components') {
+                    let parsed = null
+                    parsed = JSON.parse(JSON.parse(result[key]))
+                    if (Array.isArray(parsed)) {
+                        state.inserted_components = []
+                        parsed.forEach(elem => {
+                            state.inserted_components.push(new InsertedComponents(elem))
+                        })
+                    } else {
+                        state.inserted_components = []
+                    }
                 } else state.newArticle[key] = result[key]
             }
             state.nonEditState = Object.assign({}, state.newArticle)
@@ -124,7 +176,7 @@ export default {
         },
         changeSelectedComponent(state, {data, index}) {
             const obj = Object.assign({}, {data, index: index})
-            state.listComponents.push(obj)
+            state.components_after_request.push(obj)
         },
 
         /* LOCAL_STORAGE */
@@ -152,6 +204,26 @@ export default {
     },
     actions: {
         /* MAIN ARTICLES */
+        async setListArticles({commit, state}) {
+            return new Promise((resolve, reject) => {
+                state.loadingList = true
+                axios.get(`${this.state.BASE_URL}/entity/articles`, {
+                    headers: {
+                        Authorization: '666777'
+                    },
+                })
+                    .then((response) => {
+                        commit('set_list_articles', response.data.data)
+                        state.loadingList = false
+                        resolve()
+                    })
+                    .catch((error) => {
+                        console.log('test')
+                        state.loadingList = false
+                        reject(error)
+                    })
+            })
+        },
         async setFilteredListArticles({state, commit}, data) {
             return new Promise((resolve, reject) => {
                 state.loadingList = true
@@ -186,6 +258,116 @@ export default {
             })
         },
 
+        /* TAGS */
+        async getGeneralTagsArticle({commit, state}) {
+            return new Promise((resolve) => {
+                state.tagsLoaded = true
+                axios.get(`${this.state.BASE_URL}/dictionary/tags`, {
+                    headers: {
+                        Authorization: '666777'
+                    },
+                })
+                    .then((response) => {
+                        state.tagsLoaded = false
+                        commit('set_list_general_tags_article', response.data.data)
+                        resolve()
+                    })
+                    .catch(() => {
+                        state.tagsLoaded = false
+                        resolve()
+                    })
+            })
+        },
+        async setNewTagToListArticle({dispatch, state}, newTag) {
+            return new Promise((resolve) => {
+                state.tagsLoaded = true
+                let bodyFormData = new FormData()
+                bodyFormData.append('name', newTag)
+                axios.post(`${this.state.BASE_URL}/dictionary/tags`, bodyFormData, {
+                    headers: {
+                        Authorization: '666777'
+                    },
+                })
+                    .then((response) => {
+                        //handle success
+                        console.log(response);
+                        dispatch('getGeneralTagsArticle').then(() => {
+                            state.createdTag = state.listGeneralTags.find(elem => {
+                                return elem.name === newTag
+                            })
+                            state.tagsLoaded = false
+                            resolve()
+                        })
+                    })
+                    .catch((response) => {
+                        //handle error
+                        state.tagsLoaded = false
+                        resolve()
+                        console.log(response.body);
+                    });
+            })
+        },
+        createRelationTagArticle({state}, name) {
+            return new Promise((resolve, reject) => {
+                if (state.newArticle._all_tags.length) {
+                    let finded = state.listArticles.filter(elem => {
+                        return elem.name === name
+                    })
+                    state.newArticle._all_tags.forEach(tag => {
+                        let mtmIndex = state.newArticle.mtomtags.findIndex(elem => {
+                            return elem.id_tag === tag.id
+                        })
+                        if (mtmIndex === -1) {
+                            let tagsFormData = new FormData()
+                            tagsFormData.append('id_tag', tag.id)
+                            tagsFormData.append('id_article', finded[0].id)
+                            // tagsFormData.append('id_answer', finded[0].id_type_answer)
+                            axios.post(`${this.state.BASE_URL}/m-to-m/tags`, tagsFormData, {
+                                headers: {
+                                    Authorization: '666777'
+                                },
+                            })
+                                .then((response) => {
+                                    console.log(response)
+                                    resolve()
+                                })
+                                .catch((error) => {
+                                    console.log(error)
+                                    reject(error)
+                                })
+                        }
+                    })
+                }
+                resolve()
+            })
+        },
+        deleteRelationTagArticle({state}, id) {
+            return new Promise((resolve, reject) => {
+                state.loadingArticle = true
+
+                const options = {
+                    method: 'DELETE',
+                    url: `${this.state.BASE_URL}/m-to-m/tags/${id}`,
+                    headers: {
+                        Authorization: '666777'
+                    },
+                }
+
+                axios(options)
+                    .then((response) => {
+                        //handle success
+                        state.loadingArticle = false
+                        resolve()
+                        console.log(response);
+                    })
+                    .catch((error) => {
+                        //handle error
+                        state.loadingArticle = false
+                        reject(error)
+                    });
+            })
+        },
+
         /* CRUD */
         async getDetailArticle({commit, state}, id) {
             state.loadingArticle = true
@@ -208,7 +390,7 @@ export default {
                     })
             })
         },
-        async createArticle({state}, data) {
+        async createArticle({dispatch, state}, data) {
             return new Promise((resolve) => {
                 state.loadingRequest = true
                 state.loadingArticle = true
@@ -233,16 +415,13 @@ export default {
                 })
                     .then((response) => {
                         //handle success
-                        /* FIXME: Когда будут тэги */
-                       /* state.loadingRequest = false
-                        dispatch('setListQuestions').then(() => {
-                            dispatch('createRelationTag', data.name.value).then(() => {
+                        state.loadingRequest = false
+                        dispatch('setListArticles').then(() => {
+                            dispatch('createRelationTagArticle', data.name.value).then(() => {
                                 state.loadingArticle = false
                                 resolve()
                             })
-                        })*/
-                        state.loadingArticle = false
-                        resolve()
+                        })
                         console.log(response);
                     })
                     .catch((response) => {
@@ -254,7 +433,7 @@ export default {
                     });
             })
         },
-        updateArticle({state}, data) {
+        updateArticle({dispatch, state}, data) {
             return new Promise((resolve) => {
                 state.loadingRequest = true
                 state.loadingArticle = true
@@ -279,13 +458,11 @@ export default {
                         //handle success
                         state.loadingRequest = false
                         state.loadingArticle = false
-                        resolve()
-                        /* TAGS */
-                        /*dispatch('setListQuestions').then(() => {
-                            dispatch('createRelationTag', data.name.value).then(() => {
+                        dispatch('setListArticles').then(() => {
+                            dispatch('createRelationTagArticle', data.name.value).then(() => {
                                 resolve()
                             })
-                        })*/
+                        })
                         console.log(response);
                     })
                     .catch((response) => {
@@ -331,10 +508,10 @@ export default {
         getComponentsById({commit, state}, params) {
             return new Promise((resolve, reject) => {
 
-                const {id_question, index} = params
+                const {id_component, index, type_component} = params
 
                 state.loadingModalList = true
-                axios.get(`${this.state.BASE_URL}/entity/questions/${id_question}`, {
+                axios.get(`${this.state.BASE_URL}/entity/${type_component}/${id_component}`, {
                     headers: {
                         Authorization: '666777'
                     },
@@ -401,5 +578,9 @@ export default {
             })
         },
     },
-    getters: {}
+    getters: {
+        getTagsArticle(state) {
+            return state.newArticle._all_tags
+        }
+    },
 }

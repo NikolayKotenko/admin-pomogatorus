@@ -3,13 +3,13 @@
           <span class="question_tags__title">
             Разделы
           </span>
-    <div class="question_tags__wrapper" v-if="getTags.length">
+    <div class="question_tags__wrapper" v-if="list_tags.length">
       <v-chip-group
           column
       >
         <v-chip
             class="question_tags__wrapper__chip"
-            v-for="item in getTags"
+            v-for="item in list_tags"
             :key="item.id"
         >
           <v-icon left @click="removeTag(item)">
@@ -29,7 +29,7 @@
     </div>
 
     <v-dialog
-        v-model="$store.state.QuestionsModule.showCreateTag"
+        v-model="data_instance.showCreateTag"
         max-width="600"
     >
       <v-card>
@@ -38,18 +38,18 @@
         </v-card-title>
         <v-card-text>
           <v-combobox
-              v-model="$store.state.QuestionsModule.newTag"
-              :items="$store.state.QuestionsModule.listGeneralTags"
+              v-model="data_instance.newTag"
+              :items="data_instance.listGeneralTags"
               item-text="name"
-              :loading="$store.state.QuestionsModule.tagsLoaded"
-              :search-input.sync="$store.state.QuestionsModule.tagSearch"
+              :loading="data_instance.tagsLoaded"
+              :search-input.sync="data_instance.tagSearch"
               clearable
               label="Введите тэг"
-              :error="$store.state.QuestionsModule.tagError.isError"
-              :error-messages="$store.state.QuestionsModule.tagError.isError ? 'Такой тэг уже добавлен' : []"
+              :error="data_instance.tagError.isError"
+              :error-messages="data_instance.tagError.isError ? 'Такой тэг уже добавлен' : []"
               @change="checkForTagError()"
               @update:search-input="checkForTagError()"
-              :disabled="!$store.state.QuestionsModule.listGeneralTags.length"
+              :disabled="!data_instance.listGeneralTags.length"
           >
           </v-combobox>
         </v-card-text>
@@ -66,7 +66,7 @@
               color="blue darken-1"
               text
               @click="createNewTag()"
-              :disabled="$store.state.QuestionsModule.tagError.isError || !$store.state.QuestionsModule.tagSearch"
+              :disabled="data_instance.tagError.isError || !data_instance.tagSearch"
           >
             Добавить
           </v-btn>
@@ -85,56 +85,138 @@ export default {
 
   }),
   computed: {
-    ...mapGetters(['getTags']),
+    ...mapGetters(['getTagsQuestion']),
+    ...mapGetters(['getTagsArticle']),
+    data_instance() {
+      if (this.$route.path.includes('/articles/')) {
+        return this.$store.state.TitlesModule
+        // return {
+        //   newTag: this.$store.state.TitlesModule.newTag,
+        //   getTags: this.getTagsArticle,
+        //   showCreateTag: this.$store.state.TitlesModule.showCreateTag,
+        //   listGeneralTags: this.$store.state.TitlesModule.listGeneralTags,
+        //   tagsLoaded: this.$store.state.TitlesModule.tagsLoaded,
+        //   tagSearch: this.$store.state.TitlesModule.tagSearch,
+        //   tagError: this.$store.state.TitlesModule.tagError,
+        //   createdTag: this.$store.state.TitlesModule.createdTag,
+        //   _all_tags: this.$store.state.TitlesModule.newArticle._all_tags,
+        //   mtomtags: this.$store.state.TitlesModule.newArticle.mtomtags
+        // }
+      } else if (this.$route.path.includes('/questions/')) {
+        return this.$store.state.QuestionsModule
+        // return  {
+        //   newTag: this.$store.state.QuestionsModule.newTag,
+        //   getTags: this.getTagsQuestion,
+        //   showCreateTag: this.$store.state.QuestionsModule.showCreateTag,
+        //   listGeneralTags: this.$store.state.QuestionsModule.listGeneralTags,
+        //   tagsLoaded: this.$store.state.QuestionsModule.tagsLoaded,
+        //   tagSearch: this.$store.state.QuestionsModule.tagSearch,
+        //   tagError: this.$store.state.QuestionsModule.tagError,
+        //   createdTag: this.$store.state.QuestionsModule.createdTag,
+        //   _all_tags: this.$store.state.QuestionsModule.newQuestion._all_tags,
+        //   mtomtags: this.$store.state.QuestionsModule.newQuestion.mtomtags
+        // }
+      } else return {
+
+      }
+    },
+    list_tags() {
+      if (this.$route.path.includes('/articles/')) {
+        return this.getTagsArticle
+      } else if (this.$route.path.includes('/questions/')) {
+        return this.getTagsQuestion
+      } else return {
+
+      }
+    },
+    _all_tags() {
+      if (this.$route.path.includes('/articles/')) {
+        return this.$store.state.TitlesModule.newArticle._all_tags
+      } else if (this.$route.path.includes('/questions/')) {
+        return this.$store.state.QuestionsModule.newQuestion._all_tags
+      } else return {
+
+      }
+    },
+    mtomtags() {
+      if (this.$route.path.includes('/articles/')) {
+        return this.$store.state.TitlesModule.newArticle.mtomtags
+      } else if (this.$route.path.includes('/questions/')) {
+        return this.$store.state.QuestionsModule.newQuestion.mtomtags
+      } else return {
+
+      }
+    },
+    setNewTagToList() {
+      if (this.$route.path.includes('/articles/')) {
+        return 'setNewTagToListArticle'
+      } else if (this.$route.path.includes('/questions/')) {
+        return 'setNewTagToListQuestion'
+      } else return ''
+    },
+    getGeneralTags() {
+      if (this.$route.path.includes('/articles/')) {
+        return 'getGeneralTagsArticle'
+      } else if (this.$route.path.includes('/questions/')) {
+        return 'getGeneralTagsQuestion'
+      } else return ''
+    },
+    deleteRelationTag() {
+      if (this.$route.path.includes('/articles/')) {
+        return 'deleteRelationTagArticle'
+      } else if (this.$route.path.includes('/questions/')) {
+        return 'deleteRelationTagQuestion'
+      } else return ''
+    },
   },
   methods: {
     showTagComponent() {
-      this.$store.state.QuestionsModule.showCreateTag = true
-      this.$store.dispatch('getGeneralTags')
+      this.data_instance.showCreateTag = true
+      this.$store.dispatch(this.getGeneralTags)
     },
     hideTagComponent() {
-      this.$store.state.QuestionsModule.showCreateTag = false
+      this.data_instance.showCreateTag = false
     },
     createNewTag() {
-      if (!this.$store.state.QuestionsModule.listGeneralTags.some(elem => {
-        return elem.name.replace(/\s/g, '').toLowerCase() === this.$store.state.QuestionsModule.tagSearch.replace(/\s/g, '').toLowerCase()
+      if (!this.data_instance.listGeneralTags.some(elem => {
+        return elem.name.replace(/\s/g, '').toLowerCase() === this.data_instance.tagSearch.replace(/\s/g, '').toLowerCase()
       })) {
-        this.$store.dispatch('setNewTagToList', this.$store.state.QuestionsModule.tagSearch).then(() => {
-          this.$store.state.QuestionsModule.newQuestion._all_tags.push(Object.assign({}, this.$store.state.QuestionsModule.createdTag))
-          this.$store.state.QuestionsModule.createdTag = {}
-          this.$store.state.QuestionsModule.showCreateTag = false
-          this.$store.state.QuestionsModule.newTag = ''
+        this.$store.dispatch(this.setNewTagToList, this.data_instance.tagSearch).then(() => {
+          this._all_tags.push(Object.assign({}, this.data_instance.createdTag))
+          this.data_instance.createdTag = {}
+          this.data_instance.showCreateTag = false
+          this.data_instance.newTag = ''
         })
       } else {
-        let index = this.$store.state.QuestionsModule.listGeneralTags.findIndex(elem => {
-          return elem.name === this.$store.state.QuestionsModule.tagSearch
+        let index = this.data_instance.listGeneralTags.findIndex(elem => {
+          return elem.name === this.data_instance.tagSearch
         })
-        if (index !== -1) this.$store.state.QuestionsModule.newTag = this.$store.state.QuestionsModule.listGeneralTags[index]
-        if (this.$store.state.QuestionsModule.newQuestion._all_tags.some (elem => {
-          return elem.name.replace(/\s/g, '').toLowerCase() === this.$store.state.QuestionsModule.newTag.name.replace(/\s/g, '').toLowerCase()
+        if (index !== -1) this.data_instance.newTag = this.data_instance.listGeneralTags[index]
+        if (this._all_tags.some (elem => {
+          return elem.name.replace(/\s/g, '').toLowerCase() === this.data_instance.newTag.name.replace(/\s/g, '').toLowerCase()
         })) {
-          this.$store.state.QuestionsModule.tagError = Object.assign({}, {'isError': true, 'errObj': this.$store.state.QuestionsModule.newTag})
+          this.data_instance.tagError = Object.assign({}, {'isError': true, 'errObj': this.data_instance.newTag})
         } else {
-          this.$store.state.QuestionsModule.newQuestion._all_tags.push(this.$store.state.QuestionsModule.newTag)
-          this.$store.state.QuestionsModule.tagError = Object.assign({}, {'isError': false, 'errObj': {}})
-          this.$store.state.QuestionsModule.newTag = ''
-          this.$store.state.QuestionsModule.showCreateTag = false
+          this._all_tags.push(this.data_instance.newTag)
+          this.data_instance.tagError = Object.assign({}, {'isError': false, 'errObj': {}})
+          this.data_instance.newTag = ''
+          this.data_instance.showCreateTag = false
         }
       }
     },
     removeTag(item) {
-      let index = this.$store.state.QuestionsModule.newQuestion._all_tags.findIndex(elem => {
+      let index = this._all_tags.findIndex(elem => {
         return elem.id === item.id
       })
       if (index !== -1) {
-        this.$store.state.QuestionsModule.newQuestion._all_tags.splice(index, 1)
+        this._all_tags.splice(index, 1)
         if (this.$route.params?.action === 'edit') {
-          if (this.$store.state.QuestionsModule.newQuestion.mtomtags.length) {
-            let mtmIndex = this.$store.state.QuestionsModule.newQuestion.mtomtags.findIndex(elem => {
+          if (this.mtomtags.length) {
+            let mtmIndex = this.mtomtags.findIndex(elem => {
               return elem.id_tag === item.id
             })
             if (mtmIndex !== -1) {
-              this.$store.dispatch('deleteRelationTag', this.$store.state.QuestionsModule.newQuestion.mtomtags[mtmIndex].id)
+              this.$store.dispatch(this.deleteRelationTag, this.mtomtags[mtmIndex].id)
             }
           }
         }
@@ -142,13 +224,13 @@ export default {
     },
     checkForTagError() {
       setTimeout(() => {
-        if (Object.keys(this.$store.state.QuestionsModule.tagError.errObj).length) {
-          if (this.$store.state.QuestionsModule.tagSearch) {
-            this.$store.state.QuestionsModule.tagError.isError = (
-                this.$store.state.QuestionsModule.tagSearch.replace(/\s/g, '').toLowerCase() ===
-                this.$store.state.QuestionsModule.tagError.errObj.name.replace(/\s/g, '').toLowerCase()
+        if (Object.keys(this.data_instance.tagError.errObj).length) {
+          if (this.data_instance.tagSearch) {
+            this.data_instance.tagError.isError = (
+                this.data_instance.tagSearch.replace(/\s/g, '').toLowerCase() ===
+                this.data_instance.tagError.errObj.name.replace(/\s/g, '').toLowerCase()
             );
-          } else this.$store.state.QuestionsModule.tagError.isError = false
+          } else this.data_instance.tagError.isError = false
         }
       })
     },

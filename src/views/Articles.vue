@@ -144,7 +144,7 @@
                 >
                   <v-chip
                       color="#f2f5f7"
-                      v-for="tag in $store.state.QuestionsModule.listGeneralTags"
+                      v-for="tag in $store.state.TitlesModule.listGeneralTags"
                       :key="tag.id"
                       :value="tag.code"
                   >
@@ -199,7 +199,20 @@ export default {
     getFromQuery: false
   }),
   mounted() {
+    this.getConfigDate()
+    this.getTags()
     this.initializeQuery()
+  },
+  watch: {
+    filters: {
+      handler() {
+        if (!this.getFromQuery) {
+          this.getFilteredArticles()
+          this.changeQuery()
+        }
+      },
+      deep: true
+    }
   },
   computed: {
     computedErrMsg() {
@@ -207,12 +220,35 @@ export default {
     },
   },
   methods: {
+    changeQuery() {
+      for (let key in this.filters) {
+        if (Array.isArray(this.filters[key])) {
+          if (this.filters[key].length) {
+            this.queryObject[key] = this.filters[key]
+          } else delete this.queryObject[key]
+        } else {
+          if (this.filters[key]) {
+            this.queryObject[key] = this.filters[key]
+          } else delete this.queryObject[key]
+        }
+      }
+      this.$router.push({
+        path: this.$route.path,
+        query: {...this.queryObject}
+      })
+    },
     onShowDetailArticle(article) {
       this.$router.push({
         name: 'DetailArticles',
         params: {action: 'edit'},
         query: {article_id: article.id}
       })
+    },
+    getConfigDate() {
+      this.$store.dispatch('setListConfigDate')
+    },
+    getTags() {
+      this.$store.dispatch('getGeneralTagsArticle')
     },
     getFilteredArticles() {
       if (this.debounceTimeout) clearTimeout(this.debounceTimeout);

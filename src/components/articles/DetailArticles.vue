@@ -40,7 +40,7 @@
             </span>
             <v-textarea
                 class="detail-wrapper__content__title__help__description"
-                :class="{inputFocused: newArticle.short_header.focused}"
+                :class="{inputFocused: newArticle.short_header.focused, invalid: !newArticle.short_header.value && $v.newArticle.short_header.$dirty && !$v.newArticle.short_header.required}"
                 placeholder="Введите короткое наименование"
                 auto-grow
                 rows="1"
@@ -54,6 +54,12 @@
                 :loading="$store.state.TitlesModule.loadingArticle"
                 @input="saveDBQuestion(newArticle)"
             ></v-textarea>
+            <small
+                v-if="!newArticle.short_header.value && $v.newArticle.short_header.$dirty && !$v.newArticle.short_header.required"
+                style="color: lightcoral"
+            >
+              Поле обязательно для заполнения
+            </small>
           </div>
           <div class="detail-wrapper__content__title__help">
             <span class="detail-wrapper__content__title__help__title" :class="{focused: newArticle.purpose_of_article.focused}">
@@ -103,6 +109,7 @@
         <text-redactor :newArticle="newArticle" :deletedContent="deletedContent"/>
 
         <!-- Tags Component -->
+        <question-tags/>
 
       </div>
       <div class="question_footer">
@@ -197,6 +204,7 @@
 <script>
 import {required} from "vuelidate/lib/validators";
 import TextRedactor from "./TextRedactor";
+import QuestionTags from "../questions/QuestionTags";
 
 /* INDEXEDDB */
 const DB_NAME = 'articlesDB'
@@ -206,14 +214,17 @@ let DB;
 
 export default {
   name: "DetailArticles",
-  components: {TextRedactor},
+  components: {QuestionTags, TextRedactor},
   validations: {
     newArticle: {
       name: {
         value: {required}
       },
+      short_header: {
+        value: {required}
+      }
     },
-    validationGroup: ['newArticle.name.value']
+    validationGroup: ['newArticle.name.value', 'newArticle.short_header.value']
   },
   data: () => ({
     newArticle: {
@@ -365,9 +376,11 @@ export default {
               if (cursor) {
                 question.push(cursor.value)
                 cursor.continue()
-                this.newArticle = question[0]
-                this.$store.state.TitlesModule.content_from_server = question[0].content
-                this.$store.state.TitlesModule.inserted_components = question[0].inserted_components
+                this.$nextTick(() => {
+                  this.newArticle = question[0]
+                  this.$store.state.TitlesModule.content_from_server = question[0].content
+                  this.$store.state.TitlesModule.inserted_components = question[0].inserted_components
+                })
               }
             }
           })
@@ -394,6 +407,7 @@ export default {
         }
       }
       refactored.content = this.$store.state.TitlesModule.content
+      refactored.inserted_components = this.$store.state.TitlesModule.inserted_components
       if (!this.deleteStorage) {
         if (this.$route.params?.action === 'create') {
           let db = await this.getDb()

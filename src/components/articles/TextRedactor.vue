@@ -583,21 +583,25 @@ export default {
     debounceTimeout: null,
 
     /* INSERT COMPONENTS */
-    /*test_from_server: [
+    geting_from_server: false,
+    test_from_server: [
       {
-        id_question: 12,
+        id_component: 1,
         index: 1,
+        type_component: 'questions'
       },
       {
-        id_question: 12,
+        id_component: 1,
         index: 2,
+        type_component: 'questions'
       },
       {
-        id_question: 12,
+        id_component: 1,
         index: 3,
+        type_component: 'questions'
       },
-    ],*/
-    // test_content_from_server: 'lorem<div><div data-v-98078a96="" contenteditable="false" id="question_wrapper-1" class="question_wrapper"><div data-v-98078a96="" class="question_wrapper__admin_controls" style="width: 321px; height: 101.078px;"><div data-v-98078a96="" contenteditable="false" class="question_wrapper__admin_controls__wrapper"><img data-v-98078a96="" src="/img/closeIcon.9f67941f.svg" alt="close" class="question_wrapper__admin_controls__wrapper__img"></div></div><div data-v-98078a96="" class="question_wrapper__title"><h3 data-v-98078a96="">1. tested</h3><!----></div><div data-v-98078a96="" class="question_wrapper__content"><div data-v-98078a96="" class="v-input v-input--hide-details v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--solo v-text-field--is-booted v-text-field--enclosed v-text-field--placeholder"><div class="v-input__control"><div class="v-input__slot"><div class="v-text-field__slot"><input id="input-211" placeholder="Введите ответ" type="text"></div></div></div></div></div></div><br></div><div><div data-v-98078a96="" contenteditable="false" id="question_wrapper-2" class="question_wrapper"><div data-v-98078a96="" class="question_wrapper__admin_controls" style="width: 321px; height: 101.078px;"><div data-v-98078a96="" contenteditable="false" class="question_wrapper__admin_controls__wrapper"><img data-v-98078a96="" src="/img/closeIcon.9f67941f.svg" alt="close" class="question_wrapper__admin_controls__wrapper__img"></div></div><div data-v-98078a96="" class="question_wrapper__title"><h3 data-v-98078a96="">2. tested</h3><!----></div><div data-v-98078a96="" class="question_wrapper__content"><div data-v-98078a96="" class="v-input v-input--hide-details v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--solo v-text-field--is-booted v-text-field--enclosed v-text-field--placeholder"><div class="v-input__control"><div class="v-input__slot"><div class="v-text-field__slot"><input id="input-218" placeholder="Введите ответ" type="text"></div></div></div></div></div></div><br></div><div><div data-v-98078a96="" contenteditable="false" id="question_wrapper-3" class="question_wrapper"><div data-v-98078a96="" class="question_wrapper__admin_controls" style="width: 321px; height: 101.078px;"><div data-v-98078a96="" contenteditable="false" class="question_wrapper__admin_controls__wrapper"><img data-v-98078a96="" src="/img/closeIcon.9f67941f.svg" alt="close" class="question_wrapper__admin_controls__wrapper__img"></div></div><div data-v-98078a96="" class="question_wrapper__title"><h3 data-v-98078a96="">3. tested</h3><!----></div><div data-v-98078a96="" class="question_wrapper__content"><div data-v-98078a96="" class="v-input v-input--hide-details v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--solo v-text-field--is-booted v-text-field--enclosed v-text-field--placeholder"><div class="v-input__control"><div class="v-input__slot"><div class="v-text-field__slot"><input id="input-225" placeholder="Введите ответ" type="text"></div></div></div></div></div></div><br></div><div>&nbsp;loremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremlorem lorem loremloremlorem lorem </div>',
+    ],
+    test_content_from_server: 'lorem<div><div data-v-98078a96="" contenteditable="false" id="question_wrapper-1" class="question_wrapper"><div data-v-98078a96="" class="question_wrapper__admin_controls" style="width: 321px; height: 101.078px;"><div data-v-98078a96="" contenteditable="false" class="question_wrapper__admin_controls__wrapper"><img data-v-98078a96="" src="/img/closeIcon.9f67941f.svg" alt="close" class="question_wrapper__admin_controls__wrapper__img"></div></div><div data-v-98078a96="" class="question_wrapper__title"><h3 data-v-98078a96="">1. tested</h3><!----></div><div data-v-98078a96="" class="question_wrapper__content"><div data-v-98078a96="" class="v-input v-input--hide-details v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--solo v-text-field--is-booted v-text-field--enclosed v-text-field--placeholder"><div class="v-input__control"><div class="v-input__slot"><div class="v-text-field__slot"><input id="input-211" placeholder="Введите ответ" type="text"></div></div></div></div></div></div><br></div><div><div data-v-98078a96="" contenteditable="false" id="question_wrapper-2" class="question_wrapper"><div data-v-98078a96="" class="question_wrapper__admin_controls" style="width: 321px; height: 101.078px;"><div data-v-98078a96="" contenteditable="false" class="question_wrapper__admin_controls__wrapper"><img data-v-98078a96="" src="/img/closeIcon.9f67941f.svg" alt="close" class="question_wrapper__admin_controls__wrapper__img"></div></div><div data-v-98078a96="" class="question_wrapper__title"><h3 data-v-98078a96="">2. tested</h3><!----></div><div data-v-98078a96="" class="question_wrapper__content"><div data-v-98078a96="" class="v-input v-input--hide-details v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--solo v-text-field--is-booted v-text-field--enclosed v-text-field--placeholder"><div class="v-input__control"><div class="v-input__slot"><div class="v-text-field__slot"><input id="input-218" placeholder="Введите ответ" type="text"></div></div></div></div></div></div><br></div><div><div data-v-98078a96="" contenteditable="false" id="question_wrapper-3" class="question_wrapper"><div data-v-98078a96="" class="question_wrapper__admin_controls" style="width: 321px; height: 101.078px;"><div data-v-98078a96="" contenteditable="false" class="question_wrapper__admin_controls__wrapper"><img data-v-98078a96="" src="/img/closeIcon.9f67941f.svg" alt="close" class="question_wrapper__admin_controls__wrapper__img"></div></div><div data-v-98078a96="" class="question_wrapper__title"><h3 data-v-98078a96="">3. tested</h3><!----></div><div data-v-98078a96="" class="question_wrapper__content"><div data-v-98078a96="" class="v-input v-input--hide-details v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--solo v-text-field--is-booted v-text-field--enclosed v-text-field--placeholder"><div class="v-input__control"><div class="v-input__slot"><div class="v-text-field__slot"><input id="input-225" placeholder="Введите ответ" type="text"></div></div></div></div></div></div><br></div><div>&nbsp;loremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremlorem lorem loremloremlorem lorem </div>',
     instances: [],
     data_of_components: [],
   }),
@@ -607,16 +611,25 @@ export default {
     })
   },
   mounted() {
-    this.onContentChange()
+    // if (this.$route.params?.action === 'edit') {
+    //   this.$store.state.TitlesModule.inserted_components = this.test_from_server
+    //   this.$store.state.TitlesModule.content_from_server = this.test_content_from_server
+    // }
     this.$store.dispatch('testFont')
-    this.initializeContent()
+    setTimeout(() => {
+      this.initializeContent().then(() => {
+        this.onContentChange()
+      })
+    }, 500)
   },
   watch: {
     'data_of_components': {
       handler() {
-        this.$store.state.TitlesModule.inserted_components = []
-        this.$store.state.TitlesModule.inserted_components = this.data_of_components
-        this.$store.state.TitlesModule.content = this.content
+        if (!this.geting_from_server) {
+          this.$store.state.TitlesModule.inserted_components = []
+          this.$store.state.TitlesModule.inserted_components = this.data_of_components
+          this.$store.state.TitlesModule.content = this.content
+        }
       },
       deep: true
     },
@@ -682,38 +695,47 @@ export default {
     },
     /* INITIALIZE DATA FROM BACK OR INDEXEDDB */
     initializeContent() {
-      if (this.test_content_from_server && this.test_from_server.length) {
-        this.content = this.test_content_from_server
+      return new Promise((resolve) => {
+        console.log('initialize')
+        if (this.$store.state.TitlesModule.inserted_components && this.$store.state.TitlesModule.inserted_components.length) {
+          console.log('YA RABOTAU')
+          this.geting_from_server = true
 
-        const promises = []
+          this.content = this.$store.state.TitlesModule.content_from_server
 
-        this.test_from_server.forEach(elem => {
-          promises.push(this.$store.dispatch('getComponentsById', elem))
-        })
+          const promises = []
 
-        Promise.all(promises).finally(() => {
-          this.$store.state.TitlesModule.listComponents.sort((a,b) => {
-            return a.index - b.index
+          this.$store.state.TitlesModule.inserted_components.forEach(elem => {
+            promises.push(this.$store.dispatch('getComponentsById', elem))
           })
-          const arr = this.$store.state.TitlesModule.listComponents
-          arr.forEach((elem) => {
-            this.$store.state.TitlesModule.countQuestion = elem.index
-            this.$store.state.TitlesModule.selectedComponent = elem.data
-            let range = document.createRange();
-            range.selectNode(document.getElementById(`question_wrapper-${elem.index}`));
-            range.deleteContents()
-            range.collapse(false);
-            let ComponentClass = Vue.extend(Question)
-            this.instances.push(new ComponentClass({
-              store,
-              vuetify,
-            }))
-            this.instances[elem.index-1].$mount() // pass nothing
-            range.insertNode(this.instances[elem.index-1].$el)
-            this.$store.state.TitlesModule.selectedComponent = {}
+
+          Promise.all(promises).finally(() => {
+            this.data_of_components = this.$store.state.TitlesModule.inserted_components.slice()
+            this.$store.state.TitlesModule.components_after_request.sort((a,b) => {
+              return a.index - b.index
+            })
+            const arr = this.$store.state.TitlesModule.components_after_request
+            arr.forEach((elem) => {
+              this.$store.state.TitlesModule.countQuestion = elem.index
+              this.$store.state.TitlesModule.selectedComponent = elem.data
+              let range = document.createRange();
+              range.selectNode(document.getElementById(`question_wrapper-${elem.index}`));
+              range.deleteContents()
+              range.collapse(false);
+              let ComponentClass = Vue.extend(Question)
+              this.instances.push(new ComponentClass({
+                store,
+                vuetify,
+              }))
+              this.instances[elem.index-1].$mount() // pass nothing
+              range.insertNode(this.instances[elem.index-1].$el)
+              this.$store.state.TitlesModule.selectedComponent = {}
+            })
+            this.geting_from_server = false
+            resolve()
           })
-        })
-      }
+        }
+      })
     },
 
     /* FIXME: ДОБАВИТЬ ДЕБАУНС И СОХРАНЯЕМ ИЗМЕНЕНИЯ НА СЕРВЕР */
@@ -759,7 +781,7 @@ export default {
     onSelectComponent() {
       this.$store.state.TitlesModule.countQuestion++
       this.insertingComponent().then(() => {
-        this.data_of_components.push(new this.imported_component(this.$store.state.TitlesModule.selectedComponent.id, this.$store.state.TitlesModule.countQuestion))
+        this.data_of_components.push(new this.imported_component(this.$store.state.TitlesModule.selectedComponent.id, this.$store.state.TitlesModule.countQuestion, this.params_of_component.name))
         this.selectComponent = false
         this.$store.state.TitlesModule.selectedComponent = {}
       })
@@ -799,9 +821,10 @@ export default {
     },
 
     /* CONSTRUCTORS */
-    imported_component(id_component, index) {
+    imported_component(id_component, index, type_component) {
       this.id_component = id_component
       this.index = index
+      this.type_component = type_component
     },
   },
   beforeDestroy() {
@@ -809,6 +832,8 @@ export default {
     this.$store.state.TitlesModule.selectedComponent = {}
     this.$store.state.TitlesModule.countQuestion = 0
     this.$store.state.TitlesModule.content_from_server = ''
+    this.$store.state.TitlesModule.content = ''
+    this.$store.state.TitlesModule.inserted_components = []
   }
 }
 </script>
