@@ -416,7 +416,7 @@ export default {
       },
       state_detailed_response: 0,
       state_attachment_response: 0,
-      value_type_answer: null,
+      value_type_answer: '',
       _all_tags: [],
       mtomtags: [],
     },

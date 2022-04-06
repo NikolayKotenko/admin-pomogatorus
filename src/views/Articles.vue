@@ -3,11 +3,13 @@
     <div class="questions_wrapper">
       <div
           class="questions_wrapper__item"
+          v-for="(article, index) in $store.state.TitlesModule.listArticles"
+          :key="index"
       >
         <div class="questions_wrapper__item__top" :class="{filterShow: show_filter}">
           <div class="questions_wrapper__item__top__title" :class="{filterShow: show_filter}">
-            <span>
-              Статья 1
+            <span @click="onShowDetailArticle(article)">
+              {{ article.name }}
             </span>
             <span class="questions_wrapper__item__top__title__quantity">
             </span>
@@ -57,21 +59,22 @@
         </div>
         <div class="questions_wrapper__item__bottom">
           <div class="questions_wrapper__item__bottom__date" :class="{filterShow: show_filter}">
-            11.12.2021
+            {{article.updated_at}}
           </div>
           <div class="questions_wrapper__item__bottom__code" :class="{filterShow: show_filter}">
-
+            {{article.name_param_env}}
           </div>
         </div>
       </div>
 
-<!--      <v-alert-->
-<!--          type="error"-->
-<!--          text-->
-<!--          class="err-msg"-->
-<!--      >-->
-<!--       {{ computedErrMsg }} -->
-<!--      </v-alert>-->
+      <v-alert
+          v-if="!$store.state.TitlesModule.loadingList && ($store.state.TitlesModule.listArticles === null || !$store.state.TitlesModule.listArticles.length)"
+          type="error"
+          text
+          class="err-msg"
+      >
+       {{ computedErrMsg }}
+      </v-alert>
     </div>
     <v-sheet class="footer">
       <div class="footer_input">
@@ -195,7 +198,56 @@ export default {
     debounceTimeout: null,
     getFromQuery: false
   }),
+  mounted() {
+    this.initializeQuery()
+  },
+  computed: {
+    computedErrMsg() {
+      return (this.$store.state.TitlesModule.questionNotification ? this.$store.state.TitlesModule.questionNotification : 'Ничего не найдено')
+    },
+  },
   methods: {
+    onShowDetailArticle(article) {
+      this.$router.push({
+        name: 'DetailArticles',
+        params: {action: 'edit'},
+        query: {article_id: article.id}
+      })
+    },
+    getFilteredArticles() {
+      if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
+      this.debounceTimeout = setTimeout(() => {
+        this.$store.dispatch('setFilteredListArticles', this.filters)
+      }, 500);
+    },
+    initializeQuery() {
+      this.getFromQuery = true
+      if (Object.keys(this.$route.query).length) {
+        for (let key in this.filters) {
+          if (Object.keys(this.$route.query).includes(key) && this.$route.query[key] !== null) {
+            if (key === 'tag') {
+              if (Array.isArray(this.$route.query[key])) {
+                this.filters[key] = []
+                this.filters[key].push(...this.$route.query[key])
+              } else {
+                this.filters[key] = []
+                this.filters[key].push(this.$route.query[key])
+              }
+            } else {
+              if (key === 'updated_at') {
+                this.filters[key] = parseInt(this.$route.query[key])
+              } else {
+                this.filters[key] = this.$route.query[key]
+              }
+            }
+          }
+        }
+      }
+      setTimeout(() => {
+        this.getFromQuery = false
+        this.getFilteredArticles()
+      })
+    },
     onFocus() {
       this.filterValueFocused = true
     },

@@ -18,7 +18,7 @@
               rows="1"
               @focus="onFocus(newArticle.name)"
               @focusout="outFocus(newArticle.name)"
-              :loading="$store.state.QuestionsModule.loadingQuestion"
+              :loading="$store.state.TitlesModule.loadingArticle"
               :class="{invalid: !newArticle.name.value && $v.newArticle.name.$dirty && !$v.newArticle.name.required}"
               @input="saveDBQuestion(newArticle)"
           >
@@ -51,7 +51,7 @@
                 v-model="newArticle.short_header.value"
                 @focus="onFocus(newArticle.short_header)"
                 @focusout="outFocus(newArticle.short_header)"
-                :loading="$store.state.QuestionsModule.loadingQuestion"
+                :loading="$store.state.TitlesModule.loadingArticle"
                 @input="saveDBQuestion(newArticle)"
             ></v-textarea>
           </div>
@@ -72,7 +72,7 @@
                 v-model="newArticle.purpose_of_article.value"
                 @focus="onFocus(newArticle.purpose_of_article)"
                 @focusout="outFocus(newArticle.purpose_of_article)"
-                :loading="$store.state.QuestionsModule.loadingQuestion"
+                :loading="$store.state.TitlesModule.loadingArticle"
                 @input="saveDBQuestion(newArticle)"
             ></v-textarea>
           </div>
@@ -93,14 +93,14 @@
                 v-model="newArticle.preview.value"
                 @focus="onFocus(newArticle.preview)"
                 @focusout="outFocus(newArticle.preview)"
-                :loading="$store.state.QuestionsModule.loadingQuestion"
+                :loading="$store.state.TitlesModule.loadingArticle"
                 @input="saveDBQuestion(newArticle)"
             ></v-textarea>
           </div>
         </div>
 
         <!-- TEXTAREA -->
-        <text-redactor :name="newArticle.name.value"/>
+        <text-redactor :newArticle="newArticle" :deletedContent="deletedContent"/>
 
         <!-- Tags Component -->
 
@@ -110,23 +110,22 @@
           <v-btn
               color="red darken-1"
               text
-
+              @click="resetFields"
           >
-<!-- @click="resetFields" -->
             Очистить
           </v-btn>
           <v-btn
               color="blue darken-1"
               text
               @click.prevent="onSubmit"
+              :disabled="computedValidations"
           >
-<!-- :disabled="computedValidations" -->
             Создать
           </v-btn>
         </template>
         <template v-else>
-          <template v-if="Object.keys(this.$store.state.QuestionsModule.nonEditState).length">
-<!--            <v-btn
+          <template v-if="Object.keys(this.$store.state.TitlesModule.nonEditState).length">
+            <v-btn
                 color="red darken-1"
                 text
                 @click="deleteModal = true"
@@ -139,16 +138,15 @@
                 @click.prevent="saveDifferences()"
             >
               Сохранить изменения
-            </v-btn>-->
+            </v-btn>
           </template>
         </template>
       </div>
-
       <!-- LOADER -->
       <v-overlay
           :z-index="2"
           :absolute="true"
-          :value="$store.state.QuestionsModule.loadingQuestion"
+          :value="$store.state.TitlesModule.loadingArticle"
       >
         <v-progress-circular
             style="margin: auto"
@@ -156,7 +154,7 @@
             :size="70"
             color="blue"
             :indeterminate="true"
-            v-if="$store.state.QuestionsModule.loadingQuestion"
+            v-if="$store.state.TitlesModule.loadingArticle"
         ></v-progress-circular>
       </v-overlay>
     </v-form>
@@ -175,8 +173,8 @@
               color="blue darken-1"
               text
               @click="deleteModal = false"
-              :disabled="$store.state.QuestionsModule.loadingRequest"
-              :loading="$store.state.QuestionsModule.loadingRequest"
+              :disabled="$store.state.TitlesModule.loadingRequest"
+              :loading="$store.state.TitlesModule.loadingRequest"
           >
             Нет
           </v-btn>
@@ -184,8 +182,9 @@
           <v-btn
               color="red darken-1"
               text
-              :disabled="$store.state.QuestionsModule.loadingRequest"
-              :loading="$store.state.QuestionsModule.loadingRequest"
+              :disabled="$store.state.TitlesModule.loadingRequest"
+              :loading="$store.state.TitlesModule.loadingRequest"
+              @click="deleteArticle"
           >
             Да
           </v-btn>
@@ -214,7 +213,7 @@ export default {
         value: {required}
       },
     },
-    validationGroup: ['newQuestion.name.value']
+    validationGroup: ['newArticle.name.value']
   },
   data: () => ({
     newArticle: {
@@ -240,10 +239,83 @@ export default {
     },
     deleteModal: false,
     deleteStorage: false,
+    deletedContent: false,
   }),
   mounted() {
+    this.initializeQuery()
+    this.getDb()
+    if (!this.deleteStorage) {
+      if (this.$route.params?.action === 'create') {
+        this.getDBQuestion()
+      }
+    }
+  },
+  watch: {
+    '$store.state.TitlesModule.content': {
+      handler() {
+        this.saveDBQuestion(this.newArticle)
+      }
+    },
+  },
+  computed: {
+    computedValidations() {
+      return (
+          (!this.newArticle.name.value && this.$v.newArticle.name.$dirty && !this.$v.newArticle.name.required)
+      )
+    },
   },
   methods: {
+    /* MAIN */
+    initializeQuery() {
+      if (Object.keys(this.$route.query).length && Object.keys(this.$route.query).includes('article_id')) {
+        this.$store.dispatch('getDetailArticle', this.$route.query.article_id).then(() => {
+          if (this.$store.state.TitlesModule.newArticle.name) {
+            this.newArticle = this.$store.state.TitlesModule.newArticle
+          }
+        })
+      }
+    },
+    resetFields() {
+      this.deleteStorage = true
+      for (let key in this.newArticle) {
+        if (typeof this.newArticle[key] === 'object' && this.newArticle[key] !== null) {
+          if (Array.isArray(this.newArticle[key])) {
+            this.newArticle[key] = []
+          } else this.newArticle[key].value = ''
+        } else {
+          if (key === 'value_type_answer') {
+            this.newArticle[key] = null
+          } else if (key === 'id') {
+            this.newArticle[key] = 1
+          } else this.newArticle[key] = 0
+        }
+      }
+      this.deletedContent = true
+
+      this.$store.state.TitlesModule.newArticle._all_tags = []
+      this.$store.dispatch('removeLocalStorageArticle')
+      this.deleteDBQuestion(this.newArticle)
+      setTimeout(() => {
+        this.deleteStorage = false
+        this.deletedContent = false
+      }, 500)
+    },
+    saveDifferences() {
+      this.$store.dispatch('updateArticle', this.newArticle).then(() => {
+        this.$router.push({
+          path: '/articles'
+        })
+      })
+    },
+    deleteArticle() {
+      this.$store.dispatch('deleteArticle', this.newArticle).then(() => {
+        this.deleteModal = false
+        this.$router.push({
+          path: '/articles'
+        })
+      })
+    },
+
     /* indexedDB */
     async getDb () {
       return new Promise((resolve, reject) => {
@@ -293,7 +365,9 @@ export default {
               if (cursor) {
                 question.push(cursor.value)
                 cursor.continue()
-                this.newQuestion = question[0]
+                this.newArticle = question[0]
+                this.$store.state.TitlesModule.content_from_server = question[0].content
+                this.$store.state.TitlesModule.inserted_components = question[0].inserted_components
               }
             }
           })
@@ -359,15 +433,16 @@ export default {
 
     /* CRUD */
     onSubmit() {
+      console.log(this.$v)
       if (this.$v.$invalid) {
         this.$v.$touch();
         return;
       }
       this.deleteDBQuestion(this.newArticle).then(() => {
-        this.$store.dispatch('createQuestion', this.newQuestion).then(() => {
-          this.$store.dispatch('removeLocalStorage')
+        this.$store.dispatch('createArticle', this.newArticle).then(() => {
+          this.$store.dispatch('removeLocalStorageArticle')
           this.$router.push({
-            path: '/questions'
+            path: '/articles'
           })
         })
       })

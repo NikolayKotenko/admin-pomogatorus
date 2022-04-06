@@ -1,5 +1,5 @@
 <template>
-  <div class="textRedactor" :class="{disabled: !name}">
+  <div class="textRedactor" :class="{disabled: !newArticle.name.value}">
     <div class="textRedactor__header">
       <div class="textRedactor__header__firstLine">
         <!-- Вставить элемент в текст -->
@@ -473,14 +473,10 @@
 
     <div
         class="textRedactor__content"
-        :contenteditable="!!name"
+        :contenteditable="!!newArticle.name.value"
         spellcheck="false"
         ref="content" @input="onContentChange"
     >
-      lorem loremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremlorem
-      lorem
-      loremloremlorem
-      lorem
     </div>
 
     <!-- MODALS -->
@@ -525,7 +521,7 @@
     </v-dialog>
 
     <!-- OVERLAYS -->
-    <div class="overlay" v-if="!name"></div>
+    <div class="overlay" v-if="!newArticle.name.value"></div>
 
 <!--    <v-autocomplete-->
 <!--      :items="$store.state.TitlesModule.fonts"-->
@@ -544,7 +540,7 @@ import Question from "../frontLayouts/Question";
 
 export default {
   name: "TextRedactor",
-  props: ['name'],
+  props: ['newArticle', 'deletedContent'],
   data: () => ({
     /* MODALS */
     selectComponent: false,
@@ -616,6 +612,22 @@ export default {
     this.initializeContent()
   },
   watch: {
+    'data_of_components': {
+      handler() {
+        this.$store.state.TitlesModule.inserted_components = []
+        this.$store.state.TitlesModule.inserted_components = this.data_of_components
+        this.$store.state.TitlesModule.content = this.content
+      },
+      deep: true
+    },
+    'deletedContent': {
+      handler(v) {
+        if (v) {
+          this.content = ''
+          this.$store.state.TitlesModule.content = ''
+        }
+      },
+    },
     'params_of_component.name': {
       handler(v) {
         if (v) {
@@ -647,6 +659,12 @@ export default {
           }
         }
       },
+    },
+    '$store.state.TitlesModule.content_from_server': {
+      handler() {
+        this.content = this.$store.state.TitlesModule.content_from_server
+        this.$store.state.TitlesModule.content = this.content
+      }
     },
   },
   computed: {
@@ -790,6 +808,7 @@ export default {
     this.$store.state.TitlesModule.listComponents = []
     this.$store.state.TitlesModule.selectedComponent = {}
     this.$store.state.TitlesModule.countQuestion = 0
+    this.$store.state.TitlesModule.content_from_server = ''
   }
 }
 </script>

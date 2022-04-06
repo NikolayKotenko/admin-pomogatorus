@@ -296,16 +296,20 @@ export default {
       this.filterValueFocused = false
     },
     computedAnswersCount(question) {
-      let result = JSON.parse(JSON.parse(question.value_type_answer))
-      if (Array.isArray(result)) {
-        if (result.length) {
-          return result.length
+      if (question.value_type_answer !== null) {
+        let result = JSON.parse(JSON.parse(question.value_type_answer))
+        if (Array.isArray(result)) {
+          if (result.length) {
+            return result.length
+          } else {
+            return 1
+          }
         } else {
-          return 1
+          if (JSON.parse(question.value_type_answer) !== null) {
+            return JSON.parse(question.value_type_answer).length
+          } else return 0
         }
-      } else {
-        return JSON.parse(question.value_type_answer).length
-      }
+      } else return 0
     },
   },
 }
