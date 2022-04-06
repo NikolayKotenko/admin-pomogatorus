@@ -1,10 +1,5 @@
 <template>
   <div class="question_wrapper" contenteditable="false" :id="`question_wrapper-${count_of_question}`">
-<!--    <div class="question_wrapper__admin_controls" :style="`width: ${controls_width}px; height: ${controls_height}px`">-->
-<!--      <div class="question_wrapper__admin_controls__wrapper" contenteditable="false">-->
-<!--        <img class="question_wrapper__admin_controls__wrapper__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">-->
-<!--      </div>-->
-<!--    </div>-->
     <div class="question_wrapper__admin_controls-header" contenteditable="false">
       <img class="question_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
     </div>
@@ -225,55 +220,6 @@
 export default {
   name: "Question",
   data: () => ({
-/*    question_data: {
-      "id": 12,
-      "name_param_env": null,
-      "name": "tested",
-      "purpose_of_question": "teast",
-      "title": 'ЭТО ПОДСКАЗКА',
-      "article": null,
-      "id_type_answer": 1,
-      "value_type_answer": "\"[]\"",
-      "state_detailed_response": true,
-      "state_attachment_response": true,
-      "created_at": "20.02.2022",
-      "updated_at": "25.02.2022",
-      "_all_tags": [
-        {
-          "id": 63,
-          "code": "test",
-          "name": "test",
-          "description": null,
-          "created_at": "2022-02-20T17:25:46.000000Z",
-          "updated_at": "2022-02-20T17:25:46.000000Z"
-        }
-      ],
-      "typeanswer": {
-        "id": 1,
-        "code": "stroka",
-        "name": "Строка ",
-        "created_at": null,
-        "updated_at": null
-      },
-      "mtomtags": [
-        {
-          "id": 73,
-          "id_tag": 63,
-          "id_question": 12,
-          "id_answer": null,
-          "created_at": "2022-02-26T10:06:01.000000Z",
-          "updated_at": "2022-02-26T10:06:01.000000Z",
-          "dtags": {
-            "id": 63,
-            "code": "test",
-            "name": "test",
-            "description": null,
-            "created_at": "2022-02-20T17:25:46.000000Z",
-            "updated_at": "2022-02-20T17:25:46.000000Z"
-          }
-        }
-      ]
-    },*/
     question_data: {},
     count_of_question: null,
     controls_height: 0,
@@ -418,9 +364,6 @@ export default {
     border-right: 1px solid rgba(83, 158, 224, 0.7);
     border-left: 1px solid rgba(83, 158, 224, 0.7);
 
-    .question_wrapper__admin_controls {
-      opacity: 1;
-    }
     .question_wrapper__admin_controls-header {
       opacity: 1;
     }
@@ -443,40 +386,6 @@ export default {
     &__img {
       width: 14px;
       height: 14px;
-    }
-  }
-
-  &__admin_controls {
-    border-bottom: 1px solid rgba(83, 158, 224, 0.7);
-    border-right: 1px solid rgba(83, 158, 224, 0.7);
-    border-left: 1px solid rgba(83, 158, 224, 0.7);
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
-    position: absolute;
-    left: -4px;
-    top: -16px;
-    opacity: 0;
-    transition: all .4s ease-in-out;
-
-    &__wrapper {
-      background: rgba(83, 158, 224, 0.7);
-      position: absolute;
-      width: 100%;
-      height: 16px;
-      border-radius: 2px;
-      top: 0;
-      right: 0;
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      padding: 4px;
-
-      &__img {
-        width: 14px;
-        height: 14px;
-      }
     }
   }
 
