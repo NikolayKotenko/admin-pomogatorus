@@ -1,4 +1,4 @@
-# pomogatorus
+# admin-pomogatorus
 
 ## Project setup
 ```
