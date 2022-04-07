@@ -412,12 +412,24 @@ export default {
                 let bodyFormData = new FormData()
                 for (let key in data) {
                     if (typeof data[key] === 'object') {
-                        if (data[key].value) {
-                            bodyFormData.append(key, data[key].value)
+                        if (Array.isArray(data[key])) {
+                            console.log(data[key])
+                            let arr = []
+                            data[key].forEach(elem => {
+                                if (elem.answer) {
+                                    arr.push(elem)
+                                }
+                            })
+                            bodyFormData.append(key, JSON.stringify(arr))
+                        } else {
+                            if (data[key].value) {
+                                bodyFormData.append(key, data[key].value)
+                            }
                         }
                     } else bodyFormData.append(key, data[key])
                 }
                 bodyFormData.append('name_param_env', '')
+                console.log(bodyFormData)
                 axios.post(`${this.state.BASE_URL}/entity/questions`, bodyFormData, {
                     headers: {
                         Authorization: '666777'
