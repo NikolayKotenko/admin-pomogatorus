@@ -462,6 +462,9 @@ export default {
       })
     },
   },
+  beforeDestroy() {
+    this.$store.state.TitlesModule.newArticle._all_tags = []
+  }
 }
 </script>
 <style scoped lang="scss">

@@ -152,8 +152,10 @@ export default {
                         state.content_from_server = JSON.parse(result[key])
                     }
                 } else if (key === 'inserted_components') {
+                    console.log(result[key])
                     let parsed = null
                     parsed = JSON.parse(JSON.parse(result[key]))
+                    console.log(typeof parsed)
                     if (Array.isArray(parsed)) {
                         state.inserted_components = []
                         parsed.forEach(elem => {
@@ -402,7 +404,7 @@ export default {
                         }
                     } else bodyFormData.append(key, data[key])
                 }
-                const inserted_components = JSON.stringify(JSON.stringify(state.inserted_components))
+                const inserted_components = JSON.stringify(state.inserted_components)
                 console.log(inserted_components)
                 bodyFormData.append('code', data.name.value)
                 bodyFormData.append('content', JSON.stringify(state.content))
