@@ -461,7 +461,8 @@ export default {
     '$store.state.QuestionsModule.newQuestion._all_tags': {
       handler() {
         this.newQuestion._all_tags = this.$store.state.QuestionsModule.newQuestion._all_tags
-        this.onChange()
+        this.saveDBQuestion(this.newQuestion)
+        // this.onChange()
       },
       deep: true
     }
@@ -530,6 +531,8 @@ export default {
                 question.push(cursor.value)
                 cursor.continue()
                 this.newQuestion = question[0]
+                this.lastIdAnswer = this.newQuestion.value_type_answer.length
+                this.$store.state.QuestionsModule.newQuestion._all_tags = this.newQuestion._all_tags
               }
             }
           })

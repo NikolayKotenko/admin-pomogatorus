@@ -267,11 +267,18 @@ export default {
         this.saveDBQuestion(this.newArticle)
       }
     },
+    '$store.state.TitlesModule.newArticle._all_tags': {
+      handler() {
+        this.newArticle._all_tags = this.$store.state.TitlesModule.newArticle._all_tags
+        this.saveDBQuestion(this.newArticle)
+      }
+    },
   },
   computed: {
     computedValidations() {
       return (
-          (!this.newArticle.name.value && this.$v.newArticle.name.$dirty && !this.$v.newArticle.name.required)
+          (!this.newArticle.name.value && this.$v.newArticle.name.$dirty && !this.$v.newArticle.name.required) ||
+          (!this.newArticle.short_header.value && this.$v.newArticle.short_header.$dirty && !this.$v.newArticle.short_header.required)
       )
     },
   },
@@ -303,6 +310,8 @@ export default {
       }
       this.deletedContent = true
 
+      this.$store.state.TitlesModule.inserted_components = []
+      this.$store.state.TitlesModule.countQuestion = 0
       this.$store.state.TitlesModule.newArticle._all_tags = []
       this.$store.dispatch('removeLocalStorageArticle')
       this.deleteDBQuestion(this.newArticle)
@@ -380,6 +389,7 @@ export default {
                   this.newArticle = question[0]
                   this.$store.state.TitlesModule.content_from_server = question[0].content
                   this.$store.state.TitlesModule.inserted_components = question[0].inserted_components
+                  this.$store.state.TitlesModule.newArticle._all_tags = this.newArticle._all_tags
                 })
               }
             }
