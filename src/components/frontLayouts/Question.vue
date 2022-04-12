@@ -55,7 +55,7 @@
               :value="item.answer"
           >
             <template slot="label">
-              <div style="display: flex; column-gap: 20px">
+              <div style="display: flex; column-gap: 20px; align-items: center">
                 <span>
                   {{item.answer}}
                 </span>
@@ -422,6 +422,7 @@ export default {
   width: 20px;
   height: 20px;
   margin-bottom: 3px;
+  padding-top: 2px;
 }
 
 .v-input--selection-controls {

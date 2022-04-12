@@ -44,6 +44,7 @@
               <v-icon
                   v-bind="attrs"
                   v-on="on"
+                  @click="onAction('undo')"
               >
                 mdi-undo
               </v-icon>
@@ -55,6 +56,7 @@
               <v-icon
                   v-bind="attrs"
                   v-on="on"
+                  @click="onAction('redo')"
               >
                 mdi-redo
               </v-icon>
@@ -66,34 +68,210 @@
         <div class="header__elBlock">
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <div
+              <v-icon
                   v-bind="attrs"
                   v-on="on"
+                  @click="onAction('bold')"
+              >
+                mdi-format-bold
+              </v-icon>
+            </template>
+            <span>Жирный</span>
+          </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-icon
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="onAction('italic')"
+              >
+                mdi-format-italic
+              </v-icon>
+            </template>
+            <span>Курсив</span>
+          </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-icon
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="onAction('underline')"
+              >
+                mdi-format-underline
+              </v-icon>
+            </template>
+            <span>Подчеркнутый</span>
+          </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-icon
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="onAction('strikethrough')"
+              >
+                mdi-format-strikethrough
+              </v-icon>
+            </template>
+            <span>Перечёркнутый</span>
+          </v-tooltip>
+        </div>
+        <!-- Форматирование -->
+        <div class="header__elBlock">
+          <v-menu
+              open-on-hover
+              bottom
+              offset-y
+              transition="scale-transition"
+              v-model="align_content.open_list"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <div
                   class="header__elBlock__iconWrapper"
               >
-                <v-icon>
-                  mdi-format-title
+                <v-icon
+                    @click="onAction(align_content.value)"
+                >
+                  {{ align_content.icon }}
                 </v-icon>
                 <v-icon
-                    v-if="true"
+                    v-bind="attrs"
+                    v-on="on"
+                    v-if="align_content.open_list"
                     class="header__elBlock__iconWrapper__arrow"
                 >
                   mdi-menu-down
                 </v-icon>
                 <v-icon
+                    v-bind="attrs"
+                    v-on="on"
                     v-else
                     class="header__elBlock__iconWrapper__arrow"
                 >
                   mdi-menu-up
                 </v-icon>
               </div>
-
             </template>
-            <span>Настройка текста</span>
-          </v-tooltip>
+            <v-list>
+              <v-list-item v-for="(item, index) in array_align_content" :key="index" @click="select_align_content(item.value)">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-icon
+                        v-bind="attrs"
+                        v-on="on"
+                        size="20"
+                    >
+                      {{ item.icon }}
+                    </v-icon>
+                    <v-list-item-title class="v-menu-item"> {{ item.text }} </v-list-item-title>
+                  </template>
+                  <span>{{ item.text }}</span>
+                </v-tooltip>
+              </v-list-item>
+            </v-list>
+          </v-menu>
         </div>
-        <!-- Заголовки -->
+        <!-- Отступы -->
         <div class="header__elBlock">
+          <v-menu
+              open-on-hover
+              bottom
+              offset-y
+              transition="scale-transition"
+              v-model="side_spaces.open_list"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <div
+                  class="header__elBlock__iconWrapper"
+              >
+                <v-icon
+                    @click="onAction(side_spaces.value)"
+                >
+                  {{ side_spaces.icon }}
+                </v-icon>
+                <v-icon
+                    v-bind="attrs"
+                    v-on="on"
+                    v-if="side_spaces.open_list"
+                    class="header__elBlock__iconWrapper__arrow"
+                >
+                  mdi-menu-down
+                </v-icon>
+                <v-icon
+                    v-bind="attrs"
+                    v-on="on"
+                    v-else
+                    class="header__elBlock__iconWrapper__arrow"
+                >
+                  mdi-menu-up
+                </v-icon>
+              </div>
+            </template>
+            <v-list>
+              <v-list-item v-for="(item, index) in array_side_spaces" :key="index" @click="select_side_content(item.value)">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-icon
+                        v-bind="attrs"
+                        v-on="on"
+                        size="20"
+                    >
+                      {{ item.icon }}
+                    </v-icon>
+                    <v-list-item-title class="v-menu-item"> {{ item.text }} </v-list-item-title>
+                  </template>
+                  <span>{{ item.text }}</span>
+                </v-tooltip>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </div>
+        <!-- Высота строки -->
+        <div class="header__elBlock right">
+          <v-menu
+              open-on-hover
+              bottom
+              offset-y
+              transition="scale-transition"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <div
+                  class="header__elBlock__iconWrapper"
+              >
+                <v-icon>
+                  mdi-format-line-spacing
+                </v-icon>
+                <v-icon
+                    v-bind="attrs"
+                    v-on="on"
+                    v-if="true"
+                    class="header__elBlock__iconWrapper__arrow"
+                >
+                  mdi-menu-down
+                </v-icon>
+                <v-icon
+                    v-bind="attrs"
+                    v-on="on"
+                    v-else
+                    class="header__elBlock__iconWrapper__arrow"
+                >
+                  mdi-menu-up
+                </v-icon>
+              </div>
+            </template>
+            <v-list>
+              <v-list-item
+                  v-for="(value_spacing, index) in line_spacing"
+                  :key="index"
+                  @click="changeLineHeight(value_spacing.value)"
+              >
+                <v-list-item-title> {{ value_spacing.value }} </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </div>
+
+        <!-- Заголовки -->
+<!--        <div class="header__elBlock">
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <div
@@ -121,9 +299,9 @@
             </template>
             <span>Настройка заголовка</span>
           </v-tooltip>
-        </div>
+        </div>-->
         <!-- Шрифты -->
-        <div class="header__elBlock">
+<!--        <div class="header__elBlock">
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <div
@@ -151,9 +329,9 @@
             </template>
             <span>Настройка шрифта</span>
           </v-tooltip>
-        </div>
+        </div>-->
         <!-- Цвет текста -->
-        <div class="header__elBlock">
+<!--        <div class="header__elBlock">
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <div
@@ -184,9 +362,9 @@
             </template>
             <span>Выбрать цвет текста</span>
           </v-tooltip>
-        </div>
+        </div>-->
         <!-- Выделение текста -->
-        <div class="header__elBlock">
+<!--        <div class="header__elBlock">
           <v-menu
               bottom
               offset-y
@@ -243,7 +421,7 @@
               </v-list-item>
             </v-list>
           </v-menu>
-        </div>
+        </div>-->
         <!-- Очистка форматирования -->
         <div class="header__elBlock">
           <v-tooltip bottom>
@@ -251,7 +429,6 @@
               <v-icon
                   v-bind="attrs"
                   v-on="on"
-                  @click="test2()"
               >
                 mdi-format-clear
               </v-icon>
@@ -260,215 +437,9 @@
           </v-tooltip>
         </div>
       </div>
-      <div class="textRedactor__header__secondLine">
-        <!-- Форматирование -->
-        <div class="header__elBlock">
-          <v-menu
-              open-on-hover
-              bottom
-              offset-y
-              transition="scale-transition"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <div
-                  class="header__elBlock__iconWrapper"
-              >
-                <v-icon>
-                  mdi-format-align-left
-                </v-icon>
-                <v-icon
-                    v-bind="attrs"
-                    v-on="on"
-                    v-if="true"
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-down
-                </v-icon>
-                <v-icon
-                    v-bind="attrs"
-                    v-on="on"
-                    v-else
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-up
-                </v-icon>
-              </div>
-            </template>
-            <v-list>
-              <v-list-item>
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-icon
-                        v-bind="attrs"
-                        v-on="on"
-                        size="20"
-                    >
-                      mdi-format-align-left
-                    </v-icon>
-                    <v-list-item-title class="v-menu-item"> Выравнивание по левой стороне </v-list-item-title>
-                  </template>
-                  <span>Выравнивание по левой стороне</span>
-                </v-tooltip>
-              </v-list-item>
-              <v-list-item>
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-icon
-                        v-bind="attrs"
-                        v-on="on"
-                        size="20"
-                    >
-                      mdi-format-align-right
-                    </v-icon>
-                    <v-list-item-title class="v-menu-item"> Выравнивание по правой стороне </v-list-item-title>
-                  </template>
-                  <span>Выравнивание по правой стороне</span>
-                </v-tooltip>
-              </v-list-item>
-              <v-list-item>
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-icon
-                        v-bind="attrs"
-                        v-on="on"
-                        size="20"
-                    >
-                      mdi-format-align-center
-                    </v-icon>
-                    <v-list-item-title class="v-menu-item"> Выравнивание по центру </v-list-item-title>
-                  </template>
-                  <span>Выравнивание по центру</span>
-                </v-tooltip>
-              </v-list-item>
-              <v-list-item>
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-icon
-                        v-bind="attrs"
-                        v-on="on"
-                        size="20"
-                    >
-                      mdi-format-align-justify
-                    </v-icon>
-                    <v-list-item-title class="v-menu-item"> Выравнивание по ширине </v-list-item-title>
-                  </template>
-                  <span>Выравнивание по ширине</span>
-                </v-tooltip>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </div>
-        <!-- Отступы -->
-        <div class="header__elBlock">
-          <v-menu
-              open-on-hover
-              bottom
-              offset-y
-              transition="scale-transition"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <div
-                  class="header__elBlock__iconWrapper"
-              >
-                <v-icon>
-                  mdi-format-indent-decrease
-                </v-icon>
-                <v-icon
-                    v-bind="attrs"
-                    v-on="on"
-                    v-if="true"
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-down
-                </v-icon>
-                <v-icon
-                    v-bind="attrs"
-                    v-on="on"
-                    v-else
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-up
-                </v-icon>
-              </div>
-            </template>
-            <v-list>
-              <v-list-item>
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-icon
-                        v-bind="attrs"
-                        v-on="on"
-                        size="20"
-                    >
-                      mdi-format-indent-increase
-                    </v-icon>
-                    <v-list-item-title class="v-menu-item"> Сделать отступ </v-list-item-title>
-                  </template>
-                  <span>Сделать отступ</span>
-                </v-tooltip>
-              </v-list-item>
-              <v-list-item>
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-icon
-                        v-bind="attrs"
-                        v-on="on"
-                        size="20"
-                    >
-                      mdi-format-indent-decrease
-                    </v-icon>
-                    <v-list-item-title class="v-menu-item"> Убрать отступ </v-list-item-title>
-                  </template>
-                  <span>Убрать отступ</span>
-                </v-tooltip>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </div>
-        <!-- Высота строки -->
-        <div class="header__elBlock right">
-          <v-menu
-              open-on-hover
-              bottom
-              offset-y
-              transition="scale-transition"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <div
-                  class="header__elBlock__iconWrapper"
-              >
-                <v-icon>
-                  mdi-format-line-spacing
-                </v-icon>
-                <v-icon
-                    v-bind="attrs"
-                    v-on="on"
-                    v-if="true"
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-down
-                </v-icon>
-                <v-icon
-                    v-bind="attrs"
-                    v-on="on"
-                    v-else
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-up
-                </v-icon>
-              </div>
-            </template>
-            <v-list>
-              <v-list-item
-                  v-for="(value_spacing, index) in line_spacing"
-                  :key="index"
-              >
-                <v-list-item-title> {{ value_spacing.value }} </v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </div>
-      </div>
+<!--      <div class="textRedactor__header__secondLine">-->
+
+<!--      </div>-->
     </div>
 
     <div
@@ -580,9 +551,61 @@ export default {
       ['#00FF00', '#00AA00', '#005500'],
       ['#00FFFF', '#00AAAA', '#005555'],
     ],
-    debounceTimeout: null,
+    align_content: {
+      value: 'justifyLeft',
+      text: 'Выравнивание по левой стороне',
+      icon: 'mdi-format-align-left',
+      open_list: false,
+    },
+    array_align_content: [
+      {
+        value: 'justifyLeft',
+        text: 'Выравнивание по левой стороне',
+        icon: 'mdi-format-align-left',
+        open_list: false,
+      },
+      {
+        value: 'justifyRight',
+        text: 'Выравнивание по правой стороне',
+        icon: 'mdi-format-align-right',
+        open_list: false,
+      },
+      {
+        value: 'justifyCenter',
+        text: 'Выравнивание по центру',
+        icon: 'mdi-format-align-center',
+        open_list: false,
+      },
+      {
+        value: 'justifyFull',
+        text: 'Выравнивание по ширине',
+        icon: 'mdi-format-align-justify',
+        open_list: false,
+      },
+    ],
+    side_spaces: {
+      value: 'indent',
+      text: 'Сделать отступ',
+      icon: 'mdi-format-indent-increase',
+      open_list: false,
+    },
+    array_side_spaces: [
+      {
+        value: 'indent',
+        text: 'Сделать отступ',
+        icon: 'mdi-format-indent-increase',
+        open_list: false,
+      },
+      {
+        value: 'outdent',
+        text: 'Убрать отступ',
+        icon: 'mdi-format-indent-decrease',
+        open_list: false,
+      },
+    ],
 
     /* INSERT COMPONENTS */
+    debounceTimeout: null,
     geting_from_server: false,
     test_from_server: [
       {
@@ -760,10 +783,32 @@ export default {
         }
       })
     },
+    changeLineHeight(value) {
+      console.log(value)
+      const selection = window.getSelection();
 
-    /* FIXME: FONTNAME */
-    test2() {
-      document.execCommand("fontName", false, 'Palette Mosaic')
+      if (selection.type === 'Range') {
+        for (let i = 0; i < selection.rangeCount; i++) {
+          const range = selection.getRangeAt(i);
+          console.log(range.commonAncestorContainer.parentNode)
+          // range.commonAncestorContainer.style.lineHeight = value;
+        }
+      }
+    },
+    select_side_content(value) {
+      const index = this.array_side_spaces.findIndex(elem => {
+        return elem.value === value
+      })
+      if (index !== -1) this.side_spaces = this.array_side_spaces[index]
+    },
+    select_align_content(value) {
+      const index = this.array_align_content.findIndex(elem => {
+        return elem.value === value
+      })
+      if (index !== -1) this.align_content = this.array_align_content[index]
+    },
+    onAction(action) {
+      document.execCommand(action, false, null);
     },
 
     /* MANIPULATING WITH INSERTING COMPONENTS */
