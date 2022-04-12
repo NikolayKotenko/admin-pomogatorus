@@ -638,6 +638,8 @@ export default {
         if (v) {
           this.content = ''
           this.$store.state.TitlesModule.content = ''
+          this.data_of_components = []
+          this.instances = []
         }
       },
     },
@@ -659,6 +661,8 @@ export default {
             this.data_of_components.splice(index, 1)
             let counter_instances = 1
             this.instances.forEach(elem => {
+              const block = document.getElementById(`question_wrapper-${elem.$data.count_of_question}`)
+              block.id =  `question_wrapper-${counter_instances}`
               elem.$data.count_of_question = counter_instances
               counter_instances++
             })
@@ -709,31 +713,30 @@ export default {
             promises.push(this.$store.dispatch('getComponentsById', elem))
           })
 
-          console.log(promises)
-
           Promise.all(promises).finally(() => {
             this.data_of_components = this.$store.state.TitlesModule.inserted_components.slice()
             this.$store.state.TitlesModule.components_after_request.sort((a,b) => {
               return a.index - b.index
             })
             const arr = this.$store.state.TitlesModule.components_after_request
-            arr.forEach((elem) => {
-              this.$nextTick(() => {
-                this.$store.state.TitlesModule.countQuestion = elem.index
-                this.$store.state.TitlesModule.selectedComponent = elem.data
-                let range = document.createRange();
-                console.log(elem.index)
-                range.selectNode(document.getElementById(`question_wrapper-${elem.index}`));
-                range.deleteContents()
-                range.collapse(false);
-                let ComponentClass = Vue.extend(Question)
-                this.instances.push(new ComponentClass({
-                  store,
-                  vuetify,
-                }))
-                this.instances[elem.index-1].$mount() // pass nothing
-                range.insertNode(this.instances[elem.index-1].$el)
-                this.$store.state.TitlesModule.selectedComponent = {}
+            this.$nextTick(() => {
+              arr.forEach((elem) => {
+                setTimeout(() => {
+                    this.$store.state.TitlesModule.countQuestion = elem.index
+                    this.$store.state.TitlesModule.selectedComponent = elem.data
+                    let range = document.createRange();
+                    range.selectNode(document.getElementById(`question_wrapper-${elem.index}`));
+                    range.deleteContents()
+                    range.collapse(false);
+                    let ComponentClass = Vue.extend(Question)
+                    this.instances.push(new ComponentClass({
+                      store,
+                      vuetify,
+                    }))
+                    this.instances[elem.index-1].$mount() // pass nothing
+                    range.insertNode(this.instances[elem.index-1].$el)
+                    this.$store.state.TitlesModule.selectedComponent = {}
+                  })
               })
             })
             this.geting_from_server = false
