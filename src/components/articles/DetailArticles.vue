@@ -267,6 +267,12 @@ export default {
         this.saveDBQuestion(this.newArticle)
       }
     },
+    '$store.state.TitlesModule.newArticle._all_tags': {
+      handler() {
+        this.newArticle._all_tags = this.$store.state.TitlesModule.newArticle._all_tags
+        this.saveDBQuestion(this.newArticle)
+      }
+    },
   },
   computed: {
     computedValidations() {
@@ -380,6 +386,7 @@ export default {
                   this.newArticle = question[0]
                   this.$store.state.TitlesModule.content_from_server = question[0].content
                   this.$store.state.TitlesModule.inserted_components = question[0].inserted_components
+                  this.$store.state.TitlesModule.newArticle._all_tags = this.newArticle._all_tags
                 })
               }
             }

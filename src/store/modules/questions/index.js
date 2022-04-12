@@ -411,7 +411,11 @@ export default {
                 state.loadingQuestion = true
                 let bodyFormData = new FormData()
                 for (let key in data) {
-                    if (typeof data[key] === 'object') {
+                    if (key === 'state_attachment_response' || key === 'state_detailed_response') {
+                        if (data[key]) {
+                            bodyFormData.append(key, '1')
+                        } else bodyFormData.append(key, '0')
+                    } else if (typeof data[key] === 'object') {
                         if (Array.isArray(data[key])) {
                             console.log(data[key])
                             let arr = []

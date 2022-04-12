@@ -155,12 +155,12 @@ export default {
                     console.log(result[key])
                     let parsed = null
                     parsed = JSON.parse(JSON.parse(result[key]))
-                    console.log(typeof parsed)
                     if (Array.isArray(parsed)) {
                         state.inserted_components = []
                         parsed.forEach(elem => {
                             state.inserted_components.push(new InsertedComponents(elem))
                         })
+                        console.log(state.inserted_components )
                     } else {
                         state.inserted_components = []
                     }
