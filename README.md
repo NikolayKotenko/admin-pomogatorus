@@ -1,4 +1,4 @@
-# admin-pomogatorus
+# admin-pomogatorusda
 
 ## Project setup
 ```
