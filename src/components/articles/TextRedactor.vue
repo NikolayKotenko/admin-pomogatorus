@@ -428,7 +428,7 @@
     >
       <v-card>
         <v-card-title>
-          <span class="text-h6" style="font-size: 0.8em !important;">Какой вопрос?</span>
+          <span class="text-h6" style="font-size: 0.8em !important; text-align: center; width: 100%">Какой вопрос?</span>
         </v-card-title>
         <v-card-text>
           <v-autocomplete
@@ -761,9 +761,67 @@ export default {
   methods: {
     /* MODALS */
     onSelectImage() {
-
+      if (this.dropzone_uploaded.length && this.dropzone_uploaded.length < 2) {
+        this.insertingImages(this.dropzone_uploaded[0]).then(() => {
+          this.selectImage = false
+        })
+      }
+    },
+    insertingImages(file) {
+      return new Promise((resolve) => {
+        if (window.getSelection) {
+          if (this.range && this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content') {
+            const elem = this.getImageNode(file)
+            this.range.insertNode(elem);
+          } else {
+            let range = document.createRange();
+            range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
+            range.collapse(false);
+            const elem = this.getImageNode(file)
+            range.insertNode(elem);
+          }
+        } else if (document.selection && document.selection.createRange) {
+          if (this.range && this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content') {
+            const elem = this.getImageNode(file)
+            this.htmlSelected = (elem.nodeType == 3) ? elem.innerHTML : elem.outerHTML;
+            this.range.pasteHTML(this.htmlSelected);
+          } else {
+            let range = document.createRange();
+            range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
+            range.collapse(false);
+            const elem = this.getImageNode(file)
+            this.htmlSelected = (elem.nodeType == 3) ? elem.innerHTML : elem.outerHTML;
+            range.pasteHTML(this.htmlSelected);
+          }
+        }
+        resolve()
+      })
+    },
+    getImageNode(file) {
+      const src = file.dataURL;
+      const title = file.name;
+      const cssClassname = "inserted_image";
+      let imageNode = document.createElement('img');
+      imageNode.src = src;
+      imageNode.alt = title;
+      imageNode.title = title;
+      imageNode.className = cssClassname;
+      return imageNode;
     },
     initializeImage() {
+      if (window.getSelection) {
+        this.selection = null
+        this.selection = window.getSelection();
+        if (this.selection.getRangeAt && this.selection.rangeCount) {
+          this.range = null
+          this.range = this.selection.getRangeAt(0);
+          this.range.collapse(false);
+        }
+      } else if (document.selection && document.selection.createRange) {
+        this.range = null
+        this.range = document.selection.createRange();
+        this.range.collapse(false);
+      }
       this.selectImage = true
     },
     successData(file) {
