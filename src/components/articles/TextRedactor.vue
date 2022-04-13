@@ -34,6 +34,21 @@
                   <span>Вставить вопрос</span>
                 </v-tooltip>
               </v-list-item>
+              <v-list-item @click="initializeImage()">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-icon
+                        v-bind="attrs"
+                        v-on="on"
+                        size="20"
+                    >
+                      mdi-panorama
+                    </v-icon>
+                    <v-list-item-title class="v-menu-item"> Вставить изображение </v-list-item-title>
+                  </template>
+                  <span>Вставить изображение</span>
+                </v-tooltip>
+              </v-list-item>
             </v-list>
           </v-menu>
         </div>
@@ -221,50 +236,6 @@
                   </template>
                   <span>{{ item.text }}</span>
                 </v-tooltip>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </div>
-        <!-- Высота строки -->
-        <div class="header__elBlock right">
-          <v-menu
-              open-on-hover
-              bottom
-              offset-y
-              transition="scale-transition"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <div
-                  class="header__elBlock__iconWrapper"
-              >
-                <v-icon>
-                  mdi-format-line-spacing
-                </v-icon>
-                <v-icon
-                    v-bind="attrs"
-                    v-on="on"
-                    v-if="true"
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-down
-                </v-icon>
-                <v-icon
-                    v-bind="attrs"
-                    v-on="on"
-                    v-else
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-up
-                </v-icon>
-              </div>
-            </template>
-            <v-list>
-              <v-list-item
-                  v-for="(value_spacing, index) in line_spacing"
-                  :key="index"
-                  @click="changeLineHeight(value_spacing.value)"
-              >
-                <v-list-item-title> {{ value_spacing.value }} </v-list-item-title>
               </v-list-item>
             </v-list>
           </v-menu>
@@ -491,6 +462,50 @@
       </v-card>
     </v-dialog>
 
+    <v-dialog
+        v-model="selectImage"
+        max-width="600"
+    >
+      <v-card>
+        <v-card-title>
+          <span class="text-h6" style="font-size: 0.8em !important;">Загрузите изображение</span>
+        </v-card-title>
+        <v-card-text class="dialog_dropzone_wrapper">
+          <vue-dropzone
+              ref="myVueDropzone" id="dropzone" :options="options" :useCustomSlot=true v-if="!loading_dropzone" @vdropzone-file-added="uploadedData" @vdropzone-success="successData"
+          >
+            <h3 class="dropzone-custom-title">
+              <v-icon size="120" color="grey lighten-1" style="transform: rotate(45deg)">
+                mdi-paperclip
+              </v-icon>
+            </h3>
+            <div class="subtitle" style="color: darkgrey">Для вставки изображения перетащите файл в зону или нажмите на скрепку</div>
+          </vue-dropzone>
+          <div v-if="dropzone_uploaded.length" @click="triggerUpload()" class="dialog_dropzone_wrapper__upload">
+            <v-icon color="grey lighten-1" size="60" style="transform: rotate(45deg)">mdi-paperclip</v-icon>
+          </div>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn
+              color="blue darken-1"
+              text
+              @click="selectImage = !selectImage"
+          >
+            Назад
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+              color="green darken-1"
+              text
+              @click="onSelectImage()"
+          >
+            Выбрать
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+
+    </v-dialog>
+
     <!-- OVERLAYS -->
     <div class="overlay" v-if="!newArticle.name.value"></div>
 
@@ -506,12 +521,19 @@ import Vue from "vue";
 import store from '@/store/index.js'
 import vuetify from '@/plugins/vuetify'
 
+import vue2Dropzone from 'vue2-dropzone'
+import 'vue2-dropzone/dist/vue2Dropzone.min.css'
+import PreviewTemplate from "../dropzone/PreviewTemplate";
+
 import WebFontLoader from 'webfontloader';
 import Question from "../frontLayouts/Question";
 
 export default {
   name: "TextRedactor",
   props: ['newArticle', 'deletedContent'],
+  components: {
+    vueDropzone: vue2Dropzone,
+  },
   data: () => ({
     /* MODALS */
     selectComponent: false,
@@ -521,6 +543,13 @@ export default {
     range: null,
     htmlSelected: null,
     selection: null,
+
+    /* DROPZONE */
+    selectImage: false,
+    index_uploaded: 1,
+    dropzone_uploaded: [],
+    loading_dropzone: true,
+    previewHtml: null,
 
     /* EDITOR */
     line_spacing: [
@@ -632,6 +661,12 @@ export default {
     WebFontLoader.load({
       google: { families: ["Roboto", 'Hurricane', 'Palette Mosaic']}
     })
+    const ComponentClass = Vue.extend(PreviewTemplate);
+    const instance = new ComponentClass();
+    instance.$mount();
+    this.previewHtml = instance.$el.outerHTML;
+
+    this.loading_dropzone = false;
   },
   mounted() {
     // if (this.$route.params?.action === 'edit') {
@@ -714,12 +749,81 @@ export default {
       set: function (val) {
         this.$refs.content.innerHTML  = val;
       }
-    }
+    },
+    options() {
+      return {
+        url: `https://httpbin.org/post`,
+        previewTemplate: this.previewHtml,
+        destroyDropzone: false,
+      };
+    },
   },
   methods: {
-    getELEM() {
-      console.log(this.content)
+    /* MODALS */
+    onSelectImage() {
+
     },
+    initializeImage() {
+      this.selectImage = true
+    },
+    successData(file) {
+      const formatObj = {}
+
+      for (let key in file) {
+        Object.assign(formatObj, {[key]: file[key]})
+      }
+      Object.assign(formatObj, {id: this.index_uploaded})
+      this.index_uploaded++
+      this.dropzone_uploaded.push(formatObj)
+
+      this.$nextTick(() => {
+        const deletedElems = document.getElementsByClassName('close')
+        let count = 1;
+        for (let item of deletedElems) {
+          item.setAttribute('id', `close-${count}`);
+          const id = count
+          item.onclick = () => {
+            this.removedFile(id)
+          }
+          count++
+        }
+      })
+    },
+    uploadedData() {
+      /*const formatObj = {}
+
+      for (let key in file) {
+        Object.assign(formatObj, {[key]: file[key]})
+      }
+      Object.assign(formatObj, {id: this.index_uploaded})
+      this.index_uploaded++
+      this.dropzone_uploaded.push(formatObj)
+
+      this.$nextTick(() => {
+        const deletedElems = document.getElementsByClassName('close')
+        let count = 1;
+        for (let item of deletedElems) {
+          item.setAttribute('id', `close-${count}`);
+          const id = count
+          item.onclick = () => {
+            this.removedFile(id)
+          }
+          count++
+        }
+      })*/
+    },
+    removedFile(id) {
+      const index = this.dropzone_uploaded.findIndex(elem => {
+        return elem.id === id
+      })
+      if (index !== -1) {
+        this.dropzone_uploaded.splice(index, 1)
+      }
+    },
+    triggerUpload() {
+      document.getElementById('dropzone').click()
+    },
+
     /* INITIALIZE DATA FROM BACK OR INDEXEDDB */
     initializeContent() {
       return new Promise((resolve) => {
@@ -782,18 +886,6 @@ export default {
           this.$store.state.TitlesModule.deletedComponent = elem.$data.count_of_question
         }
       })
-    },
-    changeLineHeight(value) {
-      console.log(value)
-      const selection = window.getSelection();
-
-      if (selection.type === 'Range') {
-        for (let i = 0; i < selection.rangeCount; i++) {
-          const range = selection.getRangeAt(i);
-          console.log(range.commonAncestorContainer.parentNode)
-          // range.commonAncestorContainer.style.lineHeight = value;
-        }
-      }
     },
     select_side_content(value) {
       const index = this.array_side_spaces.findIndex(elem => {
@@ -912,7 +1004,7 @@ export default {
 
     &__firstLine {
       display: flex;
-      justify-content: space-between;
+      //justify-content: space-between;
       grid-area: firstLine;
     }
 
@@ -950,6 +1042,22 @@ export default {
     min-height: 300px;
     margin: 10px 0;
     word-break: break-all;
+  }
+}
+
+.dialog_dropzone_wrapper {
+  position: relative;
+  &__upload {
+    position: absolute;
+    border: 1px dashed darkgrey;
+    width: 70px;
+    height: 70px;
+    bottom: 20px;
+    right: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
   }
 }
 
