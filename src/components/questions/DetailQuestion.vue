@@ -1,359 +1,361 @@
 <template>
-  <div class="question">
-    <v-form
-        class="form"
-        ref="form"
-    >
-<!--      @submit.prevent="onSubmit" -->
-      <div class="question_content">
-        <div class="question_title">
-          <v-textarea
-              class="question_title__name"
-              dense
-              hide-details
-              placeholder="Введите наименование"
-              v-model="newQuestion.name.value"
-              solo
-              flat
-              auto-grow
-              rows="1"
-              @focus="onFocus(newQuestion.name)"
-              @focusout="outFocus(newQuestion.name)"
-              :loading="$store.state.QuestionsModule.loadingQuestion"
-              :class="{invalid: !newQuestion.name.value && $v.newQuestion.name.$dirty && !$v.newQuestion.name.required}"
-              @input="saveDBQuestion(newQuestion)"
-          >
-            <template slot="append">
-              <v-icon size="20" class="question_title__name__icon" :color="newQuestion.name.focused ? 'primary' : ''">
-                mdi-lead-pencil
-              </v-icon>
-            </template>
-          </v-textarea>
-          <small
-              v-if="!newQuestion.name.value && $v.newQuestion.name.$dirty && !$v.newQuestion.name.required"
-              style="color: lightcoral"
-          >
-            Поле обязательно для заполнения
-          </small>
-          <div class="question_title_help">
-            <span class="question_title_help__title" :class="{focused: newQuestion.title.focused}">
-              Подсказка
-            </span>
+  <div class="detail_container">
+    <div class="question">
+      <v-form
+          class="form"
+          ref="form"
+      >
+        <!--      @submit.prevent="onSubmit" -->
+        <div class="question_content">
+          <div class="question_title">
             <v-textarea
-                class="question_title_help__description"
-                :class="{inputFocused: newQuestion.title.focused}"
-                placeholder="Введите подсказку для вопроса"
+                class="question_title__name"
+                dense
+                hide-details
+                placeholder="Введите наименование"
+                v-model="newQuestion.name.value"
+                solo
+                flat
                 auto-grow
                 rows="1"
-                dense
-                hide-details
-                flat
-                solo
-                v-model="newQuestion.title.value"
-                @focus="onFocus(newQuestion.title)"
-                @focusout="outFocus(newQuestion.title)"
+                @focus="onFocus(newQuestion.name)"
+                @focusout="outFocus(newQuestion.name)"
                 :loading="$store.state.QuestionsModule.loadingQuestion"
+                :class="{invalid: !newQuestion.name.value && $v.newQuestion.name.$dirty && !$v.newQuestion.name.required}"
                 @input="saveDBQuestion(newQuestion)"
-            ></v-textarea>
-          </div>
-          <div class="question_title_help">
-          <span class="question_title_help__title" :class="{focused: newQuestion.article.focused}">
-            Разъясняющий текст
-          </span>
-            <v-textarea
-                class="question_title_help__description"
-                :class="{inputFocused: newQuestion.article.focused}"
-                placeholder="Введите разъясняющий текст"
-                auto-grow
-                rows="1"
-                dense
-                hide-details
-                flat
-                solo
-                v-model="newQuestion.article.value"
-                @focus="onFocus(newQuestion.article)"
-                @focusout="outFocus(newQuestion.article)"
-                :loading="$store.state.QuestionsModule.loadingQuestion"
-                @input="saveDBQuestion(newQuestion)"
-            ></v-textarea>
-          </div>
-          <div class="question_title_help">
-          <span class="question_title_help__title" :class="{focused: newQuestion.purpose_of_question.focused}">
-            Цель вопроса
-          </span>
-            <v-textarea
-                class="question_title_help__description"
-                :class="{ inputFocused: newQuestion.purpose_of_question.focused }"
-                placeholder="Введите цель вопроса"
-                auto-grow
-                rows="1"
-                dense
-                hide-details
-                flat
-                solo
-                v-model="newQuestion.purpose_of_question.value"
-                @focus="onFocus(newQuestion.purpose_of_question)"
-                @focusout="outFocus(newQuestion.purpose_of_question)"
-                :loading="$store.state.QuestionsModule.loadingQuestion"
-                @input="saveDBQuestion(newQuestion)"
-            ></v-textarea>
-<!--            <v-textarea-->
-<!--                class="question_title_help__description"-->
-<!--                :class="{-->
-<!--                inputFocused: newQuestion.purpose_of_question.focused,-->
-<!--                invalid: !newQuestion.purpose_of_question.value && $v.newQuestion.purpose_of_question.$dirty && !$v.newQuestion.purpose_of_question.required-->
-<!--                }"-->
-<!--                placeholder="Введите цель вопроса"-->
-<!--                auto-grow-->
-<!--                rows="1"-->
-<!--                dense-->
-<!--                hide-details-->
-<!--                flat-->
-<!--                solo-->
-<!--                v-model="newQuestion.purpose_of_question.value"-->
-<!--                @focus="onFocus(newQuestion.purpose_of_question)"-->
-<!--                @focusout="outFocus(newQuestion.purpose_of_question)"-->
-<!--                :loading="$store.state.QuestionsModule.loadingQuestion"-->
-<!--                @change="onChange"-->
-<!--            ></v-textarea>-->
-<!--            <small-->
-<!--                v-if="!newQuestion.purpose_of_question.value && $v.newQuestion.purpose_of_question.$dirty && !$v.newQuestion.purpose_of_question.required"-->
-<!--                style="color: lightcoral"-->
-<!--            >-->
-<!--              Поле обязательно для заполнения-->
-<!--            </small>-->
-          </div>
-        </div>
-
-        <!-- SELECTOR & INPUT'S -->
-        <div class="question_main">
-          <div class="question_main_selector">
-            <span class="question_main_selector__title" :class="{focused: newQuestion.id_type_answer.focused}">
-              Тип ответа
-            </span>
-            <v-select
-                outlined
-                dense
-                hide-details
-                placeholder="Выберите тип"
-                :items="getListTypesOfQuestions"
-                item-text="name"
-                item-value="id"
-                v-model="newQuestion.id_type_answer.value"
-                @change="onSelect(); saveDBQuestion(newQuestion)"
-                @focus="onFocus(newQuestion.id_type_answer)"
-                @focusout="outFocus(newQuestion.id_type_answer)"
-                :loading="$store.state.QuestionsModule.loadingQuestion"
-                :class="{invalidSelector: !newQuestion.id_type_answer.value && $v.newQuestion.id_type_answer.$dirty && !$v.newQuestion.id_type_answer.required}"
-            ></v-select>
+            >
+              <template slot="append">
+                <v-icon size="20" class="question_title__name__icon" :color="newQuestion.name.focused ? 'primary' : ''">
+                  mdi-lead-pencil
+                </v-icon>
+              </template>
+            </v-textarea>
             <small
-                v-if="!newQuestion.id_type_answer.value && $v.newQuestion.id_type_answer.$dirty && !$v.newQuestion.id_type_answer.required"
+                v-if="!newQuestion.name.value && $v.newQuestion.name.$dirty && !$v.newQuestion.name.required"
                 style="color: lightcoral"
             >
               Поле обязательно для заполнения
             </small>
+            <div class="question_title_help">
+            <span class="question_title_help__title" :class="{focused: newQuestion.title.focused}">
+              Подсказка
+            </span>
+              <v-textarea
+                  class="question_title_help__description"
+                  :class="{inputFocused: newQuestion.title.focused}"
+                  placeholder="Введите подсказку для вопроса"
+                  auto-grow
+                  rows="1"
+                  dense
+                  hide-details
+                  flat
+                  solo
+                  v-model="newQuestion.title.value"
+                  @focus="onFocus(newQuestion.title)"
+                  @focusout="outFocus(newQuestion.title)"
+                  :loading="$store.state.QuestionsModule.loadingQuestion"
+                  @input="saveDBQuestion(newQuestion)"
+              ></v-textarea>
+            </div>
+            <div class="question_title_help">
+          <span class="question_title_help__title" :class="{focused: newQuestion.article.focused}">
+            Разъясняющий текст
+          </span>
+              <v-textarea
+                  class="question_title_help__description"
+                  :class="{inputFocused: newQuestion.article.focused}"
+                  placeholder="Введите разъясняющий текст"
+                  auto-grow
+                  rows="1"
+                  dense
+                  hide-details
+                  flat
+                  solo
+                  v-model="newQuestion.article.value"
+                  @focus="onFocus(newQuestion.article)"
+                  @focusout="outFocus(newQuestion.article)"
+                  :loading="$store.state.QuestionsModule.loadingQuestion"
+                  @input="saveDBQuestion(newQuestion)"
+              ></v-textarea>
+            </div>
+            <div class="question_title_help">
+          <span class="question_title_help__title" :class="{focused: newQuestion.purpose_of_question.focused}">
+            Цель вопроса
+          </span>
+              <v-textarea
+                  class="question_title_help__description"
+                  :class="{ inputFocused: newQuestion.purpose_of_question.focused }"
+                  placeholder="Введите цель вопроса"
+                  auto-grow
+                  rows="1"
+                  dense
+                  hide-details
+                  flat
+                  solo
+                  v-model="newQuestion.purpose_of_question.value"
+                  @focus="onFocus(newQuestion.purpose_of_question)"
+                  @focusout="outFocus(newQuestion.purpose_of_question)"
+                  :loading="$store.state.QuestionsModule.loadingQuestion"
+                  @input="saveDBQuestion(newQuestion)"
+              ></v-textarea>
+              <!--            <v-textarea-->
+              <!--                class="question_title_help__description"-->
+              <!--                :class="{-->
+              <!--                inputFocused: newQuestion.purpose_of_question.focused,-->
+              <!--                invalid: !newQuestion.purpose_of_question.value && $v.newQuestion.purpose_of_question.$dirty && !$v.newQuestion.purpose_of_question.required-->
+              <!--                }"-->
+              <!--                placeholder="Введите цель вопроса"-->
+              <!--                auto-grow-->
+              <!--                rows="1"-->
+              <!--                dense-->
+              <!--                hide-details-->
+              <!--                flat-->
+              <!--                solo-->
+              <!--                v-model="newQuestion.purpose_of_question.value"-->
+              <!--                @focus="onFocus(newQuestion.purpose_of_question)"-->
+              <!--                @focusout="outFocus(newQuestion.purpose_of_question)"-->
+              <!--                :loading="$store.state.QuestionsModule.loadingQuestion"-->
+              <!--                @change="onChange"-->
+              <!--            ></v-textarea>-->
+              <!--            <small-->
+              <!--                v-if="!newQuestion.purpose_of_question.value && $v.newQuestion.purpose_of_question.$dirty && !$v.newQuestion.purpose_of_question.required"-->
+              <!--                style="color: lightcoral"-->
+              <!--            >-->
+              <!--              Поле обязательно для заполнения-->
+              <!--            </small>-->
+            </div>
           </div>
-          <!-- INPUTS -->
-          <template v-if="newQuestion.id_type_answer.value !== 1 && newQuestion.id_type_answer.value !== 2 && !!newQuestion.id_type_answer.value">
-            <div class="question_main_wrapper" v-if="newQuestion.id_type_answer.value !== 6 && newQuestion.id_type_answer.value !== 7">
-              <transition-group name="list">
-                <div
-                    class="question_main_wrapper__item"
-                    v-for="answer in newQuestion.value_type_answer"
-                    :key="answer.id"
-                >
-                  <v-text-field
-                      class="question_main_wrapper__item__value"
-                      :class="{inputFocused: answer.focused}"
-                      placeholder="Введите значение"
-                      auto-grow
-                      rows="1"
-                      dense
-                      hide-details
-                      flat
-                      solo
-                      :append-icon="answer.showComentary ? 'mdi-menu-right' : 'mdi-menu-down'"
-                      @click:append="answer.showComentary = !answer.showComentary"
-                      v-model="answer.answer"
-                      @focus="onFocus(newQuestion.id_type_answer, answer.id);"
-                      @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
-                      @input="saveDBQuestion(newQuestion)"
-                  >
-                  </v-text-field>
-                  <div class="divider" v-if="answer.showComentary"></div>
-                  <v-textarea
-                      class="question_main_wrapper__item__description"
-                      :class="{inputFocused: answer.focused}"
-                      placeholder="Введите примечание"
-                      auto-grow
-                      rows="1"
-                      dense
-                      hide-details
-                      flat
-                      solo
-                      v-model="answer.commentary"
-                      v-if="answer.showComentary"
-                      @focus="onFocus(newQuestion.id_type_answer, answer.id)"
-                      @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
-                      @input="saveDBQuestion(newQuestion)"
-                  ></v-textarea>
-                </div>
-              </transition-group>
+
+          <!-- SELECTOR & INPUT'S -->
+          <div class="question_main">
+            <div class="question_main_selector">
+            <span class="question_main_selector__title" :class="{focused: newQuestion.id_type_answer.focused}">
+              Тип ответа
+            </span>
+              <v-select
+                  outlined
+                  dense
+                  hide-details
+                  placeholder="Выберите тип"
+                  :items="getListTypesOfQuestions"
+                  item-text="name"
+                  item-value="id"
+                  v-model="newQuestion.id_type_answer.value"
+                  @change="onSelect(); saveDBQuestion(newQuestion)"
+                  @focus="onFocus(newQuestion.id_type_answer)"
+                  @focusout="outFocus(newQuestion.id_type_answer)"
+                  :loading="$store.state.QuestionsModule.loadingQuestion"
+                  :class="{invalidSelector: !newQuestion.id_type_answer.value && $v.newQuestion.id_type_answer.$dirty && !$v.newQuestion.id_type_answer.required}"
+              ></v-select>
+              <small
+                  v-if="!newQuestion.id_type_answer.value && $v.newQuestion.id_type_answer.$dirty && !$v.newQuestion.id_type_answer.required"
+                  style="color: lightcoral"
+              >
+                Поле обязательно для заполнения
+              </small>
             </div>
-            <div
-                class="question_main_wrapper"
-                :class="{rangeError: rangeError}"
-                v-else
-            >
-              <transition-group name="list">
-                <div
-                    class="question_main_wrapper__item"
-                    v-for="answer in newQuestion.value_type_answer"
-                    :key="answer.id"
-                >
-                  <v-text-field
-                      class="question_main_wrapper__item__value"
-                      :class="{inputFocused: answer.focused}"
-                      :placeholder="answer.placeholder"
-                      auto-grow
-                      rows="1"
-                      dense
-                      hide-details
-                      flat
-                      solo
-                      v-model="answer.answer"
-                      @focus="onFocus(newQuestion.id_type_answer, answer.id);"
-                      @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
-                      type="number"
-                      @input="saveDBQuestion(newQuestion)"
+            <!-- INPUTS -->
+            <template v-if="newQuestion.id_type_answer.value !== 1 && newQuestion.id_type_answer.value !== 2 && !!newQuestion.id_type_answer.value">
+              <div class="question_main_wrapper" v-if="newQuestion.id_type_answer.value !== 6 && newQuestion.id_type_answer.value !== 7">
+                <transition-group name="list">
+                  <div
+                      class="question_main_wrapper__item"
+                      v-for="answer in newQuestion.value_type_answer"
+                      :key="answer.id"
                   >
-                    <template slot="prepend-inner">
-                      <v-icon small :color="answer.focused ? 'black' : ''" @click="rangeEdit('minus', answer)">
-                        mdi-minus
-                      </v-icon>
-                    </template>
-                    <template slot="append">
-                      <v-icon small :color="answer.focused ? 'black' : ''" @click="rangeEdit('plus', answer)">
-                        mdi-plus
-                      </v-icon>
-                    </template>
-                  </v-text-field>
-                </div>
-              </transition-group>
-            </div>
-            <small v-if="rangeError" style="color: lightcoral">
-              Неккоректные значения
-            </small>
-          </template>
+                    <v-text-field
+                        class="question_main_wrapper__item__value"
+                        :class="{inputFocused: answer.focused}"
+                        placeholder="Введите значение"
+                        auto-grow
+                        rows="1"
+                        dense
+                        hide-details
+                        flat
+                        solo
+                        :append-icon="answer.showComentary ? 'mdi-menu-right' : 'mdi-menu-down'"
+                        @click:append="answer.showComentary = !answer.showComentary"
+                        v-model="answer.answer"
+                        @focus="onFocus(newQuestion.id_type_answer, answer.id);"
+                        @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
+                        @input="saveDBQuestion(newQuestion)"
+                    >
+                    </v-text-field>
+                    <div class="divider" v-if="answer.showComentary"></div>
+                    <v-textarea
+                        class="question_main_wrapper__item__description"
+                        :class="{inputFocused: answer.focused}"
+                        placeholder="Введите примечание"
+                        auto-grow
+                        rows="1"
+                        dense
+                        hide-details
+                        flat
+                        solo
+                        v-model="answer.commentary"
+                        v-if="answer.showComentary"
+                        @focus="onFocus(newQuestion.id_type_answer, answer.id)"
+                        @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
+                        @input="saveDBQuestion(newQuestion)"
+                    ></v-textarea>
+                  </div>
+                </transition-group>
+              </div>
+              <div
+                  class="question_main_wrapper"
+                  :class="{rangeError: rangeError}"
+                  v-else
+              >
+                <transition-group name="list">
+                  <div
+                      class="question_main_wrapper__item"
+                      v-for="answer in newQuestion.value_type_answer"
+                      :key="answer.id"
+                  >
+                    <v-text-field
+                        class="question_main_wrapper__item__value"
+                        :class="{inputFocused: answer.focused}"
+                        :placeholder="answer.placeholder"
+                        auto-grow
+                        rows="1"
+                        dense
+                        hide-details
+                        flat
+                        solo
+                        v-model="answer.answer"
+                        @focus="onFocus(newQuestion.id_type_answer, answer.id);"
+                        @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
+                        type="number"
+                        @input="saveDBQuestion(newQuestion)"
+                    >
+                      <template slot="prepend-inner">
+                        <v-icon small :color="answer.focused ? 'black' : ''" @click="rangeEdit('minus', answer)">
+                          mdi-minus
+                        </v-icon>
+                      </template>
+                      <template slot="append">
+                        <v-icon small :color="answer.focused ? 'black' : ''" @click="rangeEdit('plus', answer)">
+                          mdi-plus
+                        </v-icon>
+                      </template>
+                    </v-text-field>
+                  </div>
+                </transition-group>
+              </div>
+              <small v-if="rangeError" style="color: lightcoral">
+                Неккоректные значения
+              </small>
+            </template>
+          </div>
+          <div class="question_settings">
+            <v-checkbox
+                hide-details
+                class="question_settings__checkbox"
+                label="Допускается развернутый ответ"
+                v-model="newQuestion.state_detailed_response"
+                :loading="$store.state.QuestionsModule.loadingQuestion"
+                @change="saveDBQuestion(newQuestion)"
+            ></v-checkbox>
+            <v-checkbox
+                hide-details
+                class="question_settings__checkbox"
+                label="Наличие вложения в ответе"
+                v-model="newQuestion.state_attachment_response"
+                :loading="$store.state.QuestionsModule.loadingQuestion"
+                @change="saveDBQuestion(newQuestion)"
+            ></v-checkbox>
+          </div>
+          <!-- Tags Component -->
+          <question-tags/>
         </div>
-        <div class="question_settings">
-          <v-checkbox
-              hide-details
-              class="question_settings__checkbox"
-              label="Допускается развернутый ответ"
-              v-model="newQuestion.state_detailed_response"
-              :loading="$store.state.QuestionsModule.loadingQuestion"
-              @change="saveDBQuestion(newQuestion)"
-          ></v-checkbox>
-          <v-checkbox
-              hide-details
-              class="question_settings__checkbox"
-              label="Наличие вложения в ответе"
-              v-model="newQuestion.state_attachment_response"
-              :loading="$store.state.QuestionsModule.loadingQuestion"
-              @change="saveDBQuestion(newQuestion)"
-          ></v-checkbox>
-        </div>
-        <!-- Tags Component -->
-        <question-tags/>
-      </div>
-      <div class="question_footer">
-        <template v-if="$route.params.action === 'create'">
-          <v-btn
-              color="red darken-1"
-              text
-              @click="resetFields"
-          >
-            Очистить
-          </v-btn>
-          <v-btn
-              color="blue darken-1"
-              text
-              @click.prevent="onSubmit"
-              :disabled="computedValidations"
-          >
-            Создать
-          </v-btn>
-        </template>
-        <template v-else>
-          <template v-if="Object.keys(this.$store.state.QuestionsModule.nonEditState).length">
-            <v-btn
-                color="red darken-1"
-                text
-                @click="deleteModal = true"
-            >
-              Удалить
-            </v-btn>
+
+        <!-- LOADER -->
+        <v-overlay
+            :z-index="2"
+            :absolute="true"
+            :value="$store.state.QuestionsModule.loadingQuestion"
+        >
+          <v-progress-circular
+              style="margin: auto"
+              width="4"
+              :size="70"
+              color="blue"
+              :indeterminate="true"
+              v-if="$store.state.QuestionsModule.loadingQuestion"
+          ></v-progress-circular>
+        </v-overlay>
+      </v-form>
+
+      <!--  MODALS  -->
+      <v-dialog
+          v-model="deleteModal"
+          max-width="600"
+      >
+        <v-card>
+          <v-card-title>
+            <span class="text-h6" style="font-size: 0.8em !important;">Вы точно хотите удалить вопрос?</span>
+          </v-card-title>
+          <v-card-actions>
             <v-btn
                 color="blue darken-1"
                 text
-                @click.prevent="saveDifferences()"
+                @click="deleteModal = false"
+                :disabled="$store.state.QuestionsModule.loadingRequest"
+                :loading="$store.state.QuestionsModule.loadingRequest"
             >
-              Сохранить изменения
+              Нет
             </v-btn>
-          </template>
-        </template>
-      </div>
-
-      <!-- LOADER -->
-      <v-overlay
-          :z-index="2"
-          :absolute="true"
-          :value="$store.state.QuestionsModule.loadingQuestion"
-      >
-        <v-progress-circular
-            style="margin: auto"
-            width="4"
-            :size="70"
-            color="blue"
-            :indeterminate="true"
-            v-if="$store.state.QuestionsModule.loadingQuestion"
-        ></v-progress-circular>
-      </v-overlay>
-    </v-form>
-
-    <!--  MODALS  -->
-    <v-dialog
-        v-model="deleteModal"
-        max-width="600"
-    >
-      <v-card>
-        <v-card-title>
-          <span class="text-h6" style="font-size: 0.8em !important;">Вы точно хотите удалить вопрос?</span>
-        </v-card-title>
-        <v-card-actions>
-          <v-btn
-              color="blue darken-1"
-              text
-              @click="deleteModal = false"
-              :disabled="$store.state.QuestionsModule.loadingRequest"
-              :loading="$store.state.QuestionsModule.loadingRequest"
-          >
-            Нет
-          </v-btn>
-          <v-spacer></v-spacer>
+            <v-spacer></v-spacer>
+            <v-btn
+                color="red darken-1"
+                text
+                @click="deleteQuestion()"
+                :disabled="$store.state.QuestionsModule.loadingRequest"
+                :loading="$store.state.QuestionsModule.loadingRequest"
+            >
+              Да
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </div>
+    <div class="detail_footer">
+      <template v-if="$route.params.action === 'create'">
+        <v-btn
+            color="red darken-1"
+            text
+            @click="resetFields"
+        >
+          Очистить
+        </v-btn>
+        <v-btn
+            color="blue darken-1"
+            text
+            @click.prevent="onSubmit"
+            :disabled="computedValidations"
+        >
+          Создать
+        </v-btn>
+      </template>
+      <template v-else>
+        <template v-if="Object.keys(this.$store.state.QuestionsModule.nonEditState).length">
           <v-btn
               color="red darken-1"
               text
-              @click="deleteQuestion()"
-              :disabled="$store.state.QuestionsModule.loadingRequest"
-              :loading="$store.state.QuestionsModule.loadingRequest"
+              @click="deleteModal = true"
           >
-            Да
+            Удалить
           </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+          <v-btn
+              color="blue darken-1"
+              text
+              @click.prevent="saveDifferences()"
+          >
+            Сохранить изменения
+          </v-btn>
+        </template>
+      </template>
+    </div>
   </div>
 </template>
 
@@ -754,6 +756,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "src/assets/styles/detail";
 //@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700;900&display=swap');
 
 .list-enter-active, .list-leave-active {
@@ -767,7 +770,6 @@ export default {
 
 .question {
   padding: 10px;
-  height: 100%;
 
   .form {
     display: flex;

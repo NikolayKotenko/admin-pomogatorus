@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="detail_container">
     <div class="detail-wrapper">
       <v-form
           class="form"
@@ -163,7 +163,7 @@
         </v-card>
       </v-dialog>
     </div>
-    <div class="question_footer">
+    <div class="detail_footer">
       <template v-if="$route.params.action === 'create'">
         <v-btn
             color="red darken-1"
@@ -480,6 +480,8 @@ export default {
 }
 </script>
 <style scoped lang="scss">
+@import "src/assets/styles/detail";
+
 .list-enter-active, .list-leave-active {
   transition: all .8s;
 }
@@ -491,7 +493,6 @@ export default {
 
 .detail-wrapper {
   padding: 10px;
-  height: 100%;
 
   .form {
     display: flex;
@@ -602,11 +603,6 @@ export default {
           margin: 0 !important;
         }
       }
-    }
-
-    .question_footer {
-      display: flex;
-      justify-content: space-between
     }
   }
 }
