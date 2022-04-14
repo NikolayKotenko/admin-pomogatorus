@@ -283,7 +283,7 @@ export default {
     },
     getData() {
       if (Object.keys(this.$store.state.TitlesModule.selectedComponent).length) {
-        this.count_of_question = this.$store.state.TitlesModule.countQuestion
+        this.count_of_question = this.$store.state.TitlesModule.countLayout
         this.question_data = Object.assign({}, this.$store.state.TitlesModule.selectedComponent)
         this.getValue_type_answer()
         this.getHeightOfControls()

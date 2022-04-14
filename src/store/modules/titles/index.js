@@ -87,7 +87,7 @@ export default {
         components_after_request: [],
         loadingModalList: false,
         selectedComponent: {},
-        countQuestion: 0,
+        countLayout: 0,
         willShow: true,
         deletedComponent: 0,
 

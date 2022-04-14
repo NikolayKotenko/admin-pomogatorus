@@ -311,7 +311,7 @@ export default {
       this.deletedContent = true
 
       this.$store.state.TitlesModule.inserted_components = []
-      this.$store.state.TitlesModule.countQuestion = 0
+      this.$store.state.TitlesModule.countLayout = 0
       this.$store.state.TitlesModule.newArticle._all_tags = []
       this.$store.dispatch('removeLocalStorageArticle')
       this.deleteDBQuestion(this.newArticle)

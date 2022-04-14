@@ -34,7 +34,8 @@
                   <span>Вставить вопрос</span>
                 </v-tooltip>
               </v-list-item>
-              <v-list-item @click="initializeImage()">
+              <!-- initializeImage -->
+              <v-list-item @click="initializeSelection('image')">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-icon
@@ -423,7 +424,7 @@
 
     <!-- MODALS -->
     <v-dialog
-        v-model="selectComponent"
+        v-model="selectComponent.questions"
         max-width="600"
     >
       <v-card>
@@ -446,7 +447,7 @@
           <v-btn
               color="blue darken-1"
               text
-              @click="selectComponent = !selectComponent"
+              @click="selectComponent.questions = !selectComponent.questions"
           >
             Назад
           </v-btn>
@@ -463,7 +464,7 @@
     </v-dialog>
 
     <v-dialog
-        v-model="selectImage"
+        v-model="selectComponent.image"
         max-width="600"
     >
       <v-card>
@@ -489,7 +490,7 @@
           <v-btn
               color="blue darken-1"
               text
-              @click="selectImage = !selectImage"
+              @click="selectComponent.image = !selectComponent.image"
           >
             Назад
           </v-btn>
@@ -527,6 +528,7 @@ import PreviewTemplate from "../dropzone/PreviewTemplate";
 
 import WebFontLoader from 'webfontloader';
 import Question from "../frontLayouts/Question";
+import ImageLayout from "../frontLayouts/ImageLayout";
 
 export default {
   name: "TextRedactor",
@@ -536,7 +538,10 @@ export default {
   },
   data: () => ({
     /* MODALS */
-    selectComponent: false,
+    selectComponent: {
+      questions: false,
+      image: false
+    },
     params_of_component: {
       name: '',
     },
@@ -545,7 +550,6 @@ export default {
     selection: null,
 
     /* DROPZONE */
-    selectImage: false,
     index_uploaded: 1,
     dropzone_uploaded: [],
     loading_dropzone: true,
@@ -703,7 +707,7 @@ export default {
     },
     'params_of_component.name': {
       handler(v) {
-        if (v) {
+        if (v !== 'image') {
           this.$store.dispatch('getListComponents', this.params_of_component.name)
         }
       }
@@ -729,7 +733,7 @@ export default {
               elem.index = counter_index
               counter_index++
             })
-            this.$store.state.TitlesModule.countQuestion = counter_instances-1
+            this.$store.state.TitlesModule.countLayout = counter_instances-1
             this.$store.state.TitlesModule.deletedComponent = 0
           }
         }
@@ -757,13 +761,16 @@ export default {
         destroyDropzone: false,
       };
     },
+    // componentLayout() {
+    //   return this.params_of_component.name === 'questions' ? Question : ImageLayout
+    // }
   },
   methods: {
     /* MODALS */
     onSelectImage() {
       if (this.dropzone_uploaded.length && this.dropzone_uploaded.length < 2) {
         this.insertingImages(this.dropzone_uploaded[0]).then(() => {
-          this.selectImage = false
+          this.selectComponent.image = false
         })
       }
     },
@@ -806,6 +813,8 @@ export default {
       imageNode.alt = title;
       imageNode.title = title;
       imageNode.className = cssClassname;
+      imageNode.style.width = '100%';
+      imageNode.style.height = '100%';
       return imageNode;
     },
     initializeImage() {
@@ -822,7 +831,7 @@ export default {
         this.range = document.selection.createRange();
         this.range.collapse(false);
       }
-      this.selectImage = true
+      this.selectComponent.image = true
     },
     successData(file) {
       const formatObj = {}
@@ -907,7 +916,7 @@ export default {
             this.$nextTick(() => {
               arr.forEach((elem) => {
                 setTimeout(() => {
-                    this.$store.state.TitlesModule.countQuestion = elem.index
+                    this.$store.state.TitlesModule.countLayout = elem.index
                     this.$store.state.TitlesModule.selectedComponent = elem.data
                     let range = document.createRange();
                     range.selectNode(document.getElementById(`question_wrapper-${elem.index}`));
@@ -977,45 +986,56 @@ export default {
         this.range.collapse(false);
       }
 
-      this.selectComponent = true
+      this.selectComponent[componentName] = true
       this.params_of_component.name = componentName
 
     },
     onSelectComponent() {
-      this.$store.state.TitlesModule.countQuestion++
+      this.$store.state.TitlesModule.countLayout++
       this.insertingComponent().then(() => {
-        this.data_of_components.push(new this.imported_component(this.$store.state.TitlesModule.selectedComponent.id, this.$store.state.TitlesModule.countQuestion, this.params_of_component.name))
-        this.selectComponent = false
+        this.data_of_components.push(new this.imported_component(this.$store.state.TitlesModule.selectedComponent.id, this.$store.state.TitlesModule.countLayout, this.params_of_component.name))
+        this.selectComponent[this.params_of_component.name] = false
         this.$store.state.TitlesModule.selectedComponent = {}
       })
     },
     insertingComponent() {
       return new Promise((resolve) => {
-        let ComponentClass = Vue.extend(Question)
+        let layout;
+        if (this.params_of_component.name === 'questions') {
+          layout = Question
+        } else if (this.params_of_component.name === 'image') {
+          layout = ImageLayout
+        }
+
+        let ComponentClass = Vue.extend(layout)
         this.instances.push(new ComponentClass({
           store,
           vuetify,
         }))
-        this.instances[this.$store.state.TitlesModule.countQuestion - 1].$mount() // pass nothing
+        this.instances[this.$store.state.TitlesModule.countLayout - 1].$mount() // pass nothing
 
         if (window.getSelection) {
           if (this.range && this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content') {
-            this.range.insertNode(this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el);
+            this.range.insertNode(this.instances[this.$store.state.TitlesModule.countLayout - 1].$el);
           } else {
             let range = document.createRange();
             range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
             range.collapse(false);
-            range.insertNode(this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el);
+            range.insertNode(this.instances[this.$store.state.TitlesModule.countLayout - 1].$el);
           }
         } else if (document.selection && document.selection.createRange) {
           if (this.range && this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content') {
-            this.htmlSelected = (this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.nodeType == 3) ? this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.innerHTML.data : this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.outerHTML;
+            this.htmlSelected = (this.instances[this.$store.state.TitlesModule.countLayout - 1].$el.nodeType == 3) ?
+                this.instances[this.$store.state.TitlesModule.countLayout - 1].$el.innerHTML.data :
+                this.instances[this.$store.state.TitlesModule.countLayout - 1].$el.outerHTML;
             this.range.pasteHTML(this.htmlSelected);
           } else {
             let range = document.createRange();
             range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
             range.collapse(false);
-            this.htmlSelected = (this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.nodeType == 3) ? this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.innerHTML.data : this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.outerHTML;
+            this.htmlSelected = (this.instances[this.$store.state.TitlesModule.countLayout - 1].$el.nodeType == 3) ?
+                this.instances[this.$store.state.TitlesModule.countLayout - 1].$el.innerHTML.data :
+                this.instances[this.$store.state.TitlesModule.countLayout - 1].$el.outerHTML;
             range.pasteHTML(this.htmlSelected);
           }
         }
@@ -1033,7 +1053,7 @@ export default {
   beforeDestroy() {
     this.$store.state.TitlesModule.listComponents = []
     this.$store.state.TitlesModule.selectedComponent = {}
-    this.$store.state.TitlesModule.countQuestion = 0
+    this.$store.state.TitlesModule.countLayout = 0
     this.$store.state.TitlesModule.content_from_server = ''
     this.$store.state.TitlesModule.content = ''
     this.$store.state.TitlesModule.inserted_components = []
@@ -1100,6 +1120,11 @@ export default {
     min-height: 300px;
     margin: 10px 0;
     word-break: break-all;
+
+    .inserted_image {
+      width: 100% !important;
+      height: 100% !important;
+    }
   }
 }
 
@@ -1110,8 +1135,8 @@ export default {
     border: 1px dashed darkgrey;
     width: 70px;
     height: 70px;
-    bottom: 20px;
-    right: 25px;
+    bottom: 22px;
+    right: 26px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1125,6 +1150,10 @@ export default {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.15);
+}
+
+#dropzone {
+  padding: 0 !important;
 }
 
 .v-menu__content {
