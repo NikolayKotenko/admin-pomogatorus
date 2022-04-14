@@ -401,6 +401,7 @@
               <v-icon
                   v-bind="attrs"
                   v-on="on"
+                  @click="onAction('removeFormat')"
               >
                 mdi-format-clear
               </v-icon>
@@ -498,7 +499,7 @@
           <v-btn
               color="green darken-1"
               text
-              @click="onSelectImage()"
+              @click="onSelectComponent()"
           >
             Выбрать
           </v-btn>
@@ -716,16 +717,16 @@ export default {
       handler() {
         if (this.$store.state.TitlesModule.deletedComponent !== 0) {
           let index = this.instances.findIndex((elem) => {
-            return elem.$data.count_of_question === this.$store.state.TitlesModule.deletedComponent
+            return elem.$data.index_component === this.$store.state.TitlesModule.deletedComponent
           })
           if (index !== -1) {
             this.instances.splice(index, 1)
             this.data_of_components.splice(index, 1)
             let counter_instances = 1
             this.instances.forEach(elem => {
-              const block = document.getElementById(`question_wrapper-${elem.$data.count_of_question}`)
-              block.id =  `question_wrapper-${counter_instances}`
-              elem.$data.count_of_question = counter_instances
+              const block = document.getElementById(`component_wrapper-${elem.$data.index_component}`)
+              block.id =  `component_wrapper-${counter_instances}`
+              elem.$data.index_component = counter_instances
               counter_instances++
             })
             let counter_index = 1
@@ -761,78 +762,12 @@ export default {
         destroyDropzone: false,
       };
     },
-    // componentLayout() {
-    //   return this.params_of_component.name === 'questions' ? Question : ImageLayout
-    // }
+    componentLayout() {
+      return this.params_of_component.name === 'questions' ? Vue.extend(Question) : Vue.extend(ImageLayout)
+    }
   },
   methods: {
     /* MODALS */
-    onSelectImage() {
-      if (this.dropzone_uploaded.length && this.dropzone_uploaded.length < 2) {
-        this.insertingImages(this.dropzone_uploaded[0]).then(() => {
-          this.selectComponent.image = false
-        })
-      }
-    },
-    insertingImages(file) {
-      return new Promise((resolve) => {
-        if (window.getSelection) {
-          if (this.range && this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content') {
-            const elem = this.getImageNode(file)
-            this.range.insertNode(elem);
-          } else {
-            let range = document.createRange();
-            range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
-            range.collapse(false);
-            const elem = this.getImageNode(file)
-            range.insertNode(elem);
-          }
-        } else if (document.selection && document.selection.createRange) {
-          if (this.range && this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content') {
-            const elem = this.getImageNode(file)
-            this.htmlSelected = (elem.nodeType == 3) ? elem.innerHTML : elem.outerHTML;
-            this.range.pasteHTML(this.htmlSelected);
-          } else {
-            let range = document.createRange();
-            range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
-            range.collapse(false);
-            const elem = this.getImageNode(file)
-            this.htmlSelected = (elem.nodeType == 3) ? elem.innerHTML : elem.outerHTML;
-            range.pasteHTML(this.htmlSelected);
-          }
-        }
-        resolve()
-      })
-    },
-    getImageNode(file) {
-      const src = file.dataURL;
-      const title = file.name;
-      const cssClassname = "inserted_image";
-      let imageNode = document.createElement('img');
-      imageNode.src = src;
-      imageNode.alt = title;
-      imageNode.title = title;
-      imageNode.className = cssClassname;
-      imageNode.style.width = '100%';
-      imageNode.style.height = '100%';
-      return imageNode;
-    },
-    initializeImage() {
-      if (window.getSelection) {
-        this.selection = null
-        this.selection = window.getSelection();
-        if (this.selection.getRangeAt && this.selection.rangeCount) {
-          this.range = null
-          this.range = this.selection.getRangeAt(0);
-          this.range.collapse(false);
-        }
-      } else if (document.selection && document.selection.createRange) {
-        this.range = null
-        this.range = document.selection.createRange();
-        this.range.collapse(false);
-      }
-      this.selectComponent.image = true
-    },
     successData(file) {
       const formatObj = {}
 
@@ -919,7 +854,7 @@ export default {
                     this.$store.state.TitlesModule.countLayout = elem.index
                     this.$store.state.TitlesModule.selectedComponent = elem.data
                     let range = document.createRange();
-                    range.selectNode(document.getElementById(`question_wrapper-${elem.index}`));
+                    range.selectNode(document.getElementById(`component_wrapper-${elem.index}`));
                     range.deleteContents()
                     range.collapse(false);
                     let ComponentClass = Vue.extend(Question)
@@ -948,9 +883,9 @@ export default {
       })
       /* IF WE DELETED COMPONENT BY KEYBOARD */
       this.instances.forEach(elem => {
-        const elem_content = document.getElementById(`question_wrapper-${elem.$data.count_of_question}`)
+        const elem_content = document.getElementById(`component_wrapper-${elem.$data.index_component}`)
         if (!elem_content) {
-          this.$store.state.TitlesModule.deletedComponent = elem.$data.count_of_question
+          this.$store.state.TitlesModule.deletedComponent = elem.$data.index_component
         }
       })
     },
@@ -991,24 +926,46 @@ export default {
 
     },
     onSelectComponent() {
+      if (this.params_of_component.name === 'questions') {
+        this.$store.state.TitlesModule.count_of_questions++
+        this.callCheckout()
+      } else if (this.params_of_component.name === 'image') {
+        this.$store.state.TitlesModule.count_of_images++
+        if (this.dropzone_uploaded.length) {
+          this.dropzone_uploaded.forEach(elem => {
+            this.$store.state.TitlesModule.selectedComponent = elem
+            this.callCheckout(elem)
+          })
+        }
+      }
+    },
+    callCheckout(elem) {
       this.$store.state.TitlesModule.countLayout++
+
+      let data;
+      if (this.params_of_component.name === 'questions') {
+        data = new this.element_question({
+          name: this.params_of_component.name,
+          id: this.$store.state.TitlesModule.selectedComponent.id,
+          index_question: this.$store.state.TitlesModule.count_of_questions
+        })
+      } else if (this.params_of_component.name === 'image') {
+        data = new this.element_image({
+          name: this.params_of_component.name,
+          src: elem.dataURL,
+          index_image: this.$store.state.TitlesModule.count_of_images
+        })
+      }
+
       this.insertingComponent().then(() => {
-        this.data_of_components.push(new this.imported_component(this.$store.state.TitlesModule.selectedComponent.id, this.$store.state.TitlesModule.countLayout, this.params_of_component.name))
+        this.data_of_components.push(new this.imported_component({index: this.$store.state.TitlesModule.countLayout, component: data}))
         this.selectComponent[this.params_of_component.name] = false
         this.$store.state.TitlesModule.selectedComponent = {}
       })
     },
     insertingComponent() {
       return new Promise((resolve) => {
-        let layout;
-        if (this.params_of_component.name === 'questions') {
-          layout = Question
-        } else if (this.params_of_component.name === 'image') {
-          layout = ImageLayout
-        }
-
-        let ComponentClass = Vue.extend(layout)
-        this.instances.push(new ComponentClass({
+        this.instances.push(new this.componentLayout({
           store,
           vuetify,
         }))
@@ -1044,10 +1001,25 @@ export default {
     },
 
     /* CONSTRUCTORS */
-    imported_component(id_component, index, type_component) {
-      this.id_component = id_component
+    imported_component(data) {
+      const {index, component} = data
+
       this.index = index
-      this.type_component = type_component
+      this.component = component
+    },
+    element_question(data) {
+      const {name, id, index_question} = data
+
+      this.name = name
+      this.id = id
+      this.index_question = index_question
+    },
+    element_image(data) {
+      const {name, src, index_image} = data
+
+      this.name = name
+      this.src = src
+      this.index_image = index_image
     },
   },
   beforeDestroy() {
@@ -1120,11 +1092,6 @@ export default {
     min-height: 300px;
     margin: 10px 0;
     word-break: break-all;
-
-    .inserted_image {
-      width: 100% !important;
-      height: 100% !important;
-    }
   }
 }
 

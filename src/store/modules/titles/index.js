@@ -88,6 +88,8 @@ export default {
         loadingModalList: false,
         selectedComponent: {},
         countLayout: 0,
+        count_of_images: 0,
+        count_of_questions: 0,
         willShow: true,
         deletedComponent: 0,
 
