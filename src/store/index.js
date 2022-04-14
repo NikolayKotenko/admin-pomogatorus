@@ -1,12 +1,14 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 // import axios from "axios";
+// axios.defaults.headers.common['Authorization'] = 666777;
 
 Vue.use(Vuex)
 
 // Modules import
 import QuestionsModule from "./modules/questions";
 import TitlesModule from "./modules/titles";
+import AuthModule from "./modules/auth";
 
 export default new Vuex.Store({
   state: {
@@ -18,6 +20,7 @@ export default new Vuex.Store({
   },
   modules: {
     QuestionsModule,
-    TitlesModule
+    TitlesModule,
+    AuthModule
   }
 })
