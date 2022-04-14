@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import AuthStore from '../store/modules/auth/index'
 
 /* VIEWS */
 import Desktop from "../views/Desktop";
@@ -13,13 +14,19 @@ import DetailArticles from "../components/articles/DetailArticles";
 
 import Question from "../components/frontLayouts/Question";
 
+import LoginAuth from "../components/auth/LoginAuth";
+
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
     name: 'Desktop',
-    component: Desktop
+    component: Desktop,
+    meta: {
+      ru_name: 'Рабочий стол',
+      requiresAuth: true,
+    },
   },
   {
     path: '/companies',
@@ -27,6 +34,7 @@ const routes = [
     component: Companies,
     meta: {
       ru_name: 'Компании',
+      requiresAuth: true,
     },
   },
   {
@@ -35,6 +43,7 @@ const routes = [
     component: Question,
     meta: {
       ru_name: 'Вопрос',
+      requiresAuth: true,
     },
   },
   {
@@ -43,6 +52,7 @@ const routes = [
     component: Questions,
     meta: {
       ru_name: 'Список вопросов',
+      requiresAuth: true,
       canCreate: true,
       createLink: {
         name: 'DetailQuestion',
@@ -56,6 +66,7 @@ const routes = [
     component: DetailQuestion,
     meta: {
       ru_name: 'Вопрос',
+      requiresAuth: true,
       returnLink: {
         name: 'Questions',
         path: '/questions'
@@ -68,6 +79,7 @@ const routes = [
     component: Articles,
     meta: {
       ru_name: 'Список статей',
+      requiresAuth: true,
       canCreate: true,
       createLink: {
         name: 'DetailArticles',
@@ -81,11 +93,21 @@ const routes = [
     component: DetailArticles,
     meta: {
       ru_name: 'Статья',
+      requiresAuth: true,
       returnLink: {
         name: 'Articles',
         path: '/articles'
       }
     },
+  },
+  {
+    path: '/login/',
+    name: 'login',
+    component: LoginAuth,
+    meta: {
+      visible_front: false,
+      ru_name: 'Авторизация',
+    }
   },
   // {
   //   path: '/about',
@@ -101,6 +123,25 @@ const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes
-})
+});
+
+router.beforeEach((to, from, next) => {
+  if(to.matched.some(record => record.meta.requiresAuth)) {
+    console.log('start beforeEach')
+      if (Object.keys(AuthStore.state.userData).length !== 0) {
+        console.log('vse chetko prohodi')
+        next();
+      } else {
+        next('/login')
+      }
+    // if (store.getters.isLoggedIn) {
+    //     next();
+    //     return
+    // }
+    // next('/login')
+  } else {
+    next()
+  }
+});
 
 export default router
