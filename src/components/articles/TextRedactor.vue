@@ -641,26 +641,7 @@ export default {
     /* INSERT COMPONENTS */
     debounceTimeout: null,
     geting_from_server: false,
-    test_from_server: [
-      {
-        id_component: 1,
-        index: 1,
-        type_component: 'questions'
-      },
-      {
-        id_component: 1,
-        index: 2,
-        type_component: 'questions'
-      },
-      {
-        id_component: 1,
-        index: 3,
-        type_component: 'questions'
-      },
-    ],
-    test_content_from_server: 'lorem<div><div data-v-98078a96="" contenteditable="false" id="question_wrapper-1" class="question_wrapper"><div data-v-98078a96="" class="question_wrapper__admin_controls" style="width: 321px; height: 101.078px;"><div data-v-98078a96="" contenteditable="false" class="question_wrapper__admin_controls__wrapper"><img data-v-98078a96="" src="/img/closeIcon.9f67941f.svg" alt="close" class="question_wrapper__admin_controls__wrapper__img"></div></div><div data-v-98078a96="" class="question_wrapper__title"><h3 data-v-98078a96="">1. tested</h3><!----></div><div data-v-98078a96="" class="question_wrapper__content"><div data-v-98078a96="" class="v-input v-input--hide-details v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--solo v-text-field--is-booted v-text-field--enclosed v-text-field--placeholder"><div class="v-input__control"><div class="v-input__slot"><div class="v-text-field__slot"><input id="input-211" placeholder="Введите ответ" type="text"></div></div></div></div></div></div><br></div><div><div data-v-98078a96="" contenteditable="false" id="question_wrapper-2" class="question_wrapper"><div data-v-98078a96="" class="question_wrapper__admin_controls" style="width: 321px; height: 101.078px;"><div data-v-98078a96="" contenteditable="false" class="question_wrapper__admin_controls__wrapper"><img data-v-98078a96="" src="/img/closeIcon.9f67941f.svg" alt="close" class="question_wrapper__admin_controls__wrapper__img"></div></div><div data-v-98078a96="" class="question_wrapper__title"><h3 data-v-98078a96="">2. tested</h3><!----></div><div data-v-98078a96="" class="question_wrapper__content"><div data-v-98078a96="" class="v-input v-input--hide-details v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--solo v-text-field--is-booted v-text-field--enclosed v-text-field--placeholder"><div class="v-input__control"><div class="v-input__slot"><div class="v-text-field__slot"><input id="input-218" placeholder="Введите ответ" type="text"></div></div></div></div></div></div><br></div><div><div data-v-98078a96="" contenteditable="false" id="question_wrapper-3" class="question_wrapper"><div data-v-98078a96="" class="question_wrapper__admin_controls" style="width: 321px; height: 101.078px;"><div data-v-98078a96="" contenteditable="false" class="question_wrapper__admin_controls__wrapper"><img data-v-98078a96="" src="/img/closeIcon.9f67941f.svg" alt="close" class="question_wrapper__admin_controls__wrapper__img"></div></div><div data-v-98078a96="" class="question_wrapper__title"><h3 data-v-98078a96="">3. tested</h3><!----></div><div data-v-98078a96="" class="question_wrapper__content"><div data-v-98078a96="" class="v-input v-input--hide-details v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--solo v-text-field--is-booted v-text-field--enclosed v-text-field--placeholder"><div class="v-input__control"><div class="v-input__slot"><div class="v-text-field__slot"><input id="input-225" placeholder="Введите ответ" type="text"></div></div></div></div></div></div><br></div><div>&nbsp;loremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremlorem lorem loremloremlorem lorem </div>',
-    instances: [],
-    data_of_components: [],
+    data_of_component: [],
   }),
   created() {
     WebFontLoader.load({
@@ -674,10 +655,6 @@ export default {
     this.loading_dropzone = false;
   },
   mounted() {
-    // if (this.$route.params?.action === 'edit') {
-    //   this.$store.state.TitlesModule.inserted_components = this.test_from_server
-    //   this.$store.state.TitlesModule.content_from_server = this.test_content_from_server
-    // }
     this.$store.dispatch('testFont')
     setTimeout(() => {
       this.initializeContent().then(() => {
@@ -686,11 +663,11 @@ export default {
     }, 500)
   },
   watch: {
-    'data_of_components': {
+    'data_of_components.data': {
       handler() {
         if (!this.geting_from_server) {
           this.$store.state.TitlesModule.inserted_components = []
-          this.$store.state.TitlesModule.inserted_components = this.data_of_components
+          this.$store.state.TitlesModule.inserted_components = this.data_of_components.data
           this.$store.state.TitlesModule.content = this.content
         }
       },
@@ -701,15 +678,17 @@ export default {
         if (v) {
           this.content = ''
           this.$store.state.TitlesModule.content = ''
-          this.data_of_components = []
-          this.instances = []
+          for (let key in this.data_of_components) {
+            this.data_of_components[key] = []
+          }
+          this.params_of_component.name = ''
           this.clearStateAfterDestroy()
         }
       },
     },
     'params_of_component.name': {
       handler(v) {
-        if (v !== 'image') {
+        if (v && v !== 'image') {
           this.$store.dispatch('getListComponents', this.params_of_component.name)
         }
       }
@@ -721,22 +700,45 @@ export default {
             return elem.$data.index_component === this.$store.state.TitlesModule.deletedComponent
           })
           if (index !== -1) {
-            this.instances.splice(index, 1)
-            this.data_of_components.splice(index, 1)
-            let counter_instances = 1
-            this.instances.forEach(elem => {
-              const block = document.getElementById(`component_wrapper-${elem.$data.index_component}`)
-              block.id =  `component_wrapper-${counter_instances}`
-              elem.$data.index_component = counter_instances
-              counter_instances++
-            })
-            let counter_index = 1
-            this.data_of_components.forEach(elem => {
-              elem.index = counter_index
-              counter_index++
-            })
-            this.$store.state.TitlesModule.countLayout = counter_instances-1
-            this.$store.state.TitlesModule.deletedComponent = 0
+            for (let key in this.data_of_components) {
+              this.data_of_components[key].splice(index, 1)
+            }
+            /* FIXME: need refactor */
+
+
+            const global_counter = {
+              count_of_question: 1,
+              count_of_images: 1,
+              counter_instances: 1,
+              counter_index: 1,
+            }
+
+
+
+
+            // for (let i = 0; i < this.data_of_components.length; i++) {
+            //   const instance = this.instances[i]
+            //   const component_data = this.data_of_components[i]
+            //
+            //   // instances
+            //   const block = document.getElementById(`component_wrapper-${instance.$data.index_component}`)
+            //   block.id =  `component_wrapper-${global_counter.counter_instances}`
+            //   instance.$data.index_component = global_counter.counter_instances
+            //
+            //   if (Object.keys(instance.$data).includes('count_of_question')) {
+            //     instance.$data.count_of_question = global_counter.count_of_question
+            //   } else if (Object.keys(instance.$data).includes('count_of_images')) {
+            //     instance.$data.count_of_images = global_counter.count_of_images
+            //   }
+            //
+            //   //  index_component
+            //   component_data.index = global_counter.counter_index
+            //   if (Object.keys(component_data.component).includes('count_of_question')) {
+            //     component_data.component.count_of_question = global_counter.count_of_question
+            //   } else if (Object.keys(component_data.component).includes('count_of_images')) {
+            //     component_data.component.count_of_images = global_counter.count_of_images
+            //   }
+            // }
           }
         }
       },
@@ -836,6 +838,7 @@ export default {
             this.$nextTick(() => {
               arr.forEach((elem) => {
                 setTimeout(() => {
+                    // FIXME
                     this.checkTypeComponent(elem)
                     this.$store.state.TitlesModule.countLayout = elem.index
                     this.$store.state.TitlesModule.selectedComponent = elem.data
@@ -875,7 +878,7 @@ export default {
         this.$store.state.TitlesModule.content = this.content
       })
       /* IF WE DELETED COMPONENT BY KEYBOARD */
-      this.instances.forEach(elem => {
+      this.data_of_components.instances.forEach(elem => {
         const elem_content = document.getElementById(`component_wrapper-${elem.$data.index_component}`)
         if (!elem_content) {
           this.$store.state.TitlesModule.deletedComponent = elem.$data.index_component
@@ -937,13 +940,13 @@ export default {
 
       let data;
       if (this.params_of_component.name === 'questions') {
-        data = new this.element_question({
+        data = new this.Element_question({
           name: this.params_of_component.name,
           id: this.$store.state.TitlesModule.selectedComponent.id,
           index_question: this.$store.state.TitlesModule.count_of_questions
         })
       } else if (this.params_of_component.name === 'image') {
-        data = new this.element_image({
+        data = new this.Element_image({
           name: this.params_of_component.name,
           src: elem.dataURL,
           index_image: this.$store.state.TitlesModule.count_of_images
@@ -951,40 +954,40 @@ export default {
       }
 
       this.insertingComponent().then(() => {
-        this.data_of_components.push(new this.imported_component({index: this.$store.state.TitlesModule.countLayout, component: data}))
+        this.data_of_components.push(new this.Imported_component({index: this.$store.state.TitlesModule.countLayout, component: data}))
         this.clearStateAfterSelect()
       })
     },
     insertingComponent() {
       return new Promise((resolve) => {
-        this.instances.push(new this.componentLayout({
+        this.data_of_components.instances.push(new this.componentLayout({
           store,
           vuetify,
         }))
-        this.instances[this.$store.state.TitlesModule.countLayout - 1].$mount() // pass nothing
+        this.data_of_components.instances[this.$store.state.TitlesModule.countLayout - 1].$mount() // pass nothing
 
         if (window.getSelection) {
           if (this.range && this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content') {
-            this.range.insertNode(this.instances[this.$store.state.TitlesModule.countLayout - 1].$el);
+            this.range.insertNode(this.data_of_components.instances[this.$store.state.TitlesModule.countLayout - 1].$el);
           } else {
             let range = document.createRange();
             range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
             range.collapse(false);
-            range.insertNode(this.instances[this.$store.state.TitlesModule.countLayout - 1].$el);
+            range.insertNode(this.data_of_components.instances[this.$store.state.TitlesModule.countLayout - 1].$el);
           }
         } else if (document.selection && document.selection.createRange) {
           if (this.range && this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content') {
-            this.htmlSelected = (this.instances[this.$store.state.TitlesModule.countLayout - 1].$el.nodeType == 3) ?
-                this.instances[this.$store.state.TitlesModule.countLayout - 1].$el.innerHTML.data :
-                this.instances[this.$store.state.TitlesModule.countLayout - 1].$el.outerHTML;
+            this.htmlSelected = (this.data_of_components.instances[this.$store.state.TitlesModule.countLayout - 1].$el.nodeType == 3) ?
+                this.data_of_components.instances[this.$store.state.TitlesModule.countLayout - 1].$el.innerHTML.data :
+                this.data_of_components.instances[this.$store.state.TitlesModule.countLayout - 1].$el.outerHTML;
             this.range.pasteHTML(this.htmlSelected);
           } else {
             let range = document.createRange();
             range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
             range.collapse(false);
-            this.htmlSelected = (this.instances[this.$store.state.TitlesModule.countLayout - 1].$el.nodeType == 3) ?
-                this.instances[this.$store.state.TitlesModule.countLayout - 1].$el.innerHTML.data :
-                this.instances[this.$store.state.TitlesModule.countLayout - 1].$el.outerHTML;
+            this.htmlSelected = (this.data_of_components.instances[this.$store.state.TitlesModule.countLayout - 1].$el.nodeType == 3) ?
+                this.data_of_components.instances[this.$store.state.TitlesModule.countLayout - 1].$el.innerHTML.data :
+                this.data_of_components.instances[this.$store.state.TitlesModule.countLayout - 1].$el.outerHTML;
             range.pasteHTML(this.htmlSelected);
           }
         }
@@ -1011,20 +1014,26 @@ export default {
     },
 
     /* CONSTRUCTORS */
-    imported_component(data) {
+    Constructor_instance(params) {
+      const {data, instance} = params
+
+      this.data = data
+      this.instance = instance
+    },
+    Imported_component(data) {
       const {index, component} = data
 
       this.index = index
       this.component = component
     },
-    element_question(data) {
+    Element_question(data) {
       const {name, id, index_question} = data
 
       this.name = name
       this.id = id
       this.index_question = index_question
     },
-    element_image(data) {
+    Element_image(data) {
       const {name, src, index_image} = data
 
       this.name = name
