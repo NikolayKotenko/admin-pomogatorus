@@ -474,7 +474,7 @@
         </v-card-title>
         <v-card-text class="dialog_dropzone_wrapper">
           <vue-dropzone
-              ref="myVueDropzone" id="dropzone" :options="options" :useCustomSlot=true v-if="!loading_dropzone" @vdropzone-file-added="uploadedData" @vdropzone-success="successData"
+              ref="myVueDropzone" id="dropzone" :options="options" :useCustomSlot=true v-if="!loading_dropzone" @vdropzone-success="successData"
           >
             <h3 class="dropzone-custom-title">
               <v-icon size="120" color="grey lighten-1" style="transform: rotate(45deg)">
@@ -703,6 +703,7 @@ export default {
           this.$store.state.TitlesModule.content = ''
           this.data_of_components = []
           this.instances = []
+          this.clearStateAfterDestroy()
         }
       },
     },
@@ -791,29 +792,6 @@ export default {
         }
       })
     },
-    uploadedData() {
-      /*const formatObj = {}
-
-      for (let key in file) {
-        Object.assign(formatObj, {[key]: file[key]})
-      }
-      Object.assign(formatObj, {id: this.index_uploaded})
-      this.index_uploaded++
-      this.dropzone_uploaded.push(formatObj)
-
-      this.$nextTick(() => {
-        const deletedElems = document.getElementsByClassName('close')
-        let count = 1;
-        for (let item of deletedElems) {
-          item.setAttribute('id', `close-${count}`);
-          const id = count
-          item.onclick = () => {
-            this.removedFile(id)
-          }
-          count++
-        }
-      })*/
-    },
     removedFile(id) {
       const index = this.dropzone_uploaded.findIndex(elem => {
         return elem.id === id
@@ -839,7 +817,11 @@ export default {
           const promises = []
 
           this.$store.state.TitlesModule.inserted_components.forEach(elem => {
-            promises.push(this.$store.dispatch('getComponentsById', elem))
+            if (elem.component.name === 'questions') {
+              promises.push(this.$store.dispatch('getComponentsById', elem))
+            } else if (elem.component.name === 'image') {
+              promises.push(this.$store.dispatch('imageFromServer', elem))
+            }
           })
 
           Promise.all(promises).finally(() => {
@@ -847,22 +829,25 @@ export default {
             this.$store.state.TitlesModule.components_after_request.sort((a,b) => {
               return a.index - b.index
             })
+
+            console.log(this.$store.state.TitlesModule.components_after_request)
+
             const arr = this.$store.state.TitlesModule.components_after_request
             this.$nextTick(() => {
               arr.forEach((elem) => {
                 setTimeout(() => {
+                    this.checkTypeComponent(elem)
                     this.$store.state.TitlesModule.countLayout = elem.index
                     this.$store.state.TitlesModule.selectedComponent = elem.data
                     let range = document.createRange();
                     range.selectNode(document.getElementById(`component_wrapper-${elem.index}`));
                     range.deleteContents()
                     range.collapse(false);
-                    let ComponentClass = Vue.extend(Question)
-                    this.instances.push(new ComponentClass({
+                    this.instances.push(new this.componentLayout({
                       store,
                       vuetify,
                     }))
-                    this.instances[elem.index-1].$mount() // pass nothing
+                    this.instances[this.$store.state.TitlesModule.countLayout - 1].$mount() // pass nothing
                     range.insertNode(this.instances[elem.index-1].$el)
                     this.$store.state.TitlesModule.selectedComponent = {}
                   })
@@ -873,6 +858,14 @@ export default {
           })
         }
       })
+    },
+    checkTypeComponent(elem) {
+      this.params_of_component.name = elem.component_data.name
+      if (elem.component_data.name === 'questions') {
+        this.$store.state.TitlesModule.count_of_questions = elem.component_data.index_question
+      } else if (elem.component_data.name === 'questions') {
+        this.$store.state.TitlesModule.count_of_images = elem.data.index_image
+      }
     },
 
     /* FIXME: ДОБАВИТЬ ДЕБАУНС И СОХРАНЯЕМ ИЗМЕНЕНИЯ НА СЕРВЕР */
@@ -959,8 +952,7 @@ export default {
 
       this.insertingComponent().then(() => {
         this.data_of_components.push(new this.imported_component({index: this.$store.state.TitlesModule.countLayout, component: data}))
-        this.selectComponent[this.params_of_component.name] = false
-        this.$store.state.TitlesModule.selectedComponent = {}
+        this.clearStateAfterSelect()
       })
     },
     insertingComponent() {
@@ -1000,6 +992,24 @@ export default {
       })
     },
 
+    /* CLEANERS */
+    clearStateAfterSelect() {
+      this.selectComponent[this.params_of_component.name] = false
+      this.$store.state.TitlesModule.selectedComponent = {}
+      this.dropzone_uploaded = []
+      this.index_uploaded = 1
+    },
+    clearStateAfterDestroy() {
+      this.$store.state.TitlesModule.listComponents = []
+      this.$store.state.TitlesModule.selectedComponent = {}
+      this.$store.state.TitlesModule.countLayout = 0
+      this.$store.state.TitlesModule.count_of_images = 0
+      this.$store.state.TitlesModule.count_of_questions = 0
+      this.$store.state.TitlesModule.content_from_server = ''
+      this.$store.state.TitlesModule.content = ''
+      this.$store.state.TitlesModule.inserted_components = []
+    },
+
     /* CONSTRUCTORS */
     imported_component(data) {
       const {index, component} = data
@@ -1023,12 +1033,7 @@ export default {
     },
   },
   beforeDestroy() {
-    this.$store.state.TitlesModule.listComponents = []
-    this.$store.state.TitlesModule.selectedComponent = {}
-    this.$store.state.TitlesModule.countLayout = 0
-    this.$store.state.TitlesModule.content_from_server = ''
-    this.$store.state.TitlesModule.content = ''
-    this.$store.state.TitlesModule.inserted_components = []
+    this.clearStateAfterDestroy()
   }
 }
 </script>
