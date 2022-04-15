@@ -24,7 +24,7 @@ export default {
     x: 0,
     y: 0,
     index_component: null,
-    count_of_images: null,
+    index_image: null,
     data_image: null,
   }),
   mounted() {
@@ -33,7 +33,7 @@ export default {
   methods: {
     getData() {
       this.data_image = this.$store.state.TitlesModule.selectedComponent
-      this.count_of_images = this.$store.state.TitlesModule.count_of_images
+      this.index_image = this.$store.state.TitlesModule.count_of_images
       this.index_component = this.$store.state.TitlesModule.countLayout
       this.getHeightOfControls()
       this.getWidthOfControls()

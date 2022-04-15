@@ -713,24 +713,40 @@ export default {
     '$store.state.TitlesModule.deletedComponent': {
       handler() {
         if (this.$store.state.TitlesModule.deletedComponent !== 0) {
-          let index = this.instances.findIndex((elem) => {
-            return elem.$data.index_component === this.$store.state.TitlesModule.deletedComponent
+          let index = this.data_of_components.findIndex((elem) => {
+            return elem.instance.$data.index_component === this.$store.state.TitlesModule.deletedComponent
           })
           if (index !== -1) {
-            for (let key in this.data_of_components) {
-              this.data_of_components[key].splice(index, 1)
+            this.data_of_components.splice(index, 1)
+
+            const global_counter = {
+              index_question: 1,
+              index_image: 1,
+              counter_index: 1,
             }
-            /* FIXME: need refactor */
 
+            this.data_of_components.forEach(elem => {
+              elem.data.index = global_counter.counter_index
+              const key_data = Object.keys(elem.data.component).includes('index_question') ? 'index_question' : 'index_image'
+              elem.data.component[key_data] = global_counter[key_data]
 
-            // const global_counter = {
-            //   count_of_question: 1,
-            //   count_of_images: 1,
-            //   counter_instances: 1,
-            //   counter_index: 1,
-            // }
+              console.log(elem)
 
+              const key_instance = Object.keys( elem.instance.$data).includes('index_question') ? 'index_question' : 'index_image'
+              elem.instance.$data[key_instance] = global_counter[key_instance]
+              const block = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
+              block.id =  `component_wrapper-${global_counter.counter_index}`
+              elem.instance.$data.index_component = global_counter.counter_index
 
+              global_counter[key_data]++
+              global_counter.counter_index++
+            })
+
+            console.log(global_counter)
+
+            this.$store.state.TitlesModule.countLayout = global_counter.counter_index-1
+            this.$store.state.TitlesModule.count_of_images = global_counter.index_image-1
+            this.$store.state.TitlesModule.count_of_questions = global_counter.index_question-1
 
 
             // for (let i = 0; i < this.data_of_components.length; i++) {
@@ -855,7 +871,6 @@ export default {
             this.$nextTick(() => {
               arr.forEach((elem) => {
                 setTimeout(() => {
-                    // FIXME
                     this.checkTypeComponent(elem)
                     this.$store.state.TitlesModule.countLayout = elem.index
                     this.$store.state.TitlesModule.selectedComponent = elem.data
@@ -880,10 +895,11 @@ export default {
       })
     },
     checkTypeComponent(elem) {
+      console.log(elem.component_data.name)
       this.params_of_component.name = elem.component_data.name
       if (elem.component_data.name === 'questions') {
         this.$store.state.TitlesModule.count_of_questions = elem.component_data.index_question
-      } else if (elem.component_data.name === 'questions') {
+      } else if (elem.component_data.name === 'image') {
         this.$store.state.TitlesModule.count_of_images = elem.data.index_image
       }
     },

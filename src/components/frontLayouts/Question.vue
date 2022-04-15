@@ -4,7 +4,7 @@
       <img class="question_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
     </div>
     <div class="question_wrapper__title">
-      <h3>{{ count_of_question }}. {{ question_data.name }}</h3>
+      <h3>{{ index_question }}. {{ question_data.name }}</h3>
       <div class="helper_wrapper" v-if="question_data.title">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
@@ -222,7 +222,7 @@ export default {
   data: () => ({
     question_data: {},
     index_component: null,
-    count_of_question: null,
+    index_question: null,
     controls_height: 0,
     controls_width: 0,
     value_type_answer: [],
@@ -284,7 +284,7 @@ export default {
     },
     getData() {
       if (Object.keys(this.$store.state.TitlesModule.selectedComponent).length) {
-        this.count_of_question = this.$store.state.TitlesModule.count_of_questions
+        this.index_question = this.$store.state.TitlesModule.count_of_questions
         this.index_component = this.$store.state.TitlesModule.countLayout
         this.question_data = Object.assign({}, this.$store.state.TitlesModule.selectedComponent)
         this.getValue_type_answer()
