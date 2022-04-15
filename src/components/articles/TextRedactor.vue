@@ -639,9 +639,10 @@ export default {
     ],
 
     /* INSERT COMPONENTS */
+    saveDB: false,
     debounceTimeout: null,
     geting_from_server: false,
-    data_of_component: [],
+    data_of_components: [],
   }),
   created() {
     WebFontLoader.load({
@@ -658,21 +659,37 @@ export default {
     this.$store.dispatch('testFont')
     setTimeout(() => {
       this.initializeContent().then(() => {
-        this.onContentChange()
+        // this.onContentChange()
       })
     }, 500)
   },
   watch: {
-    'data_of_components.data': {
-      handler() {
-        if (!this.geting_from_server) {
+    'saveDB': {
+      handler(v) {
+        if (!this.geting_from_server && v) {
           this.$store.state.TitlesModule.inserted_components = []
-          this.$store.state.TitlesModule.inserted_components = this.data_of_components.data
+          const arr = []
+          this.data_of_components.forEach(elem => {
+            arr.push(elem.data)
+          })
+          this.$store.state.TitlesModule.inserted_components = arr
           this.$store.state.TitlesModule.content = this.content
         }
       },
-      deep: true
     },
+    /*'data_of_components': {
+      handler() {
+        if (!this.geting_from_server) {
+          this.$store.state.TitlesModule.inserted_components = []
+          const arr = []
+          this.data_of_components.forEach(elem => {
+            arr.push(elem.data)
+          })
+          this.$store.state.TitlesModule.inserted_components = arr
+          this.$store.state.TitlesModule.content = this.content
+        }
+      },
+    },*/
     'deletedContent': {
       handler(v) {
         if (v) {
@@ -706,12 +723,12 @@ export default {
             /* FIXME: need refactor */
 
 
-            const global_counter = {
-              count_of_question: 1,
-              count_of_images: 1,
-              counter_instances: 1,
-              counter_index: 1,
-            }
+            // const global_counter = {
+            //   count_of_question: 1,
+            //   count_of_images: 1,
+            //   counter_instances: 1,
+            //   counter_index: 1,
+            // }
 
 
 
@@ -827,7 +844,7 @@ export default {
           })
 
           Promise.all(promises).finally(() => {
-            this.data_of_components = this.$store.state.TitlesModule.inserted_components.slice()
+            // this.data_of_components = this.$store.state.TitlesModule.inserted_components.slice()
             this.$store.state.TitlesModule.components_after_request.sort((a,b) => {
               return a.index - b.index
             })
@@ -846,12 +863,12 @@ export default {
                     range.selectNode(document.getElementById(`component_wrapper-${elem.index}`));
                     range.deleteContents()
                     range.collapse(false);
-                    this.instances.push(new this.componentLayout({
-                      store,
-                      vuetify,
-                    }))
-                    this.instances[this.$store.state.TitlesModule.countLayout - 1].$mount() // pass nothing
-                    range.insertNode(this.instances[elem.index-1].$el)
+                    console.log(elem)
+                    console.log(this.getStructureForInstance(elem))
+                    this.data_of_components.push(this.getStructureForInstance(elem))
+                    console.log(this.$store.state.TitlesModule.countLayout)
+                    this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$mount() // pass nothing
+                    range.insertNode(this.data_of_components[elem.index-1].instance.$el)
                     this.$store.state.TitlesModule.selectedComponent = {}
                   })
               })
@@ -878,10 +895,11 @@ export default {
         this.$store.state.TitlesModule.content = this.content
       })
       /* IF WE DELETED COMPONENT BY KEYBOARD */
-      this.data_of_components.instances.forEach(elem => {
-        const elem_content = document.getElementById(`component_wrapper-${elem.$data.index_component}`)
+      this.data_of_components.forEach(elem => {
+        const elem_content = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
         if (!elem_content) {
-          this.$store.state.TitlesModule.deletedComponent = elem.$data.index_component
+          console.log('a')
+          this.$store.state.TitlesModule.deletedComponent = elem.instance.$data.index_component
         }
       })
     },
@@ -938,56 +956,66 @@ export default {
     callCheckout(elem) {
       this.$store.state.TitlesModule.countLayout++
 
-      let data;
+      let data_component;
       if (this.params_of_component.name === 'questions') {
-        data = new this.Element_question({
+        data_component = new this.Element_question({
           name: this.params_of_component.name,
           id: this.$store.state.TitlesModule.selectedComponent.id,
           index_question: this.$store.state.TitlesModule.count_of_questions
         })
       } else if (this.params_of_component.name === 'image') {
-        data = new this.Element_image({
+        data_component = new this.Element_image({
           name: this.params_of_component.name,
           src: elem.dataURL,
           index_image: this.$store.state.TitlesModule.count_of_images
         })
       }
 
-      this.insertingComponent().then(() => {
-        this.data_of_components.push(new this.Imported_component({index: this.$store.state.TitlesModule.countLayout, component: data}))
+      this.insertingComponent(data_component).then(() => {
+        this.saveDB = true
         this.clearStateAfterSelect()
+        setTimeout(() => {
+          this.saveDB = false
+        })
       })
     },
-    insertingComponent() {
+    getStructureForInstance(data_component) {
+      const instance = new this.componentLayout({
+        store,
+        vuetify,
+      })
+      const data = new this.Imported_component({index: this.$store.state.TitlesModule.countLayout, component: data_component})
+      const params = Object.assign({}, {instance: instance}, {data: data})
+      return new this.Constructor_instance(params)
+    },
+    insertingComponent(data_component) {
       return new Promise((resolve) => {
-        this.data_of_components.instances.push(new this.componentLayout({
-          store,
-          vuetify,
-        }))
-        this.data_of_components.instances[this.$store.state.TitlesModule.countLayout - 1].$mount() // pass nothing
+        const elem = this.getStructureForInstance(data_component)
+        this.data_of_components.push(elem)
+        this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$mount() // pass nothing
 
         if (window.getSelection) {
           if (this.range && this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content') {
-            this.range.insertNode(this.data_of_components.instances[this.$store.state.TitlesModule.countLayout - 1].$el);
+            this.range.insertNode(this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el);
           } else {
             let range = document.createRange();
             range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
             range.collapse(false);
-            range.insertNode(this.data_of_components.instances[this.$store.state.TitlesModule.countLayout - 1].$el);
+            range.insertNode(this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el);
           }
         } else if (document.selection && document.selection.createRange) {
           if (this.range && this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content') {
-            this.htmlSelected = (this.data_of_components.instances[this.$store.state.TitlesModule.countLayout - 1].$el.nodeType == 3) ?
-                this.data_of_components.instances[this.$store.state.TitlesModule.countLayout - 1].$el.innerHTML.data :
-                this.data_of_components.instances[this.$store.state.TitlesModule.countLayout - 1].$el.outerHTML;
+            this.htmlSelected = (this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.nodeType == 3) ?
+                this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.innerHTML.data :
+                this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.outerHTML;
             this.range.pasteHTML(this.htmlSelected);
           } else {
             let range = document.createRange();
             range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
             range.collapse(false);
-            this.htmlSelected = (this.data_of_components.instances[this.$store.state.TitlesModule.countLayout - 1].$el.nodeType == 3) ?
-                this.data_of_components.instances[this.$store.state.TitlesModule.countLayout - 1].$el.innerHTML.data :
-                this.data_of_components.instances[this.$store.state.TitlesModule.countLayout - 1].$el.outerHTML;
+            this.htmlSelected = (this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.nodeType == 3) ?
+                this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.innerHTML.data :
+                this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.outerHTML;
             range.pasteHTML(this.htmlSelected);
           }
         }
