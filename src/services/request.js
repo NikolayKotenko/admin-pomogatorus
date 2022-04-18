@@ -7,6 +7,16 @@ import Logging from "@/services/logging";
  */
 export default class Request {
 
+    static bodyFromData(paramBody) {
+        let bodyFormData = new FormData()
+
+        for (const [key, value] of Object.entries(paramBody)) {
+            console.log(`${key}: ${value}`);
+            bodyFormData.append(key, value)
+        }
+        return bodyFormData;
+    }
+
     static async post (url, bodyFormData) {
         return await axios.post(url, bodyFormData)
             .then((response) => {
