@@ -748,6 +748,11 @@ export default {
             this.$store.state.TitlesModule.count_of_images = global_counter.index_image-1
             this.$store.state.TitlesModule.count_of_questions = global_counter.index_question-1
             this.$store.state.TitlesModule.deletedComponent = 0
+
+            this.saveDB = true
+            setTimeout(() => {
+              this.saveDB = false
+            })
           }
         }
       },
@@ -819,6 +824,7 @@ export default {
     initializeContent() {
       return new Promise((resolve) => {
         console.log('initialize')
+        console.log(this.$store.state.TitlesModule.inserted_components)
         if (this.$store.state.TitlesModule.inserted_components && this.$store.state.TitlesModule.inserted_components.length) {
           console.log('YA RABOTAU')
           this.geting_from_server = true
