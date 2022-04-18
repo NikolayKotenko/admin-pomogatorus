@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import AuthStore from '../store/modules/auth/index'
+import store from '../store/index'
 
 /* VIEWS */
 import Desktop from "../views/Desktop";
@@ -125,23 +125,20 @@ const router = new VueRouter({
   routes
 });
 
-router.beforeEach((to, from, next) => {
-  if(to.matched.some(record => record.meta.requiresAuth)) {
-    console.log('start beforeEach')
-      if (Object.keys(AuthStore.state.userData).length !== 0) {
-        console.log('vse chetko prohodi')
-        next();
-      } else {
-        next('/login')
-      }
-    // if (store.getters.isLoggedIn) {
-    //     next();
-    //     return
-    // }
-    // next('/login')
-  } else {
+router.beforeEach(async (to, from, next) => {
+    //Если валидация на этом компоненте не нужна - пропускаем
+    if(! to.matched.some(record => record.meta.requiresAuth))
+      next()
+
+    //Если есть параметр из email письма с авторизацией то аутентифицируем (пишем в userData)
+    if (to.query.userEmail)
+      await store.dispatch('loginUser', {'userEmail': to.query.userEmail})
+
+    //Проверяем на пустоту массив userData
+    if (! store.getters.stateAuth)
+      next('/login')
+
     next()
-  }
 });
 
 export default router
