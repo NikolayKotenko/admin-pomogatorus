@@ -747,31 +747,7 @@ export default {
             this.$store.state.TitlesModule.countLayout = global_counter.counter_index-1
             this.$store.state.TitlesModule.count_of_images = global_counter.index_image-1
             this.$store.state.TitlesModule.count_of_questions = global_counter.index_question-1
-
-
-            // for (let i = 0; i < this.data_of_components.length; i++) {
-            //   const instance = this.instances[i]
-            //   const component_data = this.data_of_components[i]
-            //
-            //   // instances
-            //   const block = document.getElementById(`component_wrapper-${instance.$data.index_component}`)
-            //   block.id =  `component_wrapper-${global_counter.counter_instances}`
-            //   instance.$data.index_component = global_counter.counter_instances
-            //
-            //   if (Object.keys(instance.$data).includes('count_of_question')) {
-            //     instance.$data.count_of_question = global_counter.count_of_question
-            //   } else if (Object.keys(instance.$data).includes('count_of_images')) {
-            //     instance.$data.count_of_images = global_counter.count_of_images
-            //   }
-            //
-            //   //  index_component
-            //   component_data.index = global_counter.counter_index
-            //   if (Object.keys(component_data.component).includes('count_of_question')) {
-            //     component_data.component.count_of_question = global_counter.count_of_question
-            //   } else if (Object.keys(component_data.component).includes('count_of_images')) {
-            //     component_data.component.count_of_images = global_counter.count_of_images
-            //   }
-            // }
+            this.$store.state.TitlesModule.deletedComponent = 0
           }
         }
       },
