@@ -14,9 +14,18 @@
               label="Введите почту"
               :rules="emailRules"
               single-line
-              :error-messages="emailErrors"
               required
           ></v-text-field>
+        <v-alert
+            v-if="alert.state"
+            transition="scale-transition"
+            dismissible
+            :type="alert.type"
+            :value="alert.state"
+            @input="alert.state = false"
+        >
+          <span v-html="alert.message"></span>
+        </v-alert>
       </v-container>
       <v-container>
         <v-row>
@@ -48,23 +57,46 @@ export default {
         v => /.+@.+/.test(v) || 'E-mail должен быть валидным.',
       ],
       email_user: '',
-      emailErrors: '',
+      alert:{
+        state: false,
+        type: 'info',
+        message: '',
+      }
     }
+  },
+  mounted() {
   },
   computed : {
   },
   methods: {
+    alertCall(response){
+      this.alert.state = true
+      this.alert.message = Logging.getMessage(response)
+      this.alert.type = Logging.checkExistErr(response) ? 'error' : 'success'
+    },
     async localLoginCreateUser(){
-      const res = await this.$store.dispatch('loginCreateUser', this.email_user)
-      const checkErr = Logging.checkExistErr(res)
-      console.log(checkErr);
-      if (checkErr) {
-        this.emailErrors = '';
-        this.emailErrors = Logging.getMessage(res)
-      }
+      if (this.valid === false)
+        return false
 
-      this.$router.go(-1);
-      // await this.$router.push({path: '/'})
+      // Если это админка то авторизуем пользователя
+      if (this.$store.getters.checkAdminPanel){
+        const res = await this.$store.dispatch(
+            'loginUser', {
+              'email': this.email_user
+            })
+        if (Logging.checkExistErr(res))
+          this.alertCall(res);
+        else
+          this.$router.go(-1);
+      }
+      // Иначе это компонент авторизации через почту
+      else {
+        const res = await this.$store.dispatch(
+            'createUserByEmail', {
+              'email': this.email_user
+            })
+        this.alertCall(res);
+      }
     }
   }
 }
