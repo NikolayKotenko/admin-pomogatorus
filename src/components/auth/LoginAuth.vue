@@ -1,6 +1,10 @@
 <template>
   <v-app>
-    <v-form v-model="valid" class="login" @submit.prevent="localLoginCreateUser()" contenteditable="false">
+    <div class="auth_container" contenteditable="false" :id="`component_wrapper-${index_component}`" :class="{insert_component_wrapper: isComponent}">
+      <div class="insert_component_wrapper-header" contenteditable="false" v-if="isComponent">
+        <img class="insert_component_wrapper-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
+      </div>
+      <v-form v-model="valid" class="login" @submit.prevent="localLoginCreateUser()" contenteditable="false">
       <v-container>
         <v-row>
           <h1>Авторизация</h1>
@@ -41,6 +45,7 @@
         </v-row>
       </v-container>
     </v-form>
+    </div>
   </v-app>
 </template>
 
@@ -61,12 +66,26 @@ export default {
         state: false,
         type: 'info',
         message: '',
-      }
+      },
+
+      // inserted_component
+      width: 0,
+      height: 0,
+      index_component: null,
+      index_auth: null,
+      inserting_component: false,
     }
   },
   mounted() {
+    this.inserting_component = this.$store.state.AuthModule.inserting_component
+    if (this.isComponent){
+      this.getData()
+    }
   },
   computed : {
+    isComponent() {
+      return this.$store.getters.checkAdminPanel && this.inserting_component
+    }
   },
   methods: {
     alertCall(response){
@@ -97,16 +116,54 @@ export default {
             })
         this.alertCall(res);
       }
-    }
+    },
+
+    // inserted_components
+    getData() {
+      this.index_component = this.$store.state.TitlesModule.countLayout
+      this.index_auth = this.$store.state.TitlesModule.count_of_auth
+      this.getHeightOfControls()
+      this.getWidthOfControls()
+    },
+    deleteQuestion() {
+      const elem = document.getElementById(`component_wrapper-${this.index_component}`)
+      elem.remove()
+      this.$store.dispatch('deleteComponent', this.index_component)
+    },
+    getWidthOfControls() {
+      this.$nextTick(() => {
+        const elem = document.getElementById(`component_wrapper-${this.index_component}`)
+        if (elem) {
+          this.controls_width = elem.getBoundingClientRect().width + 6;
+        } else {
+          this.controls_width = 0
+        }
+      })
+    },
+    getHeightOfControls() {
+      this.$nextTick(() => {
+        const elem = document.getElementById(`component_wrapper-${this.index_component}`)
+        if (elem) {
+          this.controls_height = elem.getBoundingClientRect().height + 22;
+        } else {
+          this.controls_height = 0
+        }
+      })
+    },
   }
 }
 </script>
 
 <style lang="scss" scoped>
+@import "src/assets/styles/detail";
+
 form.login{
   margin: 1em;
   h1{
     margin: auto;
   }
+}
+.showBorder {
+
 }
 </style>

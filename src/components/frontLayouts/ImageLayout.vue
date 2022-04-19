@@ -75,14 +75,12 @@ export default {
 
 <style scoped lang="scss">
 .image_wrapper {
-  //height: 200px;
   min-height: 150px;
   min-width: 50px;
   max-width: 600px;
   max-height: 600px;
   position: relative;
   padding: 16px 10px 8px 10px;
-  //border: 1px solid rgba(83, 158, 224, 0);
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
   border-top-left-radius: 2px;

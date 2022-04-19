@@ -890,6 +890,8 @@ export default {
         this.$store.state.TitlesModule.count_of_questions = elem.component.index_question
       } else if (elem.component.name === 'image') {
         this.$store.state.TitlesModule.count_of_images = elem.component.index_image
+      } else if (elem.component.name === 'auth') {
+        this.$store.state.TitlesModule.count_of_auth = elem.component.count_of_auth
       }
     },
 
@@ -978,6 +980,7 @@ export default {
           this.index_uploaded = 1
         }
       } else if (this.params_of_component.name === 'auth') {
+        this.$store.state.AuthModule.inserting_component = true
         this.$store.state.TitlesModule.count_of_auth++
         this.callCheckout()
       }
@@ -1062,6 +1065,7 @@ export default {
     clearStateAfterSelect() {
       this.selectComponent[this.params_of_component.name] = false
       this.$store.state.TitlesModule.selectedComponent = {}
+      this.$store.state.AuthModule.inserting_component = false
     },
     clearStateAfterDestroy() {
       this.$store.state.TitlesModule.listComponents = []
