@@ -90,6 +90,7 @@ export default {
         countLayout: 0,
         count_of_images: 0,
         count_of_questions: 0,
+        count_of_auth: 0,
         willShow: true,
         deletedComponent: 0,
 
@@ -393,7 +394,7 @@ export default {
             })
         },
         async createArticle({dispatch, state}, data) {
-            return new Promise((resolve) => {
+            return new Promise((resolve, reject) => {
                 state.loadingRequest = true
                 state.loadingArticle = true
                 let bodyFormData = new FormData()
@@ -429,7 +430,7 @@ export default {
                         //handle error
                         state.loadingRequest = false
                         state.loadingArticle = false
-                        resolve()
+                        reject()
                         console.log(response.body);
                     });
             })

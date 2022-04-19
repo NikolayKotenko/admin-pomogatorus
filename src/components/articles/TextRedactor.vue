@@ -19,6 +19,7 @@
               </v-icon>
             </template>
             <v-list>
+              <!-- Question -->
               <v-list-item @click="initializeSelection('questions')">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
@@ -34,7 +35,7 @@
                   <span>Вставить вопрос</span>
                 </v-tooltip>
               </v-list-item>
-              <!-- initializeImage -->
+              <!-- Image -->
               <v-list-item @click="initializeSelection('image')">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
@@ -48,6 +49,22 @@
                     <v-list-item-title class="v-menu-item"> Вставить изображение </v-list-item-title>
                   </template>
                   <span>Вставить изображение</span>
+                </v-tooltip>
+              </v-list-item>
+              <!-- Auth -->
+              <v-list-item @click="initialiseInserting('auth')">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-icon
+                        v-bind="attrs"
+                        v-on="on"
+                        size="20"
+                    >
+                      mdi-account-key
+                    </v-icon>
+                    <v-list-item-title class="v-menu-item"> Вставить авторизацию </v-list-item-title>
+                  </template>
+                  <span>Вставить авторизацию</span>
                 </v-tooltip>
               </v-list-item>
             </v-list>
@@ -424,6 +441,7 @@
     </div>
 
     <!-- MODALS -->
+    <!-- FIXME: can unified all modals to one -->
     <v-dialog
         v-model="selectComponent.questions"
         max-width="600"
@@ -463,7 +481,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
     <v-dialog
         v-model="selectComponent.image"
         max-width="600"
@@ -528,8 +545,10 @@ import 'vue2-dropzone/dist/vue2Dropzone.min.css'
 import PreviewTemplate from "../dropzone/PreviewTemplate";
 
 import WebFontLoader from 'webfontloader';
+
 import Question from "../frontLayouts/Question";
 import ImageLayout from "../frontLayouts/ImageLayout";
+import LoginAuth from "../auth/LoginAuth";
 
 export default {
   name: "TextRedactor",
@@ -541,7 +560,8 @@ export default {
     /* MODALS */
     selectComponent: {
       questions: false,
-      image: false
+      image: false,
+      auth: false,
     },
     params_of_component: {
       name: '',
@@ -762,7 +782,7 @@ export default {
       };
     },
     componentLayout() {
-      return this.params_of_component.name === 'questions' ? Vue.extend(Question) : Vue.extend(ImageLayout)
+      return this.params_of_component.name === 'questions' ? Vue.extend(Question) : this.params_of_component.name === 'image' ? Vue.extend(ImageLayout) : Vue.extend(LoginAuth)
     }
   },
   methods: {
@@ -904,6 +924,7 @@ export default {
     },
 
     /* MANIPULATING WITH INSERTING COMPONENTS */
+    // if we want add after modal window
     initializeSelection(componentName) {
       if (window.getSelection) {
         this.selection = null
@@ -923,6 +944,24 @@ export default {
       this.params_of_component.name = componentName
 
     },
+    // if we want immediately insert component
+    initialiseInserting(componentName) {
+      if (window.getSelection) {
+        this.selection = null
+        this.selection = window.getSelection();
+        if (this.selection.getRangeAt && this.selection.rangeCount) {
+          this.range = null
+          this.range = this.selection.getRangeAt(0);
+          this.range.collapse(false);
+        }
+      } else if (document.selection && document.selection.createRange) {
+        this.range = null
+        this.range = document.selection.createRange();
+        this.range.collapse(false);
+      }
+      this.params_of_component.name = componentName
+      this.onSelectComponent()
+    },
     onSelectComponent() {
       if (this.params_of_component.name === 'questions') {
         this.$store.state.TitlesModule.count_of_questions++
@@ -938,12 +977,16 @@ export default {
           this.dropzone_uploaded = []
           this.index_uploaded = 1
         }
+      } else if (this.params_of_component.name === 'auth') {
+        this.$store.state.TitlesModule.count_of_auth++
+        this.callCheckout()
       }
     },
     callCheckout(elem) {
       this.$store.state.TitlesModule.countLayout++
 
       let data_component;
+      // FIXME: все проверки вынести в компутед
       if (this.params_of_component.name === 'questions') {
         data_component = new this.Element_question({
           name: this.params_of_component.name,
@@ -955,6 +998,11 @@ export default {
           name: this.params_of_component.name,
           src: elem.dataURL,
           index_image: this.$store.state.TitlesModule.count_of_images
+        })
+      } else if (this.params_of_component.name === 'auth') {
+        data_component = new this.Element_auth({
+          name: this.params_of_component.name,
+          index_auth: this.$store.state.TitlesModule.count_of_auth
         })
       }
 
@@ -1039,6 +1087,12 @@ export default {
 
       this.index = index
       this.component = component
+    },
+    Element_auth(data) {
+      const {name, index_auth} = data
+
+      this.name = name
+      this.index_auth = index_auth
     },
     Element_question(data) {
       const {name, id, index_question} = data
