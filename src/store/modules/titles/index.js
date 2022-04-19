@@ -176,11 +176,8 @@ export default {
         delete_component_by_id(state, id) {
             state.deletedComponent = id
         },
-        changeSelectedComponent(state, {data, index, component_data}) {
-            if (!component_data) {
-                component_data = {}
-            }
-            const obj = Object.assign({}, {data, index: index, component_data})
+        changeSelectedComponent(state, {data, index, component}) {
+            const obj = Object.assign({}, {data, index: index, component})
             state.components_after_request.push(obj)
         },
 
@@ -512,15 +509,15 @@ export default {
         },
         imageFromServer({commit, state}, params) {
           return new Promise((resolve) => {
-              const {index, component: data} = params
+              const {index, component} = params
 
               state.loadingModalList = true
 
-              const component_data = {
+              const data = {
                   name: 'image'
               }
 
-              commit('changeSelectedComponent', {data, index, component_data})
+              commit('changeSelectedComponent', {data, index, component})
               state.loadingModalList = false
               resolve()
           })
@@ -538,8 +535,7 @@ export default {
                     .then((response) => {
                         const data = response.data.data
                         console.log('uploaded COMPONENT')
-                        const component_data = component
-                        commit('changeSelectedComponent', {data, index, component_data})
+                        commit('changeSelectedComponent', {data, index, component})
                         state.loadingModalList = false
                         resolve()
                     })

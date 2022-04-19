@@ -555,6 +555,7 @@ export default {
     dropzone_uploaded: [],
     loading_dropzone: true,
     previewHtml: null,
+    dz_id: 0,
 
     /* EDITOR */
     line_spacing: [
@@ -677,27 +678,12 @@ export default {
         }
       },
     },
-    /*'data_of_components': {
-      handler() {
-        if (!this.geting_from_server) {
-          this.$store.state.TitlesModule.inserted_components = []
-          const arr = []
-          this.data_of_components.forEach(elem => {
-            arr.push(elem.data)
-          })
-          this.$store.state.TitlesModule.inserted_components = arr
-          this.$store.state.TitlesModule.content = this.content
-        }
-      },
-    },*/
     'deletedContent': {
       handler(v) {
         if (v) {
           this.content = ''
           this.$store.state.TitlesModule.content = ''
-          for (let key in this.data_of_components) {
-            this.data_of_components[key] = []
-          }
+          this.data_of_components = []
           this.params_of_component.name = ''
           this.clearStateAfterDestroy()
         }
@@ -730,8 +716,6 @@ export default {
               const key_data = Object.keys(elem.data.component).includes('index_question') ? 'index_question' : 'index_image'
               elem.data.component[key_data] = global_counter[key_data]
 
-              console.log(elem)
-
               const key_instance = Object.keys( elem.instance.$data).includes('index_question') ? 'index_question' : 'index_image'
               elem.instance.$data[key_instance] = global_counter[key_instance]
               const block = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
@@ -741,8 +725,6 @@ export default {
               global_counter[key_data]++
               global_counter.counter_index++
             })
-
-            console.log(global_counter)
 
             this.$store.state.TitlesModule.countLayout = global_counter.counter_index-1
             this.$store.state.TitlesModule.count_of_images = global_counter.index_image-1
@@ -796,24 +778,37 @@ export default {
       this.dropzone_uploaded.push(formatObj)
 
       this.$nextTick(() => {
-        const deletedElems = document.getElementsByClassName('close')
+        const deletedElems = document.getElementsByClassName('dz_close')
         let count = 1;
         for (let item of deletedElems) {
           item.setAttribute('id', `close-${count}`);
-          const id = count
+          this.dz_id = count
           item.onclick = () => {
-            this.removedFile(id)
+            this.removedFile(this.dz_id)
           }
           count++
         }
       })
     },
     removedFile(id) {
+      console.log('ya ctoli')
+      console.log(id)
       const index = this.dropzone_uploaded.findIndex(elem => {
         return elem.id === id
       })
       if (index !== -1) {
         this.dropzone_uploaded.splice(index, 1)
+      }
+    },
+    clearDropZoneTemplate() {
+      console.log(this.dropzone_uploaded.length)
+      for (let i = 1; i < this.dropzone_uploaded.length+1; i++) {
+        this.$nextTick(() => {
+          let template = document.getElementById(`close-${i}`)
+          this.dz_id = i
+          console.log(template)
+          template.click()
+        })
       }
     },
     triggerUpload() {
@@ -824,7 +819,6 @@ export default {
     initializeContent() {
       return new Promise((resolve) => {
         console.log('initialize')
-        console.log(this.$store.state.TitlesModule.inserted_components)
         if (this.$store.state.TitlesModule.inserted_components && this.$store.state.TitlesModule.inserted_components.length) {
           console.log('YA RABOTAU')
           this.geting_from_server = true
@@ -842,12 +836,9 @@ export default {
           })
 
           Promise.all(promises).finally(() => {
-            // this.data_of_components = this.$store.state.TitlesModule.inserted_components.slice()
             this.$store.state.TitlesModule.components_after_request.sort((a,b) => {
               return a.index - b.index
             })
-
-            console.log(this.$store.state.TitlesModule.components_after_request)
 
             const arr = this.$store.state.TitlesModule.components_after_request
             this.$nextTick(() => {
@@ -860,10 +851,7 @@ export default {
                     range.selectNode(document.getElementById(`component_wrapper-${elem.index}`));
                     range.deleteContents()
                     range.collapse(false);
-                    console.log(elem)
-                    console.log(this.getStructureForInstance(elem))
-                    this.data_of_components.push(this.getStructureForInstance(elem))
-                    console.log(this.$store.state.TitlesModule.countLayout)
+                    this.data_of_components.push(this.getStructureForInstance(elem.component))
                     this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$mount() // pass nothing
                     range.insertNode(this.data_of_components[elem.index-1].instance.$el)
                     this.$store.state.TitlesModule.selectedComponent = {}
@@ -877,12 +865,11 @@ export default {
       })
     },
     checkTypeComponent(elem) {
-      console.log(elem.component_data.name)
-      this.params_of_component.name = elem.component_data.name
-      if (elem.component_data.name === 'questions') {
-        this.$store.state.TitlesModule.count_of_questions = elem.component_data.index_question
-      } else if (elem.component_data.name === 'image') {
-        this.$store.state.TitlesModule.count_of_images = elem.data.index_image
+      this.params_of_component.name = elem.component.name
+      if (elem.component.name === 'questions') {
+        this.$store.state.TitlesModule.count_of_questions = elem.component.index_question
+      } else if (elem.component.name === 'image') {
+        this.$store.state.TitlesModule.count_of_images = elem.component.index_image
       }
     },
 
@@ -896,7 +883,6 @@ export default {
       this.data_of_components.forEach(elem => {
         const elem_content = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
         if (!elem_content) {
-          console.log('a')
           this.$store.state.TitlesModule.deletedComponent = elem.instance.$data.index_component
         }
       })
@@ -948,6 +934,9 @@ export default {
             this.$store.state.TitlesModule.selectedComponent = elem
             this.callCheckout(elem)
           })
+          this.clearDropZoneTemplate()
+          this.dropzone_uploaded = []
+          this.index_uploaded = 1
         }
       }
     },
@@ -1025,8 +1014,6 @@ export default {
     clearStateAfterSelect() {
       this.selectComponent[this.params_of_component.name] = false
       this.$store.state.TitlesModule.selectedComponent = {}
-      this.dropzone_uploaded = []
-      this.index_uploaded = 1
     },
     clearStateAfterDestroy() {
       this.$store.state.TitlesModule.listComponents = []
@@ -1037,6 +1024,7 @@ export default {
       this.$store.state.TitlesModule.content_from_server = ''
       this.$store.state.TitlesModule.content = ''
       this.$store.state.TitlesModule.inserted_components = []
+      this.$store.state.TitlesModule.components_after_request = []
     },
 
     /* CONSTRUCTORS */
