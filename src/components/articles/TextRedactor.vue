@@ -711,7 +711,7 @@ export default {
     },
     'params_of_component.name': {
       handler(v) {
-        if (v && v !== 'image') {
+        if (v && v === 'question') {
           this.$store.dispatch('getListComponents', this.params_of_component.name)
         }
       }

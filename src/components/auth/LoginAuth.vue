@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-form v-model="valid" class="login" @submit.prevent="localLoginCreateUser()">
+    <v-form v-model="valid" class="login" @submit.prevent="localLoginCreateUser()" contenteditable="false">
       <v-container>
         <v-row>
           <h1>Авторизация</h1>

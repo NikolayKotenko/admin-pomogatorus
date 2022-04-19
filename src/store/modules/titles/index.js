@@ -393,7 +393,7 @@ export default {
                     })
             })
         },
-        async createArticle({dispatch, state}, data) {
+        async createArticle({dispatch, state, commit}, data) {
             return new Promise((resolve, reject) => {
                 state.loadingRequest = true
                 state.loadingArticle = true
@@ -430,8 +430,10 @@ export default {
                         //handle error
                         state.loadingRequest = false
                         state.loadingArticle = false
+                        const data = Object.assign({}, {message: response.response.data.message}, {error: true})
+                        commit('change_notification_modal', data, { root: true })
                         reject()
-                        console.log(response.body);
+                        console.log(response.response.data.message);
                     });
             })
         },
