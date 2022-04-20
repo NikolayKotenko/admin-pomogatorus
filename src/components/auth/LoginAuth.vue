@@ -1,10 +1,9 @@
 <template>
-  <v-app>
-    <div class="auth_container" contenteditable="false" :id="`component_wrapper-${index_component}`" :class="{insert_component_wrapper: isComponent}">
-      <div class="insert_component_wrapper-header" contenteditable="false" v-if="isComponent">
-        <img class="insert_component_wrapper-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
-      </div>
-      <v-form v-model="valid" class="login" @submit.prevent="localLoginCreateUser()" contenteditable="false">
+  <div class="auth_container" contenteditable="false" :id="`component_wrapper-${index_component}`" :class="{insert_component_wrapper: isComponent}">
+    <div class="insert_component_wrapper-header" contenteditable="false" v-if="isComponent">
+      <img class="insert_component_wrapper-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
+    </div>
+    <v-form v-model="valid" class="login" @submit.prevent="localLoginCreateUser()" contenteditable="false">
       <v-container>
         <v-row>
           <h1>Авторизация</h1>
@@ -45,8 +44,7 @@
         </v-row>
       </v-container>
     </v-form>
-    </div>
-  </v-app>
+  </div>
 </template>
 
 <script>

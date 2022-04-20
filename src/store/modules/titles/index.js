@@ -510,8 +510,23 @@ export default {
         deleteComponent({commit}, id) {
           commit('delete_component_by_id', id)
         },
+        getAuth({commit, state}, params) {
+            return new Promise((resolve) => {
+                const {index, component} = params
+
+                state.loadingModalList = true
+
+                const data = {
+                    name: 'auth'
+                }
+
+                commit('changeSelectedComponent', {data, index, component})
+                state.loadingModalList = false
+                resolve()
+            })
+        },
         imageFromServer({commit, state}, params) {
-          return new Promise((resolve) => {
+            return new Promise((resolve) => {
               const {index, component} = params
 
               state.loadingModalList = true
@@ -523,7 +538,7 @@ export default {
               commit('changeSelectedComponent', {data, index, component})
               state.loadingModalList = false
               resolve()
-          })
+            })
         },
         getComponentsById({commit, state}, params) {
             return new Promise((resolve, reject) => {

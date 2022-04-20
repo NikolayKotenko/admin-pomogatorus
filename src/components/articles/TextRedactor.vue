@@ -728,15 +728,16 @@ export default {
             const global_counter = {
               index_question: 1,
               index_image: 1,
+              index_auth: 1,
               counter_index: 1,
             }
 
             this.data_of_components.forEach(elem => {
               elem.data.index = global_counter.counter_index
-              const key_data = Object.keys(elem.data.component).includes('index_question') ? 'index_question' : 'index_image'
+              const key_data = Object.keys(elem.data.component).includes('index_question') ? 'index_question' : Object.keys(elem.data.component).includes('index_image') ? 'index_image' : 'index_auth'
               elem.data.component[key_data] = global_counter[key_data]
 
-              const key_instance = Object.keys( elem.instance.$data).includes('index_question') ? 'index_question' : 'index_image'
+              const key_instance = Object.keys( elem.instance.$data).includes('index_question') ? 'index_question' : Object.keys(elem.data.component).includes('index_image') ? 'index_image' : 'index_auth'
               elem.instance.$data[key_instance] = global_counter[key_instance]
               const block = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
               block.id =  `component_wrapper-${global_counter.counter_index}`
@@ -747,6 +748,7 @@ export default {
             })
 
             this.$store.state.TitlesModule.countLayout = global_counter.counter_index-1
+            this.$store.state.TitlesModule.count_of_auth = global_counter.index_auth-1
             this.$store.state.TitlesModule.count_of_images = global_counter.index_image-1
             this.$store.state.TitlesModule.count_of_questions = global_counter.index_question-1
             this.$store.state.TitlesModule.deletedComponent = 0
@@ -811,8 +813,6 @@ export default {
       })
     },
     removedFile(id) {
-      console.log('ya ctoli')
-      console.log(id)
       const index = this.dropzone_uploaded.findIndex(elem => {
         return elem.id === id
       })
@@ -852,6 +852,9 @@ export default {
               promises.push(this.$store.dispatch('getComponentsById', elem))
             } else if (elem.component.name === 'image') {
               promises.push(this.$store.dispatch('imageFromServer', elem))
+            } else if (elem.component.name === 'auth') {
+              this.$store.state.AuthModule.inserting_component = true
+              promises.push(this.$store.dispatch('getAuth', elem))
             }
           })
 
@@ -875,6 +878,7 @@ export default {
                     this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$mount() // pass nothing
                     range.insertNode(this.data_of_components[elem.index-1].instance.$el)
                     this.$store.state.TitlesModule.selectedComponent = {}
+                    this.$store.state.AuthModule.inserting_component = false
                   })
               })
             })
@@ -1073,6 +1077,7 @@ export default {
       this.$store.state.TitlesModule.countLayout = 0
       this.$store.state.TitlesModule.count_of_images = 0
       this.$store.state.TitlesModule.count_of_questions = 0
+      this.$store.state.TitlesModule.count_of_auth = 0
       this.$store.state.TitlesModule.content_from_server = ''
       this.$store.state.TitlesModule.content = ''
       this.$store.state.TitlesModule.inserted_components = []
