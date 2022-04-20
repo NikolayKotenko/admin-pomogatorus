@@ -4,7 +4,7 @@
       <img data-dz-thumbnail alt="" class="image">
     </div>
     <div class="menu">
-      <img class="close" data-dz-remove :src="require('/src/assets/svg/close.svg')" alt="close">
+      <img class="dz_close" data-dz-remove :src="require('/src/assets/svg/close.svg')" alt="close">
       <span id="name" data-dz-name></span>
       <span data-dz-size></span>
     </div>
@@ -47,7 +47,7 @@ export default {
     align-items: center;
     justify-content: center;
 
-    .close {
+    .dz_close {
       position: absolute;
       top: 0;
       right: 0;

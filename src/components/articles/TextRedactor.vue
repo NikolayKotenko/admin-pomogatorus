@@ -19,6 +19,7 @@
               </v-icon>
             </template>
             <v-list>
+              <!-- Question -->
               <v-list-item @click="initializeSelection('questions')">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
@@ -34,7 +35,8 @@
                   <span>Вставить вопрос</span>
                 </v-tooltip>
               </v-list-item>
-              <v-list-item @click="initializeImage()">
+              <!-- Image -->
+              <v-list-item @click="initializeSelection('image')">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-icon
@@ -47,6 +49,22 @@
                     <v-list-item-title class="v-menu-item"> Вставить изображение </v-list-item-title>
                   </template>
                   <span>Вставить изображение</span>
+                </v-tooltip>
+              </v-list-item>
+              <!-- Auth -->
+              <v-list-item @click="initialiseInserting('auth')">
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-icon
+                        v-bind="attrs"
+                        v-on="on"
+                        size="20"
+                    >
+                      mdi-account-key
+                    </v-icon>
+                    <v-list-item-title class="v-menu-item"> Вставить авторизацию </v-list-item-title>
+                  </template>
+                  <span>Вставить авторизацию</span>
                 </v-tooltip>
               </v-list-item>
             </v-list>
@@ -400,6 +418,7 @@
               <v-icon
                   v-bind="attrs"
                   v-on="on"
+                  @click="onAction('removeFormat')"
               >
                 mdi-format-clear
               </v-icon>
@@ -422,8 +441,9 @@
     </div>
 
     <!-- MODALS -->
+    <!-- FIXME: can unified all modals to one -->
     <v-dialog
-        v-model="selectComponent"
+        v-model="selectComponent.questions"
         max-width="600"
     >
       <v-card>
@@ -446,7 +466,7 @@
           <v-btn
               color="blue darken-1"
               text
-              @click="selectComponent = !selectComponent"
+              @click="selectComponent.questions = !selectComponent.questions"
           >
             Назад
           </v-btn>
@@ -461,9 +481,8 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
     <v-dialog
-        v-model="selectImage"
+        v-model="selectComponent.image"
         max-width="600"
     >
       <v-card>
@@ -472,7 +491,7 @@
         </v-card-title>
         <v-card-text class="dialog_dropzone_wrapper">
           <vue-dropzone
-              ref="myVueDropzone" id="dropzone" :options="options" :useCustomSlot=true v-if="!loading_dropzone" @vdropzone-file-added="uploadedData" @vdropzone-success="successData"
+              ref="myVueDropzone" id="dropzone" :options="options" :useCustomSlot=true v-if="!loading_dropzone" @vdropzone-success="successData" @vdropzone-sending="sendingData"
           >
             <h3 class="dropzone-custom-title">
               <v-icon size="120" color="grey lighten-1" style="transform: rotate(45deg)">
@@ -489,7 +508,7 @@
           <v-btn
               color="blue darken-1"
               text
-              @click="selectImage = !selectImage"
+              @click="selectComponent.image = !selectComponent.image"
           >
             Назад
           </v-btn>
@@ -497,7 +516,7 @@
           <v-btn
               color="green darken-1"
               text
-              @click="onSelectImage()"
+              @click="onSelectComponent()"
           >
             Выбрать
           </v-btn>
@@ -526,7 +545,10 @@ import 'vue2-dropzone/dist/vue2Dropzone.min.css'
 import PreviewTemplate from "../dropzone/PreviewTemplate";
 
 import WebFontLoader from 'webfontloader';
+
 import Question from "../frontLayouts/Question";
+import ImageLayout from "../frontLayouts/ImageLayout";
+import LoginAuth from "../auth/LoginAuth";
 
 export default {
   name: "TextRedactor",
@@ -536,7 +558,11 @@ export default {
   },
   data: () => ({
     /* MODALS */
-    selectComponent: false,
+    selectComponent: {
+      questions: false,
+      image: false,
+      auth: false,
+    },
     params_of_component: {
       name: '',
     },
@@ -545,11 +571,11 @@ export default {
     selection: null,
 
     /* DROPZONE */
-    selectImage: false,
     index_uploaded: 1,
     dropzone_uploaded: [],
     loading_dropzone: true,
     previewHtml: null,
+    dz_id: 0,
 
     /* EDITOR */
     line_spacing: [
@@ -634,27 +660,9 @@ export default {
     ],
 
     /* INSERT COMPONENTS */
+    saveDB: false,
     debounceTimeout: null,
     geting_from_server: false,
-    test_from_server: [
-      {
-        id_component: 1,
-        index: 1,
-        type_component: 'questions'
-      },
-      {
-        id_component: 1,
-        index: 2,
-        type_component: 'questions'
-      },
-      {
-        id_component: 1,
-        index: 3,
-        type_component: 'questions'
-      },
-    ],
-    test_content_from_server: 'lorem<div><div data-v-98078a96="" contenteditable="false" id="question_wrapper-1" class="question_wrapper"><div data-v-98078a96="" class="question_wrapper__admin_controls" style="width: 321px; height: 101.078px;"><div data-v-98078a96="" contenteditable="false" class="question_wrapper__admin_controls__wrapper"><img data-v-98078a96="" src="/img/closeIcon.9f67941f.svg" alt="close" class="question_wrapper__admin_controls__wrapper__img"></div></div><div data-v-98078a96="" class="question_wrapper__title"><h3 data-v-98078a96="">1. tested</h3><!----></div><div data-v-98078a96="" class="question_wrapper__content"><div data-v-98078a96="" class="v-input v-input--hide-details v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--solo v-text-field--is-booted v-text-field--enclosed v-text-field--placeholder"><div class="v-input__control"><div class="v-input__slot"><div class="v-text-field__slot"><input id="input-211" placeholder="Введите ответ" type="text"></div></div></div></div></div></div><br></div><div><div data-v-98078a96="" contenteditable="false" id="question_wrapper-2" class="question_wrapper"><div data-v-98078a96="" class="question_wrapper__admin_controls" style="width: 321px; height: 101.078px;"><div data-v-98078a96="" contenteditable="false" class="question_wrapper__admin_controls__wrapper"><img data-v-98078a96="" src="/img/closeIcon.9f67941f.svg" alt="close" class="question_wrapper__admin_controls__wrapper__img"></div></div><div data-v-98078a96="" class="question_wrapper__title"><h3 data-v-98078a96="">2. tested</h3><!----></div><div data-v-98078a96="" class="question_wrapper__content"><div data-v-98078a96="" class="v-input v-input--hide-details v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--solo v-text-field--is-booted v-text-field--enclosed v-text-field--placeholder"><div class="v-input__control"><div class="v-input__slot"><div class="v-text-field__slot"><input id="input-218" placeholder="Введите ответ" type="text"></div></div></div></div></div></div><br></div><div><div data-v-98078a96="" contenteditable="false" id="question_wrapper-3" class="question_wrapper"><div data-v-98078a96="" class="question_wrapper__admin_controls" style="width: 321px; height: 101.078px;"><div data-v-98078a96="" contenteditable="false" class="question_wrapper__admin_controls__wrapper"><img data-v-98078a96="" src="/img/closeIcon.9f67941f.svg" alt="close" class="question_wrapper__admin_controls__wrapper__img"></div></div><div data-v-98078a96="" class="question_wrapper__title"><h3 data-v-98078a96="">3. tested</h3><!----></div><div data-v-98078a96="" class="question_wrapper__content"><div data-v-98078a96="" class="v-input v-input--hide-details v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--solo v-text-field--is-booted v-text-field--enclosed v-text-field--placeholder"><div class="v-input__control"><div class="v-input__slot"><div class="v-text-field__slot"><input id="input-225" placeholder="Введите ответ" type="text"></div></div></div></div></div></div><br></div><div>&nbsp;loremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremloremlorem lorem loremloremlorem lorem </div>',
-    instances: [],
     data_of_components: [],
   }),
   created() {
@@ -669,27 +677,26 @@ export default {
     this.loading_dropzone = false;
   },
   mounted() {
-    // if (this.$route.params?.action === 'edit') {
-    //   this.$store.state.TitlesModule.inserted_components = this.test_from_server
-    //   this.$store.state.TitlesModule.content_from_server = this.test_content_from_server
-    // }
     this.$store.dispatch('testFont')
     setTimeout(() => {
       this.initializeContent().then(() => {
-        this.onContentChange()
+        // this.onContentChange()
       })
     }, 500)
   },
   watch: {
-    'data_of_components': {
-      handler() {
-        if (!this.geting_from_server) {
+    'saveDB': {
+      handler(v) {
+        if (!this.geting_from_server && v) {
           this.$store.state.TitlesModule.inserted_components = []
-          this.$store.state.TitlesModule.inserted_components = this.data_of_components
+          const arr = []
+          this.data_of_components.forEach(elem => {
+            arr.push(elem.data)
+          })
+          this.$store.state.TitlesModule.inserted_components = arr
           this.$store.state.TitlesModule.content = this.content
         }
       },
-      deep: true
     },
     'deletedContent': {
       handler(v) {
@@ -697,13 +704,14 @@ export default {
           this.content = ''
           this.$store.state.TitlesModule.content = ''
           this.data_of_components = []
-          this.instances = []
+          this.params_of_component.name = ''
+          this.clearStateAfterDestroy()
         }
       },
     },
     'params_of_component.name': {
       handler(v) {
-        if (v) {
+        if (v && v === 'question') {
           this.$store.dispatch('getListComponents', this.params_of_component.name)
         }
       }
@@ -711,26 +719,44 @@ export default {
     '$store.state.TitlesModule.deletedComponent': {
       handler() {
         if (this.$store.state.TitlesModule.deletedComponent !== 0) {
-          let index = this.instances.findIndex((elem) => {
-            return elem.$data.count_of_question === this.$store.state.TitlesModule.deletedComponent
+          let index = this.data_of_components.findIndex((elem) => {
+            return elem.instance.$data.index_component === this.$store.state.TitlesModule.deletedComponent
           })
           if (index !== -1) {
-            this.instances.splice(index, 1)
             this.data_of_components.splice(index, 1)
-            let counter_instances = 1
-            this.instances.forEach(elem => {
-              const block = document.getElementById(`question_wrapper-${elem.$data.count_of_question}`)
-              block.id =  `question_wrapper-${counter_instances}`
-              elem.$data.count_of_question = counter_instances
-              counter_instances++
-            })
-            let counter_index = 1
+
+            const global_counter = {
+              index_question: 1,
+              index_image: 1,
+              index_auth: 1,
+              counter_index: 1,
+            }
+
             this.data_of_components.forEach(elem => {
-              elem.index = counter_index
-              counter_index++
+              elem.data.index = global_counter.counter_index
+              const key_data = Object.keys(elem.data.component).includes('index_question') ? 'index_question' : Object.keys(elem.data.component).includes('index_image') ? 'index_image' : 'index_auth'
+              elem.data.component[key_data] = global_counter[key_data]
+
+              const key_instance = Object.keys( elem.instance.$data).includes('index_question') ? 'index_question' : Object.keys(elem.data.component).includes('index_image') ? 'index_image' : 'index_auth'
+              elem.instance.$data[key_instance] = global_counter[key_instance]
+              const block = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
+              block.id =  `component_wrapper-${global_counter.counter_index}`
+              elem.instance.$data.index_component = global_counter.counter_index
+
+              global_counter[key_data]++
+              global_counter.counter_index++
             })
-            this.$store.state.TitlesModule.countQuestion = counter_instances-1
+
+            this.$store.state.TitlesModule.countLayout = global_counter.counter_index-1
+            this.$store.state.TitlesModule.count_of_auth = global_counter.index_auth-1
+            this.$store.state.TitlesModule.count_of_images = global_counter.index_image-1
+            this.$store.state.TitlesModule.count_of_questions = global_counter.index_question-1
             this.$store.state.TitlesModule.deletedComponent = 0
+
+            this.saveDB = true
+            setTimeout(() => {
+              this.saveDB = false
+            })
           }
         }
       },
@@ -752,77 +778,36 @@ export default {
     },
     options() {
       return {
-        url: `https://httpbin.org/post`,
+        url: `https://api.agregatorus.com/entity/files`,
+        // url: 'https://httpbin.org/post',
         previewTemplate: this.previewHtml,
         destroyDropzone: false,
-      };
+        headers: {
+          "My-Awesome-Header": "header value",
+          Authorization: '666777',
+        },
+        // dictRemoveFile: "Удалить файл",
+        // dictDefaultMessage: "Перетащие в это поле файлы для загрузки",
+        // dictFallbackMessage: "Ваш браузер не поддерживает drag'n'drop загрузку файлов",
+        // dictFileTooBig: "Файл очень большой ({{filesize}}MiB). Максимальный размер файлов: {{maxFilesize}}MiB.",
+        // dictInvalidFileType: "Вы не можете загрузить файлы этого типа",
+        // dictResponseError: "Сервер ответил с {{statusCode}} ошибкой.",
+        // dictCancelUpload: "Отменить загрузку",
+        // dictUploadCanceled: "Загрузка успешно завершена",
+        // dictCancelUploadConfirmation: "Вы действительно хотите отменить загрузку ?",
+        // dictRemoveFileConfirmation: null,
+        // dictMaxFilesExceeded: "Превышено допустимое количество файлов",
+      }
     },
+    componentLayout() {
+      return this.params_of_component.name === 'questions' ? Vue.extend(Question) : this.params_of_component.name === 'image' ? Vue.extend(ImageLayout) : Vue.extend(LoginAuth)
+    }
   },
   methods: {
     /* MODALS */
-    onSelectImage() {
-      if (this.dropzone_uploaded.length && this.dropzone_uploaded.length < 2) {
-        this.insertingImages(this.dropzone_uploaded[0]).then(() => {
-          this.selectImage = false
-        })
-      }
-    },
-    insertingImages(file) {
-      return new Promise((resolve) => {
-        if (window.getSelection) {
-          if (this.range && this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content') {
-            const elem = this.getImageNode(file)
-            this.range.insertNode(elem);
-          } else {
-            let range = document.createRange();
-            range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
-            range.collapse(false);
-            const elem = this.getImageNode(file)
-            range.insertNode(elem);
-          }
-        } else if (document.selection && document.selection.createRange) {
-          if (this.range && this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content') {
-            const elem = this.getImageNode(file)
-            this.htmlSelected = (elem.nodeType == 3) ? elem.innerHTML : elem.outerHTML;
-            this.range.pasteHTML(this.htmlSelected);
-          } else {
-            let range = document.createRange();
-            range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
-            range.collapse(false);
-            const elem = this.getImageNode(file)
-            this.htmlSelected = (elem.nodeType == 3) ? elem.innerHTML : elem.outerHTML;
-            range.pasteHTML(this.htmlSelected);
-          }
-        }
-        resolve()
-      })
-    },
-    getImageNode(file) {
-      const src = file.dataURL;
-      const title = file.name;
-      const cssClassname = "inserted_image";
-      let imageNode = document.createElement('img');
-      imageNode.src = src;
-      imageNode.alt = title;
-      imageNode.title = title;
-      imageNode.className = cssClassname;
-      return imageNode;
-    },
-    initializeImage() {
-      if (window.getSelection) {
-        this.selection = null
-        this.selection = window.getSelection();
-        if (this.selection.getRangeAt && this.selection.rangeCount) {
-          this.range = null
-          this.range = this.selection.getRangeAt(0);
-          this.range.collapse(false);
-        }
-      } else if (document.selection && document.selection.createRange) {
-        this.range = null
-        this.range = document.selection.createRange();
-        this.range.collapse(false);
-      }
-      this.selectImage = true
+    sendingData(file, xhr, formData) {
+      console.log(file.upload.uuid)
+      formData.append('uuid', file.upload.uuid)
     },
     successData(file) {
       const formatObj = {}
@@ -835,40 +820,17 @@ export default {
       this.dropzone_uploaded.push(formatObj)
 
       this.$nextTick(() => {
-        const deletedElems = document.getElementsByClassName('close')
+        const deletedElems = document.getElementsByClassName('dz_close')
         let count = 1;
         for (let item of deletedElems) {
           item.setAttribute('id', `close-${count}`);
-          const id = count
+          this.dz_id = count
           item.onclick = () => {
-            this.removedFile(id)
+            this.removedFile(this.dz_id)
           }
           count++
         }
       })
-    },
-    uploadedData() {
-      /*const formatObj = {}
-
-      for (let key in file) {
-        Object.assign(formatObj, {[key]: file[key]})
-      }
-      Object.assign(formatObj, {id: this.index_uploaded})
-      this.index_uploaded++
-      this.dropzone_uploaded.push(formatObj)
-
-      this.$nextTick(() => {
-        const deletedElems = document.getElementsByClassName('close')
-        let count = 1;
-        for (let item of deletedElems) {
-          item.setAttribute('id', `close-${count}`);
-          const id = count
-          item.onclick = () => {
-            this.removedFile(id)
-          }
-          count++
-        }
-      })*/
     },
     removedFile(id) {
       const index = this.dropzone_uploaded.findIndex(elem => {
@@ -876,6 +838,17 @@ export default {
       })
       if (index !== -1) {
         this.dropzone_uploaded.splice(index, 1)
+      }
+    },
+    clearDropZoneTemplate() {
+      console.log(this.dropzone_uploaded.length)
+      for (let i = 1; i < this.dropzone_uploaded.length+1; i++) {
+        this.$nextTick(() => {
+          let template = document.getElementById(`close-${i}`)
+          this.dz_id = i
+          console.log(template)
+          template.click()
+        })
       }
     },
     triggerUpload() {
@@ -895,32 +868,37 @@ export default {
           const promises = []
 
           this.$store.state.TitlesModule.inserted_components.forEach(elem => {
-            promises.push(this.$store.dispatch('getComponentsById', elem))
+            if (elem.component.name === 'questions') {
+              promises.push(this.$store.dispatch('getComponentsById', elem))
+            } else if (elem.component.name === 'image') {
+              promises.push(this.$store.dispatch('imageFromServer', elem))
+            } else if (elem.component.name === 'auth') {
+              this.$store.state.AuthModule.inserting_component = true
+              promises.push(this.$store.dispatch('getAuth', elem))
+            }
           })
 
           Promise.all(promises).finally(() => {
-            this.data_of_components = this.$store.state.TitlesModule.inserted_components.slice()
             this.$store.state.TitlesModule.components_after_request.sort((a,b) => {
               return a.index - b.index
             })
+
             const arr = this.$store.state.TitlesModule.components_after_request
             this.$nextTick(() => {
               arr.forEach((elem) => {
                 setTimeout(() => {
-                    this.$store.state.TitlesModule.countQuestion = elem.index
+                    this.checkTypeComponent(elem)
+                    this.$store.state.TitlesModule.countLayout = elem.index
                     this.$store.state.TitlesModule.selectedComponent = elem.data
                     let range = document.createRange();
-                    range.selectNode(document.getElementById(`question_wrapper-${elem.index}`));
+                    range.selectNode(document.getElementById(`component_wrapper-${elem.index}`));
                     range.deleteContents()
                     range.collapse(false);
-                    let ComponentClass = Vue.extend(Question)
-                    this.instances.push(new ComponentClass({
-                      store,
-                      vuetify,
-                    }))
-                    this.instances[elem.index-1].$mount() // pass nothing
-                    range.insertNode(this.instances[elem.index-1].$el)
+                    this.data_of_components.push(this.getStructureForInstance(elem.component))
+                    this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$mount() // pass nothing
+                    range.insertNode(this.data_of_components[elem.index-1].instance.$el)
                     this.$store.state.TitlesModule.selectedComponent = {}
+                    this.$store.state.AuthModule.inserting_component = false
                   })
               })
             })
@@ -930,6 +908,16 @@ export default {
         }
       })
     },
+    checkTypeComponent(elem) {
+      this.params_of_component.name = elem.component.name
+      if (elem.component.name === 'questions') {
+        this.$store.state.TitlesModule.count_of_questions = elem.component.index_question
+      } else if (elem.component.name === 'image') {
+        this.$store.state.TitlesModule.count_of_images = elem.component.index_image
+      } else if (elem.component.name === 'auth') {
+        this.$store.state.TitlesModule.count_of_auth = elem.component.count_of_auth
+      }
+    },
 
     /* FIXME: ДОБАВИТЬ ДЕБАУНС И СОХРАНЯЕМ ИЗМЕНЕНИЯ НА СЕРВЕР */
     onContentChange() {
@@ -938,10 +926,10 @@ export default {
         this.$store.state.TitlesModule.content = this.content
       })
       /* IF WE DELETED COMPONENT BY KEYBOARD */
-      this.instances.forEach(elem => {
-        const elem_content = document.getElementById(`question_wrapper-${elem.$data.count_of_question}`)
+      this.data_of_components.forEach(elem => {
+        const elem_content = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
         if (!elem_content) {
-          this.$store.state.TitlesModule.deletedComponent = elem.$data.count_of_question
+          this.$store.state.TitlesModule.deletedComponent = elem.instance.$data.index_component
         }
       })
     },
@@ -962,6 +950,7 @@ export default {
     },
 
     /* MANIPULATING WITH INSERTING COMPONENTS */
+    // if we want add after modal window
     initializeSelection(componentName) {
       if (window.getSelection) {
         this.selection = null
@@ -977,45 +966,118 @@ export default {
         this.range.collapse(false);
       }
 
-      this.selectComponent = true
+      this.selectComponent[componentName] = true
       this.params_of_component.name = componentName
 
     },
+    // if we want immediately insert component
+    initialiseInserting(componentName) {
+      if (window.getSelection) {
+        this.selection = null
+        this.selection = window.getSelection();
+        if (this.selection.getRangeAt && this.selection.rangeCount) {
+          this.range = null
+          this.range = this.selection.getRangeAt(0);
+          this.range.collapse(false);
+        }
+      } else if (document.selection && document.selection.createRange) {
+        this.range = null
+        this.range = document.selection.createRange();
+        this.range.collapse(false);
+      }
+      this.params_of_component.name = componentName
+      this.onSelectComponent()
+    },
     onSelectComponent() {
-      this.$store.state.TitlesModule.countQuestion++
-      this.insertingComponent().then(() => {
-        this.data_of_components.push(new this.imported_component(this.$store.state.TitlesModule.selectedComponent.id, this.$store.state.TitlesModule.countQuestion, this.params_of_component.name))
-        this.selectComponent = false
-        this.$store.state.TitlesModule.selectedComponent = {}
+      if (this.params_of_component.name === 'questions') {
+        this.$store.state.TitlesModule.count_of_questions++
+        this.callCheckout()
+      } else if (this.params_of_component.name === 'image') {
+        this.$store.state.TitlesModule.count_of_images++
+        if (this.dropzone_uploaded.length) {
+          this.dropzone_uploaded.forEach(elem => {
+            this.$store.state.TitlesModule.selectedComponent = elem
+            this.callCheckout(elem)
+          })
+          this.clearDropZoneTemplate()
+          this.dropzone_uploaded = []
+          this.index_uploaded = 1
+        }
+      } else if (this.params_of_component.name === 'auth') {
+        this.$store.state.AuthModule.inserting_component = true
+        this.$store.state.TitlesModule.count_of_auth++
+        this.callCheckout()
+      }
+    },
+    callCheckout(elem) {
+      this.$store.state.TitlesModule.countLayout++
+
+      let data_component;
+      // FIXME: все проверки вынести в компутед
+      if (this.params_of_component.name === 'questions') {
+        data_component = new this.Element_question({
+          name: this.params_of_component.name,
+          id: this.$store.state.TitlesModule.selectedComponent.id,
+          index_question: this.$store.state.TitlesModule.count_of_questions
+        })
+      } else if (this.params_of_component.name === 'image') {
+        data_component = new this.Element_image({
+          name: this.params_of_component.name,
+          src: elem.dataURL,
+          index_image: this.$store.state.TitlesModule.count_of_images
+        })
+      } else if (this.params_of_component.name === 'auth') {
+        data_component = new this.Element_auth({
+          name: this.params_of_component.name,
+          index_auth: this.$store.state.TitlesModule.count_of_auth
+        })
+      }
+
+      this.insertingComponent(data_component).then(() => {
+        this.saveDB = true
+        this.clearStateAfterSelect()
+        setTimeout(() => {
+          this.saveDB = false
+        })
       })
     },
-    insertingComponent() {
+    getStructureForInstance(data_component) {
+      const instance = new this.componentLayout({
+        store,
+        vuetify,
+      })
+      const data = new this.Imported_component({index: this.$store.state.TitlesModule.countLayout, component: data_component})
+      const params = Object.assign({}, {instance: instance}, {data: data})
+      return new this.Constructor_instance(params)
+    },
+    insertingComponent(data_component) {
       return new Promise((resolve) => {
-        let ComponentClass = Vue.extend(Question)
-        this.instances.push(new ComponentClass({
-          store,
-          vuetify,
-        }))
-        this.instances[this.$store.state.TitlesModule.countQuestion - 1].$mount() // pass nothing
+        const elem = this.getStructureForInstance(data_component)
+        this.data_of_components.push(elem)
+        this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$mount() // pass nothing
 
         if (window.getSelection) {
           if (this.range && this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content') {
-            this.range.insertNode(this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el);
+            this.range.insertNode(this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el);
           } else {
             let range = document.createRange();
             range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
             range.collapse(false);
-            range.insertNode(this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el);
+            range.insertNode(this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el);
           }
         } else if (document.selection && document.selection.createRange) {
           if (this.range && this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content') {
-            this.htmlSelected = (this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.nodeType == 3) ? this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.innerHTML.data : this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.outerHTML;
+            this.htmlSelected = (this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.nodeType == 3) ?
+                this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.innerHTML.data :
+                this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.outerHTML;
             this.range.pasteHTML(this.htmlSelected);
           } else {
             let range = document.createRange();
             range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
             range.collapse(false);
-            this.htmlSelected = (this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.nodeType == 3) ? this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.innerHTML.data : this.instances[this.$store.state.TitlesModule.countQuestion - 1].$el.outerHTML;
+            this.htmlSelected = (this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.nodeType == 3) ?
+                this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.innerHTML.data :
+                this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.outerHTML;
             range.pasteHTML(this.htmlSelected);
           }
         }
@@ -1023,20 +1085,61 @@ export default {
       })
     },
 
+    /* CLEANERS */
+    clearStateAfterSelect() {
+      this.selectComponent[this.params_of_component.name] = false
+      this.$store.state.TitlesModule.selectedComponent = {}
+      this.$store.state.AuthModule.inserting_component = false
+    },
+    clearStateAfterDestroy() {
+      this.$store.state.TitlesModule.listComponents = []
+      this.$store.state.TitlesModule.selectedComponent = {}
+      this.$store.state.TitlesModule.countLayout = 0
+      this.$store.state.TitlesModule.count_of_images = 0
+      this.$store.state.TitlesModule.count_of_questions = 0
+      this.$store.state.TitlesModule.count_of_auth = 0
+      this.$store.state.TitlesModule.content_from_server = ''
+      this.$store.state.TitlesModule.content = ''
+      this.$store.state.TitlesModule.inserted_components = []
+      this.$store.state.TitlesModule.components_after_request = []
+    },
+
     /* CONSTRUCTORS */
-    imported_component(id_component, index, type_component) {
-      this.id_component = id_component
+    Constructor_instance(params) {
+      const {data, instance} = params
+
+      this.data = data
+      this.instance = instance
+    },
+    Imported_component(data) {
+      const {index, component} = data
+
       this.index = index
-      this.type_component = type_component
+      this.component = component
+    },
+    Element_auth(data) {
+      const {name, index_auth} = data
+
+      this.name = name
+      this.index_auth = index_auth
+    },
+    Element_question(data) {
+      const {name, id, index_question} = data
+
+      this.name = name
+      this.id = id
+      this.index_question = index_question
+    },
+    Element_image(data) {
+      const {name, src, index_image} = data
+
+      this.name = name
+      this.src = src
+      this.index_image = index_image
     },
   },
   beforeDestroy() {
-    this.$store.state.TitlesModule.listComponents = []
-    this.$store.state.TitlesModule.selectedComponent = {}
-    this.$store.state.TitlesModule.countQuestion = 0
-    this.$store.state.TitlesModule.content_from_server = ''
-    this.$store.state.TitlesModule.content = ''
-    this.$store.state.TitlesModule.inserted_components = []
+    this.clearStateAfterDestroy()
   }
 }
 </script>
@@ -1110,8 +1213,8 @@ export default {
     border: 1px dashed darkgrey;
     width: 70px;
     height: 70px;
-    bottom: 20px;
-    right: 25px;
+    bottom: 22px;
+    right: 26px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1125,6 +1228,10 @@ export default {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.15);
+}
+
+#dropzone {
+  padding: 0 !important;
 }
 
 .v-menu__content {

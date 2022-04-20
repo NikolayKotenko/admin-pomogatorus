@@ -3,6 +3,7 @@ import Request from "@/services/request";
 export default {
     state: {
         userData: {},
+        inserting_component: false,
     },
     getters: {
         stateAuth(state){

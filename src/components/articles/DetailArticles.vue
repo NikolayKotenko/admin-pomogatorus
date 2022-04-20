@@ -1,203 +1,205 @@
 <template>
-  <div class="detail-wrapper">
-    <v-form
-        class="form"
-        ref="form"
-    >
-      <div class="detail-wrapper__content">
-        <div class="detail-wrapper__content__title">
-          <v-textarea
-              class="detail-wrapper__content__title__name"
-              dense
-              hide-details
-              placeholder="Введите наименование"
-              v-model="newArticle.name.value"
-              solo
-              flat
-              auto-grow
-              rows="1"
-              @focus="onFocus(newArticle.name)"
-              @focusout="outFocus(newArticle.name)"
-              :loading="$store.state.TitlesModule.loadingArticle"
-              :class="{invalid: !newArticle.name.value && $v.newArticle.name.$dirty && !$v.newArticle.name.required}"
-              @input="saveDBQuestion(newArticle)"
-          >
-            <template slot="append">
-              <v-icon size="20" class="detail-wrapper__content__title__name__icon" :color="newArticle.name.focused ? 'primary' : ''">
-                mdi-lead-pencil
-              </v-icon>
-            </template>
-          </v-textarea>
-          <small
-              v-if="!newArticle.name.value && $v.newArticle.name.$dirty && !$v.newArticle.name.required"
-              style="color: lightcoral"
-          >
-            Поле обязательно для заполнения
-          </small>
-          <div class="detail-wrapper__content__title__help">
-            <span class="detail-wrapper__content__title__help__title" :class="{focused: newArticle.short_header.focused}">
-              Короткое наименование
-            </span>
+  <div class="detail_container">
+    <div class="detail-wrapper">
+      <v-form
+          class="form"
+          ref="form"
+      >
+        <div class="detail-wrapper__content">
+          <div class="detail-wrapper__content__title">
             <v-textarea
-                class="detail-wrapper__content__title__help__description"
-                :class="{inputFocused: newArticle.short_header.focused, invalid: !newArticle.short_header.value && $v.newArticle.short_header.$dirty && !$v.newArticle.short_header.required}"
-                placeholder="Введите короткое наименование"
-                auto-grow
-                rows="1"
+                class="detail-wrapper__content__title__name"
                 dense
                 hide-details
-                flat
+                placeholder="Введите наименование"
+                v-model="newArticle.name.value"
                 solo
-                v-model="newArticle.short_header.value"
-                @focus="onFocus(newArticle.short_header)"
-                @focusout="outFocus(newArticle.short_header)"
+                flat
+                auto-grow
+                rows="1"
+                @focus="onFocus(newArticle.name)"
+                @focusout="outFocus(newArticle.name)"
                 :loading="$store.state.TitlesModule.loadingArticle"
+                :class="{invalid: !newArticle.name.value && $v.newArticle.name.$dirty && !$v.newArticle.name.required}"
                 @input="saveDBQuestion(newArticle)"
-            ></v-textarea>
+            >
+              <template slot="append">
+                <v-icon size="20" class="detail-wrapper__content__title__name__icon" :color="newArticle.name.focused ? 'primary' : ''">
+                  mdi-lead-pencil
+                </v-icon>
+              </template>
+            </v-textarea>
             <small
-                v-if="!newArticle.short_header.value && $v.newArticle.short_header.$dirty && !$v.newArticle.short_header.required"
+                v-if="!newArticle.name.value && $v.newArticle.name.$dirty && !$v.newArticle.name.required"
                 style="color: lightcoral"
             >
               Поле обязательно для заполнения
             </small>
-          </div>
-          <div class="detail-wrapper__content__title__help">
+            <div class="detail-wrapper__content__title__help">
+            <span class="detail-wrapper__content__title__help__title" :class="{focused: newArticle.short_header.focused}">
+              Короткое наименование
+            </span>
+              <v-textarea
+                  class="detail-wrapper__content__title__help__description"
+                  :class="{inputFocused: newArticle.short_header.focused, invalid: !newArticle.short_header.value && $v.newArticle.short_header.$dirty && !$v.newArticle.short_header.required}"
+                  placeholder="Введите короткое наименование"
+                  auto-grow
+                  rows="1"
+                  dense
+                  hide-details
+                  flat
+                  solo
+                  v-model="newArticle.short_header.value"
+                  @focus="onFocus(newArticle.short_header)"
+                  @focusout="outFocus(newArticle.short_header)"
+                  :loading="$store.state.TitlesModule.loadingArticle"
+                  @input="saveDBQuestion(newArticle)"
+              ></v-textarea>
+              <small
+                  v-if="!newArticle.short_header.value && $v.newArticle.short_header.$dirty && !$v.newArticle.short_header.required"
+                  style="color: lightcoral"
+              >
+                Поле обязательно для заполнения
+              </small>
+            </div>
+            <div class="detail-wrapper__content__title__help">
             <span class="detail-wrapper__content__title__help__title" :class="{focused: newArticle.purpose_of_article.focused}">
               Описание статьи
             </span>
-            <v-textarea
-                class="detail-wrapper__content__title__help__description"
-                :class="{inputFocused: newArticle.purpose_of_article.focused}"
-                placeholder="Введите описание статьи"
-                auto-grow
-                rows="1"
-                dense
-                hide-details
-                flat
-                solo
-                v-model="newArticle.purpose_of_article.value"
-                @focus="onFocus(newArticle.purpose_of_article)"
-                @focusout="outFocus(newArticle.purpose_of_article)"
-                :loading="$store.state.TitlesModule.loadingArticle"
-                @input="saveDBQuestion(newArticle)"
-            ></v-textarea>
-          </div>
-          <div class="detail-wrapper__content__title__help">
+              <v-textarea
+                  class="detail-wrapper__content__title__help__description"
+                  :class="{inputFocused: newArticle.purpose_of_article.focused}"
+                  placeholder="Введите описание статьи"
+                  auto-grow
+                  rows="1"
+                  dense
+                  hide-details
+                  flat
+                  solo
+                  v-model="newArticle.purpose_of_article.value"
+                  @focus="onFocus(newArticle.purpose_of_article)"
+                  @focusout="outFocus(newArticle.purpose_of_article)"
+                  :loading="$store.state.TitlesModule.loadingArticle"
+                  @input="saveDBQuestion(newArticle)"
+              ></v-textarea>
+            </div>
+            <div class="detail-wrapper__content__title__help">
             <span class="detail-wrapper__content__title__help__title" :class="{focused: newArticle.preview.focused}">
               Анонс
             </span>
-            <v-textarea
-                class="detail-wrapper__content__title__help__description"
-                :class="{ inputFocused: newArticle.preview.focused }"
-                placeholder="Введите анонс"
-                auto-grow
-                rows="1"
-                dense
-                hide-details
-                flat
-                solo
-                v-model="newArticle.preview.value"
-                @focus="onFocus(newArticle.preview)"
-                @focusout="outFocus(newArticle.preview)"
-                :loading="$store.state.TitlesModule.loadingArticle"
-                @input="saveDBQuestion(newArticle)"
-            ></v-textarea>
+              <v-textarea
+                  class="detail-wrapper__content__title__help__description"
+                  :class="{ inputFocused: newArticle.preview.focused }"
+                  placeholder="Введите анонс"
+                  auto-grow
+                  rows="1"
+                  dense
+                  hide-details
+                  flat
+                  solo
+                  v-model="newArticle.preview.value"
+                  @focus="onFocus(newArticle.preview)"
+                  @focusout="outFocus(newArticle.preview)"
+                  :loading="$store.state.TitlesModule.loadingArticle"
+                  @input="saveDBQuestion(newArticle)"
+              ></v-textarea>
+            </div>
           </div>
+
+          <!-- TEXTAREA -->
+          <text-redactor :newArticle="newArticle" :deletedContent="deletedContent"/>
+
+          <!-- Tags Component -->
+          <question-tags/>
+
         </div>
+        <!-- LOADER -->
+        <v-overlay
+            :z-index="2"
+            :absolute="true"
+            :value="$store.state.TitlesModule.loadingArticle"
+        >
+          <v-progress-circular
+              style="margin: auto"
+              width="4"
+              :size="70"
+              color="blue"
+              :indeterminate="true"
+              v-if="$store.state.TitlesModule.loadingArticle"
+          ></v-progress-circular>
+        </v-overlay>
+      </v-form>
 
-        <!-- TEXTAREA -->
-        <text-redactor :newArticle="newArticle" :deletedContent="deletedContent"/>
-
-        <!-- Tags Component -->
-        <question-tags/>
-
-      </div>
-      <div class="question_footer">
-        <template v-if="$route.params.action === 'create'">
-          <v-btn
-              color="red darken-1"
-              text
-              @click="resetFields"
-          >
-            Очистить
-          </v-btn>
-          <v-btn
-              color="blue darken-1"
-              text
-              @click.prevent="onSubmit"
-              :disabled="computedValidations"
-          >
-            Создать
-          </v-btn>
-        </template>
-        <template v-else>
-          <template v-if="Object.keys(this.$store.state.TitlesModule.nonEditState).length">
-            <v-btn
-                color="red darken-1"
-                text
-                @click="deleteModal = true"
-            >
-              Удалить
-            </v-btn>
+      <!--  MODALS  -->
+      <v-dialog
+          v-model="deleteModal"
+          max-width="600"
+      >
+        <v-card>
+          <v-card-title>
+            <span class="text-h6" style="font-size: 0.8em !important;">Вы точно хотите удалить вопрос?</span>
+          </v-card-title>
+          <v-card-actions>
             <v-btn
                 color="blue darken-1"
                 text
-                @click.prevent="saveDifferences()"
+                @click="deleteModal = false"
+                :disabled="$store.state.TitlesModule.loadingRequest"
+                :loading="$store.state.TitlesModule.loadingRequest"
             >
-              Сохранить изменения
+              Нет
             </v-btn>
-          </template>
-        </template>
-      </div>
-      <!-- LOADER -->
-      <v-overlay
-          :z-index="2"
-          :absolute="true"
-          :value="$store.state.TitlesModule.loadingArticle"
-      >
-        <v-progress-circular
-            style="margin: auto"
-            width="4"
-            :size="70"
-            color="blue"
-            :indeterminate="true"
-            v-if="$store.state.TitlesModule.loadingArticle"
-        ></v-progress-circular>
-      </v-overlay>
-    </v-form>
-
-    <!--  MODALS  -->
-    <v-dialog
-        v-model="deleteModal"
-        max-width="600"
-    >
-      <v-card>
-        <v-card-title>
-          <span class="text-h6" style="font-size: 0.8em !important;">Вы точно хотите удалить вопрос?</span>
-        </v-card-title>
-        <v-card-actions>
-          <v-btn
-              color="blue darken-1"
-              text
-              @click="deleteModal = false"
-              :disabled="$store.state.TitlesModule.loadingRequest"
-              :loading="$store.state.TitlesModule.loadingRequest"
-          >
-            Нет
-          </v-btn>
-          <v-spacer></v-spacer>
+            <v-spacer></v-spacer>
+            <v-btn
+                color="red darken-1"
+                text
+                :disabled="$store.state.TitlesModule.loadingRequest"
+                :loading="$store.state.TitlesModule.loadingRequest"
+                @click="deleteArticle"
+            >
+              Да
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </div>
+    <div class="detail_footer">
+      <template v-if="$route.params.action === 'create'">
+        <v-btn
+            color="red darken-1"
+            text
+            @click="resetFields"
+        >
+          Очистить
+        </v-btn>
+        <v-btn
+            color="blue darken-1"
+            text
+            @click.prevent="onSubmit"
+            :disabled="computedValidations"
+        >
+          Создать
+        </v-btn>
+      </template>
+      <template v-else>
+        <template v-if="Object.keys(this.$store.state.TitlesModule.nonEditState).length">
           <v-btn
               color="red darken-1"
               text
-              :disabled="$store.state.TitlesModule.loadingRequest"
-              :loading="$store.state.TitlesModule.loadingRequest"
-              @click="deleteArticle"
+              @click="deleteModal = true"
           >
-            Да
+            Удалить
           </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+          <v-btn
+              color="blue darken-1"
+              text
+              @click.prevent="saveDifferences()"
+          >
+            Сохранить изменения
+          </v-btn>
+        </template>
+      </template>
+    </div>
   </div>
 </template>
 
@@ -311,7 +313,7 @@ export default {
       this.deletedContent = true
 
       this.$store.state.TitlesModule.inserted_components = []
-      this.$store.state.TitlesModule.countQuestion = 0
+      this.$store.state.TitlesModule.countLayout = 0
       this.$store.state.TitlesModule.newArticle._all_tags = []
       this.$store.dispatch('removeLocalStorageArticle')
       this.deleteDBQuestion(this.newArticle)
@@ -478,6 +480,8 @@ export default {
 }
 </script>
 <style scoped lang="scss">
+@import "src/assets/styles/detail";
+
 .list-enter-active, .list-leave-active {
   transition: all .8s;
 }
@@ -489,7 +493,6 @@ export default {
 
 .detail-wrapper {
   padding: 10px;
-  height: 100%;
 
   .form {
     display: flex;
@@ -600,11 +603,6 @@ export default {
           margin: 0 !important;
         }
       }
-    }
-
-    .question_footer {
-      display: flex;
-      justify-content: space-between
     }
   }
 }

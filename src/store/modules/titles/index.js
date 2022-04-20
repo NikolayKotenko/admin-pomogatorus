@@ -87,7 +87,10 @@ export default {
         components_after_request: [],
         loadingModalList: false,
         selectedComponent: {},
-        countQuestion: 0,
+        countLayout: 0,
+        count_of_images: 0,
+        count_of_questions: 0,
+        count_of_auth: 0,
         willShow: true,
         deletedComponent: 0,
 
@@ -174,8 +177,8 @@ export default {
         delete_component_by_id(state, id) {
             state.deletedComponent = id
         },
-        changeSelectedComponent(state, {data, index}) {
-            const obj = Object.assign({}, {data, index: index})
+        changeSelectedComponent(state, {data, index, component}) {
+            const obj = Object.assign({}, {data, index: index, component})
             state.components_after_request.push(obj)
         },
 
@@ -390,8 +393,8 @@ export default {
                     })
             })
         },
-        async createArticle({dispatch, state}, data) {
-            return new Promise((resolve) => {
+        async createArticle({dispatch, state, commit}, data) {
+            return new Promise((resolve, reject) => {
                 state.loadingRequest = true
                 state.loadingArticle = true
                 let bodyFormData = new FormData()
@@ -427,8 +430,10 @@ export default {
                         //handle error
                         state.loadingRequest = false
                         state.loadingArticle = false
-                        resolve()
-                        console.log(response.body);
+                        const data = Object.assign({}, {message: response.response.data.message}, {error: true})
+                        commit('change_notification_modal', data, { root: true })
+                        reject()
+                        console.log(response.response.data.message);
                     });
             })
         },
@@ -505,13 +510,42 @@ export default {
         deleteComponent({commit}, id) {
           commit('delete_component_by_id', id)
         },
-        getComponentsById({commit, state}, params) {
-            return new Promise((resolve, reject) => {
-
-                const {id_component, index, type_component} = params
+        getAuth({commit, state}, params) {
+            return new Promise((resolve) => {
+                const {index, component} = params
 
                 state.loadingModalList = true
-                axios.get(`${this.state.BASE_URL}/entity/${type_component}/${id_component}`, {
+
+                const data = {
+                    name: 'auth'
+                }
+
+                commit('changeSelectedComponent', {data, index, component})
+                state.loadingModalList = false
+                resolve()
+            })
+        },
+        imageFromServer({commit, state}, params) {
+            return new Promise((resolve) => {
+              const {index, component} = params
+
+              state.loadingModalList = true
+
+              const data = {
+                  name: 'image'
+              }
+
+              commit('changeSelectedComponent', {data, index, component})
+              state.loadingModalList = false
+              resolve()
+            })
+        },
+        getComponentsById({commit, state}, params) {
+            return new Promise((resolve, reject) => {
+                const {index, component} = params
+
+                state.loadingModalList = true
+                axios.get(`${this.state.BASE_URL}/entity/${component.name}/${component.id}`, {
                     headers: {
                         Authorization: '666777'
                     },
@@ -519,7 +553,7 @@ export default {
                     .then((response) => {
                         const data = response.data.data
                         console.log('uploaded COMPONENT')
-                        commit('changeSelectedComponent', {data, index})
+                        commit('changeSelectedComponent', {data, index, component})
                         state.loadingModalList = false
                         resolve()
                     })

@@ -1,10 +1,10 @@
 <template>
-  <div class="question_wrapper" contenteditable="false" :id="`question_wrapper-${count_of_question}`">
+  <div class="question_wrapper" contenteditable="false" :id="`component_wrapper-${index_component}`">
     <div class="question_wrapper__admin_controls-header" contenteditable="false">
       <img class="question_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
     </div>
     <div class="question_wrapper__title">
-      <h3>{{ count_of_question }}. {{ question_data.name }}</h3>
+      <h3>{{ index_question }}. {{ question_data.name }}</h3>
       <div class="helper_wrapper" v-if="question_data.title">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
@@ -221,7 +221,8 @@ export default {
   name: "Question",
   data: () => ({
     question_data: {},
-    count_of_question: null,
+    index_component: null,
+    index_question: null,
     controls_height: 0,
     controls_width: 0,
     value_type_answer: [],
@@ -252,9 +253,9 @@ export default {
   },
   methods: {
     deleteQuestion() {
-      const elem = document.getElementById(`question_wrapper-${this.count_of_question}`)
+      const elem = document.getElementById(`component_wrapper-${this.index_component}`)
       elem.remove()
-      this.$store.dispatch('deleteComponent', this.count_of_question)
+      this.$store.dispatch('deleteComponent', this.index_component)
     },
     rangeEdit(action) {
       if (action === 'plus') {
@@ -283,7 +284,8 @@ export default {
     },
     getData() {
       if (Object.keys(this.$store.state.TitlesModule.selectedComponent).length) {
-        this.count_of_question = this.$store.state.TitlesModule.countQuestion
+        this.index_question = this.$store.state.TitlesModule.count_of_questions
+        this.index_component = this.$store.state.TitlesModule.countLayout
         this.question_data = Object.assign({}, this.$store.state.TitlesModule.selectedComponent)
         this.getValue_type_answer()
         this.getHeightOfControls()
@@ -320,7 +322,7 @@ export default {
     },
     getWidthOfControls() {
       this.$nextTick(() => {
-        const elem = document.getElementById(`question_wrapper-${this.count_of_question}`)
+        const elem = document.getElementById(`component_wrapper-${this.index_component}`)
         if (elem) {
           this.controls_width = elem.getBoundingClientRect().width + 6;
         } else {
@@ -330,7 +332,7 @@ export default {
     },
     getHeightOfControls() {
       this.$nextTick(() => {
-        const elem = document.getElementById(`question_wrapper-${this.count_of_question}`)
+        const elem = document.getElementById(`component_wrapper-${this.index_component}`)
         if (elem) {
           this.controls_height = elem.getBoundingClientRect().height + 22;
         } else {
