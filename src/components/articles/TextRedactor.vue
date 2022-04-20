@@ -624,8 +624,8 @@ export default {
       console.log(response)
       const formatObj = {}
 
-      for (let key in file) {
-        Object.assign(formatObj, {[key]: file[key]})
+      for (let key in response.data) {
+        Object.assign(formatObj, {[key]: response.data[key]})
       }
       Object.assign(formatObj, {id: this.index_uploaded})
       this.index_uploaded++
