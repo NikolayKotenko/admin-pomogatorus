@@ -491,7 +491,7 @@
         </v-card-title>
         <v-card-text class="dialog_dropzone_wrapper">
           <vue-dropzone
-              ref="myVueDropzone" id="dropzone" :options="options" :useCustomSlot=true v-if="!loading_dropzone" @vdropzone-success="successData"
+              ref="myVueDropzone" id="dropzone" :options="options" :useCustomSlot=true v-if="!loading_dropzone" @vdropzone-success="successData" @vdropzone-sending="sendingData"
           >
             <h3 class="dropzone-custom-title">
               <v-icon size="120" color="grey lighten-1" style="transform: rotate(45deg)">
@@ -778,10 +778,26 @@ export default {
     },
     options() {
       return {
-        url: `https://httpbin.org/post`,
+        url: `https://api.agregatorus.com/entity/files`,
+        // url: 'https://httpbin.org/post',
         previewTemplate: this.previewHtml,
         destroyDropzone: false,
-      };
+        headers: {
+          "My-Awesome-Header": "header value",
+          Authorization: '666777',
+        },
+        // dictRemoveFile: "Удалить файл",
+        // dictDefaultMessage: "Перетащие в это поле файлы для загрузки",
+        // dictFallbackMessage: "Ваш браузер не поддерживает drag'n'drop загрузку файлов",
+        // dictFileTooBig: "Файл очень большой ({{filesize}}MiB). Максимальный размер файлов: {{maxFilesize}}MiB.",
+        // dictInvalidFileType: "Вы не можете загрузить файлы этого типа",
+        // dictResponseError: "Сервер ответил с {{statusCode}} ошибкой.",
+        // dictCancelUpload: "Отменить загрузку",
+        // dictUploadCanceled: "Загрузка успешно завершена",
+        // dictCancelUploadConfirmation: "Вы действительно хотите отменить загрузку ?",
+        // dictRemoveFileConfirmation: null,
+        // dictMaxFilesExceeded: "Превышено допустимое количество файлов",
+      }
     },
     componentLayout() {
       return this.params_of_component.name === 'questions' ? Vue.extend(Question) : this.params_of_component.name === 'image' ? Vue.extend(ImageLayout) : Vue.extend(LoginAuth)
@@ -789,6 +805,10 @@ export default {
   },
   methods: {
     /* MODALS */
+    sendingData(file, xhr, formData) {
+      console.log(file.upload.uuid)
+      formData.append('uuid', file.upload.uuid)
+    },
     successData(file) {
       const formatObj = {}
 

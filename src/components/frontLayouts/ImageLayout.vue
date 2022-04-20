@@ -3,20 +3,21 @@
     <div class="image_wrapper__admin_controls-header" contenteditable="false">
       <img class="image_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
     </div>
-    <vue-draggable-resizable :w="100" :h="100" :draggable="false" @resizing="onResize" :parent="true">
-      <img class="inserted_image" :src="data_image.dataURL" :alt="data_image.name">
-    </vue-draggable-resizable>
+    <img class="inserted_image" :src="data_image.dataURL" :alt="data_image.name">
+<!--    <vue-draggable-resizable :w="100" :h="100" :draggable="false" @resizing="onResize" :parent="true">-->
+<!--      <img class="inserted_image" :src="data_image.dataURL" :alt="data_image.name">-->
+<!--    </vue-draggable-resizable>-->
   </div>
 </template>
 
 <script>
-import VueDraggableResizable from 'vue-draggable-resizable'
+// import VueDraggableResizable from 'vue-draggable-resizable'
 import 'vue-draggable-resizable/dist/VueDraggableResizable.css'
 
 export default {
   name: "ImageLayout",
   components: {
-    VueDraggableResizable,
+    // VueDraggableResizable,
   },
   data: () => ({
     width: 0,
