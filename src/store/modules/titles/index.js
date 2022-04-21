@@ -399,7 +399,7 @@ export default {
                 state.loadingArticle = true
                 let bodyFormData = new FormData()
                 for (let key in data) {
-                    if (typeof data[key] === 'object') {
+                    if (typeof data[key] === 'object' && data[key] !== null) {
                         if (data[key].value) {
                             bodyFormData.append(key, data[key].value)
                         }

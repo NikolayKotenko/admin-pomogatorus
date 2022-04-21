@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import store from '../store/index'
+// import store from '../store/index'
 
 /* VIEWS */
 import Desktop from "../views/Desktop";
@@ -125,7 +125,7 @@ const router = new VueRouter({
   routes
 });
 
-router.beforeEach(async (to, from, next) => {
+/*router.beforeEach(async (to, from, next) => {
     //Если валидация на этом компоненте не нужна - пропускаем
     if(! to.matched.some(record => record.meta.requiresAuth))
       next()
@@ -139,6 +139,6 @@ router.beforeEach(async (to, from, next) => {
       next('/login')
 
     next()
-});
+});*/
 
 export default router

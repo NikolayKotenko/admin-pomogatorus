@@ -230,7 +230,7 @@ export default {
   },
   data: () => ({
     newArticle: {
-      id: 1,
+      id: null,
       name: {
         value: '',
         focused: false,
@@ -253,6 +253,7 @@ export default {
     deleteModal: false,
     deleteStorage: false,
     deletedContent: false,
+    debounceTimeout: null,
   }),
   mounted() {
     this.initializeQuery()
@@ -282,6 +283,9 @@ export default {
           (!this.newArticle.name.value && this.$v.newArticle.name.$dirty && !this.$v.newArticle.name.required) ||
           (!this.newArticle.short_header.value && this.$v.newArticle.short_header.$dirty && !this.$v.newArticle.short_header.required)
       )
+    },
+    check_short_name() {
+      return ((this.newArticle.name.value !== '') && (this.newArticle.short_header.value !== '') && (this.newArticle.id === null))
     },
   },
   methods: {
@@ -399,40 +403,47 @@ export default {
         }
       }
     },
-    async saveDBQuestion(value) {
-      const refactored = {}
-      for (let key in value) {
-        if (typeof value[key] === 'object' && value[key] !== null) {
-          if (Array.isArray(value[key])) {
-            refactored[key] = value[key]
-          } else {
-            refactored[key] = {}
-            refactored[key].value = value[key].value
-            refactored[key].focused = false
-          }
-        } else {
-          if (key === 'value_type_answer') {
-            refactored[key] = value[key]
-          } else if (key === 'id') {
-            refactored[key] = value[key]
-          } else refactored[key] = value[key]
-        }
+    async saveDBQuestion() {
+      if (this.check_short_name) {
+        this.onSubmit()
+      } else if (this.newArticle.id !== null) {
+        this.saveDifferences()
       }
-      refactored.content = this.$store.state.TitlesModule.content
-      refactored.inserted_components = this.$store.state.TitlesModule.inserted_components
-      if (!this.deleteStorage) {
-        if (this.$route.params?.action === 'create') {
-          let db = await this.getDb()
-          return new Promise(resolve => {
-            let trans = db.transaction([STORAGE_NAME], 'readwrite')
-            trans.oncomplete = () => {
-              resolve()
-            }
-            let store = trans.objectStore(STORAGE_NAME)
-            store.put(refactored)
-          })
-        }
-      }
+      // else {
+      //   const refactored = {}
+      //   for (let key in value) {
+      //     if (typeof value[key] === 'object' && value[key] !== null) {
+      //       if (Array.isArray(value[key])) {
+      //         refactored[key] = value[key]
+      //       } else {
+      //         refactored[key] = {}
+      //         refactored[key].value = value[key].value
+      //         refactored[key].focused = false
+      //       }
+      //     } else {
+      //       if (key === 'value_type_answer') {
+      //         refactored[key] = value[key]
+      //       } else if (key === 'id') {
+      //         refactored[key] = value[key]
+      //       } else refactored[key] = value[key]
+      //     }
+      //   }
+      //   refactored.content = this.$store.state.TitlesModule.content
+      //   refactored.inserted_components = this.$store.state.TitlesModule.inserted_components
+      //   if (!this.deleteStorage) {
+      //     if (this.$route.params?.action === 'create') {
+      //       let db = await this.getDb()
+      //       return new Promise(resolve => {
+      //         let trans = db.transaction([STORAGE_NAME], 'readwrite')
+      //         trans.oncomplete = () => {
+      //           resolve()
+      //         }
+      //         let store = trans.objectStore(STORAGE_NAME)
+      //         store.put(refactored)
+      //       })
+      //     }
+      //   }
+      // }
     },
 
     /* FOCUS */
@@ -459,19 +470,24 @@ export default {
 
     /* CRUD */
     onSubmit() {
-      console.log(this.$v)
       if (this.$v.$invalid) {
         this.$v.$touch();
         return;
       }
-      this.deleteDBQuestion(this.newArticle).then(() => {
+      this.$store.dispatch('createArticle', this.newArticle).then(() => {
+        this.$store.dispatch('removeLocalStorageArticle')
+        // this.$router.push({
+        //   path: '/articles'
+        // })
+      })
+      /*this.deleteDBQuestion(this.newArticle).then(() => {
         this.$store.dispatch('createArticle', this.newArticle).then(() => {
           this.$store.dispatch('removeLocalStorageArticle')
           this.$router.push({
             path: '/articles'
           })
         })
-      })
+      })*/
     },
   },
   beforeDestroy() {

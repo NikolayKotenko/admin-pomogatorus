@@ -1,5 +1,5 @@
 <template>
-  <div class="textRedactor" :class="{disabled: !newArticle.name.value}">
+  <div class="textRedactor" :class="{disabled: !check_created_article}">
     <div class="textRedactor__header">
       <div class="textRedactor__header__firstLine">
         <!-- Вставить элемент в текст -->
@@ -257,7 +257,7 @@
 
     <div
         class="textRedactor__content"
-        :contenteditable="!!newArticle.name.value"
+        :contenteditable="check_created_article"
         spellcheck="false"
         ref="content" @input="onContentChange"
     >
@@ -349,7 +349,7 @@
     </v-dialog>
 
     <!-- OVERLAYS -->
-    <div class="overlay" v-if="!newArticle.name.value"></div>
+    <div class="overlay" v-if="!check_created_article"></div>
   </div>
 </template>
 
@@ -587,6 +587,9 @@ export default {
     },
   },
   computed: {
+    check_created_article() {
+      return ((this.newArticle.name.value !== '') && (this.newArticle.short_header.value !== ''))
+    },
     check_count_auth() {
       return this.$store.state.TitlesModule.count_of_auth >= 1
     },
