@@ -25,10 +25,7 @@ export default {
             )
         },
         async loginUser({commit}, objData) {
-            const authUser = await Request.post(
-                this.state.BASE_URL+'/auth/login',
-                Request.bodyFromData(objData)
-            )
+            const authUser = await Request.post(this.state.BASE_URL+'/auth/login', objData)
             commit('set_user_data', authUser.data)
             return authUser
         },
