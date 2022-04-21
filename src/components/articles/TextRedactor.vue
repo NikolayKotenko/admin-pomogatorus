@@ -529,7 +529,7 @@ export default {
     },
     'params_of_component.name': {
       handler(v) {
-        if (v && v === 'question') {
+        if (v && v === 'questions') {
           this.$store.dispatch('getListComponents', this.params_of_component.name)
         }
       }
