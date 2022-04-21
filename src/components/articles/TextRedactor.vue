@@ -706,8 +706,16 @@ export default {
               arr.forEach((elem) => {
                 setTimeout(() => {
                     this.checkTypeComponent(elem)
+                    let data = {}
+                    if (elem.component.name === 'image') {
+                      const full_url = document.getElementById(`component_wrapper-${elem.index}`).getElementsByClassName( 'inserted_image' )[0].src
+                      let sub_url = full_url.split('.com')
+                      const alt = document.getElementById(`component_wrapper-${elem.index}`).getElementsByClassName( 'inserted_image' )[0].alt
+                      data = Object.assign({}, {name: alt}, {full_path: sub_url[1]})
+                    } else data = elem.data
+
                     this.$store.state.TitlesModule.countLayout = elem.index
-                    this.$store.state.TitlesModule.selectedComponent = elem.data
+                    this.$store.state.TitlesModule.selectedComponent = data
                     let range = document.createRange();
                     range.selectNode(document.getElementById(`component_wrapper-${elem.index}`));
                     range.deleteContents()

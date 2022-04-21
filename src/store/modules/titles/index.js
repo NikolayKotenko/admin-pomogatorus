@@ -27,11 +27,11 @@ const defaultArticle = {
 }
 
 /* CONSTRUCTORS */
-function InsertedComponents(elem) {
-    this.index = elem.index
-    this.id_component = elem.id_component
-    this.type_component = elem.type_component
-}
+// function InsertedComponents(elem) {
+//     this.index = elem.index
+//     this.id_component = elem.component.id_component
+//     this.type_component = elem.component.type_component
+// }
 
 export default {
     state: {
@@ -156,11 +156,12 @@ export default {
                     }
                 } else if (key === 'inserted_components') {
                     let parsed = null
-                    parsed = JSON.parse(JSON.parse(result[key]))
+                    parsed = JSON.parse(JSON.parse(JSON.parse(result[key])))
+                    console.log(parsed)
                     if (Array.isArray(parsed)) {
                         state.inserted_components = []
                         parsed.forEach(elem => {
-                            state.inserted_components.push(new InsertedComponents(elem))
+                            state.inserted_components.push(elem)
                         })
                     } else {
                         state.inserted_components = []
@@ -453,7 +454,7 @@ export default {
                     } else requestData[key] = data[key]
                 }
                 requestData['content'] = JSON.stringify(state.content)
-                requestData['inserted_components'] = JSON.stringify(state.inserted_components)
+                requestData['inserted_components'] = JSON.stringify(JSON.stringify(state.inserted_components))
 
                 const options = {
                     method: 'PUT',

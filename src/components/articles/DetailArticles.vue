@@ -254,6 +254,7 @@ export default {
     deleteStorage: false,
     deletedContent: false,
     debounceTimeout: null,
+    getFromServer: false,
   }),
   mounted() {
     this.initializeQuery()
@@ -297,9 +298,13 @@ export default {
     /* MAIN */
     initializeQuery() {
       if (Object.keys(this.$route.query).length && Object.keys(this.$route.query).includes('article_id')) {
+        this.getFromServer = true
         this.$store.dispatch('getDetailArticle', this.$route.query.article_id).then(() => {
           if (this.$store.state.TitlesModule.newArticle.name) {
             this.newArticle = this.$store.state.TitlesModule.newArticle
+            setTimeout(() => {
+              this.getFromServer = false
+            }, 2000)
           }
         })
       }
@@ -413,7 +418,7 @@ export default {
       this.debounceTimeout = setTimeout(() => {
         if (this.check_short_name) {
           this.onSubmit()
-        } else if (this.newArticle.id !== null) {
+        } else if (this.newArticle.id !== null && !this.getFromServer) {
           this.saveDifferences()
         }
       }, 600)
