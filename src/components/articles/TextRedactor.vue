@@ -3,72 +3,51 @@
     <div class="textRedactor__header">
       <div class="textRedactor__header__firstLine">
         <!-- Вставить элемент в текст -->
-        <div class="header__elBlock right">
-          <v-menu
-              open-on-hover
-              bottom
-              offset-y
-              transition="scale-transition"
-          >
+        <div class="header__elBlock right" style="display: flex; align-items: center; column-gap: 4px">
+          <!-- Auth -->
+          <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <v-icon
                   v-bind="attrs"
                   v-on="on"
+                  size="20"
+                  @click="initialiseInserting('auth')"
+                  :disabled="check_count_auth"
               >
-                mdi-plus
+                mdi-account-key
               </v-icon>
             </template>
-            <v-list>
-              <!-- Question -->
-              <v-list-item @click="initializeSelection('questions')">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-icon
-                        v-bind="attrs"
-                        v-on="on"
-                        size="20"
-                    >
-                      mdi-message-question
-                    </v-icon>
-                    <v-list-item-title class="v-menu-item"> Вставить вопрос </v-list-item-title>
-                  </template>
-                  <span>Вставить вопрос</span>
-                </v-tooltip>
-              </v-list-item>
-              <!-- Image -->
-              <v-list-item @click="initializeSelection('image')">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-icon
-                        v-bind="attrs"
-                        v-on="on"
-                        size="20"
-                    >
-                      mdi-panorama
-                    </v-icon>
-                    <v-list-item-title class="v-menu-item"> Вставить изображение </v-list-item-title>
-                  </template>
-                  <span>Вставить изображение</span>
-                </v-tooltip>
-              </v-list-item>
-              <!-- Auth -->
-              <v-list-item @click="initialiseInserting('auth')">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-icon
-                        v-bind="attrs"
-                        v-on="on"
-                        size="20"
-                    >
-                      mdi-account-key
-                    </v-icon>
-                    <v-list-item-title class="v-menu-item"> Вставить авторизацию </v-list-item-title>
-                  </template>
-                  <span>Вставить авторизацию</span>
-                </v-tooltip>
-              </v-list-item>
-            </v-list>
-          </v-menu>
+            <span>Вставить авторизацию</span>
+          </v-tooltip>
+          <!-- Question -->
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-icon
+                  v-bind="attrs"
+                  v-on="on"
+                  size="20"
+                  @click="initializeSelection('questions')"
+                  style="padding-top: 2px"
+              >
+                mdi-message-question
+              </v-icon>
+            </template>
+            <span>Вставить вопрос</span>
+          </v-tooltip>
+          <!-- Image -->
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-icon
+                  v-bind="attrs"
+                  v-on="on"
+                  size="20"
+                  @click="initializeSelection('image')"
+              >
+                mdi-panorama
+              </v-icon>
+            </template>
+            <span>Вставить изображение</span>
+          </v-tooltip>
         </div>
         <!-- Undo/Redo -->
         <div class="header__elBlock right">
@@ -258,159 +237,6 @@
             </v-list>
           </v-menu>
         </div>
-
-        <!-- Заголовки -->
-<!--        <div class="header__elBlock">
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <div
-                  v-bind="attrs"
-                  v-on="on"
-                  class="header__elBlock__iconWrapper"
-              >
-                <v-icon>
-                  mdi-format-header-pound
-                </v-icon>
-                <v-icon
-                    v-if="true"
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-down
-                </v-icon>
-                <v-icon
-                    v-else
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-up
-                </v-icon>
-              </div>
-
-            </template>
-            <span>Настройка заголовка</span>
-          </v-tooltip>
-        </div>-->
-        <!-- Шрифты -->
-<!--        <div class="header__elBlock">
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <div
-                  v-bind="attrs"
-                  v-on="on"
-                  class="header__elBlock__iconWrapper"
-              >
-                <v-icon>
-                  mdi-format-font
-                </v-icon>
-                <v-icon
-                    v-if="true"
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-down
-                </v-icon>
-                <v-icon
-                    v-else
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-up
-                </v-icon>
-              </div>
-
-            </template>
-            <span>Настройка шрифта</span>
-          </v-tooltip>
-        </div>-->
-        <!-- Цвет текста -->
-<!--        <div class="header__elBlock">
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <div
-                  v-bind="attrs"
-                  v-on="on"
-                  class="header__elBlock__iconWrapper"
-              >
-                <div style="display: flex; flex-direction: column; align-items: center; position: relative">
-                  <v-icon>
-                    mdi-format-color-text
-                  </v-icon>
-                  <div style="width: 60%; height: 2px; background: black; position: absolute; top: 20px"></div>
-                </div>
-                <v-icon
-                    v-if="true"
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-down
-                </v-icon>
-                <v-icon
-                    v-else
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-up
-                </v-icon>
-              </div>
-
-            </template>
-            <span>Выбрать цвет текста</span>
-          </v-tooltip>
-        </div>-->
-        <!-- Выделение текста -->
-<!--        <div class="header__elBlock">
-          <v-menu
-              bottom
-              offset-y
-              transition="scale-transition"
-              :close-on-click="false"
-              :close-on-content-click="false"
-              v-model="text_underline"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <div
-                  class="header__elBlock__iconWrapper"
-              >
-                <div style="display: flex; flex-direction: column; align-items: center; position: relative">
-                  <v-icon>
-                    mdi-format-color-highlight
-                  </v-icon>
-                  <div style="width: 60%; height: 2px; background: black; position: absolute; top: 20px"></div>
-                </div>
-                <v-icon
-                    v-bind="attrs"
-                    v-on="on"
-                    v-if="true"
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-down
-                </v-icon>
-                <v-icon
-                    v-bind="attrs"
-                    v-on="on"
-                    v-else
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-up
-                </v-icon>
-              </div>
-            </template>
-            <v-list>
-              <v-list-item>
-                <div style="display: grid">
-                  <div style="justify-self: end">
-                    <v-icon @click="text_underline = false">mdi-close</v-icon>
-                  </div>
-                  <v-color-picker
-                      :swatches="swatches"
-                      show-swatches
-                  ></v-color-picker>
-                  <v-btn
-                      color="primary"
-                      @click="text_underline = false"
-                  >
-                    Применить
-                  </v-btn>
-                </div>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </div>-->
         <!-- Очистка форматирования -->
         <div class="header__elBlock">
           <v-tooltip bottom>
@@ -427,9 +253,6 @@
           </v-tooltip>
         </div>
       </div>
-<!--      <div class="textRedactor__header__secondLine">-->
-
-<!--      </div>-->
     </div>
 
     <div
@@ -527,11 +350,6 @@
 
     <!-- OVERLAYS -->
     <div class="overlay" v-if="!newArticle.name.value"></div>
-
-<!--    <v-autocomplete-->
-<!--      :items="$store.state.TitlesModule.fonts"-->
-<!--      item-text="family"-->
-<!--    />-->
   </div>
 </template>
 
@@ -769,6 +587,9 @@ export default {
     },
   },
   computed: {
+    check_count_auth() {
+      return this.$store.state.TitlesModule.count_of_auth >= 1
+    },
     content: {
       cache: false,
       get: function () { return this.$refs.content.innerHTML ; },
@@ -778,7 +599,7 @@ export default {
     },
     options() {
       return {
-        url: `https://api.agregatorus.com/entity/files`,
+        url: `https://api-test.agregatorus.com/entity/files`,
         // url: 'https://httpbin.org/post',
         previewTemplate: this.previewHtml,
         destroyDropzone: false,
@@ -786,17 +607,7 @@ export default {
           "My-Awesome-Header": "header value",
           Authorization: '666777',
         },
-        // dictRemoveFile: "Удалить файл",
-        // dictDefaultMessage: "Перетащие в это поле файлы для загрузки",
-        // dictFallbackMessage: "Ваш браузер не поддерживает drag'n'drop загрузку файлов",
-        // dictFileTooBig: "Файл очень большой ({{filesize}}MiB). Максимальный размер файлов: {{maxFilesize}}MiB.",
-        // dictInvalidFileType: "Вы не можете загрузить файлы этого типа",
-        // dictResponseError: "Сервер ответил с {{statusCode}} ошибкой.",
-        // dictCancelUpload: "Отменить загрузку",
-        // dictUploadCanceled: "Загрузка успешно завершена",
-        // dictCancelUploadConfirmation: "Вы действительно хотите отменить загрузку ?",
-        // dictRemoveFileConfirmation: null,
-        // dictMaxFilesExceeded: "Превышено допустимое количество файлов",
+        duplicateCheck: true,
       }
     },
     componentLayout() {
@@ -809,11 +620,12 @@ export default {
       console.log(file.upload.uuid)
       formData.append('uuid', file.upload.uuid)
     },
-    successData(file) {
+    successData(file, response) {
+      console.log(response)
       const formatObj = {}
 
-      for (let key in file) {
-        Object.assign(formatObj, {[key]: file[key]})
+      for (let key in response.data) {
+        Object.assign(formatObj, {[key]: response.data[key]})
       }
       Object.assign(formatObj, {id: this.index_uploaded})
       this.index_uploaded++

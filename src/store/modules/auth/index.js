@@ -10,10 +10,11 @@ export default {
             return Object.keys(state.userData).length !== 0
         },
         checkAdminPanel(){
-            if (! process.env.VUE_APP_SERVER)
-                return false
-
-            return Boolean(process.env.VUE_APP_SERVER.match('admin'))
+            return true
+            // if (!process.env.VUE_APP_SERVER)
+            //     return false
+            //
+            // return Boolean(process.env.VUE_APP_SERVER.match('admin'))
         },
     },
     actions: {
