@@ -622,6 +622,7 @@ export default {
     sendingData(file, xhr, formData) {
       console.log(file.upload.uuid)
       formData.append('uuid', file.upload.uuid)
+      formData.append('id_article', this.$store.state.TitlesModule.newArticle.id)
     },
     successData(file, response) {
       console.log(response)
@@ -630,7 +631,7 @@ export default {
       for (let key in response.data) {
         Object.assign(formatObj, {[key]: response.data[key]})
       }
-      Object.assign(formatObj, {id: this.index_uploaded})
+      Object.assign(formatObj, {index: this.index_uploaded})
       this.index_uploaded++
       this.dropzone_uploaded.push(formatObj)
 
@@ -649,10 +650,12 @@ export default {
     },
     removedFile(id) {
       const index = this.dropzone_uploaded.findIndex(elem => {
-        return elem.id === id
+        return elem.index === id
       })
       if (index !== -1) {
-        this.dropzone_uploaded.splice(index, 1)
+        this.$store.dispatch('deleteFile', this.dropzone_uploaded[index].id).then(() => {
+          this.dropzone_uploaded.splice(index, 1)
+        })
       }
     },
     clearDropZoneTemplate() {

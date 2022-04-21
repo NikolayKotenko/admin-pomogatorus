@@ -265,6 +265,11 @@ export default {
     }
   },
   watch: {
+    '$store.state.TitlesModule.newArticle.id': {
+      handler(v) {
+        this.newArticle.id = v
+      }
+    },
     '$store.state.TitlesModule.content': {
       handler() {
         this.saveDBQuestion(this.newArticle)
@@ -328,9 +333,9 @@ export default {
     },
     saveDifferences() {
       this.$store.dispatch('updateArticle', this.newArticle).then(() => {
-        this.$router.push({
-          path: '/articles'
-        })
+        // this.$router.push({
+        //   path: '/articles'
+        // })
       })
     },
     deleteArticle() {
@@ -404,11 +409,14 @@ export default {
       }
     },
     async saveDBQuestion() {
-      if (this.check_short_name) {
-        this.onSubmit()
-      } else if (this.newArticle.id !== null) {
-        this.saveDifferences()
-      }
+      if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
+      this.debounceTimeout = setTimeout(() => {
+        if (this.check_short_name) {
+          this.onSubmit()
+        } else if (this.newArticle.id !== null) {
+          this.saveDifferences()
+        }
+      }, 600)
       // else {
       //   const refactored = {}
       //   for (let key in value) {

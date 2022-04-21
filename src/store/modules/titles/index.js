@@ -169,6 +169,9 @@ export default {
             }
             state.nonEditState = Object.assign({}, state.newArticle)
         },
+        change_id_newArticle(state, result) {
+            state.newArticle.id = result
+        },
 
         /* INSERT COMPONENT */
         change_list_components(state, result) {
@@ -424,7 +427,7 @@ export default {
                                 resolve()
                             })
                         })
-                        console.log(response);
+                        commit('change_id_newArticle', response.data.data.id)
                     })
                     .catch((response) => {
                         //handle error
@@ -506,6 +509,7 @@ export default {
                     });
             })
         },
+
         /* INSERT COMPONENT */
         deleteComponent({commit}, id) {
           commit('delete_component_by_id', id)
@@ -580,6 +584,33 @@ export default {
                         state.loadingModalList = false
                         reject(error)
                     })
+            })
+        },
+        deleteFile({state}, id) {
+            state.loadingRequest = true
+            return new Promise((resolve) => {
+
+                const options = {
+                    method: 'DELETE',
+                    url: `${this.state.BASE_URL}/entity/files/${id}`,
+                    headers: {
+                        Authorization: '666777'
+                    },
+                }
+
+                axios(options)
+                    .then((response) => {
+                        //handle success
+                        state.loadingRequest = false
+                        resolve()
+                        console.log(response);
+                    })
+                    .catch((response) => {
+                        //handle error
+                        state.loadingRequest = false
+                        resolve()
+                        console.log(response.body);
+                    });
             })
         },
 
