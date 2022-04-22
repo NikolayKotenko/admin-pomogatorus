@@ -3,7 +3,7 @@
     <div class="textRedactor__header">
       <div class="textRedactor__header__firstLine">
         <!-- Вставить элемент в текст -->
-        <div class="header__elBlock right" style="display: flex; align-items: center; column-gap: 4px">
+        <div class="header__elBlock right" style="display: flex; align-items: center; column-gap: 3px">
           <!-- Auth -->
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
@@ -741,7 +741,7 @@ export default {
       } else if (elem.component.name === 'image') {
         this.$store.state.TitlesModule.count_of_images = elem.component.index_image
       } else if (elem.component.name === 'auth') {
-        this.$store.state.TitlesModule.count_of_auth = elem.component.count_of_auth
+        this.$store.state.TitlesModule.count_of_auth = elem.component.index_auth
       }
     },
 
