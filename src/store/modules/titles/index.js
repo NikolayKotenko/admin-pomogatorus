@@ -155,16 +155,20 @@ export default {
                         state.content_from_server = JSON.parse(result[key])
                     }
                 } else if (key === 'inserted_components') {
-                    let parsed = null
-                    parsed = JSON.parse(JSON.parse(JSON.parse(result[key])))
-                    console.log(parsed)
-                    if (Array.isArray(parsed)) {
+                    if (!JSON.parse(JSON.parse(result[key])).length) {
                         state.inserted_components = []
-                        parsed.forEach(elem => {
-                            state.inserted_components.push(elem)
-                        })
                     } else {
-                        state.inserted_components = []
+                        let parsed = null
+                        parsed = JSON.parse(JSON.parse(JSON.parse(result[key])))
+                        console.log(parsed)
+                        if (Array.isArray(parsed)) {
+                            state.inserted_components = []
+                            parsed.forEach(elem => {
+                                state.inserted_components.push(elem)
+                            })
+                        } else {
+                            state.inserted_components = []
+                        }
                     }
                 } else state.newArticle[key] = result[key]
             }

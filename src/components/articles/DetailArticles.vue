@@ -175,7 +175,7 @@
         <v-btn
             color="blue darken-1"
             text
-            @click.prevent="onSubmit"
+            @click.prevent="onSubmit('next')"
             :disabled="computedValidations"
         >
           Создать
@@ -193,7 +193,7 @@
           <v-btn
               color="blue darken-1"
               text
-              @click.prevent="saveDifferences()"
+              @click.prevent="saveDifferences('next')"
           >
             Сохранить изменения
           </v-btn>
@@ -336,11 +336,13 @@ export default {
         this.deletedContent = false
       }, 500)
     },
-    saveDifferences() {
+    saveDifferences(action) {
       this.$store.dispatch('updateArticle', this.newArticle).then(() => {
-        // this.$router.push({
-        //   path: '/articles'
-        // })
+        if (action === 'next') {
+          this.$router.push({
+            path: '/articles'
+          })
+        }
       })
     },
     deleteArticle() {
@@ -482,17 +484,23 @@ export default {
     },
 
     /* CRUD */
-    onSubmit() {
+    onSubmit(action) {
       if (this.$v.$invalid) {
         this.$v.$touch();
         return;
       }
-      this.$store.dispatch('createArticle', this.newArticle).then(() => {
-        this.$store.dispatch('removeLocalStorageArticle')
-        // this.$router.push({
-        //   path: '/articles'
-        // })
-      })
+
+      if (action === 'next') {
+        this.$router.push({
+          path: '/articles'
+        })
+      } else {
+        this.$store.dispatch('createArticle', this.newArticle).then(() => {
+          this.$store.dispatch('removeLocalStorageArticle')
+        })
+      }
+
+
       /*this.deleteDBQuestion(this.newArticle).then(() => {
         this.$store.dispatch('createArticle', this.newArticle).then(() => {
           this.$store.dispatch('removeLocalStorageArticle')
