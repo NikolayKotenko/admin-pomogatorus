@@ -381,7 +381,7 @@ export default {
 
         /* CRUD */
         async getDetailArticle({commit, state}, id) {
-            // state.loadingArticle = true
+            state.loadingArticle = true
             return new Promise((resolve, reject) => {
                 axios.get(`${this.state.BASE_URL}/entity/articles/${id}`, {
                     headers: {
@@ -390,7 +390,7 @@ export default {
                 })
                     .then((response) => {
                         commit('set_new_article', response.data.data)
-                        // state.loadingArticle = false
+                        state.loadingArticle = false
                         resolve()
                     })
                     .catch((error) => {
@@ -404,7 +404,7 @@ export default {
         async createArticle({dispatch, state, commit}, data) {
             return new Promise((resolve, reject) => {
                 state.loadingRequest = true
-                state.loadingArticle = true
+                // state.loadingArticle = true
                 let bodyFormData = new FormData()
                 for (let key in data) {
                     if (typeof data[key] === 'object' && data[key] !== null) {
@@ -428,7 +428,7 @@ export default {
                         state.loadingRequest = false
                         dispatch('setListArticles').then(() => {
                             dispatch('createRelationTagArticle', data.name.value).then(() => {
-                                state.loadingArticle = false
+                                // state.loadingArticle = false
                                 resolve()
                             })
                         })
@@ -437,7 +437,7 @@ export default {
                     .catch((response) => {
                         //handle error
                         state.loadingRequest = false
-                        state.loadingArticle = false
+                        // state.loadingArticle = false
                         const data = Object.assign({}, {message: response.response.data.message}, {error: true})
                         commit('change_notification_modal', data, { root: true })
                         reject()
@@ -448,7 +448,7 @@ export default {
         updateArticle({dispatch, state}, data) {
             return new Promise((resolve) => {
                 state.loadingRequest = true
-                state.loadingArticle = true
+                // state.loadingArticle = true
                 const requestData = {}
                 for (let key in data) {
                     if (typeof data[key] === 'object' && !Array.isArray(data[key])) {
@@ -470,7 +470,7 @@ export default {
                     .then((response) => {
                         //handle success
                         state.loadingRequest = false
-                        state.loadingArticle = false
+                        // state.loadingArticle = false
                         dispatch('setListArticles').then(() => {
                             dispatch('createRelationTagArticle', data.name.value).then(() => {
                                 resolve()
@@ -481,7 +481,7 @@ export default {
                     .catch((response) => {
                         //handle error
                         state.loadingRequest = false
-                        state.loadingArticle = false
+                        // state.loadingArticle = false
                         resolve()
                         console.log(response.body);
                     });
