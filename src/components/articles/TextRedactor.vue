@@ -700,6 +700,12 @@ export default {
         this.range.collapse(false);
       }
 
+      console.log('range')
+      console.log(this.range)
+
+      console.log('selection')
+      console.log(this.selection)
+
       this.selectComponent[componentName] = true
       this.params_of_component.name = componentName
 
