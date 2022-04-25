@@ -3,7 +3,7 @@
     <div class="textRedactor__header">
       <div class="textRedactor__header__firstLine">
         <!-- Вставить элемент в текст -->
-        <div class="header__elBlock right" style="display: flex; align-items: center; column-gap: 3px">
+        <div class="header__elBlock right" style="display: flex; align-items: center; column-gap: 5px">
           <!-- Auth -->
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
@@ -77,7 +77,7 @@
           </v-tooltip>
         </div>
         <!-- Жирный/курсив и т.д. -->
-        <div class="header__elBlock">
+        <div class="header__elBlock right">
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <v-icon
@@ -129,113 +129,47 @@
         </div>
         <!-- Форматирование -->
         <div class="header__elBlock">
-          <v-menu
-              open-on-hover
-              bottom
-              offset-y
-              transition="scale-transition"
-              v-model="align_content.open_list"
-          >
+          <v-tooltip bottom v-for="(item, index) in array_align_content" :key="index">
             <template v-slot:activator="{ on, attrs }">
-              <div
-                  class="header__elBlock__iconWrapper"
+              <v-icon
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="onAction(item.value)"
               >
-                <v-icon
-                    @click="onAction(align_content.value)"
-                >
-                  {{ align_content.icon }}
-                </v-icon>
-                <v-icon
-                    v-bind="attrs"
-                    v-on="on"
-                    v-if="align_content.open_list"
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-down
-                </v-icon>
-                <v-icon
-                    v-bind="attrs"
-                    v-on="on"
-                    v-else
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-up
-                </v-icon>
-              </div>
+                {{ item.icon }}
+              </v-icon>
             </template>
-            <v-list>
-              <v-list-item v-for="(item, index) in array_align_content" :key="index" @click="select_align_content(item.value)">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-icon
-                        v-bind="attrs"
-                        v-on="on"
-                        size="20"
-                    >
-                      {{ item.icon }}
-                    </v-icon>
-                    <v-list-item-title class="v-menu-item"> {{ item.text }} </v-list-item-title>
-                  </template>
-                  <span>{{ item.text }}</span>
-                </v-tooltip>
-              </v-list-item>
-            </v-list>
-          </v-menu>
+            <span>{{ item.text }}</span>
+          </v-tooltip>
         </div>
+      </div>
+      <div class="textRedactor__header__secondLine">
         <!-- Отступы -->
-        <div class="header__elBlock">
-          <v-menu
-              open-on-hover
-              bottom
-              offset-y
-              transition="scale-transition"
-              v-model="side_spaces.open_list"
-          >
+        <div class="header__elBlock right">
+          <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <div
-                  class="header__elBlock__iconWrapper"
+              <v-icon
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="onAction('indent')"
               >
-                <v-icon
-                    @click="onAction(side_spaces.value)"
-                >
-                  {{ side_spaces.icon }}
-                </v-icon>
-                <v-icon
-                    v-bind="attrs"
-                    v-on="on"
-                    v-if="side_spaces.open_list"
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-down
-                </v-icon>
-                <v-icon
-                    v-bind="attrs"
-                    v-on="on"
-                    v-else
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-up
-                </v-icon>
-              </div>
+                mdi-format-indent-increase
+              </v-icon>
             </template>
-            <v-list>
-              <v-list-item v-for="(item, index) in array_side_spaces" :key="index" @click="select_side_content(item.value)">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-icon
-                        v-bind="attrs"
-                        v-on="on"
-                        size="20"
-                    >
-                      {{ item.icon }}
-                    </v-icon>
-                    <v-list-item-title class="v-menu-item"> {{ item.text }} </v-list-item-title>
-                  </template>
-                  <span>{{ item.text }}</span>
-                </v-tooltip>
-              </v-list-item>
-            </v-list>
-          </v-menu>
+            <span>Убрать отступ</span>
+          </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-icon
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="onAction('outdent')"
+              >
+                mdi-format-indent-decrease
+              </v-icon>
+            </template>
+            <span>Сделать отступ</span>
+          </v-tooltip>
         </div>
         <!-- Очистка форматирования -->
         <div class="header__elBlock">
@@ -453,26 +387,6 @@ export default {
         value: 'justifyFull',
         text: 'Выравнивание по ширине',
         icon: 'mdi-format-align-justify',
-        open_list: false,
-      },
-    ],
-    side_spaces: {
-      value: 'indent',
-      text: 'Сделать отступ',
-      icon: 'mdi-format-indent-increase',
-      open_list: false,
-    },
-    array_side_spaces: [
-      {
-        value: 'indent',
-        text: 'Сделать отступ',
-        icon: 'mdi-format-indent-increase',
-        open_list: false,
-      },
-      {
-        value: 'outdent',
-        text: 'Убрать отступ',
-        icon: 'mdi-format-indent-decrease',
         open_list: false,
       },
     ],
@@ -758,12 +672,6 @@ export default {
           this.$store.state.TitlesModule.deletedComponent = elem.instance.$data.index_component
         }
       })
-    },
-    select_side_content(value) {
-      const index = this.array_side_spaces.findIndex(elem => {
-        return elem.value === value
-      })
-      if (index !== -1) this.side_spaces = this.array_side_spaces[index]
     },
     select_align_content(value) {
       const index = this.array_align_content.findIndex(elem => {
