@@ -381,7 +381,7 @@ export default {
 
         /* CRUD */
         async getDetailArticle({commit, state}, id) {
-            state.loadingArticle = true
+            // state.loadingArticle = true
             return new Promise((resolve, reject) => {
                 axios.get(`${this.state.BASE_URL}/entity/articles/${id}`, {
                     headers: {
@@ -390,7 +390,7 @@ export default {
                 })
                     .then((response) => {
                         commit('set_new_article', response.data.data)
-                        state.loadingArticle = false
+                        // state.loadingArticle = false
                         resolve()
                     })
                     .catch((error) => {
