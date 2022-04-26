@@ -797,7 +797,7 @@ export default {
         this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$mount() // pass nothing
 
         if (window.getSelection) {
-          if (this.range && this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content') {
+          if (this.range && (this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' || this.range.commonAncestorContainer.offsetParent._prevClass === "textRedactor")) {
             this.range.insertNode(this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el);
           } else {
             let range = document.createRange();
@@ -806,7 +806,7 @@ export default {
             range.insertNode(this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el);
           }
         } else if (document.selection && document.selection.createRange) {
-          if (this.range && this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content') {
+          if (this.range && (this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' || this.range.commonAncestorContainer.offsetParent._prevClass === "textRedactor")) {
             this.htmlSelected = (this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.nodeType == 3) ?
                 this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.innerHTML.data :
                 this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.outerHTML;
