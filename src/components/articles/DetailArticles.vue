@@ -257,6 +257,7 @@ export default {
     getFromServer: false,
   }),
   mounted() {
+    this.deleteDBQuestion(this.newArticle)
     this.initializeQuery()
     this.getDb()
     if (!this.deleteStorage) {
