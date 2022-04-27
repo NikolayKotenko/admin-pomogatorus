@@ -257,12 +257,12 @@ export default {
     getFromServer: false,
   }),
   mounted() {
-    this.getDb()
-    this.deleteDBQuestion(this.newArticle)
+    // this.getDb()
+    this.deletingDBArticle()
     this.initializeQuery()
     if (!this.deleteStorage) {
       if (this.$route.params?.action === 'create') {
-        this.getDBQuestion()
+        // this.getDBQuestion()
       }
     }
   },
@@ -376,6 +376,18 @@ export default {
           db.createObjectStore(STORAGE_NAME, { autoIncrement: true, keyPath: 'id' })
         }
       })
+    },
+    deletingDBArticle() {
+      let req = indexedDB.deleteDatabase(DB_NAME);
+      req.onsuccess = function () {
+        console.log("Deleted database successfully");
+      };
+      req.onerror = function () {
+        console.log("Couldn't delete database");
+      };
+      req.onblocked = function () {
+        console.log("Couldn't delete database due to the operation being blocked");
+      };
     },
     async deleteDBQuestion (value) {
       const db = await this.getDb()
