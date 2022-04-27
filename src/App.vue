@@ -3,6 +3,7 @@
     <v-main>
       <Header/>
       <router-view/>
+      <Footer/>
       <v-dialog
           v-model="$store.state.notification_modal.show_notification"
           max-width="600"
@@ -33,10 +34,11 @@
 
 <script>
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 export default {
   name: 'App',
-  components: {Header},
+  components: {Footer, Header},
   data: () => ({
     //
   }),
