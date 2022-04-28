@@ -163,7 +163,7 @@
         </v-card>
       </v-dialog>
     </div>
-<!--    <div class="detail_footer">
+    <footer class="detail_footer">
       <template v-if="$route.params.action === 'create'">
         <v-btn
             color="red darken-1"
@@ -199,7 +199,7 @@
           </v-btn>
         </template>
       </template>
-    </div>-->
+    </footer>
   </div>
 </template>
 
@@ -543,6 +543,7 @@ export default {
 
 .detail-wrapper {
   padding: 10px;
+  flex: 1;
 
   .form {
     display: flex;

@@ -3,7 +3,6 @@
     <v-main>
       <Header/>
       <router-view/>
-      <Footer/>
       <v-dialog
           v-model="$store.state.notification_modal.show_notification"
           max-width="600"
@@ -34,11 +33,10 @@
 
 <script>
 import Header from "./components/Header";
-import Footer from "./components/Footer";
 
 export default {
   name: 'App',
-  components: {Footer, Header},
+  components: {Header},
   data: () => ({
     //
   }),
@@ -56,7 +54,9 @@ export default {
 <style lang="scss">
 body {
   margin:0;
-  padding:0;
   height:100%;
+  //padding: 12px;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 </style>
