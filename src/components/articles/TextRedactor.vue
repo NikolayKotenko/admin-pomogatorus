@@ -194,6 +194,7 @@
         :contenteditable="check_created_article"
         spellcheck="false"
         ref="content" @input="onContentChange"
+        @click="onSelectionContent()"
     >
     </div>
 
@@ -823,6 +824,28 @@ export default {
         }
         resolve()
       })
+    },
+
+    onSelectionContent() {
+      if (window.getSelection) {
+        this.selection = null
+        this.selection = window.getSelection();
+        if (this.selection.getRangeAt && this.selection.rangeCount) {
+          this.range = null
+          this.range = this.selection.getRangeAt(0);
+        }
+      } else if (document.selection && document.selection.createRange) {
+        this.range = null
+        this.range = document.selection.createRange();
+      }
+      console.log('range')
+      console.log(this.range)
+      console.log('Selected elements:');
+      // let myArray = Array.from(nl)
+      console.log(this.range.cloneContents().querySelectorAll('*'))
+      // this.range.cloneContents().querySelectorAll('*').forEach(e => console.log(e));
+      // console.log('selection')
+      // console.log(this.selection)
     },
 
     /* CLEANERS */
