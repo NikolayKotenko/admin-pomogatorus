@@ -866,19 +866,11 @@ export default {
         resolve()
       })
     },
-    checkRangeByTag(tagName) {
-      console.log(tagName)
-      Object.keys(this.icons_panel).forEach(icon => {
-        console.log(this.icons_panel[icon].active = tagName === icon.parentElem)
-        this.icons_panel[icon].active = tagName === icon.parentElem;
-      })
+    checkRangeByTag(tagName, icon) {
+      return tagName === icon.parentElem
     },
-    checkHTMLText(html) {
-      console.log(html)
-      Object.keys(this.icons_panel).forEach(icon => {
-        console.log(this.icons_panel[icon].active = html.includes(icon.tag))
-        this.icons_panel[icon].active = html.includes(icon.tag)
-      })
+    checkHTMLText(html, icon) {
+      return html.includes(icon.tag)
     },
     onSelectionContent() {
       if (window.getSelection) {
@@ -900,7 +892,6 @@ export default {
       // console.log(selectedArray)
       // console.log('selection')
       // console.log(this.selection)
-      this.checkRangeByTag(this.range.commonAncestorContainer.parentElement.localName)
 
       let html = "";
       if (typeof window.getSelection != "undefined") {
@@ -917,7 +908,10 @@ export default {
           html = document.selection.createRange().htmlText;
         }
       }
-      this.checkHTMLText(html)
+      // need fix aligns and done
+      Object.keys(this.icons_panel).forEach(icon => {
+        this.icons_panel[icon].active = this.checkRangeByTag(this.range.commonAncestorContainer.parentElement.localName, this.icons_panel[icon]) || this.checkHTMLText(html, this.icons_panel[icon])
+      })
     },
 
     /* CLEANERS */
