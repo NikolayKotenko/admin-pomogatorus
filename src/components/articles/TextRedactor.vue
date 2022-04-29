@@ -391,6 +391,28 @@ export default {
         open_list: false,
       },
     ],
+    icons_panel: {
+      bold: {
+        active: false,
+        tag: "<b>",
+        parentElem: 'b',
+      },
+      italic: {
+        active: false,
+        tag: "<i>",
+        parentElem: 'i',
+      },
+      underline: {
+        active: false,
+        tag: "<u>",
+        parentElem: 'u',
+      },
+      strike: {
+        active: false,
+        tag: "<s>",
+        parentElem: 'strike',
+      }
+    },
 
     /* INSERT COMPONENTS */
     saveDB: false,
@@ -841,11 +863,31 @@ export default {
       console.log('range')
       console.log(this.range)
       console.log('Selected elements:');
-      // let myArray = Array.from(nl)
-      console.log(this.range.cloneContents().querySelectorAll('*'))
+      const selectedNode = this.range.cloneContents().querySelectorAll('*')
+      const selectedArray = Array.from(selectedNode)
+      console.log(selectedArray)
       // this.range.cloneContents().querySelectorAll('*').forEach(e => console.log(e));
-      // console.log('selection')
-      // console.log(this.selection)
+      console.log('selection')
+      console.log(this.selection)
+
+      console.log(this.range.commonAncestorContainer.parentElement.localName === 'b')
+
+      let html = "";
+      if (typeof window.getSelection != "undefined") {
+        let sel = window.getSelection();
+        if (sel.rangeCount) {
+          let container = document.createElement("div");
+          for (let i = 0, len = sel.rangeCount; i < len; ++i) {
+            container.appendChild(sel.getRangeAt(i).cloneContents());
+          }
+          html = container.innerHTML;
+        }
+      } else if (typeof document.selection != "undefined") {
+        if (document.selection.type == "Text") {
+          html = document.selection.createRange().htmlText;
+        }
+      }
+      console.log(html);
     },
 
     /* CLEANERS */
