@@ -84,6 +84,7 @@
                   v-bind="attrs"
                   v-on="on"
                   @click="onAction('bold')"
+                  :color="icons_panel.bold.active ? 'blue darken-4' : ''"
               >
                 mdi-format-bold
               </v-icon>
@@ -96,6 +97,7 @@
                   v-bind="attrs"
                   v-on="on"
                   @click="onAction('italic')"
+                  :color="icons_panel.italic.active ? 'blue darken-4' : ''"
               >
                 mdi-format-italic
               </v-icon>
@@ -108,6 +110,7 @@
                   v-bind="attrs"
                   v-on="on"
                   @click="onAction('underline')"
+                  :color="icons_panel.underline.active ? 'blue darken-4' : ''"
               >
                 mdi-format-underline
               </v-icon>
@@ -120,6 +123,7 @@
                   v-bind="attrs"
                   v-on="on"
                   @click="onAction('strikethrough')"
+                  :color="icons_panel.strike.active ? 'blue darken-4' : ''"
               >
                 mdi-format-strikethrough
               </v-icon>
@@ -135,6 +139,7 @@
                   v-bind="attrs"
                   v-on="on"
                   @click="onAction(item.value)"
+                  :color="icons_panel[item.value].active ? 'blue darken-4' : ''"
               >
                 {{ item.icon }}
               </v-icon>
@@ -391,6 +396,48 @@ export default {
         open_list: false,
       },
     ],
+    icons_panel: {
+      bold: {
+        active: false,
+        tag: "<b>",
+        parentElem: 'b',
+      },
+      italic: {
+        active: false,
+        tag: "<i>",
+        parentElem: 'i',
+      },
+      underline: {
+        active: false,
+        tag: "<u>",
+        parentElem: 'u',
+      },
+      strike: {
+        active: false,
+        tag: "<s>",
+        parentElem: 'strike',
+      },
+      justifyLeft: {
+        active: false,
+        tag: "text-align: left",
+        parentElem: '',
+      },
+      justifyRight: {
+        active: false,
+        tag: "text-align: right",
+        parentElem: '',
+      },
+      justifyCenter: {
+        active: false,
+        tag: "text-align: center",
+        parentElem: '',
+      },
+      justifyFull: {
+        active: false,
+        tag: "text-align: justify",
+        parentElem: '',
+      },
+    },
 
     /* INSERT COMPONENTS */
     saveDB: false,
@@ -701,12 +748,6 @@ export default {
         this.range.collapse(false);
       }
 
-      console.log('range')
-      console.log(this.range)
-
-      console.log('selection')
-      console.log(this.selection)
-
       this.selectComponent[componentName] = true
       this.params_of_component.name = componentName
 
@@ -825,7 +866,12 @@ export default {
         resolve()
       })
     },
-
+    checkRangeByTag(tagName, icon) {
+      return tagName === icon.parentElem
+    },
+    checkHTMLText(html, icon) {
+      return html.includes(icon.tag)
+    },
     onSelectionContent() {
       if (window.getSelection) {
         this.selection = null
@@ -838,14 +884,34 @@ export default {
         this.range = null
         this.range = document.selection.createRange();
       }
-      console.log('range')
-      console.log(this.range)
-      console.log('Selected elements:');
-      // let myArray = Array.from(nl)
-      console.log(this.range.cloneContents().querySelectorAll('*'))
-      // this.range.cloneContents().querySelectorAll('*').forEach(e => console.log(e));
+      // console.log('range')
+      // console.log(this.range)
+      // console.log('Selected elements:');
+      // const selectedNode = this.range.cloneContents().querySelectorAll('*')
+      // const selectedArray = Array.from(selectedNode)
+      // console.log(selectedArray)
       // console.log('selection')
       // console.log(this.selection)
+
+      let html = "";
+      if (typeof window.getSelection != "undefined") {
+        let sel = window.getSelection();
+        if (sel.rangeCount) {
+          let container = document.createElement("div");
+          for (let i = 0, len = sel.rangeCount; i < len; ++i) {
+            container.appendChild(sel.getRangeAt(i).cloneContents());
+          }
+          html = container.innerHTML;
+        }
+      } else if (typeof document.selection != "undefined") {
+        if (document.selection.type == "Text") {
+          html = document.selection.createRange().htmlText;
+        }
+      }
+      // need fix aligns and done
+      Object.keys(this.icons_panel).forEach(icon => {
+        this.icons_panel[icon].active = this.checkRangeByTag(this.range.commonAncestorContainer.parentElement.localName, this.icons_panel[icon]) || this.checkHTMLText(html, this.icons_panel[icon])
+      })
     },
 
     /* CLEANERS */
