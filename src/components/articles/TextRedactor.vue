@@ -84,6 +84,7 @@
                   v-bind="attrs"
                   v-on="on"
                   @click="onAction('bold')"
+                  :color="icons_panel.bold.active ? 'blue darken-4' : ''"
               >
                 mdi-format-bold
               </v-icon>
@@ -96,6 +97,7 @@
                   v-bind="attrs"
                   v-on="on"
                   @click="onAction('italic')"
+                  :color="icons_panel.italic.active ? 'blue darken-4' : ''"
               >
                 mdi-format-italic
               </v-icon>
@@ -108,6 +110,7 @@
                   v-bind="attrs"
                   v-on="on"
                   @click="onAction('underline')"
+                  :color="icons_panel.underline.active ? 'blue darken-4' : ''"
               >
                 mdi-format-underline
               </v-icon>
@@ -120,6 +123,7 @@
                   v-bind="attrs"
                   v-on="on"
                   @click="onAction('strikethrough')"
+                  :color="icons_panel.strike.active ? 'blue darken-4' : ''"
               >
                 mdi-format-strikethrough
               </v-icon>
@@ -135,6 +139,7 @@
                   v-bind="attrs"
                   v-on="on"
                   @click="onAction(item.value)"
+                  :color="icons_panel[item.value].active ? 'blue darken-4' : ''"
               >
                 {{ item.icon }}
               </v-icon>
@@ -411,7 +416,27 @@ export default {
         active: false,
         tag: "<s>",
         parentElem: 'strike',
-      }
+      },
+      justifyLeft: {
+        active: false,
+        tag: "text-align: left",
+        parentElem: '',
+      },
+      justifyRight: {
+        active: false,
+        tag: "text-align: right",
+        parentElem: '',
+      },
+      justifyCenter: {
+        active: false,
+        tag: "text-align: center",
+        parentElem: '',
+      },
+      justifyFull: {
+        active: false,
+        tag: "text-align: justify",
+        parentElem: '',
+      },
     },
 
     /* INSERT COMPONENTS */
@@ -723,12 +748,6 @@ export default {
         this.range.collapse(false);
       }
 
-      console.log('range')
-      console.log(this.range)
-
-      console.log('selection')
-      console.log(this.selection)
-
       this.selectComponent[componentName] = true
       this.params_of_component.name = componentName
 
@@ -847,7 +866,20 @@ export default {
         resolve()
       })
     },
-
+    checkRangeByTag(tagName) {
+      console.log(tagName)
+      Object.keys(this.icons_panel).forEach(icon => {
+        console.log(this.icons_panel[icon].active = tagName === icon.parentElem)
+        this.icons_panel[icon].active = tagName === icon.parentElem;
+      })
+    },
+    checkHTMLText(html) {
+      console.log(html)
+      Object.keys(this.icons_panel).forEach(icon => {
+        console.log(this.icons_panel[icon].active = html.includes(icon.tag))
+        this.icons_panel[icon].active = html.includes(icon.tag)
+      })
+    },
     onSelectionContent() {
       if (window.getSelection) {
         this.selection = null
@@ -860,17 +892,15 @@ export default {
         this.range = null
         this.range = document.selection.createRange();
       }
-      console.log('range')
-      console.log(this.range)
-      console.log('Selected elements:');
-      const selectedNode = this.range.cloneContents().querySelectorAll('*')
-      const selectedArray = Array.from(selectedNode)
-      console.log(selectedArray)
-      // this.range.cloneContents().querySelectorAll('*').forEach(e => console.log(e));
-      console.log('selection')
-      console.log(this.selection)
-
-      console.log(this.range.commonAncestorContainer.parentElement.localName === 'b')
+      // console.log('range')
+      // console.log(this.range)
+      // console.log('Selected elements:');
+      // const selectedNode = this.range.cloneContents().querySelectorAll('*')
+      // const selectedArray = Array.from(selectedNode)
+      // console.log(selectedArray)
+      // console.log('selection')
+      // console.log(this.selection)
+      this.checkRangeByTag(this.range.commonAncestorContainer.parentElement.localName)
 
       let html = "";
       if (typeof window.getSelection != "undefined") {
@@ -887,7 +917,7 @@ export default {
           html = document.selection.createRange().htmlText;
         }
       }
-      console.log(html);
+      this.checkHTMLText(html)
     },
 
     /* CLEANERS */
