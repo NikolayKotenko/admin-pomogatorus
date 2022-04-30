@@ -83,7 +83,7 @@
               <v-icon
                   v-bind="attrs"
                   v-on="on"
-                  @click="onAction('bold')"
+                  @click="onAction('bold', icons_panel.bold)"
                   :color="icons_panel.bold.active ? 'blue darken-4' : ''"
               >
                 mdi-format-bold
@@ -96,7 +96,7 @@
               <v-icon
                   v-bind="attrs"
                   v-on="on"
-                  @click="onAction('italic')"
+                  @click="onAction('italic', icons_panel.italic)"
                   :color="icons_panel.italic.active ? 'blue darken-4' : ''"
               >
                 mdi-format-italic
@@ -109,7 +109,7 @@
               <v-icon
                   v-bind="attrs"
                   v-on="on"
-                  @click="onAction('underline')"
+                  @click="onAction('underline', icons_panel.underline)"
                   :color="icons_panel.underline.active ? 'blue darken-4' : ''"
               >
                 mdi-format-underline
@@ -122,7 +122,7 @@
               <v-icon
                   v-bind="attrs"
                   v-on="on"
-                  @click="onAction('strikethrough')"
+                  @click="onAction('strikethrough', icons_panel.strike)"
                   :color="icons_panel.strike.active ? 'blue darken-4' : ''"
               >
                 mdi-format-strikethrough
@@ -138,7 +138,7 @@
               <v-icon
                   v-bind="attrs"
                   v-on="on"
-                  @click="onAction(item.value)"
+                  @click="onAction(item.value, icons_panel[item.value])"
                   :color="icons_panel[item.value].active ? 'blue darken-4' : ''"
               >
                 {{ item.icon }}
@@ -727,8 +727,11 @@ export default {
       })
       if (index !== -1) this.align_content = this.array_align_content[index]
     },
-    onAction(action) {
+    onAction(action, icon) {
       document.execCommand(action, false, null);
+      if (icon) {
+        icon.active = true
+      }
     },
 
     /* MANIPULATING WITH INSERTING COMPONENTS */
@@ -888,6 +891,8 @@ export default {
         this.range = document.selection.createRange();
       }
 
+      console.log(this.range)
+
       let html = "";
       if (typeof window.getSelection != "undefined") {
         let sel = window.getSelection();
@@ -903,9 +908,12 @@ export default {
           html = document.selection.createRange().htmlText;
         }
       }
-      // FIXME: can create loop for find parent
       Object.keys(this.icons_panel).forEach(icon => {
-        this.icons_panel[icon].active = this.checkRangeByTag(this.range.commonAncestorContainer.parentElement.localName, this.icons_panel[icon]) || this.checkHTMLText(html, this.icons_panel[icon]) || this.checkForAligns(this.range.commonAncestorContainer.parentElement.outerHTML, this.icons_panel[icon])
+        let parentElem = this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' ? '' : this.range.commonAncestorContainer.parentElement.outerHTML
+        if (this.range.commonAncestorContainer.parentElement.localName === 'b') {
+          parentElem = this.range.commonAncestorContainer.parentElement.parentElement.className === 'textRedactor__content' ? '' : this.range.commonAncestorContainer.parentElement.parentElement.outerHTML
+        }
+        this.icons_panel[icon].active = this.checkRangeByTag(this.range.commonAncestorContainer.parentElement.localName, this.icons_panel[icon]) || this.checkHTMLText(html, this.icons_panel[icon]) || this.checkForAligns(parentElem, this.icons_panel[icon])
       })
     },
 
