@@ -872,6 +872,9 @@ export default {
     checkHTMLText(html, icon) {
       return html.includes(icon.tag)
     },
+    checkForAligns(html, icon) {
+      return html.includes(icon.tag)
+    },
     onSelectionContent() {
       if (window.getSelection) {
         this.selection = null
@@ -884,14 +887,6 @@ export default {
         this.range = null
         this.range = document.selection.createRange();
       }
-      // console.log('range')
-      // console.log(this.range)
-      // console.log('Selected elements:');
-      // const selectedNode = this.range.cloneContents().querySelectorAll('*')
-      // const selectedArray = Array.from(selectedNode)
-      // console.log(selectedArray)
-      // console.log('selection')
-      // console.log(this.selection)
 
       let html = "";
       if (typeof window.getSelection != "undefined") {
@@ -908,9 +903,9 @@ export default {
           html = document.selection.createRange().htmlText;
         }
       }
-      // need fix aligns and done
+      // FIXME: can create loop for find parent
       Object.keys(this.icons_panel).forEach(icon => {
-        this.icons_panel[icon].active = this.checkRangeByTag(this.range.commonAncestorContainer.parentElement.localName, this.icons_panel[icon]) || this.checkHTMLText(html, this.icons_panel[icon])
+        this.icons_panel[icon].active = this.checkRangeByTag(this.range.commonAncestorContainer.parentElement.localName, this.icons_panel[icon]) || this.checkHTMLText(html, this.icons_panel[icon]) || this.checkForAligns(this.range.commonAncestorContainer.parentElement.outerHTML, this.icons_panel[icon])
       })
     },
 
