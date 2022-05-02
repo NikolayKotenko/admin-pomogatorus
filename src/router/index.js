@@ -15,6 +15,7 @@ import DetailArticles from "../components/articles/DetailArticles";
 import Question from "../components/frontLayouts/Question";
 
 import LoginAuth from "../components/auth/LoginAuth";
+import Logging from "@/services/logging";
 
 Vue.use(VueRouter)
 
@@ -134,9 +135,19 @@ router.beforeEach(async (to, from, next) => {
     if (to.query.userEmail)
       await store.dispatch('loginUser', {'userEmail': to.query.userEmail})
 
-    //Проверяем на пустоту массив userData
-    if (! store.getters.stateAuth)
-      next('/login')
+
+    // console.group('tokens')
+    //   console.log("Vue.$cookies.get('accessToken') === null - ", Vue.$cookies.get('accessToken') === null)
+    //   console.log('process.env.NODE_ENV -', process.env.NODE_ENV)
+    // console.groupEnd()
+
+    if (process.env.NODE_ENV === 'production') {
+      if (Vue.$cookies.get('accessToken') === null) {
+        const refreshResponse = await store.dispatch('refreshTokens')
+        if (Logging.checkExistErr(refreshResponse))
+          next('/login')
+      }
+    }
 
     next()
 });

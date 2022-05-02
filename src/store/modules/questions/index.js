@@ -1,5 +1,6 @@
 import qs from 'qs';
 import axios from "axios";
+import Request from "@/services/request";
 
 /* DEFAULT STATE */
 const defaultQuestion = {
@@ -189,41 +190,49 @@ export default {
     actions: {
         /* LIST_QUESTION */
         async setListQuestions({commit, state}) {
-            return new Promise((resolve, reject) => {
-                state.loadingList = true
-                axios.get(`${this.state.BASE_URL}/entity/questions`, {
-                    headers: {
-                        Authorization: '666777'
-                    },
+
+            return await Request.get(
+                this.state.BASE_URL+'/entity/questions')
+                .then((response) => {
+                    console.log('setListQuestions response')
+                    console.log(response)
+                    commit('set_list_questions', response.data.data)
+                    state.loadingList = false
                 })
-                    .then((response) => {
-                        commit('set_list_questions', response.data.data)
-                        state.loadingList = false
-                        resolve()
-                    })
-                    .catch((error) => {
-                        console.log('test')
-                        state.loadingList = false
-                        reject(error)
-                    })
-            })
+                .catch((error) => {
+                    console.log(error)
+                    state.loadingList = false
+                })
+            // return new Promise((resolve, reject) => {
+                // state.loadingList = true
+                // axios.get(`${this.state.BASE_URL}/entity/questions`, {
+                //     headers: {
+                //         Authorization: '666777'
+                //     },
+                // })
+                //     .then((response) => {
+                //         commit('set_list_questions', response.data.data)
+                //         state.loadingList = false
+                //         resolve()
+                //     })
+                //     .catch((error) => {
+                //         console.log('test')
+                //         state.loadingList = false
+                //         reject(error)
+                //     })
+            // })
         },
         async setListConfigDate({commit}) {
-            return new Promise((resolve, reject) => {
-                axios.get(`${this.state.BASE_URL}/entity/questions-list-config-date`, {
-                    headers: {
-                        Authorization: '666777'
-                    },
+            return await Request.get(
+                this.state.BASE_URL+'/entity/questions-list-config-date')
+                .then((response) => {
+                    console.log('setListConfigDate response')
+                    console.log(response)
+                    commit('set_list_config_date', response.data.data)
                 })
-                    .then((response) => {
-                        commit('set_list_config_date', response.data.data)
-                        resolve()
-                    })
-                    .catch((error) => {
-                        console.log('test')
-                        reject(error)
-                    })
-            })
+                .catch((error) => {
+                    console.log(error)
+                })
         },
         async setFilteredListQuestions({state, commit}, data) {
             return new Promise((resolve, reject) => {

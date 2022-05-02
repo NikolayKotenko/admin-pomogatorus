@@ -44,7 +44,6 @@
         </v-row>
       </v-container>
     </v-form>
-<!--    <iframe src="https://api.agregatorus.com/docs" frameborder="0" height="1000px" id="hiddenCrossDomainAuth"></iframe>-->
   </div>
 </template>
 
@@ -96,31 +95,11 @@ export default {
       if (this.valid === false)
         return false
 
-      // Если это админка то авторизуем пользователя
-      if (this.$store.getters.checkAdminPanel){
-        // var form = document.createElement('form')
-        // form.action = 'https://api.agregatorus.com/auth/login';
-        // form.method = 'POST'
-        // document.getElementById('hiddenCrossDomainAuth').appendChild(form)
-        // form.submit()
-
         const res = await this.$store.dispatch(
-            'loginUser', {
-              'email': this.email_user
-            })
-        if (Logging.checkExistErr(res))
-          this.alertCall(res);
-        else
-          this.$router.go(-1);
-      }
-      // Иначе это компонент авторизации через почту
-      else {
-        const res = await this.$store.dispatch(
-            'createUserByEmail', {
+            'createAndAuthUserByEmail', {
               'email': this.email_user
             })
         this.alertCall(res);
-      }
     },
 
     // inserted_components
