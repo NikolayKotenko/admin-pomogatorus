@@ -4,8 +4,10 @@ import './registerServiceWorker'
 import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify'
-import vuelidate from './plugins/vuelidate';
-import WebFont from 'webfontloader';
+import vuelidate from './plugins/vuelidate'
+import WebFont from 'webfontloader'
+import VueCookies from "vue-cookies"
+Vue.use(VueCookies)
 
 Vue.config.productionTip = false
 
