@@ -1,5 +1,4 @@
-# admin-pomogatorusda
-
+# admin-pomogatorus
 ## Project setup
 ```
 npm install
