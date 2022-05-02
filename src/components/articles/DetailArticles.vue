@@ -163,7 +163,7 @@
         </v-card>
       </v-dialog>
     </div>
-    <div class="detail_footer">
+    <footer class="detail_footer">
       <template v-if="$route.params.action === 'create'">
         <v-btn
             color="red darken-1"
@@ -175,7 +175,7 @@
         <v-btn
             color="blue darken-1"
             text
-            @click.prevent="onSubmit"
+            @click.prevent="onSubmit('next')"
             :disabled="computedValidations"
         >
           Создать
@@ -193,13 +193,13 @@
           <v-btn
               color="blue darken-1"
               text
-              @click.prevent="saveDifferences()"
+              @click.prevent="saveDifferences('next')"
           >
             Сохранить изменения
           </v-btn>
         </template>
       </template>
-    </div>
+    </footer>
   </div>
 </template>
 
@@ -230,7 +230,7 @@ export default {
   },
   data: () => ({
     newArticle: {
-      id: 1,
+      id: null,
       name: {
         value: '',
         focused: false,
@@ -253,17 +253,25 @@ export default {
     deleteModal: false,
     deleteStorage: false,
     deletedContent: false,
+    debounceTimeout: null,
+    getFromServer: false,
   }),
   mounted() {
+    // this.getDb()
+    this.deletingDBArticle()
     this.initializeQuery()
-    this.getDb()
     if (!this.deleteStorage) {
       if (this.$route.params?.action === 'create') {
-        this.getDBQuestion()
+        // this.getDBQuestion()
       }
     }
   },
   watch: {
+    '$store.state.TitlesModule.newArticle.id': {
+      handler(v) {
+        this.newArticle.id = v
+      }
+    },
     '$store.state.TitlesModule.content': {
       handler() {
         this.saveDBQuestion(this.newArticle)
@@ -283,14 +291,21 @@ export default {
           (!this.newArticle.short_header.value && this.$v.newArticle.short_header.$dirty && !this.$v.newArticle.short_header.required)
       )
     },
+    check_short_name() {
+      return ((this.newArticle.name.value !== '') && (this.newArticle.short_header.value !== '') && (this.newArticle.id === null))
+    },
   },
   methods: {
     /* MAIN */
     initializeQuery() {
       if (Object.keys(this.$route.query).length && Object.keys(this.$route.query).includes('article_id')) {
+        this.getFromServer = true
         this.$store.dispatch('getDetailArticle', this.$route.query.article_id).then(() => {
           if (this.$store.state.TitlesModule.newArticle.name) {
             this.newArticle = this.$store.state.TitlesModule.newArticle
+            setTimeout(() => {
+              this.getFromServer = false
+            }, 2000)
           }
         })
       }
@@ -322,11 +337,13 @@ export default {
         this.deletedContent = false
       }, 500)
     },
-    saveDifferences() {
+    saveDifferences(action) {
       this.$store.dispatch('updateArticle', this.newArticle).then(() => {
-        this.$router.push({
-          path: '/articles'
-        })
+        if (action === 'next') {
+          this.$router.push({
+            path: '/articles'
+          })
+        }
       })
     },
     deleteArticle() {
@@ -359,6 +376,18 @@ export default {
           db.createObjectStore(STORAGE_NAME, { autoIncrement: true, keyPath: 'id' })
         }
       })
+    },
+    deletingDBArticle() {
+      let req = indexedDB.deleteDatabase(DB_NAME);
+      req.onsuccess = function () {
+        console.log("Deleted database successfully");
+      };
+      req.onerror = function () {
+        console.log("Couldn't delete database");
+      };
+      req.onblocked = function () {
+        console.log("Couldn't delete database due to the operation being blocked");
+      };
     },
     async deleteDBQuestion (value) {
       const db = await this.getDb()
@@ -399,40 +428,50 @@ export default {
         }
       }
     },
-    async saveDBQuestion(value) {
-      const refactored = {}
-      for (let key in value) {
-        if (typeof value[key] === 'object' && value[key] !== null) {
-          if (Array.isArray(value[key])) {
-            refactored[key] = value[key]
-          } else {
-            refactored[key] = {}
-            refactored[key].value = value[key].value
-            refactored[key].focused = false
-          }
-        } else {
-          if (key === 'value_type_answer') {
-            refactored[key] = value[key]
-          } else if (key === 'id') {
-            refactored[key] = value[key]
-          } else refactored[key] = value[key]
+    async saveDBQuestion() {
+      if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
+      this.debounceTimeout = setTimeout(() => {
+        if (this.check_short_name) {
+          this.onSubmit()
+        } else if (this.newArticle.id !== null && !this.getFromServer) {
+          this.saveDifferences()
         }
-      }
-      refactored.content = this.$store.state.TitlesModule.content
-      refactored.inserted_components = this.$store.state.TitlesModule.inserted_components
-      if (!this.deleteStorage) {
-        if (this.$route.params?.action === 'create') {
-          let db = await this.getDb()
-          return new Promise(resolve => {
-            let trans = db.transaction([STORAGE_NAME], 'readwrite')
-            trans.oncomplete = () => {
-              resolve()
-            }
-            let store = trans.objectStore(STORAGE_NAME)
-            store.put(refactored)
-          })
-        }
-      }
+      }, 600)
+      // else {
+      //   const refactored = {}
+      //   for (let key in value) {
+      //     if (typeof value[key] === 'object' && value[key] !== null) {
+      //       if (Array.isArray(value[key])) {
+      //         refactored[key] = value[key]
+      //       } else {
+      //         refactored[key] = {}
+      //         refactored[key].value = value[key].value
+      //         refactored[key].focused = false
+      //       }
+      //     } else {
+      //       if (key === 'value_type_answer') {
+      //         refactored[key] = value[key]
+      //       } else if (key === 'id') {
+      //         refactored[key] = value[key]
+      //       } else refactored[key] = value[key]
+      //     }
+      //   }
+      //   refactored.content = this.$store.state.TitlesModule.content
+      //   refactored.inserted_components = this.$store.state.TitlesModule.inserted_components
+      //   if (!this.deleteStorage) {
+      //     if (this.$route.params?.action === 'create') {
+      //       let db = await this.getDb()
+      //       return new Promise(resolve => {
+      //         let trans = db.transaction([STORAGE_NAME], 'readwrite')
+      //         trans.oncomplete = () => {
+      //           resolve()
+      //         }
+      //         let store = trans.objectStore(STORAGE_NAME)
+      //         store.put(refactored)
+      //       })
+      //     }
+      //   }
+      // }
     },
 
     /* FOCUS */
@@ -458,20 +497,31 @@ export default {
     },
 
     /* CRUD */
-    onSubmit() {
-      console.log(this.$v)
+    onSubmit(action) {
       if (this.$v.$invalid) {
         this.$v.$touch();
         return;
       }
-      this.deleteDBQuestion(this.newArticle).then(() => {
+
+      if (action === 'next') {
+        this.$router.push({
+          path: '/articles'
+        })
+      } else {
+        this.$store.dispatch('createArticle', this.newArticle).then(() => {
+          this.$store.dispatch('removeLocalStorageArticle')
+        })
+      }
+
+
+      /*this.deleteDBQuestion(this.newArticle).then(() => {
         this.$store.dispatch('createArticle', this.newArticle).then(() => {
           this.$store.dispatch('removeLocalStorageArticle')
           this.$router.push({
             path: '/articles'
           })
         })
-      })
+      })*/
     },
   },
   beforeDestroy() {
@@ -493,6 +543,7 @@ export default {
 
 .detail-wrapper {
   padding: 10px;
+  flex: 1;
 
   .form {
     display: flex;

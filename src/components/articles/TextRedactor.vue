@@ -1,9 +1,9 @@
 <template>
-  <div class="textRedactor" :class="{disabled: !newArticle.name.value}">
+  <div class="textRedactor" :class="{disabled: !check_created_article}">
     <div class="textRedactor__header">
       <div class="textRedactor__header__firstLine">
         <!-- Вставить элемент в текст -->
-        <div class="header__elBlock right" style="display: flex; align-items: center; column-gap: 4px">
+        <div class="header__elBlock right" style="display: flex; align-items: center; column-gap: 5px">
           <!-- Auth -->
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
@@ -77,13 +77,14 @@
           </v-tooltip>
         </div>
         <!-- Жирный/курсив и т.д. -->
-        <div class="header__elBlock">
+        <div class="header__elBlock right">
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <v-icon
                   v-bind="attrs"
                   v-on="on"
-                  @click="onAction('bold')"
+                  @click="onAction('bold', icons_panel.bold)"
+                  :color="icons_panel.bold.active ? 'blue darken-4' : ''"
               >
                 mdi-format-bold
               </v-icon>
@@ -95,7 +96,8 @@
               <v-icon
                   v-bind="attrs"
                   v-on="on"
-                  @click="onAction('italic')"
+                  @click="onAction('italic', icons_panel.italic)"
+                  :color="icons_panel.italic.active ? 'blue darken-4' : ''"
               >
                 mdi-format-italic
               </v-icon>
@@ -107,7 +109,8 @@
               <v-icon
                   v-bind="attrs"
                   v-on="on"
-                  @click="onAction('underline')"
+                  @click="onAction('underline', icons_panel.underline)"
+                  :color="icons_panel.underline.active ? 'blue darken-4' : ''"
               >
                 mdi-format-underline
               </v-icon>
@@ -119,7 +122,8 @@
               <v-icon
                   v-bind="attrs"
                   v-on="on"
-                  @click="onAction('strikethrough')"
+                  @click="onAction('strikethrough', icons_panel.strike)"
+                  :color="icons_panel.strike.active ? 'blue darken-4' : ''"
               >
                 mdi-format-strikethrough
               </v-icon>
@@ -129,113 +133,48 @@
         </div>
         <!-- Форматирование -->
         <div class="header__elBlock">
-          <v-menu
-              open-on-hover
-              bottom
-              offset-y
-              transition="scale-transition"
-              v-model="align_content.open_list"
-          >
+          <v-tooltip bottom v-for="(item, index) in array_align_content" :key="index">
             <template v-slot:activator="{ on, attrs }">
-              <div
-                  class="header__elBlock__iconWrapper"
+              <v-icon
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="onAction(item.value, icons_panel[item.value])"
+                  :color="icons_panel[item.value].active ? 'blue darken-4' : ''"
               >
-                <v-icon
-                    @click="onAction(align_content.value)"
-                >
-                  {{ align_content.icon }}
-                </v-icon>
-                <v-icon
-                    v-bind="attrs"
-                    v-on="on"
-                    v-if="align_content.open_list"
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-down
-                </v-icon>
-                <v-icon
-                    v-bind="attrs"
-                    v-on="on"
-                    v-else
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-up
-                </v-icon>
-              </div>
+                {{ item.icon }}
+              </v-icon>
             </template>
-            <v-list>
-              <v-list-item v-for="(item, index) in array_align_content" :key="index" @click="select_align_content(item.value)">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-icon
-                        v-bind="attrs"
-                        v-on="on"
-                        size="20"
-                    >
-                      {{ item.icon }}
-                    </v-icon>
-                    <v-list-item-title class="v-menu-item"> {{ item.text }} </v-list-item-title>
-                  </template>
-                  <span>{{ item.text }}</span>
-                </v-tooltip>
-              </v-list-item>
-            </v-list>
-          </v-menu>
+            <span>{{ item.text }}</span>
+          </v-tooltip>
         </div>
+      </div>
+      <div class="textRedactor__header__secondLine">
         <!-- Отступы -->
-        <div class="header__elBlock">
-          <v-menu
-              open-on-hover
-              bottom
-              offset-y
-              transition="scale-transition"
-              v-model="side_spaces.open_list"
-          >
+        <div class="header__elBlock right">
+          <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <div
-                  class="header__elBlock__iconWrapper"
+              <v-icon
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="onAction('indent')"
               >
-                <v-icon
-                    @click="onAction(side_spaces.value)"
-                >
-                  {{ side_spaces.icon }}
-                </v-icon>
-                <v-icon
-                    v-bind="attrs"
-                    v-on="on"
-                    v-if="side_spaces.open_list"
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-down
-                </v-icon>
-                <v-icon
-                    v-bind="attrs"
-                    v-on="on"
-                    v-else
-                    class="header__elBlock__iconWrapper__arrow"
-                >
-                  mdi-menu-up
-                </v-icon>
-              </div>
+                mdi-format-indent-increase
+              </v-icon>
             </template>
-            <v-list>
-              <v-list-item v-for="(item, index) in array_side_spaces" :key="index" @click="select_side_content(item.value)">
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-icon
-                        v-bind="attrs"
-                        v-on="on"
-                        size="20"
-                    >
-                      {{ item.icon }}
-                    </v-icon>
-                    <v-list-item-title class="v-menu-item"> {{ item.text }} </v-list-item-title>
-                  </template>
-                  <span>{{ item.text }}</span>
-                </v-tooltip>
-              </v-list-item>
-            </v-list>
-          </v-menu>
+            <span>Убрать отступ</span>
+          </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-icon
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="onAction('outdent')"
+              >
+                mdi-format-indent-decrease
+              </v-icon>
+            </template>
+            <span>Сделать отступ</span>
+          </v-tooltip>
         </div>
         <!-- Очистка форматирования -->
         <div class="header__elBlock">
@@ -257,9 +196,10 @@
 
     <div
         class="textRedactor__content"
-        :contenteditable="!!newArticle.name.value"
+        :contenteditable="check_created_article"
         spellcheck="false"
         ref="content" @input="onContentChange"
+        @click="onSelectionContent()"
     >
     </div>
 
@@ -349,7 +289,7 @@
     </v-dialog>
 
     <!-- OVERLAYS -->
-    <div class="overlay" v-if="!newArticle.name.value"></div>
+    <div class="overlay" v-if="!check_created_article"></div>
   </div>
 </template>
 
@@ -456,26 +396,48 @@ export default {
         open_list: false,
       },
     ],
-    side_spaces: {
-      value: 'indent',
-      text: 'Сделать отступ',
-      icon: 'mdi-format-indent-increase',
-      open_list: false,
+    icons_panel: {
+      bold: {
+        active: false,
+        tag: "<b>",
+        parentElem: 'b',
+      },
+      italic: {
+        active: false,
+        tag: "<i>",
+        parentElem: 'i',
+      },
+      underline: {
+        active: false,
+        tag: "<u>",
+        parentElem: 'u',
+      },
+      strike: {
+        active: false,
+        tag: "<s>",
+        parentElem: 'strike',
+      },
+      justifyLeft: {
+        active: false,
+        tag: "text-align: left",
+        parentElem: '',
+      },
+      justifyRight: {
+        active: false,
+        tag: "text-align: right",
+        parentElem: '',
+      },
+      justifyCenter: {
+        active: false,
+        tag: "text-align: center",
+        parentElem: '',
+      },
+      justifyFull: {
+        active: false,
+        tag: "text-align: justify",
+        parentElem: '',
+      },
     },
-    array_side_spaces: [
-      {
-        value: 'indent',
-        text: 'Сделать отступ',
-        icon: 'mdi-format-indent-increase',
-        open_list: false,
-      },
-      {
-        value: 'outdent',
-        text: 'Убрать отступ',
-        icon: 'mdi-format-indent-decrease',
-        open_list: false,
-      },
-    ],
 
     /* INSERT COMPONENTS */
     saveDB: false,
@@ -529,7 +491,7 @@ export default {
     },
     'params_of_component.name': {
       handler(v) {
-        if (v && v === 'question') {
+        if (v && v === 'questions') {
           this.$store.dispatch('getListComponents', this.params_of_component.name)
         }
       }
@@ -587,6 +549,9 @@ export default {
     },
   },
   computed: {
+    check_created_article() {
+      return ((this.newArticle.name.value !== '') && (this.newArticle.short_header.value !== ''))
+    },
     check_count_auth() {
       return this.$store.state.TitlesModule.count_of_auth >= 1
     },
@@ -599,7 +564,7 @@ export default {
     },
     options() {
       return {
-        url: `https://api-test.agregatorus.com/entity/files`,
+        url: `${this.$store.state.BASE_URL}/entity/files`,
         // url: 'https://httpbin.org/post',
         previewTemplate: this.previewHtml,
         destroyDropzone: false,
@@ -619,6 +584,7 @@ export default {
     sendingData(file, xhr, formData) {
       console.log(file.upload.uuid)
       formData.append('uuid', file.upload.uuid)
+      formData.append('id_article', this.$store.state.TitlesModule.newArticle.id)
     },
     successData(file, response) {
       console.log(response)
@@ -627,7 +593,7 @@ export default {
       for (let key in response.data) {
         Object.assign(formatObj, {[key]: response.data[key]})
       }
-      Object.assign(formatObj, {id: this.index_uploaded})
+      Object.assign(formatObj, {index: this.index_uploaded})
       this.index_uploaded++
       this.dropzone_uploaded.push(formatObj)
 
@@ -646,10 +612,12 @@ export default {
     },
     removedFile(id) {
       const index = this.dropzone_uploaded.findIndex(elem => {
-        return elem.id === id
+        return elem.index === id
       })
       if (index !== -1) {
-        this.dropzone_uploaded.splice(index, 1)
+        this.$store.dispatch('deleteFile', this.dropzone_uploaded[index].id).then(() => {
+          this.dropzone_uploaded.splice(index, 1)
+        })
       }
     },
     clearDropZoneTemplate() {
@@ -700,8 +668,16 @@ export default {
               arr.forEach((elem) => {
                 setTimeout(() => {
                     this.checkTypeComponent(elem)
+                    let data = {}
+                    if (elem.component.name === 'image') {
+                      const full_url = document.getElementById(`component_wrapper-${elem.index}`).getElementsByClassName( 'inserted_image' )[0].src
+                      let sub_url = full_url.split('.com')
+                      const alt = document.getElementById(`component_wrapper-${elem.index}`).getElementsByClassName( 'inserted_image' )[0].alt
+                      data = Object.assign({}, {name: alt}, {full_path: sub_url[1]})
+                    } else data = elem.data
+
                     this.$store.state.TitlesModule.countLayout = elem.index
-                    this.$store.state.TitlesModule.selectedComponent = elem.data
+                    this.$store.state.TitlesModule.selectedComponent = data
                     let range = document.createRange();
                     range.selectNode(document.getElementById(`component_wrapper-${elem.index}`));
                     range.deleteContents()
@@ -727,7 +703,7 @@ export default {
       } else if (elem.component.name === 'image') {
         this.$store.state.TitlesModule.count_of_images = elem.component.index_image
       } else if (elem.component.name === 'auth') {
-        this.$store.state.TitlesModule.count_of_auth = elem.component.count_of_auth
+        this.$store.state.TitlesModule.count_of_auth = elem.component.index_auth
       }
     },
 
@@ -745,20 +721,17 @@ export default {
         }
       })
     },
-    select_side_content(value) {
-      const index = this.array_side_spaces.findIndex(elem => {
-        return elem.value === value
-      })
-      if (index !== -1) this.side_spaces = this.array_side_spaces[index]
-    },
     select_align_content(value) {
       const index = this.array_align_content.findIndex(elem => {
         return elem.value === value
       })
       if (index !== -1) this.align_content = this.array_align_content[index]
     },
-    onAction(action) {
+    onAction(action, icon) {
       document.execCommand(action, false, null);
+      if (icon) {
+        icon.active = true
+      }
     },
 
     /* MANIPULATING WITH INSERTING COMPONENTS */
@@ -869,7 +842,7 @@ export default {
         this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$mount() // pass nothing
 
         if (window.getSelection) {
-          if (this.range && this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content') {
+          if (this.range && (this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' || this.range.commonAncestorContainer.offsetParent._prevClass === "textRedactor")) {
             this.range.insertNode(this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el);
           } else {
             let range = document.createRange();
@@ -878,7 +851,7 @@ export default {
             range.insertNode(this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el);
           }
         } else if (document.selection && document.selection.createRange) {
-          if (this.range && this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content') {
+          if (this.range && (this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' || this.range.commonAncestorContainer.offsetParent._prevClass === "textRedactor")) {
             this.htmlSelected = (this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.nodeType == 3) ?
                 this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.innerHTML.data :
                 this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.outerHTML;
@@ -894,6 +867,53 @@ export default {
           }
         }
         resolve()
+      })
+    },
+    checkRangeByTag(tagName, icon) {
+      return tagName === icon.parentElem
+    },
+    checkHTMLText(html, icon) {
+      return html.includes(icon.tag)
+    },
+    checkForAligns(html, icon) {
+      return html.includes(icon.tag)
+    },
+    onSelectionContent() {
+      if (window.getSelection) {
+        this.selection = null
+        this.selection = window.getSelection();
+        if (this.selection.getRangeAt && this.selection.rangeCount) {
+          this.range = null
+          this.range = this.selection.getRangeAt(0);
+        }
+      } else if (document.selection && document.selection.createRange) {
+        this.range = null
+        this.range = document.selection.createRange();
+      }
+
+      console.log(this.range)
+
+      let html = "";
+      if (typeof window.getSelection != "undefined") {
+        let sel = window.getSelection();
+        if (sel.rangeCount) {
+          let container = document.createElement("div");
+          for (let i = 0, len = sel.rangeCount; i < len; ++i) {
+            container.appendChild(sel.getRangeAt(i).cloneContents());
+          }
+          html = container.innerHTML;
+        }
+      } else if (typeof document.selection != "undefined") {
+        if (document.selection.type == "Text") {
+          html = document.selection.createRange().htmlText;
+        }
+      }
+      Object.keys(this.icons_panel).forEach(icon => {
+        let parentElem = this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' ? '' : this.range.commonAncestorContainer.parentElement.outerHTML
+        if (this.range.commonAncestorContainer.parentElement.localName === 'b') {
+          parentElem = this.range.commonAncestorContainer.parentElement.parentElement.className === 'textRedactor__content' ? '' : this.range.commonAncestorContainer.parentElement.parentElement.outerHTML
+        }
+        this.icons_panel[icon].active = this.checkRangeByTag(this.range.commonAncestorContainer.parentElement.localName, this.icons_panel[icon]) || this.checkHTMLText(html, this.icons_panel[icon]) || this.checkForAligns(parentElem, this.icons_panel[icon])
       })
     },
 
@@ -1015,6 +1035,7 @@ export default {
     min-height: 300px;
     margin: 10px 0;
     word-break: break-all;
+    white-space: nowrap;
   }
 }
 

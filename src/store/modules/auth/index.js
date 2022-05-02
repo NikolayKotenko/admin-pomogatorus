@@ -7,13 +7,15 @@ export default {
         inserting_component: false,
     },
     getters: {
-        // checkAdminPanel(){
-        //     return true
-        //     // if (!process.env.VUE_APP_SERVER)
-        //     //     return false
-        //     //
-        //     // return Boolean(process.env.VUE_APP_SERVER.match('admin'))
-        // },
+        stateAuth(state){
+            return Object.keys(state.userData).length !== 0
+        },
+        checkAdminPanel(){
+            if (!process.env.VUE_APP_SERVER)
+                return false
+
+            return Boolean(process.env.VUE_APP_SERVER.match('admin'))
+        },
     },
     actions: {
         async validateAuth(){

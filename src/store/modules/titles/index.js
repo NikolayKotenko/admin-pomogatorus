@@ -27,11 +27,11 @@ const defaultArticle = {
 }
 
 /* CONSTRUCTORS */
-function InsertedComponents(elem) {
-    this.index = elem.index
-    this.id_component = elem.id_component
-    this.type_component = elem.type_component
-}
+// function InsertedComponents(elem) {
+//     this.index = elem.index
+//     this.id_component = elem.component.id_component
+//     this.type_component = elem.component.type_component
+// }
 
 export default {
     state: {
@@ -155,19 +155,27 @@ export default {
                         state.content_from_server = JSON.parse(result[key])
                     }
                 } else if (key === 'inserted_components') {
-                    let parsed = null
-                    parsed = JSON.parse(JSON.parse(result[key]))
-                    if (Array.isArray(parsed)) {
+                    if (!JSON.parse(JSON.parse(result[key])).length) {
                         state.inserted_components = []
-                        parsed.forEach(elem => {
-                            state.inserted_components.push(new InsertedComponents(elem))
-                        })
                     } else {
-                        state.inserted_components = []
+                        let parsed = null
+                        parsed = JSON.parse(JSON.parse(JSON.parse(result[key])))
+                        console.log(parsed)
+                        if (Array.isArray(parsed)) {
+                            state.inserted_components = []
+                            parsed.forEach(elem => {
+                                state.inserted_components.push(elem)
+                            })
+                        } else {
+                            state.inserted_components = []
+                        }
                     }
                 } else state.newArticle[key] = result[key]
             }
             state.nonEditState = Object.assign({}, state.newArticle)
+        },
+        change_id_newArticle(state, result) {
+            state.newArticle.id = result
         },
 
         /* INSERT COMPONENT */
@@ -396,10 +404,10 @@ export default {
         async createArticle({dispatch, state, commit}, data) {
             return new Promise((resolve, reject) => {
                 state.loadingRequest = true
-                state.loadingArticle = true
+                // state.loadingArticle = true
                 let bodyFormData = new FormData()
                 for (let key in data) {
-                    if (typeof data[key] === 'object') {
+                    if (typeof data[key] === 'object' && data[key] !== null) {
                         if (data[key].value) {
                             bodyFormData.append(key, data[key].value)
                         }
@@ -420,16 +428,16 @@ export default {
                         state.loadingRequest = false
                         dispatch('setListArticles').then(() => {
                             dispatch('createRelationTagArticle', data.name.value).then(() => {
-                                state.loadingArticle = false
+                                // state.loadingArticle = false
                                 resolve()
                             })
                         })
-                        console.log(response);
+                        commit('change_id_newArticle', response.data.data.id)
                     })
                     .catch((response) => {
                         //handle error
                         state.loadingRequest = false
-                        state.loadingArticle = false
+                        // state.loadingArticle = false
                         const data = Object.assign({}, {message: response.response.data.message}, {error: true})
                         commit('change_notification_modal', data, { root: true })
                         reject()
@@ -440,7 +448,7 @@ export default {
         updateArticle({dispatch, state}, data) {
             return new Promise((resolve) => {
                 state.loadingRequest = true
-                state.loadingArticle = true
+                // state.loadingArticle = true
                 const requestData = {}
                 for (let key in data) {
                     if (typeof data[key] === 'object' && !Array.isArray(data[key])) {
@@ -450,7 +458,7 @@ export default {
                     } else requestData[key] = data[key]
                 }
                 requestData['content'] = JSON.stringify(state.content)
-                requestData['inserted_components'] = JSON.stringify(state.inserted_components)
+                requestData['inserted_components'] = JSON.stringify(JSON.stringify(state.inserted_components))
 
                 const options = {
                     method: 'PUT',
@@ -462,7 +470,7 @@ export default {
                     .then((response) => {
                         //handle success
                         state.loadingRequest = false
-                        state.loadingArticle = false
+                        // state.loadingArticle = false
                         dispatch('setListArticles').then(() => {
                             dispatch('createRelationTagArticle', data.name.value).then(() => {
                                 resolve()
@@ -473,7 +481,7 @@ export default {
                     .catch((response) => {
                         //handle error
                         state.loadingRequest = false
-                        state.loadingArticle = false
+                        // state.loadingArticle = false
                         resolve()
                         console.log(response.body);
                     });
@@ -506,6 +514,7 @@ export default {
                     });
             })
         },
+
         /* INSERT COMPONENT */
         deleteComponent({commit}, id) {
           commit('delete_component_by_id', id)
@@ -580,6 +589,33 @@ export default {
                         state.loadingModalList = false
                         reject(error)
                     })
+            })
+        },
+        deleteFile({state}, id) {
+            state.loadingRequest = true
+            return new Promise((resolve) => {
+
+                const options = {
+                    method: 'DELETE',
+                    url: `${this.state.BASE_URL}/entity/files/${id}`,
+                    headers: {
+                        Authorization: '666777'
+                    },
+                }
+
+                axios(options)
+                    .then((response) => {
+                        //handle success
+                        state.loadingRequest = false
+                        resolve()
+                        console.log(response);
+                    })
+                    .catch((response) => {
+                        //handle error
+                        state.loadingRequest = false
+                        resolve()
+                        console.log(response.body);
+                    });
             })
         },
 

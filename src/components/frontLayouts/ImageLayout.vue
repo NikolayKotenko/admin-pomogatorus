@@ -3,7 +3,7 @@
     <div class="image_wrapper__admin_controls-header" contenteditable="false">
       <img class="image_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
     </div>
-    <img class="inserted_image" :src="data_image.dataURL" :alt="data_image.name">
+    <img class="inserted_image" :src="this.$store.state.BASE_URL+data_image.full_path" :alt="data_image.name">
 <!--    <vue-draggable-resizable :w="100" :h="100" :draggable="false" @resizing="onResize" :parent="true">-->
 <!--      <img class="inserted_image" :src="data_image.dataURL" :alt="data_image.name">-->
 <!--    </vue-draggable-resizable>-->

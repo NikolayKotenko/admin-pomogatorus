@@ -54,7 +54,9 @@ export default {
 <style lang="scss">
 body {
   margin:0;
-  padding:0;
   height:100%;
+  //padding: 12px;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 </style>
