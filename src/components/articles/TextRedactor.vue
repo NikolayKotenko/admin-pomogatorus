@@ -889,9 +889,6 @@ export default {
       return html.includes(icon.tag)
     },
     onSelectionContent() {
-      const header = document.getElementById('header')
-      header.scrollIntoView({block: "center", behavior: "smooth"})
-
       if (window.getSelection) {
         this.selection = null
         this.selection = window.getSelection();
@@ -1060,6 +1057,7 @@ export default {
     margin: 10px 0;
     word-break: break-all;
     white-space: nowrap;
+    overflow:hidden;
   }
 }
 
