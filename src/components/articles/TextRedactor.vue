@@ -1,6 +1,6 @@
 <template>
   <div class="textRedactor" :class="{disabled: !check_created_article}">
-    <div class="textRedactor__header">
+    <div class="textRedactor__header" id="header">
       <div class="textRedactor__header__firstLine">
         <!-- Вставить элемент в текст -->
         <div class="header__elBlock right" style="display: flex; align-items: center; column-gap: 10px !important;">
@@ -889,6 +889,9 @@ export default {
       return html.includes(icon.tag)
     },
     onSelectionContent() {
+      const header = document.getElementById('header')
+      header.scrollIntoView({block: "center", behavior: "smooth"})
+
       if (window.getSelection) {
         this.selection = null
         this.selection = window.getSelection();
@@ -900,8 +903,6 @@ export default {
         this.range = null
         this.range = document.selection.createRange();
       }
-
-      console.log(this.range)
 
       let html = "";
       if (typeof window.getSelection != "undefined") {
