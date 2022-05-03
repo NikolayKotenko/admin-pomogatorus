@@ -1056,7 +1056,7 @@ export default {
     min-height: 300px;
     margin: 10px 0;
     word-break: break-all;
-    white-space: nowrap;
+    white-space: pre-wrap;
     overflow:hidden;
   }
 }
