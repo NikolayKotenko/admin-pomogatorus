@@ -977,6 +977,17 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@media only screen and (max-width : 375px) and (orientation: portrait) {
+  .header__elBlock {
+    padding: 2px 4px !important;
+    display: flex;
+    column-gap: 0 !important;
+  }
+  .textRedactor__header__firstLine {
+    justify-content: space-between !important;
+  }
+}
+
 .disabled {
   pointer-events: none;
 }
@@ -997,7 +1008,7 @@ export default {
 
     &__firstLine {
       display: flex;
-      //justify-content: space-between;
+      justify-content: space-between;
       grid-area: firstLine;
     }
 
@@ -1007,7 +1018,9 @@ export default {
     }
 
     .header__elBlock {
-      padding: 2px 4px;
+      padding: 2px 5px;
+      display: flex;
+      column-gap: 3px;
 
       &:last-child {
         border-right: unset;
