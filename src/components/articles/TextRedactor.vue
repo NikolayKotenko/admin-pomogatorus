@@ -3,14 +3,14 @@
     <div class="textRedactor__header">
       <div class="textRedactor__header__firstLine">
         <!-- Вставить элемент в текст -->
-        <div class="header__elBlock right" style="display: flex; align-items: center; column-gap: 5px">
+        <div class="header__elBlock right" style="display: flex; align-items: center; column-gap: 10px !important;">
           <!-- Auth -->
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <v-icon
                   v-bind="attrs"
                   v-on="on"
-                  size="20"
+                  size="28"
                   @click="initialiseInserting('auth')"
                   :disabled="check_count_auth"
               >
@@ -25,7 +25,7 @@
               <v-icon
                   v-bind="attrs"
                   v-on="on"
-                  size="20"
+                  size="28"
                   @click="initializeSelection('questions')"
                   style="padding-top: 2px"
               >
@@ -40,7 +40,7 @@
               <v-icon
                   v-bind="attrs"
                   v-on="on"
-                  size="20"
+                  size="28"
                   @click="initializeSelection('image')"
               >
                 mdi-panorama
@@ -57,6 +57,7 @@
                   v-bind="attrs"
                   v-on="on"
                   @click="onAction('undo')"
+                  size="28"
               >
                 mdi-undo
               </v-icon>
@@ -69,6 +70,7 @@
                   v-bind="attrs"
                   v-on="on"
                   @click="onAction('redo')"
+                  size="28"
               >
                 mdi-redo
               </v-icon>
@@ -85,6 +87,7 @@
                   v-on="on"
                   @click="onAction('bold', icons_panel.bold)"
                   :color="icons_panel.bold.active ? 'blue darken-4' : ''"
+                  size="28"
               >
                 mdi-format-bold
               </v-icon>
@@ -98,6 +101,7 @@
                   v-on="on"
                   @click="onAction('italic', icons_panel.italic)"
                   :color="icons_panel.italic.active ? 'blue darken-4' : ''"
+                  size="28"
               >
                 mdi-format-italic
               </v-icon>
@@ -111,6 +115,7 @@
                   v-on="on"
                   @click="onAction('underline', icons_panel.underline)"
                   :color="icons_panel.underline.active ? 'blue darken-4' : ''"
+                  size="28"
               >
                 mdi-format-underline
               </v-icon>
@@ -124,6 +129,7 @@
                   v-on="on"
                   @click="onAction('strikethrough', icons_panel.strike)"
                   :color="icons_panel.strike.active ? 'blue darken-4' : ''"
+                  size="28"
               >
                 mdi-format-strikethrough
               </v-icon>
@@ -131,8 +137,10 @@
             <span>Перечёркнутый</span>
           </v-tooltip>
         </div>
+      </div>
+      <div class="textRedactor__header__secondLine">
         <!-- Форматирование -->
-        <div class="header__elBlock">
+        <div class="header__elBlock right">
           <v-tooltip bottom v-for="(item, index) in array_align_content" :key="index">
             <template v-slot:activator="{ on, attrs }">
               <v-icon
@@ -140,6 +148,7 @@
                   v-on="on"
                   @click="onAction(item.value, icons_panel[item.value])"
                   :color="icons_panel[item.value].active ? 'blue darken-4' : ''"
+                  size="28"
               >
                 {{ item.icon }}
               </v-icon>
@@ -147,8 +156,6 @@
             <span>{{ item.text }}</span>
           </v-tooltip>
         </div>
-      </div>
-      <div class="textRedactor__header__secondLine">
         <!-- Отступы -->
         <div class="header__elBlock right">
           <v-tooltip bottom>
@@ -157,6 +164,7 @@
                   v-bind="attrs"
                   v-on="on"
                   @click="onAction('indent')"
+                  size="28"
               >
                 mdi-format-indent-increase
               </v-icon>
@@ -169,6 +177,7 @@
                   v-bind="attrs"
                   v-on="on"
                   @click="onAction('outdent')"
+                  size="28"
               >
                 mdi-format-indent-decrease
               </v-icon>
@@ -184,6 +193,7 @@
                   v-bind="attrs"
                   v-on="on"
                   @click="onAction('removeFormat')"
+                  size="28"
               >
                 mdi-format-clear
               </v-icon>
@@ -978,14 +988,14 @@ export default {
 
 <style scoped lang="scss">
 @media only screen and (max-width : 375px) and (orientation: portrait) {
-  .header__elBlock {
-    padding: 2px 4px !important;
-    display: flex;
-    column-gap: 0 !important;
-  }
-  .textRedactor__header__firstLine {
-    justify-content: space-between !important;
-  }
+  //.header__elBlock {
+  //  padding: 2px 4px !important;
+  //  display: flex;
+  //  column-gap: 0 !important;
+  //}
+  //.textRedactor__header__firstLine {
+  //  justify-content: space-between !important;
+  //}
 }
 
 .disabled {
@@ -1018,9 +1028,9 @@ export default {
     }
 
     .header__elBlock {
-      padding: 2px 5px;
+      padding: 2px 8px;
       display: flex;
-      column-gap: 3px;
+      column-gap: 5px;
 
       &:last-child {
         border-right: unset;
