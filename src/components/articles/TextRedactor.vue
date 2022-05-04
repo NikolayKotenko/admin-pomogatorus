@@ -631,12 +631,10 @@ export default {
       }
     },
     clearDropZoneTemplate() {
-      console.log(this.dropzone_uploaded.length)
       for (let i = 1; i < this.dropzone_uploaded.length+1; i++) {
         this.$nextTick(() => {
           let template = document.getElementById(`close-${i}`)
           this.dz_id = i
-          console.log(template)
           template.click()
         })
       }
@@ -852,7 +850,7 @@ export default {
         this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$mount() // pass nothing
 
         if (window.getSelection) {
-          if (this.range && (this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' || this.range.commonAncestorContainer.offsetParent._prevClass === "textRedactor")) {
+          if (this.range && (this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' ||(this.range.commonAncestorContainer?.offsetParent?._prevClass === "textRedactor"))) {
             this.range.insertNode(this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el);
           } else {
             let range = document.createRange();
