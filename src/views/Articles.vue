@@ -59,10 +59,10 @@
         </div>
         <div class="questions_wrapper__item__bottom">
           <div class="questions_wrapper__item__bottom__date" :class="{filterShow: show_filter}">
-            {{article.updated_at}}
+            {{article.created_at}}
           </div>
-          <div class="questions_wrapper__item__bottom__code" :class="{filterShow: show_filter}">
-            {{article.name_param_env}}
+          <div class="questions_wrapper__item__bottom__date" :class="{filterShow: show_filter}">
+            {{article.updated_at}}
           </div>
         </div>
       </div>
