@@ -228,7 +228,7 @@ export default {
                 .then((response) => {
                     console.log('setListConfigDate response')
                     console.log(response)
-                    commit('set_list_config_date', response.data.data)
+                    commit('set_list_config_date', response.data)
                 })
                 .catch((error) => {
                     console.log(error)
