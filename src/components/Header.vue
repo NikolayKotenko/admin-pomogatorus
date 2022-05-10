@@ -31,16 +31,16 @@
             text-color="primary"
             style="cursor: pointer"
         >
-          <router-link to="/" style="text-decoration: none">
+<!--          <router-link to="/" style="text-decoration: none">
             <v-icon small left>
               mdi-briefcase
             </v-icon>
             Рабочий стол
-          </router-link>
-          <div v-if="!!Object.keys($route.meta).includes('ru_name')" style="padding-left: 10px; overflow: hidden; text-overflow: ellipsis;">
-            <v-icon small left>
+          </router-link>-->
+          <div v-if="!!Object.keys($route.meta).includes('ru_name')" style="overflow: hidden; text-overflow: ellipsis;">
+<!--            <v-icon small left>
               mdi-chevron-right
-            </v-icon>
+            </v-icon>-->
             <span>{{ $route.meta.ru_name }}</span>
           </div>
         </v-chip>

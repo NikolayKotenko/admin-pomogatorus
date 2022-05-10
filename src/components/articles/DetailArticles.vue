@@ -137,7 +137,7 @@
       >
         <v-card>
           <v-card-title>
-            <span class="text-h6" style="font-size: 0.8em !important;">Вы точно хотите удалить вопрос?</span>
+            <span class="text-h6" style="font-size: 0.8em !important;">Вы точно хотите удалить статью?</span>
           </v-card-title>
           <v-card-actions>
             <v-btn
@@ -178,7 +178,7 @@
             @click.prevent="onSubmit('next')"
             :disabled="computedValidations"
         >
-          Создать
+          Закончить работу
         </v-btn>
       </template>
       <template v-else>
@@ -195,7 +195,7 @@
               text
               @click.prevent="saveDifferences('next')"
           >
-            Сохранить изменения
+            Закончить работу
           </v-btn>
         </template>
       </template>
