@@ -917,19 +917,25 @@ export default {
           html = document.selection.createRange().htmlText;
         }
       }
-      console.log(this.range)
-      console.log(html)
+      // console.log(this.range)
+      // console.log(html)
       Object.keys(this.icons_panel).forEach(icon => {
-        console.log(this.range.commonAncestorContainer.parentElement.className)
-        let parentElem = this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' ? '' : this.range.commonAncestorContainer.parentElement.className === 'textRedactor' ? '' : this.range.commonAncestorContainer.parentElement.outerHTML
-        if (this.range.commonAncestorContainer.parentElement.localName === 'b') {
-          parentElem = this.range.commonAncestorContainer.parentElement.parentElement.className === 'textRedactor__content' ? '' : this.range.commonAncestorContainer.parentElement.parentElement.outerHTML
+        let elem = this.range.commonAncestorContainer.parentElement
+        let parentElem = ''
+        // let parentElem = elem.className === 'textRedactor__content' ? '' : elem.className === 'textRedactor' ? '' : elem.outerHTML
+        if (elem.localName !== 'div') {
+          parentElem = this.recursiveGetIconValue(elem)
         }
         // console.log(parentElem)
-        console.log(this.checkForAligns(parentElem, this.icons_panel[icon]))
-        this.icons_panel[icon].active = this.checkRangeByTag(this.range.commonAncestorContainer.parentElement.localName, this.icons_panel[icon]) || this.checkHTMLText(html, this.icons_panel[icon]) || this.checkForAligns(parentElem, this.icons_panel[icon])
-        // this.icons_panel[icon].active = this.checkForAligns(parentElem, this.icons_panel[icon])
+        this.icons_panel[icon].active = this.checkRangeByTag(elem.localName, this.icons_panel[icon])|| this.checkHTMLText(html, this.icons_panel[icon]) || this.checkForAligns(parentElem, this.icons_panel[icon])
       })
+    },
+    recursiveGetIconValue(elem) {
+      if (elem.localName !== 'div') {
+        return this.recursiveGetIconValue(elem.parentElement)
+      } else {
+        return elem.outerHTML
+      }
     },
 
     /* CLEANERS */
