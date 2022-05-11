@@ -190,36 +190,51 @@ export default {
     actions: {
         /* LIST_QUESTION */
         async setListQuestions({commit, state}) {
-
-            return await Request.get(
-                this.state.BASE_URL+'/entity/questions')
-                .then((response) => {
-                    console.log('setListQuestions response')
-                    console.log(response)
-                    commit('set_list_questions', response.data.data)
-                    state.loadingList = false
-                })
-                .catch((error) => {
-                    console.log(error)
-                    state.loadingList = false
-                })
+            return new Promise((resolve, reject) => {
+                Request.get(
+                    this.state.BASE_URL+'/entity/questions')
+                    .then((response) => {
+                        console.log('setListQuestions response')
+                        console.log(response)
+                        commit('set_list_questions', response.data.data)
+                        state.loadingList = false
+                        resolve()
+                    })
+                    .catch((error) => {
+                        console.log(error)
+                        state.loadingList = false
+                        reject(error)
+                    })
+            })
+            // return await Request.get(
+            //     this.state.BASE_URL+'/entity/questions')
+            //     .then((response) => {
+            //         console.log('setListQuestions response')
+            //         console.log(response)
+            //         commit('set_list_questions', response.data.data)
+            //         state.loadingList = false
+            //     })
+            //     .catch((error) => {
+            //         console.log(error)
+            //         state.loadingList = false
+            //     })
             // return new Promise((resolve, reject) => {
-                // state.loadingList = true
-                // axios.get(`${this.state.BASE_URL}/entity/questions`, {
-                //     headers: {
-                //         Authorization: '666777'
-                //     },
-                // })
-                //     .then((response) => {
-                //         commit('set_list_questions', response.data.data)
-                //         state.loadingList = false
-                //         resolve()
-                //     })
-                //     .catch((error) => {
-                //         console.log('test')
-                //         state.loadingList = false
-                //         reject(error)
-                //     })
+            //     state.loadingList = true
+            //     axios.get(`${this.state.BASE_URL}/entity/questions`, {
+            //         headers: {
+            //             Authorization: '666777'
+            //         },
+            //     })
+            //         .then((response) => {
+            //             commit('set_list_questions', response.data.data)
+            //             state.loadingList = false
+            //             resolve()
+            //         })
+            //         .catch((error) => {
+            //             console.log('test')
+            //             state.loadingList = false
+            //             reject(error)
+            //         })
             // })
         },
         async setListConfigDate({commit}) {
@@ -324,30 +339,33 @@ export default {
                     let finded = state.listQuestions.filter(elem => {
                         return elem.name === name
                     })
-                    state.newQuestion._all_tags.forEach(tag => {
-                        let mtmIndex = state.newQuestion.mtomtags.findIndex(elem => {
-                            return elem.id_tag === tag.id
-                        })
-                        if (mtmIndex === -1) {
-                            let tagsFormData = new FormData()
-                            tagsFormData.append('id_tag', tag.id)
-                            tagsFormData.append('id_question', finded[0].id)
-                            // tagsFormData.append('id_answer', finded[0].id_type_answer)
-                            axios.post(`${this.state.BASE_URL}/m-to-m/tags`, tagsFormData, {
-                                headers: {
-                                    Authorization: '666777'
-                                },
+                    if (finded.length) {
+                        console.log(finded)
+                        state.newQuestion._all_tags.forEach(tag => {
+                            let mtmIndex = state.newQuestion.mtomtags.findIndex(elem => {
+                                return elem.id_tag === tag.id
                             })
-                                .then((response) => {
-                                    console.log(response)
-                                    resolve()
+                            if (mtmIndex === -1) {
+                                let tagsFormData = new FormData()
+                                tagsFormData.append('id_tag', tag.id)
+                                tagsFormData.append('id_question', finded[0].id)
+                                // tagsFormData.append('id_answer', finded[0].id_type_answer)
+                                axios.post(`${this.state.BASE_URL}/m-to-m/tags`, tagsFormData, {
+                                    headers: {
+                                        Authorization: '666777'
+                                    },
                                 })
-                                .catch((error) => {
-                                    console.log(error)
-                                    reject(error)
-                                })
-                        }
-                    })
+                                    .then((response) => {
+                                        console.log(response)
+                                        resolve()
+                                    })
+                                    .catch((error) => {
+                                        console.log(error)
+                                        reject(error)
+                                    })
+                            }
+                        })
+                    }
                 }
                 resolve()
             })
