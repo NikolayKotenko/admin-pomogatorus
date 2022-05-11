@@ -1,6 +1,6 @@
 <template>
   <div class="textRedactor" :class="{disabled: !check_created_article}">
-    <div class="textRedactor__header" id="header" style="position: sticky; top: 47px;">
+    <div class="textRedactor__header" id="header" style="">
       <div class="textRedactor__header__firstLine">
         <!-- Вставить элемент в текст -->
         <div class="header__elBlock right" style="display: flex; align-items: center; column-gap: 10px !important;">
@@ -661,6 +661,7 @@ export default {
             } else if (elem.component.name === 'image') {
               promises.push(this.$store.dispatch('imageFromServer', elem))
             } else if (elem.component.name === 'auth') {
+              console.log(elem.component.name)
               this.$store.state.AuthModule.inserting_component = true
               promises.push(this.$store.dispatch('getAuth', elem))
             }
@@ -684,17 +685,19 @@ export default {
                       data = Object.assign({}, {name: alt}, {full_path: sub_url[1]})
                     } else data = elem.data
 
+                    console.log(elem.index)
                     this.$store.state.TitlesModule.countLayout = elem.index
                     this.$store.state.TitlesModule.selectedComponent = data
                     let range = document.createRange();
+                    console.log(document.getElementById(`component_wrapper-${elem.index}`))
                     range.selectNode(document.getElementById(`component_wrapper-${elem.index}`));
                     range.deleteContents()
                     range.collapse(false);
                     this.data_of_components.push(this.getStructureForInstance(elem.component))
+                    console.log(this.data_of_components[this.$store.state.TitlesModule.countLayout - 1])
                     this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$mount() // pass nothing
                     range.insertNode(this.data_of_components[elem.index-1].instance.$el)
                     this.$store.state.TitlesModule.selectedComponent = {}
-                    this.$store.state.AuthModule.inserting_component = false
                   })
               })
             })
@@ -914,12 +917,18 @@ export default {
           html = document.selection.createRange().htmlText;
         }
       }
+      console.log(this.range)
+      console.log(html)
       Object.keys(this.icons_panel).forEach(icon => {
-        let parentElem = this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' ? '' : this.range.commonAncestorContainer.parentElement.outerHTML
+        console.log(this.range.commonAncestorContainer.parentElement.className)
+        let parentElem = this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' ? '' : this.range.commonAncestorContainer.parentElement.className === 'textRedactor' ? '' : this.range.commonAncestorContainer.parentElement.outerHTML
         if (this.range.commonAncestorContainer.parentElement.localName === 'b') {
           parentElem = this.range.commonAncestorContainer.parentElement.parentElement.className === 'textRedactor__content' ? '' : this.range.commonAncestorContainer.parentElement.parentElement.outerHTML
         }
+        // console.log(parentElem)
+        console.log(this.checkForAligns(parentElem, this.icons_panel[icon]))
         this.icons_panel[icon].active = this.checkRangeByTag(this.range.commonAncestorContainer.parentElement.localName, this.icons_panel[icon]) || this.checkHTMLText(html, this.icons_panel[icon]) || this.checkForAligns(parentElem, this.icons_panel[icon])
+        // this.icons_panel[icon].active = this.checkForAligns(parentElem, this.icons_panel[icon])
       })
     },
 
@@ -1011,6 +1020,9 @@ export default {
               'firstLine'
               'secondLine';
     box-shadow: 0px -3px 5px -5px rgba(0, 0, 0, 0.6) inset;
+    position: sticky;
+    top: 47px;
+    z-index: 1;
 
     &__firstLine {
       display: flex;

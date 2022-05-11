@@ -190,22 +190,22 @@ export default {
     actions: {
         /* LIST_QUESTION */
         async setListQuestions({commit, state}) {
-            return new Promise((resolve, reject) => {
-                Request.get(
-                    this.state.BASE_URL+'/entity/questions')
-                    .then((response) => {
-                        console.log('setListQuestions response')
-                        console.log(response)
-                        commit('set_list_questions', response.data.data)
-                        state.loadingList = false
-                        resolve()
-                    })
-                    .catch((error) => {
-                        console.log(error)
-                        state.loadingList = false
-                        reject(error)
-                    })
-            })
+            // return new Promise((resolve, reject) => {
+            //     Request.get(
+            //         this.state.BASE_URL+'/entity/questions')
+            //         .then((response) => {
+            //             console.log('setListQuestions response')
+            //             console.log(response)
+            //             commit('set_list_questions', response.data.data)
+            //             state.loadingList = false
+            //             resolve()
+            //         })
+            //         .catch((error) => {
+            //             console.log(error)
+            //             state.loadingList = false
+            //             reject(error)
+            //         })
+            // })
             // return await Request.get(
             //     this.state.BASE_URL+'/entity/questions')
             //     .then((response) => {
@@ -218,24 +218,24 @@ export default {
             //         console.log(error)
             //         state.loadingList = false
             //     })
-            // return new Promise((resolve, reject) => {
-            //     state.loadingList = true
-            //     axios.get(`${this.state.BASE_URL}/entity/questions`, {
-            //         headers: {
-            //             Authorization: '666777'
-            //         },
-            //     })
-            //         .then((response) => {
-            //             commit('set_list_questions', response.data.data)
-            //             state.loadingList = false
-            //             resolve()
-            //         })
-            //         .catch((error) => {
-            //             console.log('test')
-            //             state.loadingList = false
-            //             reject(error)
-            //         })
-            // })
+            return new Promise((resolve, reject) => {
+                state.loadingList = true
+                axios.get(`${this.state.BASE_URL}/entity/questions`, {
+                    headers: {
+                        Authorization: '666777'
+                    },
+                })
+                    .then((response) => {
+                        commit('set_list_questions', response.data.data)
+                        state.loadingList = false
+                        resolve()
+                    })
+                    .catch((error) => {
+                        console.log('test')
+                        state.loadingList = false
+                        reject(error)
+                    })
+            })
         },
         async setListConfigDate({commit}) {
             return await Request.get(
