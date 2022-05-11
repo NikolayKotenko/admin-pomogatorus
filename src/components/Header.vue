@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="position: sticky; top: 50px; z-index: 9999">
     <v-app-bar
         dense
         dark
