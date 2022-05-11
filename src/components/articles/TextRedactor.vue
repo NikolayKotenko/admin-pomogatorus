@@ -1,6 +1,6 @@
 <template>
   <div class="textRedactor" :class="{disabled: !check_created_article}">
-    <div class="textRedactor__header" id="header">
+    <div class="textRedactor__header" id="header" style="position: sticky; top: 47px;">
       <div class="textRedactor__header__firstLine">
         <!-- Вставить элемент в текст -->
         <div class="header__elBlock right" style="display: flex; align-items: center; column-gap: 10px !important;">
