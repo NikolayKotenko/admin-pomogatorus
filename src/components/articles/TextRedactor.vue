@@ -923,8 +923,15 @@ export default {
         let elem = this.range.commonAncestorContainer.parentElement
         let parentElem = ''
         // let parentElem = elem.className === 'textRedactor__content' ? '' : elem.className === 'textRedactor' ? '' : elem.outerHTML
+        console.log(elem.localName)
         if (elem.localName !== 'div') {
           parentElem = this.recursiveGetIconValue(elem)
+        } else {
+          if (this.icons_panel[icon].tag !== '<b>' && this.icons_panel[icon].tag !== '<i>' && this.icons_panel[icon].tag !== '<u>' && this.icons_panel[icon].tag !== '<strike>') {
+            let result = elem.outerHTML.includes(this.icons_panel[icon].tag) ? this.icons_panel[icon].tag : ''
+            parentElem = elem.className === 'textRedactor__content' ? '' : elem.className === 'textRedactor' ? '' : result
+            console.log(parentElem)
+          }
         }
         // console.log(parentElem)
         this.icons_panel[icon].active = this.checkRangeByTag(elem.localName, this.icons_panel[icon])|| this.checkHTMLText(html, this.icons_panel[icon]) || this.checkForAligns(parentElem, this.icons_panel[icon])
