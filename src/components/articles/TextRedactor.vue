@@ -901,6 +901,7 @@ export default {
       return html.includes(icon.styleName)
     },
     onSelectionContent() {
+      // if we select by one tap
       if (window.getSelection) {
         this.selection = null
         this.selection = window.getSelection();
@@ -913,6 +914,7 @@ export default {
         this.range = document.selection.createRange();
       }
 
+      // if we ranged select
       let html = "";
       if (typeof window.getSelection != "undefined") {
         let sel = window.getSelection();
@@ -928,17 +930,39 @@ export default {
           html = document.selection.createRange().htmlText;
         }
       }
-      // console.log(this.range)
-      // console.log(html)
+
+      // html for range select return outerHtml
+      // range for single selection return tag/outerHTML
+      console.log(this.range.commonAncestorContainer.parentElement)
+      console.log(html)
       Object.keys(this.icons_panel).forEach(icon => {
         let elem = this.range.commonAncestorContainer.parentElement
         let parentElem = ''
-        // let parentElem = elem.className === 'textRedactor__content' ? '' : elem.className === 'textRedactor' ? '' : elem.outerHTML
-        console.log(elem.localName)
+
         if (elem.localName !== 'div') {
           parentElem = this.recursiveGetIconValue(elem)
         } else {
-          if (this.icons_panel[icon].tag !== '<b>' && this.icons_panel[icon].tag !== '<i>' && this.icons_panel[icon].tag !== '<u>' && this.icons_panel[icon].tag !== '<strike>') {
+          // if (this.icons_panel[icon].tag !== '<b' && this.icons_panel[icon].tag !== '<i' && this.icons_panel[icon].tag !== '<u' && this.icons_panel[icon].tag !== '<strike') {
+            let result = elem.outerHTML.includes(this.icons_panel[icon].styleName) ? this.icons_panel[icon].styleName : ''
+            parentElem = elem.className === 'textRedactor__content' ? '' : elem.className === 'textRedactor' ? '' : result
+            // console.log(parentElem)
+          // }
+        }
+        this.icons_panel[icon].active = this.checkForStyles(parentElem, this.icons_panel[icon]) || this.checkForAligns(parentElem, this.icons_panel[icon])
+      })
+
+
+      // console.log(this.range)
+      // console.log(html)
+      /*Object.keys(this.icons_panel).forEach(icon => {
+        let elem = this.range.commonAncestorContainer.parentElement
+        let parentElem = ''
+        // let parentElem = elem.className === 'textRedactor__content' ? '' : elem.className === 'textRedactor' ? '' : elem.outerHTML
+        // console.log(elem.localName)
+        if (elem.localName !== 'div') {
+          parentElem = this.recursiveGetIconValue(elem)
+        } else {
+          if (this.icons_panel[icon].tag !== '<b' && this.icons_panel[icon].tag !== '<i' && this.icons_panel[icon].tag !== '<u' && this.icons_panel[icon].tag !== '<strike') {
             let result = elem.outerHTML.includes(this.icons_panel[icon].styleName) ? this.icons_panel[icon].styleName : ''
             parentElem = elem.className === 'textRedactor__content' ? '' : elem.className === 'textRedactor' ? '' : result
             // console.log(parentElem)
@@ -946,10 +970,10 @@ export default {
         }
         console.log(parentElem)
         this.icons_panel[icon].active = this.checkRangeByTag(elem.localName, this.icons_panel[icon])|| this.checkHTMLText(html, this.icons_panel[icon]) || this.checkForAligns(parentElem, this.icons_panel[icon]) || this.checkForStyles(parentElem, this.icons_panel[icon])
-      })
+      })*/
     },
     recursiveGetIconValue(elem) {
-      if (elem.parentElement.localName !== 'div') {
+      if (elem.localName !== 'div') {
         return this.recursiveGetIconValue(elem.parentElement)
       } else {
         return elem.outerHTML
