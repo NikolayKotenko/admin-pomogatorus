@@ -190,6 +190,20 @@ export default {
             state.components_after_request.push(obj)
         },
 
+        /* CLEANER */
+        clean_store(state) {
+            state.listComponents = []
+            state.selectedComponent = {}
+            state.countLayout = 0
+            state.count_of_images = 0
+            state.count_of_questions = 0
+            state.count_of_auth = 0
+            state.content_from_server = ''
+            state.content = ''
+            state.inserted_components = []
+            state.components_after_request = []
+        },
+
         /* LOCAL_STORAGE */
         // eslint-disable-next-line no-unused-vars
         set_local_storage({state}, object) {
@@ -519,8 +533,8 @@ export default {
         deleteComponent({commit}, id) {
           commit('delete_component_by_id', id)
         },
-        get_auth({commit, state}, params) {
-            state.inserting_component = true
+        get_auth({commit, state, rootState}, params) {
+            rootState.AuthModule.inserting_component = true
             return new Promise((resolve) => {
                 const {index, component} = params
 

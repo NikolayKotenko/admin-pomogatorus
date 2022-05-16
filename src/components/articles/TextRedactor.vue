@@ -500,7 +500,7 @@ export default {
           this.$store.state.TitlesModule.content = ''
           this.data_of_components = []
           this.params_of_component.name = ''
-          this.clearStateAfterDestroy()
+          this.$store.commit('clean_store')
         }
       },
     },
@@ -614,6 +614,7 @@ export default {
         console.log('initialize')
         if (this.$store.state.TitlesModule.inserted_components && this.$store.state.TitlesModule.inserted_components.length) {
           console.log('YA RABOTAU')
+          this.$store.state.TitlesModule.loadingArticle = true
           this.geting_from_server = true
 
           this.content = this.$store.state.TitlesModule.content_from_server
@@ -654,6 +655,7 @@ export default {
                   })
               })
             })
+            this.$store.state.TitlesModule.loadingArticle = false
             this.geting_from_server = false
             resolve()
           })
@@ -692,8 +694,7 @@ export default {
     },
 
     /* MANIPULATING WITH INSERTING COMPONENTS */
-    // if we want add after modal window
-    initializeSelection(componentName) {
+    getRange() {
       if (window.getSelection) {
         this.selection = null
         this.selection = window.getSelection();
@@ -707,26 +708,17 @@ export default {
         this.range = document.selection.createRange();
         this.range.collapse(false);
       }
-
+    },
+    // if we want add after modal window
+    initializeSelection(componentName) {
+      this.getRange()
       this.selectComponent[componentName] = true
       this.params_of_component.name = componentName
 
     },
     // if we want immediately insert component
     initialiseInserting(componentName) {
-      if (window.getSelection) {
-        this.selection = null
-        this.selection = window.getSelection();
-        if (this.selection.getRangeAt && this.selection.rangeCount) {
-          this.range = null
-          this.range = this.selection.getRangeAt(0);
-          this.range.collapse(false);
-        }
-      } else if (document.selection && document.selection.createRange) {
-        this.range = null
-        this.range = document.selection.createRange();
-        this.range.collapse(false);
-      }
+      this.getRange()
       this.params_of_component.name = componentName
       this.onSelectComponent()
     },
@@ -959,18 +951,6 @@ export default {
       this.$store.state.TitlesModule.selectedComponent = {}
       this.$store.state.AuthModule.inserting_component = false
     },
-    clearStateAfterDestroy() {
-      this.$store.state.TitlesModule.listComponents = []
-      this.$store.state.TitlesModule.selectedComponent = {}
-      this.$store.state.TitlesModule.countLayout = 0
-      this.$store.state.TitlesModule.count_of_images = 0
-      this.$store.state.TitlesModule.count_of_questions = 0
-      this.$store.state.TitlesModule.count_of_auth = 0
-      this.$store.state.TitlesModule.content_from_server = ''
-      this.$store.state.TitlesModule.content = ''
-      this.$store.state.TitlesModule.inserted_components = []
-      this.$store.state.TitlesModule.components_after_request = []
-    },
 
     /* CONSTRUCTORS */
     Constructor_instance(params) {
@@ -1007,7 +987,7 @@ export default {
     },
   },
   beforeDestroy() {
-    this.clearStateAfterDestroy()
+    this.$store.commit('clean_store')
   }
 }
 </script>

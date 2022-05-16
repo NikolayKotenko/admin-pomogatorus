@@ -83,8 +83,6 @@ export default {
   },
   computed : {
     isComponent() {
-      console.log(this.$store.getters.checkAdminPanel)
-      console.log(this.inserting_component)
       return this.$store.getters.checkAdminPanel && this.inserting_component
     }
   },
@@ -108,7 +106,6 @@ export default {
 
     // inserted_components
     getData() {
-      console.log(this.$store.state.TitlesModule.countLayout)
       this.index_component = this.$store.state.TitlesModule.countLayout
       this.index_auth = this.$store.state.TitlesModule.count_of_auth
       this.getHeightOfControls()
