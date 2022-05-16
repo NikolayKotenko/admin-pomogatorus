@@ -423,13 +423,13 @@ export default {
         active: false,
         tag: "<u",
         parentElem: 'u',
-        styleName: 'text-decoration: underline',
+        styleName: 'underline',
       },
       strike: {
         active: false,
         tag: "<strike",
         parentElem: 'strike',
-        styleName: 'text-decoration: line-through',
+        styleName: 'line-through',
       },
       justifyLeft: {
         active: false,
@@ -888,17 +888,17 @@ export default {
         resolve()
       })
     },
-    checkRangeByTag(tagName, icon) {
-      return tagName === icon.parentElem
-    },
+    /* BLOCK FOR CHECK ICONS FORMAT TEXT */
     checkHTMLText(html, icon) {
       return html.includes(icon.tag)
     },
-    checkForAligns(html, icon) {
+    checkByTag(html, icon) {
       return html.includes(icon.tag)
     },
     checkForStyles(html, icon) {
-      return html.includes(icon.styleName)
+      if (icon.tag === '<u' || icon.tag === '<strike') {
+        return html.includes('text-decoration-line') && html.includes(icon.styleName)
+      } else return html.includes(icon.styleName)
     },
     onSelectionContent() {
       // if we select by one tap
@@ -923,60 +923,52 @@ export default {
           for (let i = 0, len = sel.rangeCount; i < len; ++i) {
             container.appendChild(sel.getRangeAt(i).cloneContents());
           }
-          html = container.innerHTML;
+          html = container.innerHTML.replace(/<br>/g,'');
         }
       } else if (typeof document.selection != "undefined") {
         if (document.selection.type == "Text") {
-          html = document.selection.createRange().htmlText;
+          html = document.selection.createRange().htmlText.replace(/<br>/g,'');
         }
       }
-
       // html for range select return outerHtml
       // range for single selection return tag/outerHTML
-      console.log(this.range.commonAncestorContainer.parentElement)
-      console.log(html)
+
       Object.keys(this.icons_panel).forEach(icon => {
         let elem = this.range.commonAncestorContainer.parentElement
-        let parentElem = ''
+        // Global object
+        let parentElem
+        // outerHTML
+        let parentHTML = ''
+        // outerHMTL for aligns
+        let styleAlign = ''
 
         if (elem.localName !== 'div') {
           parentElem = this.recursiveGetIconValue(elem)
-        } else {
-          // if (this.icons_panel[icon].tag !== '<b' && this.icons_panel[icon].tag !== '<i' && this.icons_panel[icon].tag !== '<u' && this.icons_panel[icon].tag !== '<strike') {
-            let result = elem.outerHTML.includes(this.icons_panel[icon].styleName) ? this.icons_panel[icon].styleName : ''
-            parentElem = elem.className === 'textRedactor__content' ? '' : elem.className === 'textRedactor' ? '' : result
-            // console.log(parentElem)
-          // }
+          parentHTML = parentElem.outerHTML
         }
-        this.icons_panel[icon].active = this.checkForStyles(parentElem, this.icons_panel[icon]) || this.checkForAligns(parentElem, this.icons_panel[icon])
+        if (elem.className !== 'textRedactor__content' && elem.className !== 'textRedactor') {
+          let grandParent = parentHTML ? parentElem.parentElement.outerHTML : elem.outerHTML
+          styleAlign = this.getStyleAlign(grandParent, this.icons_panel[icon])
+        }
+        this.icons_panel[icon].active = this.checkForStyles(parentHTML, this.icons_panel[icon]) ||
+            this.checkByTag(parentHTML, this.icons_panel[icon]) ||
+            this.checkForStyles(styleAlign, this.icons_panel[icon]) ||
+            this.checkHTMLText(html, this.icons_panel[icon]) ||
+            this.checkForStyles(html, this.icons_panel[icon])
       })
-
-
-      // console.log(this.range)
-      // console.log(html)
-      /*Object.keys(this.icons_panel).forEach(icon => {
-        let elem = this.range.commonAncestorContainer.parentElement
-        let parentElem = ''
-        // let parentElem = elem.className === 'textRedactor__content' ? '' : elem.className === 'textRedactor' ? '' : elem.outerHTML
-        // console.log(elem.localName)
-        if (elem.localName !== 'div') {
-          parentElem = this.recursiveGetIconValue(elem)
-        } else {
-          if (this.icons_panel[icon].tag !== '<b' && this.icons_panel[icon].tag !== '<i' && this.icons_panel[icon].tag !== '<u' && this.icons_panel[icon].tag !== '<strike') {
-            let result = elem.outerHTML.includes(this.icons_panel[icon].styleName) ? this.icons_panel[icon].styleName : ''
-            parentElem = elem.className === 'textRedactor__content' ? '' : elem.className === 'textRedactor' ? '' : result
-            // console.log(parentElem)
-          }
-        }
-        console.log(parentElem)
-        this.icons_panel[icon].active = this.checkRangeByTag(elem.localName, this.icons_panel[icon])|| this.checkHTMLText(html, this.icons_panel[icon]) || this.checkForAligns(parentElem, this.icons_panel[icon]) || this.checkForStyles(parentElem, this.icons_panel[icon])
-      })*/
     },
+    /* Get style name for aligners values */
+    getStyleAlign(outerHTML, icon) {
+      if (icon.tag !== '<b' && icon.tag !== '<i' && icon.tag !== '<u' && icon.tag !== '<strike') {
+        return outerHTML.includes(icon.styleName) ? icon.styleName : ''
+      } else return ''
+    },
+    /* Recursive Function for get parent elem, if we get nesting elems */
     recursiveGetIconValue(elem) {
-      if (elem.localName !== 'div') {
+      if (elem.parentElement.localName !== 'div') {
         return this.recursiveGetIconValue(elem.parentElement)
       } else {
-        return elem.outerHTML
+        return elem
       }
     },
 
