@@ -519,7 +519,8 @@ export default {
         deleteComponent({commit}, id) {
           commit('delete_component_by_id', id)
         },
-        getAuth({commit, state}, params) {
+        get_auth({commit, state}, params) {
+            state.inserting_component = true
             return new Promise((resolve) => {
                 const {index, component} = params
 
@@ -534,7 +535,7 @@ export default {
                 resolve()
             })
         },
-        imageFromServer({commit, state}, params) {
+        get_image({commit, state}, params) {
             return new Promise((resolve) => {
               const {index, component} = params
 
@@ -549,7 +550,7 @@ export default {
               resolve()
             })
         },
-        getComponentsById({commit, state}, params) {
+        get_questions({commit, state}, params) {
             return new Promise((resolve, reject) => {
                 const {index, component} = params
 

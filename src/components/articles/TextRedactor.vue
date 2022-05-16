@@ -214,7 +214,6 @@
     </div>
 
     <!-- MODALS -->
-    <!-- FIXME: can unified all modals to one -->
     <v-dialog
         v-model="selectComponent.questions"
         max-width="600"
@@ -477,9 +476,7 @@ export default {
   mounted() {
     this.$store.dispatch('testFont')
     setTimeout(() => {
-      this.initializeContent().then(() => {
-        // this.onContentChange()
-      })
+      this.initializeContent()
     }, 500)
   },
   watch: {
@@ -516,47 +513,7 @@ export default {
     },
     '$store.state.TitlesModule.deletedComponent': {
       handler() {
-        if (this.$store.state.TitlesModule.deletedComponent !== 0) {
-          let index = this.data_of_components.findIndex((elem) => {
-            return elem.instance.$data.index_component === this.$store.state.TitlesModule.deletedComponent
-          })
-          if (index !== -1) {
-            this.data_of_components.splice(index, 1)
-
-            const global_counter = {
-              index_question: 1,
-              index_image: 1,
-              index_auth: 1,
-              counter_index: 1,
-            }
-
-            this.data_of_components.forEach(elem => {
-              elem.data.index = global_counter.counter_index
-              const key_data = Object.keys(elem.data.component).includes('index_question') ? 'index_question' : Object.keys(elem.data.component).includes('index_image') ? 'index_image' : 'index_auth'
-              elem.data.component[key_data] = global_counter[key_data]
-
-              const key_instance = Object.keys( elem.instance.$data).includes('index_question') ? 'index_question' : Object.keys(elem.data.component).includes('index_image') ? 'index_image' : 'index_auth'
-              elem.instance.$data[key_instance] = global_counter[key_instance]
-              const block = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
-              block.id =  `component_wrapper-${global_counter.counter_index}`
-              elem.instance.$data.index_component = global_counter.counter_index
-
-              global_counter[key_data]++
-              global_counter.counter_index++
-            })
-
-            this.$store.state.TitlesModule.countLayout = global_counter.counter_index-1
-            this.$store.state.TitlesModule.count_of_auth = global_counter.index_auth-1
-            this.$store.state.TitlesModule.count_of_images = global_counter.index_image-1
-            this.$store.state.TitlesModule.count_of_questions = global_counter.index_question-1
-            this.$store.state.TitlesModule.deletedComponent = 0
-
-            this.saveDB = true
-            setTimeout(() => {
-              this.saveDB = false
-            })
-          }
-        }
+        this.deletingComponent()
       },
     },
     '$store.state.TitlesModule.content_from_server': {
@@ -664,15 +621,7 @@ export default {
           const promises = []
 
           this.$store.state.TitlesModule.inserted_components.forEach(elem => {
-            if (elem.component.name === 'questions') {
-              promises.push(this.$store.dispatch('getComponentsById', elem))
-            } else if (elem.component.name === 'image') {
-              promises.push(this.$store.dispatch('imageFromServer', elem))
-            } else if (elem.component.name === 'auth') {
-              console.log(elem.component.name)
-              this.$store.state.AuthModule.inserting_component = true
-              promises.push(this.$store.dispatch('getAuth', elem))
-            }
+            promises.push(this.$store.dispatch(`get_${elem.component.name}`, elem))
           })
 
           Promise.all(promises).finally(() => {
@@ -692,17 +641,13 @@ export default {
                       const alt = document.getElementById(`component_wrapper-${elem.index}`).getElementsByClassName( 'inserted_image' )[0].alt
                       data = Object.assign({}, {name: alt}, {full_path: sub_url[1]})
                     } else data = elem.data
-
-                    console.log(elem.index)
                     this.$store.state.TitlesModule.countLayout = elem.index
                     this.$store.state.TitlesModule.selectedComponent = data
                     let range = document.createRange();
-                    console.log(document.getElementById(`component_wrapper-${elem.index}`))
                     range.selectNode(document.getElementById(`component_wrapper-${elem.index}`));
                     range.deleteContents()
                     range.collapse(false);
                     this.data_of_components.push(this.getStructureForInstance(elem.component))
-                    console.log(this.data_of_components[this.$store.state.TitlesModule.countLayout - 1])
                     this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$mount() // pass nothing
                     range.insertNode(this.data_of_components[elem.index-1].instance.$el)
                     this.$store.state.TitlesModule.selectedComponent = {}
@@ -726,7 +671,6 @@ export default {
       }
     },
 
-    /* FIXME: ДОБАВИТЬ ДЕБАУНС И СОХРАНЯЕМ ИЗМЕНЕНИЯ НА СЕРВЕР */
     onContentChange() {
       if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
       this.debounceTimeout = setTimeout(() => {
@@ -739,12 +683,6 @@ export default {
           this.$store.state.TitlesModule.deletedComponent = elem.instance.$data.index_component
         }
       })
-    },
-    select_align_content(value) {
-      const index = this.array_align_content.findIndex(elem => {
-        return elem.value === value
-      })
-      if (index !== -1) this.align_content = this.array_align_content[index]
     },
     onAction(action, icon) {
       document.execCommand(action, false, null);
@@ -817,7 +755,6 @@ export default {
       this.$store.state.TitlesModule.countLayout++
 
       let data_component;
-      // FIXME: все проверки вынести в компутед
       if (this.params_of_component.name === 'questions') {
         data_component = new this.Element_question({
           name: this.params_of_component.name,
@@ -888,6 +825,50 @@ export default {
         resolve()
       })
     },
+    deletingComponent() {
+      if (this.$store.state.TitlesModule.deletedComponent !== 0) {
+        let index = this.data_of_components.findIndex((elem) => {
+          return elem.instance.$data.index_component === this.$store.state.TitlesModule.deletedComponent
+        })
+        if (index !== -1) {
+          this.data_of_components.splice(index, 1)
+
+          const global_counter = {
+            index_question: 1,
+            index_image: 1,
+            index_auth: 1,
+            counter_index: 1,
+          }
+
+          this.data_of_components.forEach(elem => {
+            elem.data.index = global_counter.counter_index
+            const key_data = Object.keys(elem.data.component).includes('index_question') ? 'index_question' : Object.keys(elem.data.component).includes('index_image') ? 'index_image' : 'index_auth'
+            elem.data.component[key_data] = global_counter[key_data]
+
+            const key_instance = Object.keys( elem.instance.$data).includes('index_question') ? 'index_question' : Object.keys(elem.data.component).includes('index_image') ? 'index_image' : 'index_auth'
+            elem.instance.$data[key_instance] = global_counter[key_instance]
+            const block = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
+            block.id =  `component_wrapper-${global_counter.counter_index}`
+            elem.instance.$data.index_component = global_counter.counter_index
+
+            global_counter[key_data]++
+            global_counter.counter_index++
+          })
+
+          this.$store.state.TitlesModule.countLayout = global_counter.counter_index-1
+          this.$store.state.TitlesModule.count_of_auth = global_counter.index_auth-1
+          this.$store.state.TitlesModule.count_of_images = global_counter.index_image-1
+          this.$store.state.TitlesModule.count_of_questions = global_counter.index_question-1
+          this.$store.state.TitlesModule.deletedComponent = 0
+
+          this.saveDB = true
+          setTimeout(() => {
+            this.saveDB = false
+          })
+        }
+      }
+    },
+
     /* BLOCK FOR CHECK ICONS FORMAT TEXT */
     checkHTMLText(html, icon) {
       return html.includes(icon.tag)
