@@ -345,40 +345,6 @@ export default {
     dz_id: 0,
 
     /* EDITOR */
-    line_spacing: [
-      {
-        value: 1,
-      },
-      {
-        value: 1.15,
-      },
-      {
-        value: 1.5,
-      },
-      {
-        value: 2,
-      },
-      {
-        value: 2.5,
-      },
-      {
-        value: 3,
-      },
-    ],
-    text_underline: false,
-    swatches: [
-      ['#000000', '#2196F3', '#A9A9A9'],
-      ['#FF0000', '#FFFFFF', '#AA0000'],
-      ['#FFFF00', '#0000FF', '#8E24AA'],
-      ['#00FF00', '#00AA00', '#005500'],
-      ['#00FFFF', '#00AAAA', '#005555'],
-    ],
-    align_content: {
-      value: 'justifyLeft',
-      text: 'Выравнивание по левой стороне',
-      icon: 'mdi-format-align-left',
-      open_list: false,
-    },
     array_align_content: [
       {
         value: 'justifyLeft',
