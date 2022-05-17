@@ -433,8 +433,11 @@ export default {
       google: { families: ["Roboto", 'Hurricane', 'Palette Mosaic']}
     })
     const ComponentClass = Vue.extend(PreviewTemplate);
-    const instance = new ComponentClass();
+    const instance = new ComponentClass({
+      vuetify
+    });
     instance.$mount();
+    console.log(instance.$el)
     this.previewHtml = instance.$el.outerHTML;
 
     this.loading_dropzone = false;
