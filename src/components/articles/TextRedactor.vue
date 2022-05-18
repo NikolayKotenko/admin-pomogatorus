@@ -1,7 +1,7 @@
 <template>
   <div class="textRedactor" :class="{disabled: !check_created_article}">
     <div class="textRedactor__header" id="header" style="">
-      <div class="textRedactor__header__firstLine">
+<!--      <div class="textRedactor__header__firstLine">-->
         <!-- Вставить элемент в текст -->
         <div class="header__elBlock right" style="display: flex; align-items: center; column-gap: 10px !important;">
           <!-- Auth -->
@@ -79,66 +79,24 @@
           </v-tooltip>
         </div>
         <!-- Жирный/курсив и т.д. -->
-        <div class="header__elBlock right">
-          <v-tooltip bottom>
+        <div class="header__elBlock">
+          <v-tooltip bottom v-for="(item, index) in array_edit_content" :key="index">
             <template v-slot:activator="{ on, attrs }">
               <v-icon
                   v-bind="attrs"
                   v-on="on"
-                  @click="onAction('bold', icons_panel.bold)"
-                  :color="icons_panel.bold.active ? 'blue darken-4' : ''"
+                  @click="onAction(item.value, icons_panel[item.value])"
+                  :color="icons_panel[item.value].active ? 'blue darken-4' : ''"
                   size="28"
               >
-                mdi-format-bold
+                {{ item.icon }}
               </v-icon>
             </template>
-            <span>Жирный</span>
-          </v-tooltip>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <v-icon
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="onAction('italic', icons_panel.italic)"
-                  :color="icons_panel.italic.active ? 'blue darken-4' : ''"
-                  size="28"
-              >
-                mdi-format-italic
-              </v-icon>
-            </template>
-            <span>Курсив</span>
-          </v-tooltip>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <v-icon
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="onAction('underline', icons_panel.underline)"
-                  :color="icons_panel.underline.active ? 'blue darken-4' : ''"
-                  size="28"
-              >
-                mdi-format-underline
-              </v-icon>
-            </template>
-            <span>Подчеркнутый</span>
-          </v-tooltip>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <v-icon
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="onAction('strikethrough', icons_panel.strike)"
-                  :color="icons_panel.strike.active ? 'blue darken-4' : ''"
-                  size="28"
-              >
-                mdi-format-strikethrough
-              </v-icon>
-            </template>
-            <span>Перечёркнутый</span>
+            <span>{{ item.text }}</span>
           </v-tooltip>
         </div>
-      </div>
-      <div class="textRedactor__header__secondLine">
+<!--      </div>-->
+<!--      <div class="textRedactor__header__secondLine">-->
         <!-- Форматирование -->
         <div class="header__elBlock right">
           <v-tooltip bottom v-for="(item, index) in array_align_content" :key="index">
@@ -201,7 +159,7 @@
             <span>Очистить форматирование</span>
           </v-tooltip>
         </div>
-      </div>
+<!--      </div>-->
     </div>
 
     <div
@@ -317,6 +275,11 @@ import Question from "../frontLayouts/Question";
 import ImageLayout from "../frontLayouts/ImageLayout";
 import LoginAuth from "../auth/LoginAuth";
 
+import titlesStore from '@/store/modules/titles/index.js'
+const _store = titlesStore.state
+
+import iconsModels from "../../models/iconsModels";
+
 export default {
   name: "TextRedactor",
   props: ['newArticle', 'deletedContent'],
@@ -345,82 +308,9 @@ export default {
     dz_id: 0,
 
     /* EDITOR */
-    array_align_content: [
-      {
-        value: 'justifyLeft',
-        text: 'Выравнивание по левой стороне',
-        icon: 'mdi-format-align-left',
-        open_list: false,
-      },
-      {
-        value: 'justifyRight',
-        text: 'Выравнивание по правой стороне',
-        icon: 'mdi-format-align-right',
-        open_list: false,
-      },
-      {
-        value: 'justifyCenter',
-        text: 'Выравнивание по центру',
-        icon: 'mdi-format-align-center',
-        open_list: false,
-      },
-      {
-        value: 'justifyFull',
-        text: 'Выравнивание по ширине',
-        icon: 'mdi-format-align-justify',
-        open_list: false,
-      },
-    ],
-    icons_panel: {
-      bold: {
-        active: false,
-        tag: "<b",
-        parentElem: 'b',
-        styleName: 'font-style: bold',
-      },
-      italic: {
-        active: false,
-        tag: "<i",
-        parentElem: 'i',
-        styleName: 'font-style: italic',
-      },
-      underline: {
-        active: false,
-        tag: "<u",
-        parentElem: 'u',
-        styleName: 'underline',
-      },
-      strike: {
-        active: false,
-        tag: "<strike",
-        parentElem: 'strike',
-        styleName: 'line-through',
-      },
-      justifyLeft: {
-        active: false,
-        tag: "text-align: left",
-        parentElem: '',
-        styleName: 'text-align: left',
-      },
-      justifyRight: {
-        active: false,
-        tag: "text-align: right",
-        parentElem: '',
-        styleName: 'text-align: right',
-      },
-      justifyCenter: {
-        active: false,
-        tag: "text-align: center",
-        parentElem: '',
-        styleName: 'text-align: center',
-      },
-      justifyFull: {
-        active: false,
-        tag: "text-align: justify",
-        parentElem: '',
-        styleName: 'text-align: justify',
-      },
-    },
+    array_align_content: iconsModels.array_align_content,
+    array_edit_content: iconsModels.array_edit_content,
+    icons_panel: iconsModels.icons_panel,
 
     /* INSERT COMPONENTS */
     saveDB: false,
@@ -440,6 +330,7 @@ export default {
     this.loading_dropzone = false;
   },
   mounted() {
+    console.log(_store.inserted_components)
     this.$store.dispatch('testFont')
     setTimeout(() => {
       this.initializeContent()
@@ -449,13 +340,13 @@ export default {
     'saveDB': {
       handler(v) {
         if (!this.geting_from_server && v) {
-          this.$store.state.TitlesModule.inserted_components = []
+          _store.inserted_components = []
           const arr = []
           this.data_of_components.forEach(elem => {
             arr.push(elem.data)
           })
-          this.$store.state.TitlesModule.inserted_components = arr
-          this.$store.state.TitlesModule.content = this.content
+          _store.inserted_components = arr
+          _store.content = this.content
         }
       },
     },
@@ -463,7 +354,7 @@ export default {
       handler(v) {
         if (v) {
           this.content = ''
-          this.$store.state.TitlesModule.content = ''
+          _store.content = ''
           this.data_of_components = []
           this.params_of_component.name = ''
           this.$store.commit('clean_store')
@@ -484,8 +375,8 @@ export default {
     },
     '$store.state.TitlesModule.content_from_server': {
       handler() {
-        this.content = this.$store.state.TitlesModule.content_from_server
-        this.$store.state.TitlesModule.content = this.content
+        this.content = _store.content_from_server
+        _store.content = this.content
       }
     },
   },
@@ -494,7 +385,7 @@ export default {
       return ((this.newArticle.name.value !== '') && (this.newArticle.short_header.value !== ''))
     },
     check_count_auth() {
-      return this.$store.state.TitlesModule.count_of_auth >= 1
+      return _store.count_of_auth >= 1
     },
     content: {
       cache: false,
@@ -525,7 +416,7 @@ export default {
     sendingData(file, xhr, formData) {
       console.log(file.upload.uuid)
       formData.append('uuid', file.upload.uuid)
-      formData.append('id_article', this.$store.state.TitlesModule.newArticle.id)
+      formData.append('id_article', _store.newArticle.id)
     },
     successData(file, response) {
       console.log(response)
@@ -578,25 +469,25 @@ export default {
     initializeContent() {
       return new Promise((resolve) => {
         console.log('initialize')
-        if (this.$store.state.TitlesModule.inserted_components && this.$store.state.TitlesModule.inserted_components.length) {
+        if (_store.inserted_components && _store.inserted_components.length) {
           console.log('YA RABOTAU')
-          this.$store.state.TitlesModule.loadingArticle = true
+          _store.loadingArticle = true
           this.geting_from_server = true
 
-          this.content = this.$store.state.TitlesModule.content_from_server
+          this.content = _store.content_from_server
 
           const promises = []
 
-          this.$store.state.TitlesModule.inserted_components.forEach(elem => {
+          _store.inserted_components.forEach(elem => {
             promises.push(this.$store.dispatch(`get_${elem.component.name}`, elem))
           })
 
           Promise.all(promises).finally(() => {
-            this.$store.state.TitlesModule.components_after_request.sort((a,b) => {
+            _store.components_after_request.sort((a,b) => {
               return a.index - b.index
             })
 
-            const arr = this.$store.state.TitlesModule.components_after_request
+            const arr = _store.components_after_request
             this.$nextTick(() => {
               arr.forEach((elem) => {
                 setTimeout(() => {
@@ -608,20 +499,20 @@ export default {
                       const alt = document.getElementById(`component_wrapper-${elem.index}`).getElementsByClassName( 'inserted_image' )[0].alt
                       data = Object.assign({}, {name: alt}, {full_path: sub_url[1]})
                     } else data = elem.data
-                    this.$store.state.TitlesModule.countLayout = elem.index
-                    this.$store.state.TitlesModule.selectedComponent = data
+                    _store.countLayout = elem.index
+                    _store.selectedComponent = data
                     let range = document.createRange();
                     range.selectNode(document.getElementById(`component_wrapper-${elem.index}`));
                     range.deleteContents()
                     range.collapse(false);
                     this.data_of_components.push(this.getStructureForInstance(elem.component))
-                    this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$mount() // pass nothing
+                    this.data_of_components[_store.countLayout - 1].instance.$mount() // pass nothing
                     range.insertNode(this.data_of_components[elem.index-1].instance.$el)
-                    this.$store.state.TitlesModule.selectedComponent = {}
+                    _store.selectedComponent = {}
                   })
               })
             })
-            this.$store.state.TitlesModule.loadingArticle = false
+            _store.loadingArticle = false
             this.geting_from_server = false
             resolve()
           })
@@ -631,24 +522,24 @@ export default {
     checkTypeComponent(elem) {
       this.params_of_component.name = elem.component.name
       if (elem.component.name === 'questions') {
-        this.$store.state.TitlesModule.count_of_questions = elem.component.index_question
+        _store.count_of_questions = elem.component.index_question
       } else if (elem.component.name === 'image') {
-        this.$store.state.TitlesModule.count_of_images = elem.component.index_image
+        _store.count_of_images = elem.component.index_image
       } else if (elem.component.name === 'auth') {
-        this.$store.state.TitlesModule.count_of_auth = elem.component.index_auth
+        _store.count_of_auth = elem.component.index_auth
       }
     },
 
     onContentChange() {
       if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
       this.debounceTimeout = setTimeout(() => {
-        this.$store.state.TitlesModule.content = this.content
+        _store.content = this.content
       })
       /* IF WE DELETED COMPONENT BY KEYBOARD */
       this.data_of_components.forEach(elem => {
         const elem_content = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
         if (!elem_content) {
-          this.$store.state.TitlesModule.deletedComponent = elem.instance.$data.index_component
+          _store.deletedComponent = elem.instance.$data.index_component
         }
       })
     },
@@ -690,13 +581,13 @@ export default {
     },
     onSelectComponent() {
       if (this.params_of_component.name === 'questions') {
-        this.$store.state.TitlesModule.count_of_questions++
+        _store.count_of_questions++
         this.callCheckout()
       } else if (this.params_of_component.name === 'image') {
-        this.$store.state.TitlesModule.count_of_images++
+        _store.count_of_images++
         if (this.dropzone_uploaded.length) {
           this.dropzone_uploaded.forEach(elem => {
-            this.$store.state.TitlesModule.selectedComponent = elem
+            _store.selectedComponent = elem
             this.callCheckout(elem)
           })
           this.clearDropZoneTemplate()
@@ -705,30 +596,30 @@ export default {
         }
       } else if (this.params_of_component.name === 'auth') {
         this.$store.state.AuthModule.inserting_component = true
-        this.$store.state.TitlesModule.count_of_auth++
+        _store.count_of_auth++
         this.callCheckout()
       }
     },
     callCheckout(elem) {
-      this.$store.state.TitlesModule.countLayout++
+      _store.countLayout++
 
       let data_component;
       if (this.params_of_component.name === 'questions') {
         data_component = new this.Element_question({
           name: this.params_of_component.name,
-          id: this.$store.state.TitlesModule.selectedComponent.id,
-          index_question: this.$store.state.TitlesModule.count_of_questions
+          id: _store.selectedComponent.id,
+          index_question: _store.count_of_questions
         })
       } else if (this.params_of_component.name === 'image') {
         data_component = new this.Element_image({
           name: this.params_of_component.name,
           src: elem.dataURL,
-          index_image: this.$store.state.TitlesModule.count_of_images
+          index_image: _store.count_of_images
         })
       } else if (this.params_of_component.name === 'auth') {
         data_component = new this.Element_auth({
           name: this.params_of_component.name,
-          index_auth: this.$store.state.TitlesModule.count_of_auth
+          index_auth: _store.count_of_auth
         })
       }
 
@@ -745,7 +636,7 @@ export default {
         store,
         vuetify,
       })
-      const data = new this.Imported_component({index: this.$store.state.TitlesModule.countLayout, component: data_component})
+      const data = new this.Imported_component({index: _store.countLayout, component: data_component})
       const params = Object.assign({}, {instance: instance}, {data: data})
       return new this.Constructor_instance(params)
     },
@@ -753,30 +644,30 @@ export default {
       return new Promise((resolve) => {
         const elem = this.getStructureForInstance(data_component)
         this.data_of_components.push(elem)
-        this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$mount() // pass nothing
+        this.data_of_components[_store.countLayout - 1].instance.$mount() // pass nothing
 
         if (window.getSelection) {
           if (this.range && (this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' ||(this.range.commonAncestorContainer?.offsetParent?._prevClass === "textRedactor"))) {
-            this.range.insertNode(this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el);
+            this.range.insertNode(this.data_of_components[_store.countLayout - 1].instance.$el);
           } else {
             let range = document.createRange();
             range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
             range.collapse(false);
-            range.insertNode(this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el);
+            range.insertNode(this.data_of_components[_store.countLayout - 1].instance.$el);
           }
         } else if (document.selection && document.selection.createRange) {
           if (this.range && (this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' || this.range.commonAncestorContainer.offsetParent._prevClass === "textRedactor")) {
-            this.htmlSelected = (this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.nodeType == 3) ?
-                this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.innerHTML.data :
-                this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.outerHTML;
+            this.htmlSelected = (this.data_of_components[_store.countLayout - 1].instance.$el.nodeType == 3) ?
+                this.data_of_components[_store.countLayout - 1].instance.$el.innerHTML.data :
+                this.data_of_components[_store.countLayout - 1].instance.$el.outerHTML;
             this.range.pasteHTML(this.htmlSelected);
           } else {
             let range = document.createRange();
             range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
             range.collapse(false);
-            this.htmlSelected = (this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.nodeType == 3) ?
-                this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.innerHTML.data :
-                this.data_of_components[this.$store.state.TitlesModule.countLayout - 1].instance.$el.outerHTML;
+            this.htmlSelected = (this.data_of_components[_store.countLayout - 1].instance.$el.nodeType == 3) ?
+                this.data_of_components[_store.countLayout - 1].instance.$el.innerHTML.data :
+                this.data_of_components[_store.countLayout - 1].instance.$el.outerHTML;
             range.pasteHTML(this.htmlSelected);
           }
         }
@@ -784,9 +675,9 @@ export default {
       })
     },
     deletingComponent() {
-      if (this.$store.state.TitlesModule.deletedComponent !== 0) {
+      if (_store.deletedComponent !== 0) {
         let index = this.data_of_components.findIndex((elem) => {
-          return elem.instance.$data.index_component === this.$store.state.TitlesModule.deletedComponent
+          return elem.instance.$data.index_component === _store.deletedComponent
         })
         if (index !== -1) {
           this.data_of_components.splice(index, 1)
@@ -813,11 +704,11 @@ export default {
             global_counter.counter_index++
           })
 
-          this.$store.state.TitlesModule.countLayout = global_counter.counter_index-1
-          this.$store.state.TitlesModule.count_of_auth = global_counter.index_auth-1
-          this.$store.state.TitlesModule.count_of_images = global_counter.index_image-1
-          this.$store.state.TitlesModule.count_of_questions = global_counter.index_question-1
-          this.$store.state.TitlesModule.deletedComponent = 0
+          _store.countLayout = global_counter.counter_index-1
+          _store.count_of_auth = global_counter.index_auth-1
+          _store.count_of_images = global_counter.index_image-1
+          _store.count_of_questions = global_counter.index_question-1
+          _store.deletedComponent = 0
 
           this.saveDB = true
           setTimeout(() => {
@@ -914,7 +805,7 @@ export default {
     /* CLEANERS */
     clearStateAfterSelect() {
       this.selectComponent[this.params_of_component.name] = false
-      this.$store.state.TitlesModule.selectedComponent = {}
+      _store.selectedComponent = {}
       this.$store.state.AuthModule.inserting_component = false
     },
 
@@ -982,10 +873,12 @@ export default {
   &__header {
     background: #e9ecf4;
     width: 100%;
-    display: grid;
-    grid-template-areas:
-              'firstLine'
-              'secondLine';
+    //display: grid;
+    //grid-template-areas:
+    //          'firstLine'
+    //          'secondLine';
+    display: flex;
+    flex-wrap: wrap;
     box-shadow: 0px -3px 5px -5px rgba(0, 0, 0, 0.6) inset;
     position: sticky;
     top: 47px;
@@ -1003,7 +896,7 @@ export default {
     }
 
     .header__elBlock {
-      padding: 2px 8px;
+      padding: 2px 10px;
       display: flex;
       column-gap: 5px;
 
