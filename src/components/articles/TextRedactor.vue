@@ -624,22 +624,24 @@ export default {
         this.data_of_components.push(elem)
         this.data_of_components[_store.count_of_layout - 1].instance.$mount() // pass nothing
 
-        if (window.getSelection) {
-          if (this.range && (this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' ||(this.range.commonAncestorContainer?.offsetParent?._prevClass === "textRedactor"))) {
+        if (this.range && (this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' ||(this.range.commonAncestorContainer?.offsetParent?._prevClass === "textRedactor"))) {
+          if (window.getSelection) {
             this.range.insertNode(this.data_of_components[_store.count_of_layout - 1].instance.$el);
-          } else {
+          } else if (document.selection && document.selection.createRange) {
+            if (this.range && (this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' || this.range.commonAncestorContainer.offsetParent._prevClass === "textRedactor")) {
+              this.htmlSelected = (this.data_of_components[_store.count_of_layout - 1].instance.$el.nodeType == 3) ?
+                  this.data_of_components[_store.count_of_layout - 1].instance.$el.innerHTML.data :
+                  this.data_of_components[_store.count_of_layout - 1].instance.$el.outerHTML;
+              this.range.pasteHTML(this.htmlSelected);
+            }
+          }
+        } else {
+          if (window.getSelection) {
             let range = document.createRange();
             range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
             range.collapse(false);
             range.insertNode(this.data_of_components[_store.count_of_layout - 1].instance.$el);
-          }
-        } else if (document.selection && document.selection.createRange) {
-          if (this.range && (this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' || this.range.commonAncestorContainer.offsetParent._prevClass === "textRedactor")) {
-            this.htmlSelected = (this.data_of_components[_store.count_of_layout - 1].instance.$el.nodeType == 3) ?
-                this.data_of_components[_store.count_of_layout - 1].instance.$el.innerHTML.data :
-                this.data_of_components[_store.count_of_layout - 1].instance.$el.outerHTML;
-            this.range.pasteHTML(this.htmlSelected);
-          } else {
+          } else if (document.selection && document.selection.createRange) {
             let range = document.createRange();
             range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
             range.collapse(false);
@@ -668,13 +670,10 @@ export default {
           }
 
           this.data_of_components.forEach(elem => {
-
             elem.data.index = global_counter.counter_index
             const key_data = `index_${elem.data.component.name}`
             elem.data.component[key_data] = global_counter[key_data]
-
-            const key_instance = `index_${elem.data.component.name}`
-            elem.instance.$data[key_instance] = global_counter[key_instance]
+            elem.instance.$data[key_data] = global_counter[key_data]
             const block = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
             block.id =  `component_wrapper-${global_counter.counter_index}`
             elem.instance.$data.index_component = global_counter.counter_index
@@ -685,7 +684,7 @@ export default {
           })
 
           this.$store.commit('changeCount', {name: 'layout', count: global_counter.counter_index-1})
-          _store.deletedComponent = 0
+          this.$store.commit('delete_component_by_id', 0)
 
           this.saveDB = true
           setTimeout(() => {
