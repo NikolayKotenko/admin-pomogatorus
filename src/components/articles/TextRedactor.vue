@@ -496,14 +496,14 @@ export default {
                       const alt = document.getElementById(`component_wrapper-${elem.index}`).getElementsByClassName( 'inserted_image' )[0].alt
                       data = Object.assign({}, {name: alt}, {full_path: sub_url[1]})
                     }
-                    _store.countLayout = elem.index
+                    this.$store.commit('changeCount', {name: 'layout', count: elem.index})
                     _store.selectedComponent = data
                     let range = document.createRange();
                     range.selectNode(document.getElementById(`component_wrapper-${elem.index}`));
                     range.deleteContents()
                     range.collapse(false);
                     this.data_of_components.push(this.getStructureForInstance(elem.component))
-                    this.data_of_components[_store.countLayout - 1].instance.$mount() // pass nothing
+                    this.data_of_components[_store.count_of_layout - 1].instance.$mount() // pass nothing
                     range.insertNode(this.data_of_components[elem.index-1].instance.$el)
                     _store.selectedComponent = {}
                   })
@@ -517,14 +517,10 @@ export default {
       })
     },
     checkTypeComponent(elem) {
+      console.log(elem.component.name)
+      console.log(elem)
       this.params_of_component.name = elem.component.name
-      if (elem.component.name === 'questions') {
-        _store.count_of_questions = elem.component.index_question
-      } else if (elem.component.name === 'image') {
-        _store.count_of_images = elem.component.index_image
-      } else if (elem.component.name === 'auth') {
-        _store.count_of_auth = elem.component.index_auth
-      }
+      this.$store.commit('changeCount', {name: elem.component.name, count: elem.component[`index_${elem.component.name}`]})
     },
 
     onContentChange() {
@@ -581,7 +577,7 @@ export default {
         _store.count_of_questions++
         this.callCheckout()
       } else if (this.params_of_component.name === 'image') {
-        _store.count_of_images++
+        _store.count_of_image++
         if (this.dropzone_uploaded.length) {
           this.dropzone_uploaded.forEach(elem => {
             _store.selectedComponent = elem
@@ -598,15 +594,13 @@ export default {
       }
     },
     callCheckout(elem) {
-      _store.countLayout++
+      this.$store.commit('changeCount', {name: 'layout', count: _store.count_of_layout+1})
 
-      let data_component;
-
-      data_component = factory.create(this.params_of_component.name, {
+      let data_component = factory.create(this.params_of_component.name, {
         name: this.params_of_component.name,
         id: _store.selectedComponent.id,
-        index_question: _store.count_of_questions,
-        index_image: _store.count_of_images,
+        index_questions: _store.count_of_questions,
+        index_image: _store.count_of_image,
         index_auth: _store.count_of_auth,
         src: elem?.dataURL ? elem?.dataURL : '',
       })
@@ -624,7 +618,7 @@ export default {
         store,
         vuetify,
       })
-      const data = new this.Imported_component({index: _store.countLayout, component: data_component})
+      const data = new this.Imported_component({index: _store.count_of_layout, component: data_component})
       const params = Object.assign({}, {instance: instance}, {data: data})
       return new this.Constructor_instance(params)
     },
@@ -632,30 +626,30 @@ export default {
       return new Promise((resolve) => {
         const elem = this.getStructureForInstance(data_component)
         this.data_of_components.push(elem)
-        this.data_of_components[_store.countLayout - 1].instance.$mount() // pass nothing
+        this.data_of_components[_store.count_of_layout - 1].instance.$mount() // pass nothing
 
         if (window.getSelection) {
           if (this.range && (this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' ||(this.range.commonAncestorContainer?.offsetParent?._prevClass === "textRedactor"))) {
-            this.range.insertNode(this.data_of_components[_store.countLayout - 1].instance.$el);
+            this.range.insertNode(this.data_of_components[_store.count_of_layout - 1].instance.$el);
           } else {
             let range = document.createRange();
             range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
             range.collapse(false);
-            range.insertNode(this.data_of_components[_store.countLayout - 1].instance.$el);
+            range.insertNode(this.data_of_components[_store.count_of_layout - 1].instance.$el);
           }
         } else if (document.selection && document.selection.createRange) {
           if (this.range && (this.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' || this.range.commonAncestorContainer.offsetParent._prevClass === "textRedactor")) {
-            this.htmlSelected = (this.data_of_components[_store.countLayout - 1].instance.$el.nodeType == 3) ?
-                this.data_of_components[_store.countLayout - 1].instance.$el.innerHTML.data :
-                this.data_of_components[_store.countLayout - 1].instance.$el.outerHTML;
+            this.htmlSelected = (this.data_of_components[_store.count_of_layout - 1].instance.$el.nodeType == 3) ?
+                this.data_of_components[_store.count_of_layout - 1].instance.$el.innerHTML.data :
+                this.data_of_components[_store.count_of_layout - 1].instance.$el.outerHTML;
             this.range.pasteHTML(this.htmlSelected);
           } else {
             let range = document.createRange();
             range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
             range.collapse(false);
-            this.htmlSelected = (this.data_of_components[_store.countLayout - 1].instance.$el.nodeType == 3) ?
-                this.data_of_components[_store.countLayout - 1].instance.$el.innerHTML.data :
-                this.data_of_components[_store.countLayout - 1].instance.$el.outerHTML;
+            this.htmlSelected = (this.data_of_components[_store.count_of_layout - 1].instance.$el.nodeType == 3) ?
+                this.data_of_components[_store.count_of_layout - 1].instance.$el.innerHTML.data :
+                this.data_of_components[_store.count_of_layout - 1].instance.$el.outerHTML;
             range.pasteHTML(this.htmlSelected);
           }
         }
@@ -671,18 +665,19 @@ export default {
           this.data_of_components.splice(index, 1)
 
           const global_counter = {
-            index_question: 1,
+            index_questions: 1,
             index_image: 1,
             index_auth: 1,
             counter_index: 1,
           }
 
           this.data_of_components.forEach(elem => {
+
             elem.data.index = global_counter.counter_index
-            const key_data = Object.keys(elem.data.component).includes('index_question') ? 'index_question' : Object.keys(elem.data.component).includes('index_image') ? 'index_image' : 'index_auth'
+            const key_data = `index_${elem.data.component.name}`
             elem.data.component[key_data] = global_counter[key_data]
 
-            const key_instance = Object.keys( elem.instance.$data).includes('index_question') ? 'index_question' : Object.keys(elem.data.component).includes('index_image') ? 'index_image' : 'index_auth'
+            const key_instance = `index_${elem.data.component.name}`
             elem.instance.$data[key_instance] = global_counter[key_instance]
             const block = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
             block.id =  `component_wrapper-${global_counter.counter_index}`
@@ -692,10 +687,10 @@ export default {
             global_counter.counter_index++
           })
 
-          _store.countLayout = global_counter.counter_index-1
+          _store.count_of_layout = global_counter.counter_index-1
           _store.count_of_auth = global_counter.index_auth-1
-          _store.count_of_images = global_counter.index_image-1
-          _store.count_of_questions = global_counter.index_question-1
+          _store.count_of_image = global_counter.index_image-1
+          _store.count_of_questions = global_counter.index_questions-1
           _store.deletedComponent = 0
 
           this.saveDB = true
@@ -799,26 +794,6 @@ export default {
 
       this.index = index
       this.component = component
-    },
-    Element_auth(data) {
-      const {name, index_auth} = data
-
-      this.name = name
-      this.index_auth = index_auth
-    },
-    Element_question(data) {
-      const {name, id, index_question} = data
-
-      this.name = name
-      this.id = id
-      this.index_question = index_question
-    },
-    Element_image(data) {
-      const {name, src, index_image} = data
-
-      this.name = name
-      this.src = src
-      this.index_image = index_image
     },
   },
   beforeDestroy() {

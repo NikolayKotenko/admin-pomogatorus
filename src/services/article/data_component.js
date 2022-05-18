@@ -1,7 +1,8 @@
 export default class Data_component {
     create(type, data) {
         let data_component
-        if (type === 'question') {
+        console.log(type)
+        if (type === 'question' || type === 'questions') {
             data_component = new Element_question(data)
         } else if (type === 'image') {
             data_component = new Element_image(data)
@@ -14,11 +15,11 @@ export default class Data_component {
 
 class Element_question {
     constructor (data) {
-        const {name, id, index_question} = data
+        const {name, id, index_questions} = data
 
         this.name = name
         this.id = id
-        this.index_question = index_question
+        this.index_questions = index_questions
     }
 }
 

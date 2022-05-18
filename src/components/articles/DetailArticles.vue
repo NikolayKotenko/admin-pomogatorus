@@ -328,7 +328,7 @@ export default {
       this.deletedContent = true
 
       this.$store.state.ArticleModule.inserted_components = []
-      this.$store.state.ArticleModule.countLayout = 0
+      this.$store.state.ArticleModule.count_of_layout = 0
       this.$store.state.ArticleModule.newArticle._all_tags = []
       this.$store.dispatch('removeLocalStorageArticle')
       this.deleteDBQuestion(this.newArticle)

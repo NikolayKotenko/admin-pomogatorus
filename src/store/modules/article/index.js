@@ -87,8 +87,8 @@ export default {
         components_after_request: [],
         loadingModalList: false,
         selectedComponent: {},
-        countLayout: 0,
-        count_of_images: 0,
+        count_of_layout: 0,
+        count_of_image: 0,
         count_of_questions: 0,
         count_of_auth: 0,
         willShow: true,
@@ -195,13 +195,17 @@ export default {
         changeContent(state, result) {
             state.content = result
         },
+        changeCount(state, counter) {
+            const {name, count} = counter
+            state[`count_of_${name}`] = count
+        },
 
         /* CLEANER */
         clean_store(state) {
             state.listComponents = []
             state.selectedComponent = {}
-            state.countLayout = 0
-            state.count_of_images = 0
+            state.count_of_layout = 0
+            state.count_of_image = 0
             state.count_of_questions = 0
             state.count_of_auth = 0
             state.content_from_server = ''
