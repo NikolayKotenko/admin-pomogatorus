@@ -366,6 +366,8 @@ export default {
       handler(v) {
         if (v && v === 'questions') {
           this.$store.dispatch('getListComponents', this.params_of_component.name)
+        } else if (v && v === 'auth') {
+          this.$store.commit('changeInsertingComponents', true)
         }
       }
     },
@@ -497,7 +499,7 @@ export default {
                       data = Object.assign({}, {name: alt}, {full_path: sub_url[1]})
                     }
                     this.$store.commit('changeCount', {name: 'layout', count: elem.index})
-                    _store.selectedComponent = data
+                    this.$store.commit('changeSelectedObject', data)
                     let range = document.createRange();
                     range.selectNode(document.getElementById(`component_wrapper-${elem.index}`));
                     range.deleteContents()
@@ -505,7 +507,7 @@ export default {
                     this.data_of_components.push(this.getStructureForInstance(elem.component))
                     this.data_of_components[_store.count_of_layout - 1].instance.$mount() // pass nothing
                     range.insertNode(this.data_of_components[elem.index-1].instance.$el)
-                    _store.selectedComponent = {}
+                  this.$store.commit('changeSelectedObject', {})
                   })
               })
             })
@@ -517,8 +519,6 @@ export default {
       })
     },
     checkTypeComponent(elem) {
-      console.log(elem.component.name)
-      console.log(elem)
       this.params_of_component.name = elem.component.name
       this.$store.commit('changeCount', {name: elem.component.name, count: elem.component[`index_${elem.component.name}`]})
     },
@@ -573,25 +573,21 @@ export default {
       this.onSelectComponent()
     },
     onSelectComponent() {
-      if (this.params_of_component.name === 'questions') {
-        _store.count_of_questions++
-        this.callCheckout()
-      } else if (this.params_of_component.name === 'image') {
-        _store.count_of_image++
+      this.$store.commit('changeCount', {name: this.params_of_component.name, count: _store.count_of_questions+1})
+      let elem = {}
+      if (this.params_of_component.name === 'image') {
         if (this.dropzone_uploaded.length) {
-          this.dropzone_uploaded.forEach(elem => {
-            _store.selectedComponent = elem
+          this.dropzone_uploaded.forEach(img => {
+            elem = img
+            this.$store.commit('changeSelectedObject', elem)
             this.callCheckout(elem)
           })
           this.clearDropZoneTemplate()
           this.dropzone_uploaded = []
           this.index_uploaded = 1
         }
-      } else if (this.params_of_component.name === 'auth') {
-        this.$store.state.AuthModule.inserting_component = true
-        _store.count_of_auth++
-        this.callCheckout()
       }
+      this.callCheckout(elem)
     },
     callCheckout(elem) {
       this.$store.commit('changeCount', {name: 'layout', count: _store.count_of_layout+1})
@@ -683,14 +679,12 @@ export default {
             block.id =  `component_wrapper-${global_counter.counter_index}`
             elem.instance.$data.index_component = global_counter.counter_index
 
+            this.$store.commit('changeCount', {name: elem.data.component.name, count: global_counter[key_data]})
             global_counter[key_data]++
             global_counter.counter_index++
           })
 
-          _store.count_of_layout = global_counter.counter_index-1
-          _store.count_of_auth = global_counter.index_auth-1
-          _store.count_of_image = global_counter.index_image-1
-          _store.count_of_questions = global_counter.index_questions-1
+          this.$store.commit('changeCount', {name: 'layout', count: global_counter.counter_index-1})
           _store.deletedComponent = 0
 
           this.saveDB = true
@@ -778,8 +772,8 @@ export default {
     /* CLEANERS */
     clearStateAfterSelect() {
       this.selectComponent[this.params_of_component.name] = false
-      _store.selectedComponent = {}
-      this.$store.state.AuthModule.inserting_component = false
+      this.$store.commit('changeSelectedObject', {})
+      this.$store.commit('changeInsertingComponents', true)
     },
 
     /* CONSTRUCTORS */

@@ -199,6 +199,12 @@ export default {
             const {name, count} = counter
             state[`count_of_${name}`] = count
         },
+        changeInsertingComponents(state, value) {
+            state.inserting_component = value
+        },
+        changeSelectedObject(state, value) {
+            state.selectedComponent = value
+        },
 
         /* CLEANER */
         clean_store(state) {
