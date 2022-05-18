@@ -283,10 +283,10 @@ export default {
       }
     },
     getData() {
-      if (Object.keys(this.$store.state.TitlesModule.selectedComponent).length) {
-        this.index_question = this.$store.state.TitlesModule.count_of_questions
-        this.index_component = this.$store.state.TitlesModule.countLayout
-        this.question_data = Object.assign({}, this.$store.state.TitlesModule.selectedComponent)
+      if (Object.keys(this.$store.state.ArticleModule.selectedComponent).length) {
+        this.index_question = this.$store.state.ArticleModule.count_of_questions
+        this.index_component = this.$store.state.ArticleModule.countLayout
+        this.question_data = Object.assign({}, this.$store.state.ArticleModule.selectedComponent)
         this.getValue_type_answer()
         this.getHeightOfControls()
         this.getWidthOfControls()

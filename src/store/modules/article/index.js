@@ -189,6 +189,12 @@ export default {
             const obj = Object.assign({}, {data, index: index, component})
             state.components_after_request.push(obj)
         },
+        changeInsertedComponents(state, result) {
+            state.inserted_components = result
+        },
+        changeContent(state, result) {
+            state.content = result
+        },
 
         /* CLEANER */
         clean_store(state) {
@@ -214,8 +220,8 @@ export default {
         },
         get_from_local_storage() {
             if (localStorage.getItem('article') !== null) {
-                this.state.TitlesModule.newArticle = Object.assign({}, defaultArticle)
-                this.state.TitlesModule.newArticle = JSON.parse(localStorage.getItem('article'))
+                this.state.ArticleModule.newArticle = Object.assign({}, defaultArticle)
+                this.state.ArticleModule.newArticle = JSON.parse(localStorage.getItem('article'))
             }
         },
 

@@ -17,7 +17,7 @@ Vue.use(Vuex)
 
 // Modules import
 import QuestionsModule from "./modules/questions";
-import TitlesModule from "./modules/titles";
+import ArticleModule from "./modules/article";
 import AuthModule from "./modules/auth";
 
 export default new Vuex.Store({
@@ -40,7 +40,7 @@ export default new Vuex.Store({
   },
   modules: {
     QuestionsModule,
-    TitlesModule,
+    ArticleModule,
     AuthModule
   }
 })

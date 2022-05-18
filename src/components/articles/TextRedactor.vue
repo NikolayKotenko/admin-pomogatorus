@@ -182,12 +182,12 @@
         </v-card-title>
         <v-card-text>
           <v-autocomplete
-              :loading="$store.state.TitlesModule.loadingModalList"
-              :disabled="$store.state.TitlesModule.loadingModalList"
-              :items="$store.state.TitlesModule.listComponents"
+              :loading="$store.state.ArticleModule.loadingModalList"
+              :disabled="$store.state.ArticleModule.loadingModalList"
+              :items="$store.state.ArticleModule.listComponents"
               item-text="name"
               return-object
-              v-model="$store.state.TitlesModule.selectedComponent"
+              v-model="$store.state.ArticleModule.selectedComponent"
               placeholder="Наименование"
           >
           </v-autocomplete>
@@ -275,7 +275,7 @@ import Question from "../frontLayouts/Question";
 import ImageLayout from "../frontLayouts/ImageLayout";
 import LoginAuth from "../auth/LoginAuth";
 
-import titlesStore from '@/store/modules/titles/index.js'
+import titlesStore from '@/store/modules/article/index.js'
 const _store = titlesStore.state
 
 import iconsModels from "../../models/iconsModels";
@@ -330,7 +330,6 @@ export default {
     this.loading_dropzone = false;
   },
   mounted() {
-    console.log(_store.inserted_components)
     this.$store.dispatch('testFont')
     setTimeout(() => {
       this.initializeContent()
@@ -340,13 +339,13 @@ export default {
     'saveDB': {
       handler(v) {
         if (!this.geting_from_server && v) {
-          _store.inserted_components = []
+          this.$store.commit('changeInsertedComponents', [])
           const arr = []
           this.data_of_components.forEach(elem => {
             arr.push(elem.data)
           })
-          _store.inserted_components = arr
-          _store.content = this.content
+          this.$store.commit('changeInsertedComponents', arr)
+          this.$store.commit('changeContent', this.content)
         }
       },
     },
@@ -354,7 +353,6 @@ export default {
       handler(v) {
         if (v) {
           this.content = ''
-          _store.content = ''
           this.data_of_components = []
           this.params_of_component.name = ''
           this.$store.commit('clean_store')
@@ -368,15 +366,15 @@ export default {
         }
       }
     },
-    '$store.state.TitlesModule.deletedComponent': {
+    '$store.state.ArticleModule.deletedComponent': {
       handler() {
         this.deletingComponent()
       },
     },
-    '$store.state.TitlesModule.content_from_server': {
+    '$store.state.ArticleModule.content_from_server': {
       handler() {
         this.content = _store.content_from_server
-        _store.content = this.content
+        this.$store.commit('changeContent', this.content)
       }
     },
   },
@@ -420,11 +418,7 @@ export default {
     },
     successData(file, response) {
       console.log(response)
-      const formatObj = {}
-
-      for (let key in response.data) {
-        Object.assign(formatObj, {[key]: response.data[key]})
-      }
+      const formatObj = Object.assign({}, response.data)
       Object.assign(formatObj, {index: this.index_uploaded})
       this.index_uploaded++
       this.dropzone_uploaded.push(formatObj)
@@ -487,18 +481,18 @@ export default {
               return a.index - b.index
             })
 
-            const arr = _store.components_after_request
+            // const arr =
             this.$nextTick(() => {
-              arr.forEach((elem) => {
+              _store.components_after_request.forEach((elem) => {
                 setTimeout(() => {
                     this.checkTypeComponent(elem)
-                    let data = {}
+                    let data = elem.data
                     if (elem.component.name === 'image') {
                       const full_url = document.getElementById(`component_wrapper-${elem.index}`).getElementsByClassName( 'inserted_image' )[0].src
                       let sub_url = full_url.split('.com')
                       const alt = document.getElementById(`component_wrapper-${elem.index}`).getElementsByClassName( 'inserted_image' )[0].alt
                       data = Object.assign({}, {name: alt}, {full_path: sub_url[1]})
-                    } else data = elem.data
+                    }
                     _store.countLayout = elem.index
                     _store.selectedComponent = data
                     let range = document.createRange();
@@ -732,17 +726,7 @@ export default {
     },
     onSelectionContent() {
       // if we select by one tap
-      if (window.getSelection) {
-        this.selection = null
-        this.selection = window.getSelection();
-        if (this.selection.getRangeAt && this.selection.rangeCount) {
-          this.range = null
-          this.range = this.selection.getRangeAt(0);
-        }
-      } else if (document.selection && document.selection.createRange) {
-        this.range = null
-        this.range = document.selection.createRange();
-      }
+      this.getRange()
 
       // if we ranged select
       let html = "";
@@ -850,123 +834,5 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@media only screen and (max-width : 375px) and (orientation: portrait) {
-  //.header__elBlock {
-  //  padding: 2px 4px !important;
-  //  display: flex;
-  //  column-gap: 0 !important;
-  //}
-  //.textRedactor__header__firstLine {
-  //  justify-content: space-between !important;
-  //}
-}
-
-.disabled {
-  pointer-events: none;
-}
-
-.textRedactor {
-  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
-  border-radius: 5px;
-  position: relative;
-
-  &__header {
-    background: #e9ecf4;
-    width: 100%;
-    //display: grid;
-    //grid-template-areas:
-    //          'firstLine'
-    //          'secondLine';
-    display: flex;
-    flex-wrap: wrap;
-    box-shadow: 0px -3px 5px -5px rgba(0, 0, 0, 0.6) inset;
-    position: sticky;
-    top: 47px;
-    z-index: 1;
-
-    &__firstLine {
-      display: flex;
-      justify-content: space-between;
-      grid-area: firstLine;
-    }
-
-    &__secondLine {
-      display: flex;
-      grid-area: secondLine;
-    }
-
-    .header__elBlock {
-      padding: 2px 10px;
-      display: flex;
-      column-gap: 5px;
-
-      &:last-child {
-        border-right: unset;
-      }
-
-      &__iconWrapper {
-        position: relative;
-        padding-right: 10px;
-
-        &__arrow {
-          position: absolute !important;
-          right: -8px !important;
-          top: 0;
-        }
-      }
-    }
-    .right {
-      border-right: 1px solid #c3cfd9;
-    }
-  }
-
-  &__content {
-    padding: 20px;
-    outline: none;
-    min-height: 300px;
-    margin: 10px 0;
-    word-break: break-all;
-    white-space: pre-wrap;
-    overflow:hidden;
-  }
-}
-
-.dialog_dropzone_wrapper {
-  position: relative;
-  &__upload {
-    position: absolute;
-    border: 1px dashed darkgrey;
-    width: 70px;
-    height: 70px;
-    bottom: 22px;
-    right: 26px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-  }
-}
-
-.overlay {
-  position: absolute;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.15);
-}
-
-#dropzone {
-  padding: 0 !important;
-}
-
-.v-menu__content {
-  max-width: 90% !important;
-}
-.v-menu-item {
-  font-size: 1em;
-  padding-left: 10px
-}
-::v-deep .v-color-picker__color {
-  border: 1px solid lightgrey !important;
-}
+@import "src/assets/styles/textEditor";
 </style>

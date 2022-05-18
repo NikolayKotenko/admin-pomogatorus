@@ -19,7 +19,7 @@
                 rows="1"
                 @focus="onFocus(newArticle.name)"
                 @focusout="outFocus(newArticle.name)"
-                :loading="$store.state.TitlesModule.loadingArticle"
+                :loading="$store.state.ArticleModule.loadingArticle"
                 :class="{invalid: !newArticle.name.value && $v.newArticle.name.$dirty && !$v.newArticle.name.required}"
                 @input="saveDBQuestion(newArticle)"
             >
@@ -52,7 +52,7 @@
                   v-model="newArticle.short_header.value"
                   @focus="onFocus(newArticle.short_header)"
                   @focusout="outFocus(newArticle.short_header)"
-                  :loading="$store.state.TitlesModule.loadingArticle"
+                  :loading="$store.state.ArticleModule.loadingArticle"
                   @input="saveDBQuestion(newArticle)"
               ></v-textarea>
               <small
@@ -79,7 +79,7 @@
                   v-model="newArticle.purpose_of_article.value"
                   @focus="onFocus(newArticle.purpose_of_article)"
                   @focusout="outFocus(newArticle.purpose_of_article)"
-                  :loading="$store.state.TitlesModule.loadingArticle"
+                  :loading="$store.state.ArticleModule.loadingArticle"
                   @input="saveDBQuestion(newArticle)"
               ></v-textarea>
             </div>
@@ -100,7 +100,7 @@
                   v-model="newArticle.preview.value"
                   @focus="onFocus(newArticle.preview)"
                   @focusout="outFocus(newArticle.preview)"
-                  :loading="$store.state.TitlesModule.loadingArticle"
+                  :loading="$store.state.ArticleModule.loadingArticle"
                   @input="saveDBQuestion(newArticle)"
               ></v-textarea>
             </div>
@@ -117,7 +117,7 @@
         <v-overlay
             :z-index="2"
             :absolute="true"
-            :value="$store.state.TitlesModule.loadingArticle"
+            :value="$store.state.ArticleModule.loadingArticle"
         >
           <v-progress-circular
               style="margin: auto"
@@ -125,7 +125,7 @@
               :size="70"
               color="blue"
               :indeterminate="true"
-              v-if="$store.state.TitlesModule.loadingArticle"
+              v-if="$store.state.ArticleModule.loadingArticle"
           ></v-progress-circular>
         </v-overlay>
       </v-form>
@@ -144,8 +144,8 @@
                 color="blue darken-1"
                 text
                 @click="deleteModal = false"
-                :disabled="$store.state.TitlesModule.loadingRequest"
-                :loading="$store.state.TitlesModule.loadingRequest"
+                :disabled="$store.state.ArticleModule.loadingRequest"
+                :loading="$store.state.ArticleModule.loadingRequest"
             >
               Нет
             </v-btn>
@@ -153,8 +153,8 @@
             <v-btn
                 color="red darken-1"
                 text
-                :disabled="$store.state.TitlesModule.loadingRequest"
-                :loading="$store.state.TitlesModule.loadingRequest"
+                :disabled="$store.state.ArticleModule.loadingRequest"
+                :loading="$store.state.ArticleModule.loadingRequest"
                 @click="deleteArticle"
             >
               Да
@@ -182,7 +182,7 @@
         </v-btn>
       </template>
       <template v-else>
-        <template v-if="Object.keys(this.$store.state.TitlesModule.nonEditState).length">
+        <template v-if="Object.keys(this.$store.state.ArticleModule.nonEditState).length">
           <v-btn
               color="red darken-1"
               text
@@ -267,19 +267,19 @@ export default {
     }
   },
   watch: {
-    '$store.state.TitlesModule.newArticle.id': {
+    '$store.state.ArticleModule.newArticle.id': {
       handler(v) {
         this.newArticle.id = v
       }
     },
-    '$store.state.TitlesModule.content': {
+    '$store.state.ArticleModule.content': {
       handler() {
         this.saveDBQuestion(this.newArticle)
       }
     },
-    '$store.state.TitlesModule.newArticle._all_tags': {
+    '$store.state.ArticleModule.newArticle._all_tags': {
       handler() {
-        this.newArticle._all_tags = this.$store.state.TitlesModule.newArticle._all_tags
+        this.newArticle._all_tags = this.$store.state.ArticleModule.newArticle._all_tags
         this.saveDBQuestion(this.newArticle)
       }
     },
@@ -301,8 +301,8 @@ export default {
       if (Object.keys(this.$route.query).length && Object.keys(this.$route.query).includes('article_id')) {
         this.getFromServer = true
         this.$store.dispatch('getDetailArticle', this.$route.query.article_id).then(() => {
-          if (this.$store.state.TitlesModule.newArticle.name) {
-            this.newArticle = this.$store.state.TitlesModule.newArticle
+          if (this.$store.state.ArticleModule.newArticle.name) {
+            this.newArticle = this.$store.state.ArticleModule.newArticle
             setTimeout(() => {
               this.getFromServer = false
             }, 2000)
@@ -327,9 +327,9 @@ export default {
       }
       this.deletedContent = true
 
-      this.$store.state.TitlesModule.inserted_components = []
-      this.$store.state.TitlesModule.countLayout = 0
-      this.$store.state.TitlesModule.newArticle._all_tags = []
+      this.$store.state.ArticleModule.inserted_components = []
+      this.$store.state.ArticleModule.countLayout = 0
+      this.$store.state.ArticleModule.newArticle._all_tags = []
       this.$store.dispatch('removeLocalStorageArticle')
       this.deleteDBQuestion(this.newArticle)
       setTimeout(() => {
@@ -418,9 +418,9 @@ export default {
                 cursor.continue()
                 this.$nextTick(() => {
                   this.newArticle = question[0]
-                  this.$store.state.TitlesModule.content_from_server = question[0].content
-                  this.$store.state.TitlesModule.inserted_components = question[0].inserted_components
-                  this.$store.state.TitlesModule.newArticle._all_tags = this.newArticle._all_tags
+                  this.$store.state.ArticleModule.content_from_server = question[0].content
+                  this.$store.state.ArticleModule.inserted_components = question[0].inserted_components
+                  this.$store.state.ArticleModule.newArticle._all_tags = this.newArticle._all_tags
                 })
               }
             }
@@ -456,8 +456,8 @@ export default {
       //       } else refactored[key] = value[key]
       //     }
       //   }
-      //   refactored.content = this.$store.state.TitlesModule.content
-      //   refactored.inserted_components = this.$store.state.TitlesModule.inserted_components
+      //   refactored.content = this.$store.state.ArticleModule.content
+      //   refactored.inserted_components = this.$store.state.ArticleModule.inserted_components
       //   if (!this.deleteStorage) {
       //     if (this.$route.params?.action === 'create') {
       //       let db = await this.getDb()
@@ -525,7 +525,7 @@ export default {
     },
   },
   beforeDestroy() {
-    this.$store.state.TitlesModule.newArticle._all_tags = []
+    this.$store.state.ArticleModule.newArticle._all_tags = []
   }
 }
 </script>
