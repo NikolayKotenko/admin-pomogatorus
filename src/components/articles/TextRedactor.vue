@@ -280,6 +280,9 @@ const _store = titlesStore.state
 
 import iconsModels from "../../models/iconsModels";
 
+import Data_component from "../../services/article/data_component";
+const factory = new Data_component()
+
 export default {
   name: "TextRedactor",
   props: ['newArticle', 'deletedContent'],
@@ -598,24 +601,15 @@ export default {
       _store.countLayout++
 
       let data_component;
-      if (this.params_of_component.name === 'questions') {
-        data_component = new this.Element_question({
-          name: this.params_of_component.name,
-          id: _store.selectedComponent.id,
-          index_question: _store.count_of_questions
-        })
-      } else if (this.params_of_component.name === 'image') {
-        data_component = new this.Element_image({
-          name: this.params_of_component.name,
-          src: elem.dataURL,
-          index_image: _store.count_of_images
-        })
-      } else if (this.params_of_component.name === 'auth') {
-        data_component = new this.Element_auth({
-          name: this.params_of_component.name,
-          index_auth: _store.count_of_auth
-        })
-      }
+
+      data_component = factory.create(this.params_of_component.name, {
+        name: this.params_of_component.name,
+        id: _store.selectedComponent.id,
+        index_question: _store.count_of_questions,
+        index_image: _store.count_of_images,
+        index_auth: _store.count_of_auth,
+        src: elem?.dataURL ? elem?.dataURL : '',
+      })
 
       this.insertingComponent(data_component).then(() => {
         this.saveDB = true
