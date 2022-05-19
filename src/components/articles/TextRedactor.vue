@@ -365,6 +365,7 @@ export default {
     'params_of_component.name': {
       handler(v) {
         if (v && v === 'questions') {
+          console.log('ya rab')
           this.$store.dispatch('getListComponents', this.params_of_component.name)
         } else if (v && v === 'auth') {
           this.$store.commit('changeInsertingComponents', true)
