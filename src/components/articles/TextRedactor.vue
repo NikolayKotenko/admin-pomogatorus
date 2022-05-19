@@ -520,7 +520,8 @@ export default {
     },
     checkTypeComponent(elem) {
       this.params_of_component.name = elem.component.name
-      this.$store.commit('changeCount', {name: elem.component.name, count: elem.component[`index_${elem.component.name}`]})
+      const name = Object.prototype.hasOwnProperty.call(elem.component, 'index_question') ? 'question' : elem.component.name
+      this.$store.commit('changeCount', {name: elem.component.name, count: elem.component[`index_${name}`]})
     },
 
     onContentChange() {
