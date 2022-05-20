@@ -34,6 +34,8 @@ const _store = titlesStore.state
 import Data_component from "../../services/article/data_component";
 const factory = new Data_component()
 
+import iconsModels from "../../models/iconsModels";
+
 export default {
   name: "TextRedactor",
   props: ['newArticle', 'deletedContent'],
@@ -64,12 +66,6 @@ export default {
     'saveDB': {
       handler(v) {
         if (!this.geting_from_server && v) {
-          this.$store.commit('changeInsertedComponents', [])
-          const arr = []
-          this.data_of_components.forEach(elem => {
-            arr.push(elem.data)
-          })
-          this.$store.commit('changeInsertedComponents', arr)
           this.$store.commit('changeContent', this.content)
         }
       },
@@ -108,7 +104,7 @@ export default {
       }
     },
     componentLayout() {
-      return _store.name_component === 'questions' ? Vue.extend(Question) : this.params_of_component.name === 'image' ? Vue.extend(ImageLayout) : Vue.extend(LoginAuth)
+      return _store.name_component === 'questions' ? Vue.extend(Question) : _store.name_component === 'image' ? Vue.extend(ImageLayout) : Vue.extend(LoginAuth)
     }
   },
   methods: {
@@ -116,7 +112,7 @@ export default {
     initializeContent() {
       return new Promise((resolve) => {
         console.log('initialize')
-        if (_store.inserted_components && _store.inserted_components.length) {
+        if (_store.components_after_request.length) {
           console.log('YA RABOTAU')
           _store.loadingArticle = true
           this.geting_from_server = true
@@ -125,18 +121,17 @@ export default {
 
           const promises = []
 
-          _store.inserted_components.forEach(elem => {
+          _store.components_after_request.forEach(elem => {
             promises.push(this.$store.dispatch(`get_${elem.component.name}`, elem))
           })
 
           Promise.all(promises).finally(() => {
-            _store.components_after_request.sort((a,b) => {
+            _store.list_components.sort((a,b) => {
               return a.index - b.index
             })
 
-            // const arr =
             this.$nextTick(() => {
-              _store.components_after_request.forEach((elem) => {
+              _store.list_components.forEach((elem, index) => {
                 setTimeout(() => {
                     this.checkTypeComponent(elem)
                     let data = elem.data
@@ -146,15 +141,15 @@ export default {
                       const alt = document.getElementById(`component_wrapper-${elem.index}`).getElementsByClassName( 'inserted_image' )[0].alt
                       data = Object.assign({}, {name: alt}, {full_path: sub_url[1]})
                     }
-                    this.$store.commit('changeCount', {name: 'layout', count: elem.index})
+                    this.$store.commit('change_counter', {name: 'layout', count: elem.index})
                     this.$store.commit('changeSelectedObject', data)
                     let range = document.createRange();
                     range.selectNode(document.getElementById(`component_wrapper-${elem.index}`));
                     range.deleteContents()
                     range.collapse(false);
-                    this.data_of_components.push(this.getStructureForInstance(elem.component))
-                    this.data_of_components[_store.count_of_layout - 1].instance.$mount() // pass nothing
-                    range.insertNode(this.data_of_components[elem.index-1].instance.$el)
+                    _store.list_components[index] = this.getStructureForInstance(elem.component)
+                    _store.list_components[index].instance.$mount()
+                    range.insertNode(_store.list_components[index].instance.$el)
                   this.$store.commit('changeSelectedObject', {})
                   })
               })
@@ -167,9 +162,9 @@ export default {
       })
     },
     checkTypeComponent(elem) {
-      this.params_of_component.name = elem.component.name
+      this.$store.commit('change_name_component', elem.component.name)
       const name = Object.prototype.hasOwnProperty.call(elem.component, 'index_question') ? 'question' : elem.component.name
-      this.$store.commit('changeCount', {name: elem.component.name, count: elem.component[`index_${name}`]})
+      this.$store.commit('change_counter', {name: elem.component.name, count: elem.component[`index_${name}`]})
     },
 
     onContentChange() {
@@ -188,18 +183,26 @@ export default {
 
     /* MANIPULATING WITH INSERTING COMPONENTS */
     callCheckout(elem) {
-      let data_component = factory.create(this.params_of_component.name, {
-        name: _store.name_component,
-        id: _store.selectedComponent.id,
-        index_questions: _store.counters.questions,
-        index_image: _store.counters.image,
-        index_auth: _store.counters.auth,
-        src: elem?.dataURL ? elem?.dataURL : '',
-      })
+      // if (Array.isArray(data)) {
+      //   for (const elem of data) {
+          let data_component = factory.create(_store.name_component, {
+            name: _store.name_component,
+            id: _store.selectedComponent?.id,
+            index_questions: _store.counters.questions,
+            index_image: _store.counters.image,
+            index_auth: _store.counters.auth,
+            src: elem?.dataURL ? elem?.dataURL : '',
+          })
 
-      this.insertingComponent(data_component).then(() => {
-        this.clearStateAfterSelect()
-      })
+          this.insertingComponent(data_component).then(() => {
+            this.saveDB = true
+            this.clearStateAfterSelect()
+            setTimeout(() => {
+              this.saveDB = false
+            })
+          })
+      //   }
+      // }
     },
     getStructureForInstance(data_component) {
       const instance = new this.componentLayout({
@@ -212,6 +215,7 @@ export default {
     },
     insertingComponent(data_component) {
       return new Promise((resolve) => {
+        console.log(data_component)
         const elem = this.getStructureForInstance(data_component)
         this.$store.commit('add_to_list_components', elem)
         const calledElem = _store.list_components[_store.counters.layout - 1]
@@ -249,11 +253,11 @@ export default {
     },
     deletingComponent() {
       if (_store.deletedComponent !== 0) {
-        let index = this.data_of_components.findIndex((elem) => {
+        let index = _store.list_components.findIndex((elem) => {
           return elem.instance.$data.index_component === _store.deletedComponent
         })
         if (index !== -1) {
-          this.data_of_components.splice(index, 1)
+          _store.list_components.splice(index, 1)
 
           const global_counter = {
             index_questions: 1,
@@ -262,7 +266,7 @@ export default {
             counter_index: 1,
           }
 
-          this.data_of_components.forEach(elem => {
+          _store.list_components.forEach(elem => {
             elem.data.index = global_counter.counter_index
             const key_data = `index_${elem.data.component.name}`
             elem.data.component[key_data] = global_counter[key_data]
@@ -271,12 +275,12 @@ export default {
             block.id =  `component_wrapper-${global_counter.counter_index}`
             elem.instance.$data.index_component = global_counter.counter_index
 
-            this.$store.commit('changeCount', {name: elem.data.component.name, count: global_counter[key_data]})
+            this.$store.commit('change_counter', {name: elem.data.component.name, count: global_counter[key_data]})
             global_counter[key_data]++
             global_counter.counter_index++
           })
 
-          this.$store.commit('changeCount', {name: 'layout', count: global_counter.counter_index-1})
+          this.$store.commit('change_counter', {name: 'layout', count: global_counter.counter_index-1})
           this.$store.commit('delete_component_by_id', 0)
 
           this.saveDB = true
@@ -302,50 +306,50 @@ export default {
     onSelectionContent() {
       // if we select by one tap
       this.$store.commit('get_range')
-      console.log(_store.range)
+      // if we ranged select
+      let html = "";
+      if (typeof window.getSelection != "undefined") {
+        let sel = window.getSelection();
+        if (sel.rangeCount) {
+          let container = document.createElement("div");
+          for (let i = 0, len = sel.rangeCount; i < len; ++i) {
+            container.appendChild(sel.getRangeAt(i).cloneContents());
+          }
+          html = container.innerHTML.replace(/<br>/g,'');
+        }
+      } else if (typeof document.selection != "undefined") {
+        if (document.selection.type == "Text") {
+          html = document.selection.createRange().htmlText.replace(/<br>/g,'');
+        }
+      }
+      // html for range select return outerHtml
+      // range for single selection return tag/outerHTML
 
-      // // if we ranged select
-      // let html = "";
-      // if (typeof window.getSelection != "undefined") {
-      //   let sel = window.getSelection();
-      //   if (sel.rangeCount) {
-      //     let container = document.createElement("div");
-      //     for (let i = 0, len = sel.rangeCount; i < len; ++i) {
-      //       container.appendChild(sel.getRangeAt(i).cloneContents());
-      //     }
-      //     html = container.innerHTML.replace(/<br>/g,'');
-      //   }
-      // } else if (typeof document.selection != "undefined") {
-      //   if (document.selection.type == "Text") {
-      //     html = document.selection.createRange().htmlText.replace(/<br>/g,'');
-      //   }
-      // }
-      // // html for range select return outerHtml
-      // // range for single selection return tag/outerHTML
-      //
-      // Object.keys(this.icons_panel).forEach(icon => {
-      //   let elem = this.range.commonAncestorContainer.parentElement
-      //   // Global object
-      //   let parentElem
-      //   // outerHTML
-      //   let parentHTML = ''
-      //   // outerHMTL for aligns
-      //   let styleAlign = ''
-      //
-      //   if (elem.localName !== 'div') {
-      //     parentElem = this.recursiveGetIconValue(elem)
-      //     parentHTML = parentElem.outerHTML
-      //   }
-      //   if (elem.className !== 'textRedactor__content' && elem.className !== 'textRedactor') {
-      //     let grandParent = parentHTML ? parentElem.parentElement.outerHTML : elem.outerHTML
-      //     styleAlign = this.getStyleAlign(grandParent, this.icons_panel[icon])
-      //   }
-      //   this.icons_panel[icon].active = this.checkForStyles(parentHTML, this.icons_panel[icon]) ||
-      //       this.checkByTag(parentHTML, this.icons_panel[icon]) ||
-      //       this.checkForStyles(styleAlign, this.icons_panel[icon]) ||
-      //       this.checkHTMLText(html, this.icons_panel[icon]) ||
-      //       this.checkForStyles(html, this.icons_panel[icon])
-      // })
+      Object.keys(iconsModels).forEach(icon => {
+        if (!_store.range?.commonAncestorContainer?.parentElement) return
+
+        let elem = _store.range.commonAncestorContainer.parentElement
+        // Global object
+        let parentElem
+        // outerHTML
+        let parentHTML = ''
+        // outerHMTL for aligns
+        let styleAlign = ''
+
+        if (elem.localName !== 'div') {
+          parentElem = this.recursiveGetIconValue(elem)
+          parentHTML = parentElem.outerHTML
+        }
+        if (elem.className !== 'textRedactor__content' && elem.className !== 'textRedactor') {
+          let grandParent = parentHTML ? parentElem.parentElement.outerHTML : elem.outerHTML
+          styleAlign = this.getStyleAlign(grandParent, iconsModels[icon])
+        }
+        iconsModels[icon].active = this.checkForStyles(parentHTML, iconsModels[icon]) ||
+            this.checkByTag(parentHTML, iconsModels[icon]) ||
+            this.checkForStyles(styleAlign, iconsModels[icon]) ||
+            this.checkHTMLText(html, iconsModels[icon]) ||
+            this.checkForStyles(html, iconsModels[icon])
+      })
     },
     /* Get style name for aligners values */
     getStyleAlign(outerHTML, icon) {
@@ -364,11 +368,9 @@ export default {
 
     /* CLEANERS */
     clearStateAfterSelect() {
-      this.saveDB = true
       this.$store.commit('change_select_component', {name: _store.name_component, value: false})
       this.$store.commit('changeSelectedObject', {})
       this.$store.commit('changeInsertingComponents', true)
-      this.saveDB = false
     },
 
     /* CONSTRUCTORS */

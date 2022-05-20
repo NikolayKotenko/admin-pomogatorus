@@ -42,8 +42,8 @@ export default {
   methods: {
     getData() {
       this.data_image = this.$store.state.ArticleModule.selectedComponent
-      this.index_image = this.$store.state.ArticleModule.count_of_image
-      this.index_component = this.$store.state.ArticleModule.count_of_layout
+      this.index_image = this.$store.state.ArticleModule.counters.image
+      this.index_component = this.$store.state.ArticleModule.counters.layout
       this.getHeightOfControls()
       this.getWidthOfControls()
     },

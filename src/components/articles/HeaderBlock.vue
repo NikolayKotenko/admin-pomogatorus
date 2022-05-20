@@ -170,7 +170,7 @@
           <v-autocomplete
               :loading="$store.state.ArticleModule.loadingModalList"
               :disabled="$store.state.ArticleModule.loadingModalList"
-              :items="$store.state.ArticleModule.listComponents"
+              :items="$store.state.ArticleModule.list_questions"
               item-text="name"
               return-object
               v-model="$store.state.ArticleModule.selectedComponent"
@@ -285,7 +285,7 @@ export default {
     '$store.state.ArticleModule.selectComponent.questions': {
       handler(v) {
         if (v) {
-          this.$store.dispatch('getListComponents', _store.name_component)
+          this.$store.dispatch('getListQuestions', _store.name_component)
         }
       }
     },
@@ -380,26 +380,29 @@ export default {
     },
     // if we want add after modal window
     initializeSelection(componentName) {
-      this.$store.commit('get_range')
+      this.$store.commit('get_range', true)
       this.$store.commit('change_name_component', componentName)
       this.$store.commit('change_select_component', {name: componentName, value: true})
     },
     onSelectComponent() {
-      this.$store.commit('change_counter', {name: 'layout', count: _store.count_of_layout+1})
-      this.$store.commit('change_counter', {name: _store.name_component, count: _store.count_of_questions+1})
+      this.$store.commit('change_counter', {name: 'layout', count: _store.counters.layout+1})
       let elem = {}
       if (_store.name_component === 'image') {
         if (this.dropzone_uploaded.length) {
-          this.dropzone_uploaded.forEach(img => {
-            this.$store.commit('changeSelectedObject', img)
-            this.$emit('callCheckout', img)
+          this.$nextTick(() => {
+            this.dropzone_uploaded.forEach(elem => {
+              this.$store.commit('changeSelectedObject', elem)
+              this.$emit('callCheckout', elem)
+            })
           })
           this.clearDropZoneTemplate()
           this.dropzone_uploaded = []
           this.index_uploaded = 1
         }
+      } else {
+        this.$store.commit('change_counter', {name: _store.name_component, count: _store.counters[_store.name_component]+1})
+        this.$emit('callCheckout', elem)
       }
-      this.$emit('callCheckout', elem)
     }
   },
 }

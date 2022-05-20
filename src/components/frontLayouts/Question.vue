@@ -289,8 +289,8 @@ export default {
     },
     getData() {
       if (Object.keys(this.$store.state.ArticleModule.selectedComponent).length) {
-        this.index_questions = this.$store.state.ArticleModule.count_of_questions
-        this.index_component = this.$store.state.ArticleModule.count_of_layout
+        this.index_questions = this.$store.state.ArticleModule.counters.questions
+        this.index_component = this.$store.state.ArticleModule.counters.layout
         this.question_data = Object.assign({}, this.$store.state.ArticleModule.selectedComponent)
         this.getValue_type_answer()
         this.getHeightOfControls()
