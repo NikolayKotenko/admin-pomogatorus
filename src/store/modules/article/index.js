@@ -197,11 +197,7 @@ export default {
         },
         changeCount(state, counter) {
             const {name, count} = counter
-            console.log(name)
             state[`count_of_${name}`] = count
-        },
-        changeInsertingComponents(state, value) {
-            state.inserting_component = value
         },
         changeSelectedObject(state, value) {
             state.selectedComponent = value

@@ -362,14 +362,9 @@ export default {
         }
       },
     },
-    'params_of_component.name': {
-      handler(v) {
-        if (v && v === 'questions') {
-          console.log('ya rab')
-          this.$store.dispatch('getListComponents', this.params_of_component.name)
-        } else if (v && v === 'auth') {
-          this.$store.commit('changeInsertingComponents', true)
-        }
+    'selectComponent.questions': {
+      handler() {
+        this.$store.dispatch('getListComponents', this.params_of_component.name)
       }
     },
     '$store.state.ArticleModule.deletedComponent': {
@@ -572,6 +567,7 @@ export default {
     initialiseInserting(componentName) {
       this.getRange()
       this.params_of_component.name = componentName
+      this.$store.commit('changeInsertingComponents', true)
       this.onSelectComponent()
     },
     onSelectComponent() {
