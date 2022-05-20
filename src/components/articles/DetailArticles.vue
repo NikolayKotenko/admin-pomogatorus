@@ -437,41 +437,6 @@ export default {
           this.saveDifferences()
         }
       }, 600)
-      // else {
-      //   const refactored = {}
-      //   for (let key in value) {
-      //     if (typeof value[key] === 'object' && value[key] !== null) {
-      //       if (Array.isArray(value[key])) {
-      //         refactored[key] = value[key]
-      //       } else {
-      //         refactored[key] = {}
-      //         refactored[key].value = value[key].value
-      //         refactored[key].focused = false
-      //       }
-      //     } else {
-      //       if (key === 'value_type_answer') {
-      //         refactored[key] = value[key]
-      //       } else if (key === 'id') {
-      //         refactored[key] = value[key]
-      //       } else refactored[key] = value[key]
-      //     }
-      //   }
-      //   refactored.content = this.$store.state.ArticleModule.content
-      //   refactored.inserted_components = this.$store.state.ArticleModule.inserted_components
-      //   if (!this.deleteStorage) {
-      //     if (this.$route.params?.action === 'create') {
-      //       let db = await this.getDb()
-      //       return new Promise(resolve => {
-      //         let trans = db.transaction([STORAGE_NAME], 'readwrite')
-      //         trans.oncomplete = () => {
-      //           resolve()
-      //         }
-      //         let store = trans.objectStore(STORAGE_NAME)
-      //         store.put(refactored)
-      //       })
-      //     }
-      //   }
-      // }
     },
 
     /* FOCUS */

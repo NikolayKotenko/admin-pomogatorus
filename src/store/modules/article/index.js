@@ -83,6 +83,23 @@ export default {
         showAddTag: false,
 
         /* INSERT COMPONENT */
+        // experemental
+        selection: null,
+        range: null,
+        counters: {
+            layout: 0,
+            image: 0,
+            auth: 0,
+            questions: 0,
+        },
+        selectComponent: {
+            questions: false,
+            image: false,
+            auth: false,
+        },
+        list_components: [],
+        name_component: '',
+
         listComponents: [],
         components_after_request: [],
         loadingModalList: false,
@@ -93,12 +110,35 @@ export default {
         count_of_auth: 0,
         willShow: true,
         deletedComponent: 0,
-
-        /* TEST */
-        fonts: [],
-        dataFromChild: '',
     },
     mutations: {
+        get_range(state) {
+            if (window.getSelection) {
+                state.selection = null
+                state.selection = window.getSelection();
+                if (state.selection.getRangeAt && state.selection.rangeCount) {
+                    state.range = null
+                    state.range = state.selection.getRangeAt(0);
+                    state.range.collapse(false);
+                }
+            } else if (document.selection && document.selection.createRange) {
+                state.range = null
+                state.range = document.selection.createRange();
+                state.range.collapse(false);
+            }
+        },
+        change_counter(state, object) {
+            const {name, count} = object
+            state.counters[name] = count
+        },
+        change_name_component(state, value) {
+            state.name_component = value
+        },
+        change_select_component(state, object) {
+            const {name, value} = object
+            state.selectComponent[name] = value
+        },
+
         /* MAIN ARTICLE */
         set_list_articles(state, result) {
             state.listArticles = []
@@ -116,20 +156,6 @@ export default {
         set_list_general_tags_article(state, result) {
             state.listGeneralTags = []
             state.listGeneralTags = result
-        },
-        reset_articles_tags(state) {
-            state.tagsLoaded = false
-            state.createdTag = {}
-            state.showCreateTag = false
-            state.newTag = ''
-            state.tagSearch = null
-            state.tagError = {
-                isError: false,
-                errObj: {
-                    name: '',
-                },
-            }
-            state.showAddTag = false
         },
 
         /* DETAIL ARTICLES */
@@ -179,9 +205,15 @@ export default {
         },
 
         /* INSERT COMPONENT */
+        add_to_list_components(state, elem) {
+          state.list_components.push(elem)
+        },
         change_list_components(state, result) {
             state.listComponents = result
         },
+        // change_list_components(state, result) {
+        //     state.listComponents = result
+        // },
         delete_component_by_id(state, id) {
             state.deletedComponent = id
         },
@@ -231,14 +263,6 @@ export default {
                 this.state.ArticleModule.newArticle = JSON.parse(localStorage.getItem('article'))
             }
         },
-
-        /* TEST */
-        changeFonts(state, result) {
-            state.fonts = result.data.items
-        },
-        changeDataFromChild(state, result) {
-            state.dataFromChild = result
-        }
     },
     actions: {
         /* MAIN ARTICLES */
@@ -658,21 +682,6 @@ export default {
             return new Promise((resolve) => {
                 commit('get_from_local_storage')
                 resolve()
-            })
-        },
-
-        /* TEST */
-        testFont({commit}) {
-            return new Promise((resolve, reject) => {
-                axios.get('https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyCnefZ3KzL_qWHIzDin8kUPkmJSzXOZvpM')
-                    .then((response) => {
-                        console.log(response)
-                        commit('changeFonts', response)
-                        resolve()
-                    })
-                    .catch((error) => {
-                        reject(error)
-                    })
             })
         },
     },

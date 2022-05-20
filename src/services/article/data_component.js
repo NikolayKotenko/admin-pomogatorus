@@ -1,7 +1,6 @@
 export default class Data_component {
     create(type, data) {
         let data_component
-        console.log(type)
         if (type === 'question' || type === 'questions') {
             data_component = new Element_question(data)
         } else if (type === 'image') {
