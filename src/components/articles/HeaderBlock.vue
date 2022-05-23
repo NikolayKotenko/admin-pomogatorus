@@ -1,5 +1,7 @@
 <template>
-  <div>
+  <div style="position: sticky;
+    top: 47px;
+    z-index: 1;">
     <div class="textRedactor__header" id="header" style="">
       <!-- Вставить элемент в текст -->
       <div class="header__elBlock right" style="display: flex; align-items: center; column-gap: 10px !important;">
@@ -206,20 +208,37 @@
         <v-card-title>
           <span class="text-h6" style="font-size: 0.8em !important;">Загрузите изображение</span>
         </v-card-title>
-        <v-card-text class="dialog_dropzone_wrapper">
-          <vue-dropzone
-              ref="myVueDropzone" id="dropzone" :options="options" :useCustomSlot=true v-if="!loading_dropzone" @vdropzone-success="successData" @vdropzone-sending="sendingData"
-          >
-            <h3 class="dropzone-custom-title">
-              <v-icon size="120" color="grey lighten-1" style="transform: rotate(45deg)">
-                mdi-paperclip
-              </v-icon>
-            </h3>
-            <div class="subtitle" style="color: darkgrey">Для вставки изображения перетащите файл в зону или нажмите на скрепку</div>
-          </vue-dropzone>
-          <div v-if="dropzone_uploaded.length" @click="triggerUpload()" class="dialog_dropzone_wrapper__upload">
-            <v-icon color="grey lighten-1" size="60" style="transform: rotate(45deg)">mdi-paperclip</v-icon>
+        <v-card-text class="dialog_dropzone">
+          <div class="dialog_dropzone_wrapper">
+            <vue-dropzone
+                ref="myVueDropzone" id="dropzone" :options="options" :useCustomSlot=true v-if="!loading_dropzone" @vdropzone-success="successData" @vdropzone-sending="sendingData"
+            >
+              <h3 class="dropzone-custom-title">
+                <v-icon size="120" color="grey lighten-1" style="transform: rotate(45deg)">
+                  mdi-paperclip
+                </v-icon>
+              </h3>
+              <div class="subtitle" style="color: darkgrey">Для вставки изображения перетащите файл в зону или нажмите на скрепку</div>
+            </vue-dropzone>
+            <div v-if="dropzone_uploaded.length" @click="triggerUpload()" class="dialog_dropzone_wrapper__upload">
+              <v-icon color="grey lighten-1" size="60" style="transform: rotate(45deg)">mdi-paperclip</v-icon>
+            </div>
           </div>
+          <template v-if="dropzone_uploaded.length">
+            <div class="dialog_dropzone_inputs" v-for="(item, index) in dropzone_uploaded" :key="index">
+              <span class="dialog_dropzone_inputs__label">Изображение {{ index }}</span>
+              <v-text-field
+                  dense
+                  hide-details
+                  placeholder="alt-наименование изображения"
+              ></v-text-field>
+              <v-text-field
+                  dense
+                  hide-details
+                  placeholder="подпись изображения"
+              ></v-text-field>
+            </div>
+          </template>
         </v-card-text>
         <v-card-actions>
           <v-btn

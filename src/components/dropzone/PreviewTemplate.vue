@@ -7,14 +7,6 @@
       <img class="dz_close" data-dz-remove :src="require('/src/assets/svg/close.svg')" alt="close">
       <span id="name" data-dz-name></span>
       <span data-dz-size></span>
-      <v-text-field
-        v-model="alt"
-        hide-details
-        dense
-        label="Main input"
-        @input="onInput"
-      >
-      </v-text-field>
     </div>
   </v-card>
 </template>
@@ -22,14 +14,6 @@
 <script>
 export default {
   name: "PreviewTemplate",
-  data: () => ({
-    alt: '',
-  }),
-  methods: {
-    onInput() {
-      console.log(this.alt)
-    }
-  },
 }
 </script>
 

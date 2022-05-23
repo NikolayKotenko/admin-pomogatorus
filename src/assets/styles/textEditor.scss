@@ -28,9 +28,6 @@
     display: flex;
     flex-wrap: wrap;
     box-shadow: 0px -3px 5px -5px rgba(0, 0, 0, 0.6) inset;
-    position: sticky;
-    top: 47px;
-    z-index: 1;
 
     &__firstLine {
       display: flex;
@@ -79,21 +76,41 @@
   }
 }
 
-.dialog_dropzone_wrapper {
+.dialog_dropzone {
+  display: flex;
+  flex-direction: column;
   position: relative;
-  &__upload {
-    position: absolute;
-    border: 1px dashed darkgrey;
-    width: 70px;
-    height: 70px;
-    bottom: 22px;
-    right: 26px;
+  row-gap: 10px;
+
+  .dialog_dropzone_wrapper {
+    position: relative;
+    &__upload {
+      position: absolute;
+      border: 1px dashed darkgrey;
+      width: 70px;
+      height: 70px;
+      bottom: 2px;
+      right: 2px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+  }
+
+  .dialog_dropzone_inputs {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
+    flex-direction: column;
+    row-gap: 5px;
+
+    &__label {
+      color: #1976d2;
+      font-size: 1.1em;
+      font-weight: 500;
+    }
   }
 }
+
 
 .overlay {
   position: absolute;
