@@ -60,10 +60,10 @@
         </div>
         <div class="questions_wrapper__item__bottom">
           <div class="questions_wrapper__item__bottom__date" :class="{filterShow: show_filter}">
-            {{question.updated_at}}
+            {{question.created_at}}
           </div>
-          <div class="questions_wrapper__item__bottom__code" :class="{filterShow: show_filter}">
-            {{question.name_param_env}}
+          <div class="questions_wrapper__item__bottom__date" :class="{filterShow: show_filter}">
+            {{question.updated_at}}
           </div>
         </div>
       </div>

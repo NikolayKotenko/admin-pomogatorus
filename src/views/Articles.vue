@@ -3,7 +3,7 @@
     <div class="questions_wrapper">
       <div
           class="questions_wrapper__item"
-          v-for="(article, index) in $store.state.TitlesModule.listArticles"
+          v-for="(article, index) in $store.state.ArticleModule.listArticles"
           :key="index"
       >
         <div class="questions_wrapper__item__top" :class="{filterShow: show_filter}">
@@ -15,46 +15,6 @@
             </span>
           </div>
           <div class="questions_wrapper__item__top__icons">
-<!--            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon
-                    color="grey lighten-1"
-                    v-if="question.title"
-                    v-bind="attrs"
-                    v-on="on"
-                >
-                  mdi-comment-text
-                </v-icon>
-              </template>
-              <span>Заполнено поле комментарий</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon
-                    color="grey lighten-1"
-                    v-if="question.state_detailed_response"
-                    v-bind="attrs"
-                    v-on="on"
-                >
-                  mdi-pencil-box-outline
-                </v-icon>
-              </template>
-              <span>Возможность дать развернутый ответ</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon
-                    color="grey lighten-1"
-                    style="transform: rotate(45deg)"
-                    v-if="question.state_attachment_response"
-                    v-bind="attrs"
-                    v-on="on"
-                >
-                  mdi-paperclip
-                </v-icon>
-              </template>
-              <span>Возможность осуществлять вложение</span>
-            </v-tooltip>-->
           </div>
         </div>
         <div class="questions_wrapper__item__bottom">
@@ -68,7 +28,7 @@
       </div>
 
       <v-alert
-          v-if="!$store.state.TitlesModule.loadingList && ($store.state.TitlesModule.listArticles === null || !$store.state.TitlesModule.listArticles.length)"
+          v-if="!$store.state.ArticleModule.loadingList && ($store.state.ArticleModule.listArticles === null || !$store.state.ArticleModule.listArticles.length)"
           type="error"
           text
           class="err-msg"
@@ -144,7 +104,7 @@
                 >
                   <v-chip
                       color="#f2f5f7"
-                      v-for="tag in $store.state.TitlesModule.listGeneralTags"
+                      v-for="tag in $store.state.ArticleModule.listGeneralTags"
                       :key="tag.id"
                       :value="tag.code"
                   >
@@ -216,7 +176,7 @@ export default {
   },
   computed: {
     computedErrMsg() {
-      return (this.$store.state.TitlesModule.questionNotification ? this.$store.state.TitlesModule.questionNotification : 'Ничего не найдено')
+      return (this.$store.state.ArticleModule.questionNotification ? this.$store.state.ArticleModule.questionNotification : 'Ничего не найдено')
     },
   },
   methods: {

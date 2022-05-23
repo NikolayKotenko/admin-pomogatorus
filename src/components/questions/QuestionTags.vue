@@ -89,33 +89,9 @@ export default {
     ...mapGetters(['getTagsArticle']),
     data_instance() {
       if (this.$route.path.includes('/articles/')) {
-        return this.$store.state.TitlesModule
-        // return {
-        //   newTag: this.$store.state.TitlesModule.newTag,
-        //   getTags: this.getTagsArticle,
-        //   showCreateTag: this.$store.state.TitlesModule.showCreateTag,
-        //   listGeneralTags: this.$store.state.TitlesModule.listGeneralTags,
-        //   tagsLoaded: this.$store.state.TitlesModule.tagsLoaded,
-        //   tagSearch: this.$store.state.TitlesModule.tagSearch,
-        //   tagError: this.$store.state.TitlesModule.tagError,
-        //   createdTag: this.$store.state.TitlesModule.createdTag,
-        //   _all_tags: this.$store.state.TitlesModule.newArticle._all_tags,
-        //   mtomtags: this.$store.state.TitlesModule.newArticle.mtomtags
-        // }
+        return this.$store.state.ArticleModule
       } else if (this.$route.path.includes('/questions/')) {
         return this.$store.state.QuestionsModule
-        // return  {
-        //   newTag: this.$store.state.QuestionsModule.newTag,
-        //   getTags: this.getTagsQuestion,
-        //   showCreateTag: this.$store.state.QuestionsModule.showCreateTag,
-        //   listGeneralTags: this.$store.state.QuestionsModule.listGeneralTags,
-        //   tagsLoaded: this.$store.state.QuestionsModule.tagsLoaded,
-        //   tagSearch: this.$store.state.QuestionsModule.tagSearch,
-        //   tagError: this.$store.state.QuestionsModule.tagError,
-        //   createdTag: this.$store.state.QuestionsModule.createdTag,
-        //   _all_tags: this.$store.state.QuestionsModule.newQuestion._all_tags,
-        //   mtomtags: this.$store.state.QuestionsModule.newQuestion.mtomtags
-        // }
       } else return {
 
       }
@@ -131,7 +107,7 @@ export default {
     },
     _all_tags() {
       if (this.$route.path.includes('/articles/')) {
-        return this.$store.state.TitlesModule.newArticle._all_tags
+        return this.$store.state.ArticleModule.newArticle._all_tags
       } else if (this.$route.path.includes('/questions/')) {
         return this.$store.state.QuestionsModule.newQuestion._all_tags
       } else return {
@@ -140,7 +116,7 @@ export default {
     },
     mtomtags() {
       if (this.$route.path.includes('/articles/')) {
-        return this.$store.state.TitlesModule.newArticle.mtomtags
+        return this.$store.state.ArticleModule.newArticle.mtomtags
       } else if (this.$route.path.includes('/questions/')) {
         return this.$store.state.QuestionsModule.newQuestion.mtomtags
       } else return {

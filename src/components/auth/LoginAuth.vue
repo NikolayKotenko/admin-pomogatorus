@@ -106,8 +106,8 @@ export default {
 
     // inserted_components
     getData() {
-      this.index_component = this.$store.state.TitlesModule.countLayout
-      this.index_auth = this.$store.state.TitlesModule.count_of_auth
+      this.index_component = this.$store.state.ArticleModule.counters.layout
+      this.index_auth = this.$store.state.ArticleModule.counters.auth
       this.getHeightOfControls()
       this.getWidthOfControls()
     },

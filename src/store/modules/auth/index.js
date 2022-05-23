@@ -48,5 +48,8 @@ export default {
             const {token, defined_ttl_minutes} = result.access_token;
             Vue.$cookies.set("accessToken", token, defined_ttl_minutes+'min');
         },
+        changeInsertingComponents(state, value) {
+            state.inserting_component = value
+        },
     },
 }
