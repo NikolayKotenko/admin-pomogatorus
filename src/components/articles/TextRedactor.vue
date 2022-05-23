@@ -183,26 +183,22 @@ export default {
 
     /* MANIPULATING WITH INSERTING COMPONENTS */
     callCheckout(elem) {
-      // if (Array.isArray(data)) {
-      //   for (const elem of data) {
-          let data_component = factory.create(_store.name_component, {
-            name: _store.name_component,
-            id: _store.selectedComponent?.id,
-            index_questions: _store.counters.questions,
-            index_image: _store.counters.image,
-            index_auth: _store.counters.auth,
-            src: elem?.dataURL ? elem?.dataURL : '',
-          })
+      let data_component = factory.create(_store.name_component, {
+        name: _store.name_component,
+        id: _store.selectedComponent?.id,
+        index_questions: _store.counters.questions,
+        index_image: _store.counters.image,
+        index_auth: _store.counters.auth,
+        src: elem?.dataURL ? elem?.dataURL : '',
+      })
 
-          this.insertingComponent(data_component).then(() => {
-            this.saveDB = true
-            this.clearStateAfterSelect()
-            setTimeout(() => {
-              this.saveDB = false
-            })
-          })
-      //   }
-      // }
+      this.insertingComponent(data_component).then(() => {
+        this.saveDB = true
+        this.clearStateAfterSelect()
+        setTimeout(() => {
+          this.saveDB = false
+        })
+      })
     },
     getStructureForInstance(data_component) {
       const instance = new this.componentLayout({
@@ -325,7 +321,8 @@ export default {
       // html for range select return outerHtml
       // range for single selection return tag/outerHTML
 
-      Object.keys(iconsModels).forEach(icon => {
+      const icons_arr = iconsModels.icons_panel
+      Object.keys(icons_arr).forEach(icon => {
         if (!_store.range?.commonAncestorContainer?.parentElement) return
 
         let elem = _store.range.commonAncestorContainer.parentElement
@@ -342,13 +339,13 @@ export default {
         }
         if (elem.className !== 'textRedactor__content' && elem.className !== 'textRedactor') {
           let grandParent = parentHTML ? parentElem.parentElement.outerHTML : elem.outerHTML
-          styleAlign = this.getStyleAlign(grandParent, iconsModels[icon])
+          styleAlign = this.getStyleAlign(grandParent, icons_arr[icon])
         }
-        iconsModels[icon].active = this.checkForStyles(parentHTML, iconsModels[icon]) ||
-            this.checkByTag(parentHTML, iconsModels[icon]) ||
-            this.checkForStyles(styleAlign, iconsModels[icon]) ||
-            this.checkHTMLText(html, iconsModels[icon]) ||
-            this.checkForStyles(html, iconsModels[icon])
+        icons_arr[icon].active = this.checkForStyles(parentHTML, icons_arr[icon]) ||
+            this.checkByTag(parentHTML, icons_arr[icon]) ||
+            this.checkForStyles(styleAlign, icons_arr[icon]) ||
+            this.checkHTMLText(html, icons_arr[icon]) ||
+            this.checkForStyles(html, icons_arr[icon])
       })
     },
     /* Get style name for aligners values */

@@ -385,21 +385,21 @@ export default {
       this.$store.commit('change_select_component', {name: componentName, value: true})
     },
     onSelectComponent() {
-      this.$store.commit('change_counter', {name: 'layout', count: _store.counters.layout+1})
       let elem = {}
       if (_store.name_component === 'image') {
         if (this.dropzone_uploaded.length) {
-          this.$nextTick(() => {
-            this.dropzone_uploaded.forEach(elem => {
-              this.$store.commit('changeSelectedObject', elem)
-              this.$emit('callCheckout', elem)
-            })
+          this.dropzone_uploaded.forEach(elem => {
+            this.$store.commit('change_counter', {name: 'layout', count: _store.counters.layout+1})
+            this.$store.commit('change_counter', {name: _store.name_component, count: _store.counters[_store.name_component]+1})
+            this.$store.commit('changeSelectedObject', elem)
+            this.$emit('callCheckout', elem)
           })
           this.clearDropZoneTemplate()
           this.dropzone_uploaded = []
           this.index_uploaded = 1
         }
       } else {
+        this.$store.commit('change_counter', {name: 'layout', count: _store.counters.layout+1})
         this.$store.commit('change_counter', {name: _store.name_component, count: _store.counters[_store.name_component]+1})
         this.$emit('callCheckout', elem)
       }
