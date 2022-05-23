@@ -292,7 +292,7 @@ export default {
   },
   computed: {
     check_count_auth() {
-      return _store.count_of_auth >= 1
+      return _store.counters.auth >= 1
     },
     check_selected_component() {
       return !!Object.keys(_store.selectedComponent).length
@@ -372,11 +372,12 @@ export default {
       this.$store.commit('change_select_component', {name: name, value: false})
     },
     // if we want immediately insert component
-    initialiseInserting() {
-      //   this.getRange()
-      //   this.params_of_component.name = componentName
-      //   this.$store.commit('changeInsertingComponents', true)
-      //   this.onSelectComponent()
+    initialiseInserting(componentName) {
+      this.$store.commit('get_range', true)
+      this.$store.commit('change_name_component', componentName)
+      this.$store.commit('changeInsertingComponents', true)
+      this.$store.commit('change_select_component', {name: componentName, value: true})
+      this.onSelectComponent()
     },
     // if we want add after modal window
     initializeSelection(componentName) {

@@ -44,9 +44,6 @@ export default {
   },
   data: () => ({
     /* MODALS */
-    params_of_component: {
-      name: '',
-    },
     range: null,
     htmlSelected: null,
     selection: null,
@@ -55,7 +52,6 @@ export default {
     saveDB: false,
     debounceTimeout: null,
     geting_from_server: false,
-    data_of_components: [],
   }),
   mounted() {
     setTimeout(() => {
@@ -74,8 +70,6 @@ export default {
       handler(v) {
         if (v) {
           this.content = ''
-          this.data_of_components = []
-          this.params_of_component.name = ''
           this.$store.commit('clean_store')
         }
       },
@@ -173,7 +167,7 @@ export default {
         _store.content = this.content
       })
       /* IF WE DELETED COMPONENT BY KEYBOARD */
-      this.data_of_components.forEach(elem => {
+      _store.list_components.forEach(elem => {
         const elem_content = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
         if (!elem_content) {
           _store.deletedComponent = elem.instance.$data.index_component
@@ -211,7 +205,6 @@ export default {
     },
     insertingComponent(data_component) {
       return new Promise((resolve) => {
-        console.log(data_component)
         const elem = this.getStructureForInstance(data_component)
         this.$store.commit('add_to_list_components', elem)
         const calledElem = _store.list_components[_store.counters.layout - 1]
@@ -367,7 +360,7 @@ export default {
     clearStateAfterSelect() {
       this.$store.commit('change_select_component', {name: _store.name_component, value: false})
       this.$store.commit('changeSelectedObject', {})
-      this.$store.commit('changeInsertingComponents', true)
+      this.$store.commit('changeInsertingComponents', false)
     },
 
     /* CONSTRUCTORS */

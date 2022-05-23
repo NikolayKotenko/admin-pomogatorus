@@ -95,10 +95,6 @@ export default {
         components_after_request: [],
         loadingModalList: false,
         selectedComponent: {},
-        count_of_layout: 0,
-        count_of_image: 0,
-        count_of_questions: 0,
-        count_of_auth: 0,
         deletedComponent: 0,
     },
     mutations: {
@@ -205,15 +201,8 @@ export default {
             const obj = Object.assign({}, {data, index: index, component})
             state.list_components.push(obj)
         },
-        // changeInsertedComponents(state, result) {
-        //     state.inserted_components = result
-        // },
         changeContent(state, result) {
             state.content = result
-        },
-        changeCount(state, counter) {
-            const {name, count} = counter
-            state[`count_of_${name}`] = count
         },
         changeSelectedObject(state, value) {
             state.selectedComponent = value
@@ -223,13 +212,14 @@ export default {
         clean_store(state) {
             state.list_questions = []
             state.selectedComponent = {}
-            state.count_of_layout = 0
-            state.count_of_image = 0
-            state.count_of_questions = 0
-            state.count_of_auth = 0
+            for (let key in state.counters) {
+                state.counters[key] = 0
+            }
+            state.name_component = ''
             state.content_from_server = ''
             state.content = ''
             state.inserted_components = []
+            state.list_components = []
             state.components_after_request = []
         },
 
