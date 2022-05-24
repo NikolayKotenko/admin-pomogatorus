@@ -286,7 +286,6 @@ export default {
     dropzone_uploaded: [],
     loading_dropzone: true,
     previewHtml: null,
-    dz_id: 0,
 
     /* EDITOR */
     array_align_content: iconsModels.array_align_content,
@@ -351,15 +350,16 @@ export default {
         let count = 1;
         for (let item of deletedElems) {
           item.setAttribute('id', `close-${count}`);
-          this.dz_id = count
+          let index = count
           item.onclick = () => {
-            this.removedFile(this.dz_id)
+            this.removedFile(index)
           }
           count++
         }
       })
     },
     removedFile(id) {
+      console.log(id)
       const index = this.dropzone_uploaded.findIndex(elem => {
         return elem.index === id
       })
@@ -371,8 +371,12 @@ export default {
             console.log(document.getElementById(`close-${this.dropzone_uploaded[i].index}`))
             const block = document.getElementById(`close-${this.dropzone_uploaded[i].index}`)
             block.id = `close-${i+1}`
+            block.onclick = () => {
+              this.removedFile(i+1)
+            }
             this.dropzone_uploaded[i].index = i+1
           }
+          this.index_uploaded = this.dropzone_uploaded.length+1
         })
       }
     },
@@ -381,8 +385,6 @@ export default {
         this.$nextTick(() => {
           let template = document.getElementById(`close-${i}`)
           console.log(template)
-          this.dz_id = i
-          console.log(this.dz_id)
           template.click()
         })
       }
