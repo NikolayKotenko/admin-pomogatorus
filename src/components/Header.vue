@@ -41,7 +41,12 @@
 <!--            <v-icon small left>
               mdi-chevron-right
             </v-icon>-->
-            <span>{{ $route.meta.ru_name }}</span>
+            <span>
+              {{ $route.meta.ru_name }}
+              <template v-if="$store.state.cur_num">
+                # {{$store.state.cur_num}}
+              </template>
+            </span>
           </div>
         </v-chip>
 

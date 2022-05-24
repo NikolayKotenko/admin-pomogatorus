@@ -21,7 +21,7 @@
                 @focusout="outFocus(newArticle.name)"
                 :loading="$store.state.ArticleModule.loadingArticle"
                 :class="{invalid: !newArticle.name.value && $v.newArticle.name.$dirty && !$v.newArticle.name.required}"
-                @input="saveDBQuestion(newArticle)"
+                @input="saveArticle(newArticle)"
             >
               <template slot="append">
                 <v-icon size="20" class="detail-wrapper__content__title__name__icon" :color="newArticle.name.focused ? 'primary' : ''">
@@ -53,7 +53,7 @@
                   @focus="onFocus(newArticle.short_header)"
                   @focusout="outFocus(newArticle.short_header)"
                   :loading="$store.state.ArticleModule.loadingArticle"
-                  @input="saveDBQuestion(newArticle)"
+                  @input="saveArticle(newArticle)"
               ></v-textarea>
               <small
                   v-if="!newArticle.short_header.value && $v.newArticle.short_header.$dirty && !$v.newArticle.short_header.required"
@@ -80,7 +80,7 @@
                   @focus="onFocus(newArticle.purpose_of_article)"
                   @focusout="outFocus(newArticle.purpose_of_article)"
                   :loading="$store.state.ArticleModule.loadingArticle"
-                  @input="saveDBQuestion(newArticle)"
+                  @input="saveArticle(newArticle)"
               ></v-textarea>
             </div>
             <div class="detail-wrapper__content__title__help">
@@ -101,7 +101,7 @@
                   @focus="onFocus(newArticle.preview)"
                   @focusout="outFocus(newArticle.preview)"
                   :loading="$store.state.ArticleModule.loadingArticle"
-                  @input="saveDBQuestion(newArticle)"
+                  @input="saveArticle(newArticle)"
               ></v-textarea>
             </div>
           </div>
@@ -274,13 +274,13 @@ export default {
     },
     '$store.state.ArticleModule.content': {
       handler() {
-        this.saveDBQuestion(this.newArticle)
+        this.saveArticle(this.newArticle)
       }
     },
     '$store.state.ArticleModule.newArticle._all_tags': {
       handler() {
         this.newArticle._all_tags = this.$store.state.ArticleModule.newArticle._all_tags
-        this.saveDBQuestion(this.newArticle)
+        this.saveArticle(this.newArticle)
       }
     },
   },
@@ -303,6 +303,7 @@ export default {
         this.$store.dispatch('getDetailArticle', this.$route.query.article_id).then(() => {
           if (this.$store.state.ArticleModule.newArticle.name) {
             this.newArticle = this.$store.state.ArticleModule.newArticle
+            this.$store.commit('change_cur_num', this.newArticle.id)
             setTimeout(() => {
               this.getFromServer = false
             }, 2000)
@@ -428,7 +429,7 @@ export default {
         }
       }
     },
-    async saveDBQuestion() {
+    async saveArticle() {
       if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
       this.debounceTimeout = setTimeout(() => {
         if (this.check_short_name) {
@@ -474,23 +475,15 @@ export default {
         })
       } else {
         this.$store.dispatch('createArticle', this.newArticle).then(() => {
+          this.$store.commit('change_cur_num', this.newArticle.id)
           this.$store.dispatch('removeLocalStorageArticle')
         })
       }
-
-
-      /*this.deleteDBQuestion(this.newArticle).then(() => {
-        this.$store.dispatch('createArticle', this.newArticle).then(() => {
-          this.$store.dispatch('removeLocalStorageArticle')
-          this.$router.push({
-            path: '/articles'
-          })
-        })
-      })*/
     },
   },
   beforeDestroy() {
     this.$store.state.ArticleModule.newArticle._all_tags = []
+    this.$store.commit('change_cur_num', 0)
   }
 }
 </script>

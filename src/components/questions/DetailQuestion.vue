@@ -581,6 +581,7 @@ export default {
         this.$store.dispatch('getDetailQuestion', this.$route.query.question_id).then(() => {
           if (this.$store.state.QuestionsModule.newQuestion.name) {
             this.newQuestion = this.$store.state.QuestionsModule.newQuestion
+            this.$store.commit('change_cur_num', this.newQuestion.id)
             if (Array.isArray(this.$store.state.QuestionsModule.newQuestion.value_type_answer)) {
               this.lastIdAnswer = this.$store.state.QuestionsModule.newQuestion.value_type_answer.length
             }
@@ -751,6 +752,7 @@ export default {
   beforeDestroy() {
     this.$store.state.QuestionsModule.newQuestion._all_tags = []
     this.$store.commit('reset_questions_tags')
+    this.$store.commit('change_cur_num', 0)
   }
 }
 </script>

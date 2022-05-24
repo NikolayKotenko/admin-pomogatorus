@@ -28,13 +28,17 @@ export default new Vuex.Store({
       error: false,
       message: '',
     },
+    cur_num: 0,
   },
   mutations: {
     change_notification_modal(state, value) {
       state.notification_modal.show_notification = true
       state.notification_modal.message = value.message
       state.notification_modal.error = value.error
-    }
+    },
+    change_cur_num(state, value) {
+      state.cur_num = value
+    },
   },
   actions: {
   },
