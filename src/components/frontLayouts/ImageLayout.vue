@@ -3,7 +3,7 @@
     <div class="image_wrapper__admin_controls-header" contenteditable="false">
       <img class="image_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
     </div>
-    <img class="inserted_image" :src="srcPath" :alt="altName">
+    <img class="inserted_image" :src="srcPath" :alt="altName" :title="title">
   </div>
 </template>
 
@@ -33,7 +33,10 @@ export default {
       return this.$store.state.BASE_URL+this.data_image?.full_path
     },
     altName() {
-      return this.data_image?.name
+      return this.data_image?.alt
+    },
+    title() {
+      return this.data_image?.title
     },
   },
   methods: {
