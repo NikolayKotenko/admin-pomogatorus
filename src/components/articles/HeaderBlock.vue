@@ -226,16 +226,18 @@
           </div>
           <template v-if="dropzone_uploaded.length">
             <div class="dialog_dropzone_inputs" v-for="(item, index) in dropzone_uploaded" :key="index">
-              <span class="dialog_dropzone_inputs__label">Изображение {{ index }}</span>
+              <span class="dialog_dropzone_inputs__label"> [{{index+1}}] {{ item.filename }}</span>
               <v-text-field
                   dense
                   hide-details
                   placeholder="alt-наименование изображения"
+                  v-model="item.alt"
               ></v-text-field>
               <v-text-field
                   dense
                   hide-details
                   placeholder="подпись изображения"
+                  v-model="item.title"
               ></v-text-field>
             </div>
           </template>
@@ -340,7 +342,7 @@ export default {
     successData(file, response) {
       console.log(response)
       const formatObj = Object.assign({}, response.data)
-      Object.assign(formatObj, {index: this.index_uploaded})
+      Object.assign(formatObj, {index: this.index_uploaded, alt: '', title: ''})
       this.index_uploaded++
       this.dropzone_uploaded.push(formatObj)
 
@@ -364,6 +366,13 @@ export default {
       if (index !== -1) {
         this.$store.dispatch('deleteFile', this.dropzone_uploaded[index].id).then(() => {
           this.dropzone_uploaded.splice(index, 1)
+          for (let i = 0; i < this.dropzone_uploaded.length; i++) {
+            console.log(this.dropzone_uploaded[i].index)
+            console.log(document.getElementById(`close-${this.dropzone_uploaded[i].index}`))
+            const block = document.getElementById(`close-${this.dropzone_uploaded[i].index}`)
+            block.id = `close-${i+1}`
+            this.dropzone_uploaded[i].index = i+1
+          }
         })
       }
     },
@@ -371,7 +380,9 @@ export default {
       for (let i = 1; i < this.dropzone_uploaded.length+1; i++) {
         this.$nextTick(() => {
           let template = document.getElementById(`close-${i}`)
+          console.log(template)
           this.dz_id = i
+          console.log(this.dz_id)
           template.click()
         })
       }
