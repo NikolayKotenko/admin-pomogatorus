@@ -16,14 +16,7 @@
         </v-icon>
       </template>
       <template v-else>
-        <template v-if="computedArrowBurger">
-          <v-icon color="#6d767f" style="cursor: pointer; padding: 0 10px" @click="returnToList">
-            mdi-arrow-left
-          </v-icon>
-        </template>
-        <template v-else>
-          <v-app-bar-nav-icon @click="drawer = true" style="margin-left: 5px"></v-app-bar-nav-icon>
-        </template>
+        <v-app-bar-nav-icon @click="drawer = true" style="margin-left: 5px"></v-app-bar-nav-icon>
       </template>
 
         <v-chip
@@ -31,16 +24,7 @@
             text-color="primary"
             style="cursor: pointer"
         >
-<!--          <router-link to="/" style="text-decoration: none">
-            <v-icon small left>
-              mdi-briefcase
-            </v-icon>
-            Рабочий стол
-          </router-link>-->
           <div v-if="!!Object.keys($route.meta).includes('ru_name')" style="overflow: hidden; text-overflow: ellipsis;">
-<!--            <v-icon small left>
-              mdi-chevron-right
-            </v-icon>-->
             <span>
               {{ $route.meta.ru_name }}
               <template v-if="$store.state.cur_num">
