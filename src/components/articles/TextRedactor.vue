@@ -54,6 +54,7 @@ export default {
     geting_from_server: false,
   }),
   mounted() {
+    this.preventInsertingStyles()
     setTimeout(() => {
       this.initializeContent()
     }, 500)
@@ -102,6 +103,21 @@ export default {
     }
   },
   methods: {
+    escapeText(text) {
+      let map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'};
+      return text.replace(/[&<>"']/g, function(m) {
+        return map[m];
+      });
+    },
+    preventInsertingStyles() {
+      const _this = this
+      this.$refs.content.onpaste = function(e) {
+        e.preventDefault();
+        let text = (e.originalEvent || e).clipboardData.getData('text/plain');
+        document.execCommand('insertHtml', false, _this.escapeText(text));
+        _this.onContentChange()
+      }
+    },
     /* INITIALIZE DATA FROM BACK OR INDEXEDDB */
     initializeContent() {
       return new Promise((resolve) => {
