@@ -98,6 +98,9 @@ export default {
         deletedComponent: 0,
     },
     mutations: {
+        change_loading_modal_list(state, value) {
+            state.loadingModalList = value
+        },
         get_range(state, should_collapse) {
             state.range = null
             if (window.getSelection) {
@@ -113,6 +116,17 @@ export default {
                 state.range = document.selection.createRange();
                 should_collapse ? state.range.collapse(false) : ''
             }
+        },
+        set_list_questions(state, result) {
+            state.list_questions = []
+            if (Array.isArray(result)) {
+                state.list_questions = result
+            } else {
+                for (let key in result) {
+                    state.list_questions.push(result[key])
+                }
+            }
+
         },
         change_counter(state, object) {
             const {name, count} = object
@@ -256,6 +270,39 @@ export default {
                     .catch((error) => {
                         console.log('test')
                         state.loadingList = false
+                        reject(error)
+                    })
+            })
+        },
+        async setFilteredListQuestionsModal({state, commit}, data) {
+            return new Promise((resolve, reject) => {
+                state.loadingList = true
+
+                const {tag, updated_at, name} = data
+
+                const filter = {}
+                filter['filter[tag]'] = tag
+                filter['filter[updated_at]'] = updated_at
+                filter['filter[name]'] = name
+
+                axios.get(`${this.state.BASE_URL}/entity/questions`, {
+                    headers: {
+                        Authorization: '666777'
+                    },
+                    params: {
+                        ...filter
+                    }
+                })
+                    .then((response) => {
+                        console.log(response)
+                        commit('set_list_questions', response.data.data)
+                        state.loadingList = false
+                        resolve()
+                    })
+                    .catch((error) => {
+                        state.loadingList = false
+                        commit('set_list_questions', [])
+                        state.questionNotification = error.response.data.message
                         reject(error)
                     })
             })

@@ -169,11 +169,34 @@
           <span class="text-h6" style="font-size: 0.8em !important; text-align: center; width: 100%">Какой вопрос?</span>
         </v-card-title>
         <v-card-text>
+          <v-chip-group
+              multiple
+              show-arrows
+              v-model="filters.tag"
+          >
+            <v-chip
+                color="#f2f5f7"
+                v-for="tag in $store.state.ArticleModule.listGeneralTags"
+                :key="tag.id"
+                :value="tag.code"
+                small
+            >
+              <v-icon left color="grey darken-2" v-if="filters.tag.includes(tag.code)">
+                mdi-check-bold
+              </v-icon>
+              <v-icon left color="grey darken-2" v-else>
+                mdi-close-thick
+              </v-icon>
+              {{ tag.name }}
+            </v-chip>
+          </v-chip-group>
           <v-autocomplete
+              class="list_questions_modal"
               :loading="$store.state.ArticleModule.loadingModalList"
               :disabled="$store.state.ArticleModule.loadingModalList"
               :items="$store.state.ArticleModule.list_questions"
               item-text="name"
+              :menu-props="{bottom: true, offsetY: true, maxHeight: 250}"
               return-object
               v-model="$store.state.ArticleModule.selectedComponent"
               placeholder="Наименование"
@@ -291,6 +314,12 @@ export default {
     array_align_content: iconsModels.array_align_content,
     array_edit_content: iconsModels.array_edit_content,
     icons_panel: iconsModels.icons_panel,
+
+    /* MODAL */
+    filters: {
+      tag: [],
+    },
+    debounceTimeout: null,
   }),
   created() {
     const ComponentClass = Vue.extend(PreviewTemplate);
@@ -306,8 +335,15 @@ export default {
       handler(v) {
         if (v) {
           this.$store.dispatch('getListQuestions', _store.name_component)
+          this.$store.dispatch('getGeneralTagsArticle')
         }
       }
+    },
+    'filters': {
+      handler() {
+        this.getFilteredQuestions()
+      },
+      deep: true
     },
   },
   computed: {
@@ -400,6 +436,16 @@ export default {
         icon.active = true
       }
     },
+    /* MODALS */
+    getFilteredQuestions() {
+      if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
+      this.debounceTimeout = setTimeout(() => {
+        this.$store.commit('change_loading_modal_list', true)
+        this.$store.dispatch('setFilteredListQuestionsModal', this.filters).then(() => {
+          this.$store.commit('change_loading_modal_list', false)
+        })
+      }, 500);
+    },
     closeModal(name) {
       this.$store.commit('change_select_component', {name: name, value: false})
     },
@@ -443,4 +489,14 @@ export default {
 
 <style scoped lang="scss">
 @import "src/assets/styles/textEditor";
+
+::v-deep .v-text-field {
+   //padding-top: 0 !important;
+   //margin-top: 0 !important;
+}
+
+::v-deep .v-slide-group__next, ::v-deep .v-slide-group__prev {
+  min-width: 15px !important;
+  flex: 0 1 15px !important;
+}
 </style>
