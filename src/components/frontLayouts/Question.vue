@@ -53,11 +53,13 @@
         <v-radio-group
             dense
             hide-details
+            v-model="data_radio"
         >
           <v-radio
               v-for="(item, index) in value_type_answer"
               :key="index"
               :value="item.answer"
+              :disabled="!!detailed_response"
           >
             <template slot="label">
               <div style="display: flex; column-gap: 20px; align-items: center">
@@ -217,6 +219,15 @@
           Неккоректные значения
         </small>
       </template>
+      <v-text-field
+        v-if="question_data.state_detailed_response"
+        solo
+        dense
+        hide-details
+        placeholder="Место для развернутого ответа"
+        class="py-2"
+        v-model="detailed_response"
+      ></v-text-field>
     </div>
   </div>
 </template>
@@ -239,6 +250,8 @@ export default {
     min: 0,
     max: 0,
     range_two: [],
+    data_radio: null,
+    detailed_response: "",
   }),
   mounted() {
     this.getData()
@@ -250,6 +263,13 @@ export default {
         this.debounceTimeout = setTimeout(() => {
           this.rangeError = ((parseInt(this.range_one) < parseInt(this.value_type_answer[0].answer)) || (parseInt(this.range_one) > parseInt(this.value_type_answer[1].answer)));
         })
+      },
+    },
+    'detailed_response': {
+      handler(v) {
+        if (v) {
+          this.data_radio = null
+        }
       },
     }
   },
