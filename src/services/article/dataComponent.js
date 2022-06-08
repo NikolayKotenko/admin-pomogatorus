@@ -1,4 +1,4 @@
-export default class Data_component {
+export default class DataComponent {
     create(type, data) {
         let data_component
         if (type === 'question' || type === 'questions') {

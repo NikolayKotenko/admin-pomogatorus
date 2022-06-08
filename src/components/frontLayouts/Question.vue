@@ -33,6 +33,7 @@
             hide-details
             solo
             placeholder="Введите ответ"
+            v-model="answer"
         >
         </v-text-field>
       </template>
@@ -46,6 +47,7 @@
             rows="3"
             row-height="25"
             placeholder="Введите ответ"
+            v-model="answer"
         >
         </v-textarea>
       </template>
@@ -53,7 +55,7 @@
         <v-radio-group
             dense
             hide-details
-            v-model="data_radio"
+            v-model="answer"
         >
           <v-radio
               v-for="(item, index) in value_type_answer"
@@ -89,9 +91,12 @@
         <v-checkbox
             hide-details
             dense
+            multiple
+            v-model="answer"
             v-for="(item, index) in value_type_answer"
             :key="index"
             :value="item.answer"
+            :disabled="!!detailed_response"
         >
           <template slot="label">
             <div style="display: flex; column-gap: 20px">
@@ -127,6 +132,8 @@
             return-object
             item-text="answer"
             :menu-props="{closeOnContentClick: true, bottom: true, offsetY: true }"
+            v-model="answer"
+            :disabled="!!detailed_response"
         >
           <template v-slot:item="{ active, item, attrs, on }">
             <v-list-item v-on="on" v-bind="attrs">
@@ -228,13 +235,36 @@
         class="py-2"
         v-model="detailed_response"
       ></v-text-field>
+<!--      <div class="dialog_dropzone_wrapper">-->
+<!--        <vue-dropzone-->
+<!--            ref="myVueDropzone" id="dropzone" :options="options" :useCustomSlot=true v-if="!loading_dropzone" @vdropzone-success="successData" @vdropzone-sending="sendingData"-->
+<!--        >-->
+<!--          <h3 class="dropzone-custom-title">-->
+<!--            <v-icon size="120" color="grey lighten-1" style="transform: rotate(45deg)">-->
+<!--              mdi-paperclip-->
+<!--            </v-icon>-->
+<!--          </h3>-->
+<!--          <div class="subtitle" style="color: darkgrey">Для вставки изображения перетащите файл в зону или нажмите на скрепку</div>-->
+<!--        </vue-dropzone>-->
+<!--        <div v-if="dropzone_uploaded.length" @click="triggerUpload()" class="dialog_dropzone_wrapper__upload">-->
+<!--          <v-icon color="grey lighten-1" size="60" style="transform: rotate(45deg)">mdi-paperclip</v-icon>-->
+<!--        </div>-->
+<!--      </div>-->
     </div>
   </div>
 </template>
 
 <script>
+// import vue2Dropzone from 'vue2-dropzone'
+import 'vue2-dropzone/dist/vue2Dropzone.min.css'
+import PreviewTemplate from "../dropzone/PreviewTemplate";
+import Vue from "vue";
+
 export default {
   name: "Question",
+  components: {
+    // vueDropzone: vue2Dropzone,
+  },
   data: () => ({
     question_data: {},
     index_component: null,
@@ -244,15 +274,30 @@ export default {
     value_type_answer: [],
     debounceTimeout: null,
 
+    /* DROPZONE */
+    index_uploaded: 1,
+    dropzone_uploaded: [],
+    loading_dropzone: true,
+    previewHtml: null,
+
     /* DATA_BY_TYPES */
     rangeError: false,
     range_one: null,
     min: 0,
     max: 0,
     range_two: [],
-    data_radio: null,
+    answer: null,
+    // data_radio: null,
+    // data_checkbox: null,
     detailed_response: "",
   }),
+  created() {
+    const ComponentClass = Vue.extend(PreviewTemplate);
+    const instance = new ComponentClass();
+    instance.$mount();
+    this.previewHtml = instance.$el.outerHTML;
+    this.loading_dropzone = false;
+  },
   mounted() {
     this.getData()
   },
@@ -274,9 +319,82 @@ export default {
     }
   },
   computed: {
-
+    options() {
+      return {
+        // url: `${this.$store.state.BASE_URL}/entity/files`,
+        url: 'https://httpbin.org/post',
+        previewTemplate: this.previewHtml,
+        destroyDropzone: false,
+        headers: {
+          "My-Awesome-Header": "header value",
+          Authorization: '666777',
+        },
+        duplicateCheck: true,
+      }
+    },
   },
   methods: {
+    /* DROPZONE */
+    sendingData(file, xhr, formData) {
+      console.log(file.upload.uuid)
+      formData.append('uuid', file.upload.uuid)
+      // formData.append('id_answer', _store.newArticle.id)
+    },
+    successData(file, response) {
+      console.log(response)
+      const formatObj = Object.assign({}, response.data)
+      Object.assign(formatObj, {index: this.index_uploaded, alt: '', title: ''})
+      this.index_uploaded++
+      this.dropzone_uploaded.push(formatObj)
+
+      this.$nextTick(() => {
+        const deletedElems = document.getElementsByClassName('dz_close')
+        let count = 1;
+        for (let item of deletedElems) {
+          item.setAttribute('id', `close-${count}`);
+          let index = count
+          item.onclick = () => {
+            this.removedFile(index)
+          }
+          count++
+        }
+      })
+    },
+    removedFile(id) {
+      console.log(id)
+      const index = this.dropzone_uploaded.findIndex(elem => {
+        return elem.index === id
+      })
+      if (index !== -1) {
+        this.$store.dispatch('deleteFile', this.dropzone_uploaded[index].id).then(() => {
+          this.dropzone_uploaded.splice(index, 1)
+          for (let i = 0; i < this.dropzone_uploaded.length; i++) {
+            console.log(this.dropzone_uploaded[i].index)
+            console.log(document.getElementById(`close-${this.dropzone_uploaded[i].index}`))
+            const block = document.getElementById(`close-${this.dropzone_uploaded[i].index}`)
+            block.id = `close-${i+1}`
+            block.onclick = () => {
+              this.removedFile(i+1)
+            }
+            this.dropzone_uploaded[i].index = i+1
+          }
+          this.index_uploaded = this.dropzone_uploaded.length+1
+        })
+      }
+    },
+    clearDropZoneTemplate() {
+      for (let i = 1; i < this.dropzone_uploaded.length+1; i++) {
+        this.$nextTick(() => {
+          let template = document.getElementById(`close-${i}`)
+          console.log(template)
+          template.click()
+        })
+      }
+    },
+    triggerUpload() {
+      document.getElementById('dropzone').click()
+    },
+
     deleteQuestion() {
       const elem = document.getElementById(`component_wrapper-${this.index_component}`)
       elem.remove()

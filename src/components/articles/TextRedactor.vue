@@ -31,8 +31,8 @@ import LoginAuth from "../auth/LoginAuth";
 import titlesStore from '@/store/modules/article/index.js'
 const _store = titlesStore.state
 
-import Data_component from "../../services/article/data_component";
-const factory = new Data_component()
+import DataComponent from "../../services/article/dataComponent";
+const factory = new DataComponent()
 
 import iconsModels from "../../models/iconsModels";
 
