@@ -313,7 +313,7 @@ export default {
     'detailed_response': {
       handler(v) {
         if (v) {
-          this.data_radio = null
+          this.answer = null
         }
       },
     }
