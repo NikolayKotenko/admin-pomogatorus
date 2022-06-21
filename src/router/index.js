@@ -7,6 +7,7 @@ import Desktop from "../views/Desktop";
 import Companies from "../views/Companies"
 import Questions from "../views/Questions";
 import Articles from "../views/Articles";
+import Answers from "../views/Answers";
 
 /* COMPONENTS */
 import DetailQuestion from "../components/questions/DetailQuestion";
@@ -109,6 +110,20 @@ const routes = [
       visible_front: false,
       ru_name: 'Авторизация',
     }
+  },
+  {
+    path: '/answers',
+    name: 'Answers',
+    component: Answers,
+    meta: {
+      ru_name: 'Ответы пользователей',
+      requiresAuth: true,
+      canCreate: false,
+      // createLink: {
+      //   name: 'DetailQuestion',
+      //   params: {action: 'create'},
+      // },
+    },
   },
   // {
   //   path: '/about',
