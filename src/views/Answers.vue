@@ -10,6 +10,7 @@
       <span>Ответы пользователей:</span>
       <AnswersList/>
       <v-progress-circular
+        v-if="false"
         :size="50"
         color="primary"
         indeterminate
