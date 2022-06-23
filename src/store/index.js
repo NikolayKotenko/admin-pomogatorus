@@ -19,6 +19,7 @@ Vue.use(Vuex)
 import QuestionsModule from "./modules/questions";
 import ArticleModule from "./modules/article";
 import AuthModule from "./modules/auth";
+import AnswersModule from "./modules/answers";
 
 export default new Vuex.Store({
   state: {
@@ -45,6 +46,7 @@ export default new Vuex.Store({
   modules: {
     QuestionsModule,
     ArticleModule,
-    AuthModule
+    AuthModule,
+    AnswersModule
   }
 })

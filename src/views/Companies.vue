@@ -6,7 +6,7 @@
           class="text-capitalize"
           @click="createCompany()"
       >
-        <v-icon small color="white">mdi-plus-circle</v-icon>
+        <v-icon small color="white">mdi-plus-circle-outline</v-icon>
         <span class="table-container-buttons__text">Добавить</span>
       </v-btn>
       <v-btn
@@ -15,13 +15,13 @@
           @click="deleteCompany()"
           :disabled="!selectedItems.length"
       >
-        <v-icon small color="white">mdi-trash-can</v-icon>
+        <v-icon small color="white">mdi-trash-can-outline</v-icon>
         <span class="table-container-buttons__text">Удалить выбранное</span>
       </v-btn>
     </div>
     <div class="table-container-wrapper">
       <div class="table-container-wrapper-header">
-        <div class="companies-container-wrapper-header__views">
+        <div class="table-container-wrapper-header__views">
           Показать
           <v-select
               dense
@@ -34,7 +34,7 @@
           ></v-select>
           записей
         </div>
-        <div class="companies-container-wrapper-header__search">
+        <div class="table-container-wrapper-header__search">
           Поиск:
           <v-text-field
               hide-details

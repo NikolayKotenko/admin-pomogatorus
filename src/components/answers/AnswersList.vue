@@ -23,6 +23,7 @@
     <tr
         v-for="(row, index) in listItems"
         :key="index"
+        @click="showDetail()"
     >
       <td>
         {{ row.NAME }}
@@ -165,8 +166,58 @@ export default {
         ANSWER: 'Ответ пользователя',
         DATE_ANSWER: '24/06/2022'
       },
+      {
+        ID: 8,
+        CODE: 'GIDRUSS',
+        SELECTED: false,
+        NAME: 'ГИДРУСС',
+        ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
+        DATE: '2021-01-17 10:08:00',
+        EMAIL: 'gidruss@mail.ru',
+        TELEPHONE: '+7 (951) 212-06-88',
+        WEB: 'https://gidruss.ru',
+        INSTAGRAM: 'https://instagram.com/gidruss_official',
+        LOGO: 'https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png',
+        ANSWER: 'Ответ пользователя',
+        DATE_ANSWER: '24/06/2022'
+      },
+      {
+        ID: 9,
+        CODE: 'GIDRUSS',
+        SELECTED: false,
+        NAME: 'ГИДРУСС',
+        ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
+        DATE: '2021-01-17 10:08:00',
+        EMAIL: 'gidruss@mail.ru',
+        TELEPHONE: '+7 (951) 212-06-88',
+        WEB: 'https://gidruss.ru',
+        INSTAGRAM: 'https://instagram.com/gidruss_official',
+        LOGO: 'https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png',
+        ANSWER: 'Ответ пользователя',
+        DATE_ANSWER: '24/06/2022'
+      },
+      {
+        ID: 10,
+        CODE: 'GIDRUSS',
+        SELECTED: false,
+        NAME: 'ГИДРУСС',
+        ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
+        DATE: '2021-01-17 10:08:00',
+        EMAIL: 'gidruss@mail.ru',
+        TELEPHONE: '+7 (951) 212-06-88',
+        WEB: 'https://gidruss.ru',
+        INSTAGRAM: 'https://instagram.com/gidruss_official',
+        LOGO: 'https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png',
+        ANSWER: 'Ответ пользователя',
+        DATE_ANSWER: '24/06/2022'
+      },
     ],
   }),
+  methods: {
+    showDetail() {
+      this.$store.commit('changeShowDetailAnswer', true)
+    }
+  }
 }
 </script>
 

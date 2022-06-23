@@ -1,3 +1,20 @@
+@media only screen and (max-width : 600px) {
+  .table-container-buttons {
+    flex-direction: column;
+    row-gap: 5px;
+    padding: 10px 15px !important;
+  }
+  .table-container-wrapper {
+    padding: 20px 10px 10px 10px !important;
+    margin: 5px 15px !important;
+  }
+  .table-container-wrapper-footer {
+    flex-direction: column-reverse !important;
+    row-gap: 5px;
+  }
+}
+
+
 .v-input--checkbox.v-input--dense {
   margin-top: 0;
 }
@@ -33,8 +50,7 @@
     justify-content: flex-end;
     column-gap: 10px;
     max-width: 1640px;
-    padding-bottom: 15px;
-    padding-top: 15px;
+    padding: 15px 0;
     margin: 0 auto;
     span {
       color: #FFFFFF;
@@ -77,9 +93,9 @@
 
 .three_columns {
   grid-template-columns:
-        minmax(120px, 3.33fr)
-        minmax(120px, 1.67fr)
-        minmax(120px, 1.67fr)
+        minmax(100px, 3.33fr)
+        minmax(100px, 1.67fr)
+        minmax(100px, 1.67fr)
 }
 
 .ten_columns {
@@ -92,8 +108,12 @@
         minmax(120px, 2fr)
         minmax(120px, 2fr)
         minmax(160px, 3.33fr)
-        minmax(90px, 1fr)
+        minmax(100px, 1fr)
         minmax(170px, 3.33fr);
+}
+
+.table_list {
+  padding-top: 20px;
 }
 
 .table-container-wrapper-main {
@@ -188,6 +208,7 @@
     opacity: 0.9;
   }
   &__page {
+    display: flex;
     span {
       font-size: 12px;
     }
