@@ -106,7 +106,8 @@ export default {
         const res = await this.$store.dispatch('sendEmail',
             {
               'email': this.email_user,
-              'full_url': window.location.href
+              'full_url': window.location.origin
+
             });
         this.alertCall(res);
       }
