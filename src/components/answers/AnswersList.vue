@@ -1,7 +1,13 @@
 <template>
-  <table class="table-container-wrapper-main three_columns">
+  <table class="table-container-wrapper-main" :class="{four_columns: !isMobile, three_columns: isMobile}">
     <thead class="table-container-wrapper-main-header">
     <tr>
+      <th
+          v-if="!isMobile"
+          class="table-container-wrapper-main-header__title"
+          data-type="text-short"
+      >
+      #
       <th
           class="table-container-wrapper-main-header__title"
           v-for="(title, index) in titles"
@@ -21,18 +27,21 @@
         class="table-container-wrapper-main-items"
     >
     <tr
-        v-for="(row, index) in listItems"
+        v-for="(row, index) in $store.state.AnswersModule.listAnswers"
         :key="index"
-        @click="showDetail()"
+        @click="showDetail(row)"
     >
-      <td>
-        {{ row.NAME }}
+      <td v-if="!isMobile">
+        {{index+1}}
       </td>
       <td>
-        {{ row.ANSWER }}
+        {{ nameAnswer(row) }}
       </td>
       <td>
-        {{ row.DATE_ANSWER }}
+        {{ answer(row) }}
+      </td>
+      <td>
+        {{ row.updated_at }}
       </td>
     </tr>
     </tbody>
@@ -60,162 +69,21 @@ export default {
         VALUE: 'dateAnswer',
       },
     ],
-    listItems: [
-      {
-        ID: 1,
-        CODE: 'GIDRUSS',
-        SELECTED: false,
-        NAME: 'НАЗВАНИЕ ВОПРОСА',
-        ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
-        DATE: '2021-01-17 10:08:00',
-        EMAIL: 'gidruss@mail.ru',
-        TELEPHONE: '+7 (951) 212-06-88',
-        WEB: 'https://gidruss.ru',
-        INSTAGRAM: 'https://instagram.com/gidruss_officialdasdasda/sadasdasd',
-        LOGO: 'https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png',
-        ANSWER: 'Ответ пользователя',
-        DATE_ANSWER: '24/06/2022'
-      },
-      {
-        ID: 2,
-        CODE: 'GIDRUSS',
-        SELECTED: false,
-        NAME: 'НАЗВАНИЕ ВОПРОСА',
-        ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
-        DATE: '2021-01-17 10:08:00',
-        EMAIL: 'gidruss@mail.ru',
-        TELEPHONE: '+7 (951) 212-06-88',
-        WEB: 'https://gidruss.ru',
-        INSTAGRAM: 'https://instagram.com/gidruss_official',
-        LOGO: 'https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png',
-        ANSWER: 'Ответ пользователя',
-        DATE_ANSWER: '24/06/2022'
-      },
-      {
-        ID: 3,
-        CODE: 'GIDRUSS',
-        SELECTED: false,
-        NAME: 'НАЗВАНИЕ ВОПРОСА',
-        ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
-        DATE: '2021-01-17 10:08:00',
-        EMAIL: 'gidruss@mail.ru',
-        TELEPHONE: '+7 (951) 212-06-88',
-        WEB: 'https://gidruss.ru',
-        INSTAGRAM: 'https://instagram.com/gidruss_official',
-        LOGO: 'https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png',
-        ANSWER: 'Ответ пользователя',
-        DATE_ANSWER: '24/06/2022'
-      },
-      {
-        ID: 4,
-        CODE: 'GIDRUSS',
-        SELECTED: false,
-        NAME: 'НАЗВАНИЕ ВОПРОСА',
-        ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
-        DATE: '2021-01-17 10:08:00',
-        EMAIL: 'gidruss@mail.ru',
-        TELEPHONE: '+7 (951) 212-06-88',
-        WEB: 'https://gidruss.ru',
-        INSTAGRAM: 'https://instagram.com/gidruss_official',
-        LOGO: 'https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png',
-        ANSWER: 'Ответ пользователя',
-        DATE_ANSWER: '24/06/2022'
-      },
-      {
-        ID: 5,
-        CODE: 'GIDRUSS',
-        SELECTED: false,
-        NAME: 'ГИДРУСС',
-        ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
-        DATE: '2021-01-17 10:08:00',
-        EMAIL: 'gidruss@mail.ru',
-        TELEPHONE: '+7 (951) 212-06-88',
-        WEB: 'https://gidruss.ru',
-        INSTAGRAM: 'https://instagram.com/gidruss_official',
-        LOGO: 'https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png',
-        ANSWER: 'Ответ пользователя',
-        DATE_ANSWER: '24/06/2022'
-      },
-      {
-        ID: 6,
-        CODE: 'GIDRUSS',
-        SELECTED: false,
-        NAME: 'ГИДРУСС',
-        ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
-        DATE: '2021-01-17 10:08:00',
-        EMAIL: 'gidruss@mail.ru',
-        TELEPHONE: '+7 (951) 212-06-88',
-        WEB: 'https://gidruss.ru',
-        INSTAGRAM: 'https://instagram.com/gidruss_official',
-        LOGO: 'https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png',
-        ANSWER: 'Ответ пользователя',
-        DATE_ANSWER: '24/06/2022'
-      },
-      {
-        ID: 7,
-        CODE: 'GIDRUSS',
-        SELECTED: false,
-        NAME: 'ГИДРУСС',
-        ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
-        DATE: '2021-01-17 10:08:00',
-        EMAIL: 'gidruss@mail.ru',
-        TELEPHONE: '+7 (951) 212-06-88',
-        WEB: 'https://gidruss.ru',
-        INSTAGRAM: 'https://instagram.com/gidruss_official',
-        LOGO: 'https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png',
-        ANSWER: 'Ответ пользователя',
-        DATE_ANSWER: '24/06/2022'
-      },
-      {
-        ID: 8,
-        CODE: 'GIDRUSS',
-        SELECTED: false,
-        NAME: 'ГИДРУСС',
-        ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
-        DATE: '2021-01-17 10:08:00',
-        EMAIL: 'gidruss@mail.ru',
-        TELEPHONE: '+7 (951) 212-06-88',
-        WEB: 'https://gidruss.ru',
-        INSTAGRAM: 'https://instagram.com/gidruss_official',
-        LOGO: 'https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png',
-        ANSWER: 'Ответ пользователя',
-        DATE_ANSWER: '24/06/2022'
-      },
-      {
-        ID: 9,
-        CODE: 'GIDRUSS',
-        SELECTED: false,
-        NAME: 'ГИДРУСС',
-        ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
-        DATE: '2021-01-17 10:08:00',
-        EMAIL: 'gidruss@mail.ru',
-        TELEPHONE: '+7 (951) 212-06-88',
-        WEB: 'https://gidruss.ru',
-        INSTAGRAM: 'https://instagram.com/gidruss_official',
-        LOGO: 'https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png',
-        ANSWER: 'Ответ пользователя',
-        DATE_ANSWER: '24/06/2022'
-      },
-      {
-        ID: 10,
-        CODE: 'GIDRUSS',
-        SELECTED: false,
-        NAME: 'ГИДРУСС',
-        ADDRESS: 'г. Челябинск, ул. Пушкина 12, оф.5',
-        DATE: '2021-01-17 10:08:00',
-        EMAIL: 'gidruss@mail.ru',
-        TELEPHONE: '+7 (951) 212-06-88',
-        WEB: 'https://gidruss.ru',
-        INSTAGRAM: 'https://instagram.com/gidruss_official',
-        LOGO: 'https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png',
-        ANSWER: 'Ответ пользователя',
-        DATE_ANSWER: '24/06/2022'
-      },
-    ],
   }),
+  computed: {
+    isMobile() {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    },
+  },
   methods: {
-    showDetail() {
-      this.$store.commit('changeShowDetailAnswer', true)
+    showDetail(object) {
+      this.$emit('showModalAnswer', object)
+    },
+    nameAnswer(row) {
+      return row.e_question?.name ? row.e_question?.name : 'Ошибка в записи ответа'
+    },
+    answer(row) {
+      return JSON.parse(row.value_answer) ? JSON.parse(row.value_answer) : row.detailed_response
     }
   }
 }

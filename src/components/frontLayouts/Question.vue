@@ -321,8 +321,8 @@ export default {
   computed: {
     options() {
       return {
-        // url: `${this.$store.state.BASE_URL}/entity/files`,
-        url: 'https://httpbin.org/post',
+        url: `${this.$store.state.BASE_URL}/entity/files`,
+        // url: 'https://httpbin.org/post',
         previewTemplate: this.previewHtml,
         destroyDropzone: false,
         headers: {
