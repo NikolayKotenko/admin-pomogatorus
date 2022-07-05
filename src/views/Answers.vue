@@ -33,8 +33,8 @@
       </v-btn>
     </div>
     <div class="table-container-wrapper">
-      <div class="table-container-wrapper-header">
-        <v-text-field
+      <div class="table-container-wrapper-header header-column">
+        <v-autocomplete
             class="answer_list__selector"
             dense
             hide-details
@@ -43,10 +43,49 @@
             :disabled="$store.state.AnswersModule.loadingList"
             prepend-inner-icon="mdi-magnify"
         >
-        </v-text-field>
-        <v-icon @click="showFilters">
-          mdi-filter
-        </v-icon>
+        </v-autocomplete>
+        <v-dialog
+            ref="dialog"
+            v-model="modal"
+            :return-value.sync="date"
+            persistent
+            width="290px"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-text-field
+                class="answer_list__date"
+                v-model="date"
+                placeholder="Выберите дату"
+                prepend-inner-icon="mdi-calendar"
+                readonly
+                v-bind="attrs"
+                v-on="on"
+            ></v-text-field>
+          </template>
+          <v-date-picker
+              v-model="date"
+              scrollable
+              locale="ru-RU"
+              first-day-of-week=1
+              :max="maxDate"
+          >
+            <v-spacer></v-spacer>
+            <v-btn
+                text
+                color="primary"
+                @click="modal = false"
+            >
+              Cancel
+            </v-btn>
+            <v-btn
+                text
+                color="primary"
+                @click="$refs.dialog.save(date)"
+            >
+              OK
+            </v-btn>
+          </v-date-picker>
+        </v-dialog>
       </div>
       <div class="table_list">
         <AnswersList
@@ -206,89 +245,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog
-        v-model="$store.state.AnswersModule.showFilters"
-        max-width="600"
-    >
-      <v-card>
-        <v-card-title>
-          <span>Выберите фильтры</span>
-        </v-card-title>
-        <v-card-text>
-          <div class="filters_wrapper">
-            <div class="filters_wrapper__elem">
-              <span class="filters_wrapper__elem__label">Вопрос:</span>
-              <v-autocomplete
-                  solo
-                  dense
-                  hide-details
-                  label="Выбрать вопрос"
-                  :items="$store.state.QuestionsModule.listQuestions"
-                  item-text="name"
-                  return-object
-                  v-model="filters.question"
-                  :loading="$store.state.AnswersModule.loadingList"
-                  :disabled="$store.state.AnswersModule.loadingList"
-              ></v-autocomplete>
-            </div>
-            <div class="filters_wrapper__elem">
-              <span class="filters_wrapper__elem__label">Пользователь:</span>
-              <v-autocomplete
-                  solo
-                  dense
-                  hide-details
-                  label="Выбрать пользователя"
-                  :loading="$store.state.AnswersModule.loadingList"
-                  :disabled="$store.state.AnswersModule.loadingList"
-              ></v-autocomplete>
-            </div>
-            <div class="filters_wrapper__elem">
-              <span class="filters_wrapper__elem__label">Партнер:</span>
-              <v-autocomplete
-                  solo
-                  dense
-                  hide-details
-                  label="Выбрать партнера"
-                  :loading="$store.state.AnswersModule.loadingList"
-                  :disabled="$store.state.AnswersModule.loadingList"
-              ></v-autocomplete>
-            </div>
-            <div class="filters_wrapper__elem">
-              <span class="filters_wrapper__elem__label">Статья:</span>
-              <v-autocomplete
-                  solo
-                  dense
-                  hide-details
-                  label="Выбрать статью"
-                  :items="$store.state.ArticleModule.listArticles"
-                  item-text="name"
-                  return-object
-                  v-model="filters.article"
-                  :loading="$store.state.AnswersModule.loadingList"
-                  :disabled="$store.state.AnswersModule.loadingList"
-              ></v-autocomplete>
-            </div>
-            <div class="filters_wrapper__elem">
-              <span class="filters_wrapper__elem__label">Дата создания:</span>
-              <v-text-field
-                  solo
-                  dense
-                  hide-details
-                  label="2022-07-31"
-                  v-model="filters.date"
-                  :loading="$store.state.AnswersModule.loadingList"
-                  :disabled="$store.state.AnswersModule.loadingList"
-              ></v-text-field>
-            </div>
-          </div>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn text color="red darken-1">Сбросить</v-btn>
-          <v-spacer></v-spacer>
-          <v-btn color="primary">Применить</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </div>
 </template>
 
@@ -302,13 +258,9 @@ export default {
     detail: {},
     showUserInfo: false,
     showFiles: false,
-    filters: {
-      question: {},
-      user: {},
-      agent: {},
-      article: {},
-      date: null,
-    }
+    date: null,
+    selected: null,
+    modal: false,
   }),
   mounted() {
     this.getItems()
@@ -322,6 +274,9 @@ export default {
     },
     dateRegistration() {
       return this.detail.user?.created_at ? new Date(this.detail.user.created_at).toJSON().slice(0,10) : 'Отсутствует информация'
+    },
+    maxDate() {
+      return new Date().toJSON().slice(0,10)
     }
   },
   methods: {
@@ -341,12 +296,6 @@ export default {
       this.detail = object
       this.$store.commit('changeShowDetailAnswer', true)
     },
-    showFilters() {
-      this.$store.commit('changeShowFilters', true)
-      this.$store.dispatch('setListQuestions')
-      this.$store.dispatch('setListArticles')
-    },
-
     closeDetail() {
       this.$store.commit('changeShowDetailAnswer', false)
     }

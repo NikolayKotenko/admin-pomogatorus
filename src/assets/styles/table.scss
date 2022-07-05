@@ -67,6 +67,13 @@
     margin: 0 auto;
     padding: 30px;
 
+    .header-column {
+      display: flex;
+      flex-direction: column !important;
+      align-items: center;
+      width: 100%;
+    }
+
     .table-container-wrapper-header {
       display: flex;
       justify-content: space-between;
@@ -123,7 +130,7 @@
 }
 
 .table_list {
-  padding-top: 20px;
+  //padding-top: 20px;
 }
 
 .table-container-wrapper-main {
