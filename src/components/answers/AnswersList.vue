@@ -77,7 +77,7 @@ export default {
   },
   methods: {
     showDetail(object) {
-      this.$emit('showModalAnswer', object)
+      if (object.e_question?.name) this.$emit('showModalAnswer', object);
     },
     nameAnswer(row) {
       return row.e_question?.name ? row.e_question?.name : 'Ошибка в записи ответа'
