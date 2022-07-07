@@ -56,7 +56,9 @@ export default {
   mounted() {
     this.preventInsertingStyles()
     setTimeout(() => {
-      this.initializeContent()
+      this.initializeContent().then(() => {
+        this.changeIndexQuestion()
+      })
     }, 500)
   },
   watch: {
@@ -142,7 +144,6 @@ export default {
 
             this.$nextTick(() => {
               _store.list_components.forEach((elem, index) => {
-                setTimeout(() => {
                     this.checkTypeComponent(elem)
                     let data = elem.data
                     if (elem.component.name === 'image') {
@@ -161,7 +162,6 @@ export default {
                     _store.list_components[index].instance.$mount()
                     range.insertNode(_store.list_components[index].instance.$el)
                   this.$store.commit('changeSelectedObject', {})
-                  })
               })
             })
             _store.loadingArticle = false
@@ -206,6 +206,7 @@ export default {
         this.saveDB = true
         this.clearStateAfterSelect()
         setTimeout(() => {
+          this.changeIndexQuestion()
           this.saveDB = false
         })
       })
@@ -256,6 +257,52 @@ export default {
         resolve()
       })
     },
+
+    changeIndexQuestion() {
+      let questions = [...document.getElementsByClassName('question_wrapper')]
+      console.log(questions)
+
+      this.$nextTick(() => {
+        let counter = 1
+
+        questions.forEach(elem => {
+          let tmpStr = elem.id.match("-(.*)")
+          let id = tmpStr[tmpStr.length-1]
+
+          let component = _store.list_components.filter(elem => {
+            return (elem.data.component.name === 'question' || elem.data.component.name === 'questions')
+          }).filter(elem => {
+            return (elem.data.index == id)
+          })
+
+          console.log(id)
+          console.log(component)
+
+          const key_data = `index_${component[0].data.component.name}`
+          // component[0].data.component[key_data] = counter
+          component[0].instance.$data[key_data] = counter
+
+          counter++
+        })
+        // let questionsArr = _store.list_components.filter(elem => {
+        //   return (elem.data.component.name === 'question' || elem.data.component.name === 'questions')
+        // })
+        //
+        // let counter = 1
+        //
+        // questionsArr.forEach(elem => {
+        //   let tmpStr  = str.match(":(.*);");
+        //   var newStr = tmpStr[1];
+        //   console.log(`index_${elem.component.name}`)
+        // })
+      })
+
+
+      // let result = [...questions].map(elem => {
+      //
+      // })
+    },
+
     deletingComponent() {
       if (_store.deletedComponent !== 0) {
         let index = _store.list_components.findIndex((elem) => {
@@ -291,6 +338,7 @@ export default {
           this.saveDB = true
           setTimeout(() => {
             this.saveDB = false
+            this.changeIndexQuestion()
           })
         }
       }
