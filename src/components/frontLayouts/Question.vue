@@ -34,6 +34,7 @@
             solo
             placeholder="Введите ответ"
             v-model="answer"
+            @change="changeAnswer"
         >
         </v-text-field>
       </template>
@@ -48,6 +49,7 @@
             row-height="25"
             placeholder="Введите ответ"
             v-model="answer"
+            @change="changeAnswer"
         >
         </v-textarea>
       </template>
@@ -62,12 +64,11 @@
               :key="index"
               :value="item.answer"
               :disabled="!!detailed_response"
+              @change="changeAnswer"
           >
             <template slot="label">
               <div style="display: flex; column-gap: 20px; align-items: center">
-                <span>
-                  {{item.answer}}
-                </span>
+                <span v-html="item.answer" @click.stop></span>
                 <div v-if="item.commentary">
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on, attrs }">
@@ -97,12 +98,11 @@
             :key="index"
             :value="item.answer"
             :disabled="!!detailed_response"
+            @change="changeAnswer"
         >
           <template slot="label">
             <div style="display: flex; column-gap: 20px">
-                <span>
-                  {{item.answer}}
-                </span>
+              <span v-html="item.answer" @click.stop></span>
               <div v-if="item.commentary">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
@@ -134,13 +134,14 @@
             :menu-props="{closeOnContentClick: true, bottom: true, offsetY: true }"
             v-model="answer"
             :disabled="!!detailed_response"
+            @change="changeAnswer"
         >
           <template v-slot:item="{ active, item, attrs, on }">
             <v-list-item v-on="on" v-bind="attrs">
               <v-list-item-content>
                 <v-list-item-title>
                   <v-row no-gutters align="center">
-                    <span>{{ item.answer }}</span>
+                    <span v-html="item.answer" @click.stop></span>
                     <v-spacer></v-spacer>
                     <div v-if="item.commentary">
                       <v-tooltip bottom>
@@ -173,6 +174,7 @@
             v-model="range_one"
             type="number"
             :class="{rangeError: rangeError}"
+            @change="changeAnswer"
         >
           <template slot="prepend-inner">
             <v-icon color="primary" @click="rangeEdit('minus')">
@@ -235,35 +237,40 @@
         class="py-2"
         v-model="detailed_response"
       ></v-text-field>
-<!--      <div class="dialog_dropzone_wrapper">-->
-<!--        <vue-dropzone-->
-<!--            ref="myVueDropzone" id="dropzone" :options="options" :useCustomSlot=true v-if="!loading_dropzone" @vdropzone-success="successData" @vdropzone-sending="sendingData"-->
-<!--        >-->
-<!--          <h3 class="dropzone-custom-title">-->
-<!--            <v-icon size="120" color="grey lighten-1" style="transform: rotate(45deg)">-->
-<!--              mdi-paperclip-->
-<!--            </v-icon>-->
-<!--          </h3>-->
-<!--          <div class="subtitle" style="color: darkgrey">Для вставки изображения перетащите файл в зону или нажмите на скрепку</div>-->
-<!--        </vue-dropzone>-->
-<!--        <div v-if="dropzone_uploaded.length" @click="triggerUpload()" class="dialog_dropzone_wrapper__upload">-->
-<!--          <v-icon color="grey lighten-1" size="60" style="transform: rotate(45deg)">mdi-paperclip</v-icon>-->
-<!--        </div>-->
-<!--      </div>-->
     </div>
+
+    <div class="py-3 file_input" v-if="question_data.state_attachment_response">
+      <template>
+        <v-btn
+            color="primary"
+            rounded
+            dark
+        >
+          <v-icon>mdi-upload</v-icon>
+          Загрузить файл
+        </v-btn>
+      </template>
+    </div>
+
+    <transition name="list">
+      <div class="question_wrapper__content__alert pt-3" v-if="status_question.type !== 'sending' && check_status">
+        <v-alert
+            :type="status_question.type"
+            :icon="status_question.icon"
+        >
+          <span v-html="status_question.text"></span>
+        </v-alert>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script>
-// import vue2Dropzone from 'vue2-dropzone'
-import 'vue2-dropzone/dist/vue2Dropzone.min.css'
-import PreviewTemplate from "../dropzone/PreviewTemplate";
-import Vue from "vue";
+import AnswerController from "../../services/article/AnswerController";
 
 export default {
   name: "Question",
   components: {
-    // vueDropzone: vue2Dropzone,
   },
   data: () => ({
     question_data: {},
@@ -273,12 +280,8 @@ export default {
     controls_width: 0,
     value_type_answer: [],
     debounceTimeout: null,
-
-    /* DROPZONE */
-    index_uploaded: 1,
-    dropzone_uploaded: [],
-    loading_dropzone: true,
-    previewHtml: null,
+    status_name: 'sending',
+    check_status: false,
 
     /* DATA_BY_TYPES */
     rangeError: false,
@@ -287,16 +290,9 @@ export default {
     max: 0,
     range_two: [],
     answer: null,
-    // data_radio: null,
-    // data_checkbox: null,
     detailed_response: "",
   }),
   created() {
-    const ComponentClass = Vue.extend(PreviewTemplate);
-    const instance = new ComponentClass();
-    instance.$mount();
-    this.previewHtml = instance.$el.outerHTML;
-    this.loading_dropzone = false;
   },
   mounted() {
     this.getData()
@@ -319,82 +315,23 @@ export default {
     }
   },
   computed: {
-    options() {
-      return {
-        url: `${this.$store.state.BASE_URL}/entity/files`,
-        // url: 'https://httpbin.org/post',
-        previewTemplate: this.previewHtml,
-        destroyDropzone: false,
-        headers: {
-          "My-Awesome-Header": "header value",
-          Authorization: '666777',
-        },
-        duplicateCheck: true,
-      }
+    status_question() {
+      let auth_block
+      let index = this.$store.state.ArticleModule.components_after_request.findIndex(i => {
+        return i.component.name === 'auth'
+      })
+      if (index !== -1) auth_block = this.$store.state.ArticleModule.components_after_request[index].index
+
+      return new AnswerController().create_status(this.status_name, auth_block)
     },
   },
   methods: {
-    /* DROPZONE */
-    sendingData(file, xhr, formData) {
-      console.log(file.upload.uuid)
-      formData.append('uuid', file.upload.uuid)
-      // formData.append('id_answer', _store.newArticle.id)
+    changeAnswer() {
+      this.check_status = true
+      setTimeout(() => {
+        this.status_name = 'warning'
+      }, 1000)
     },
-    successData(file, response) {
-      console.log(response)
-      const formatObj = Object.assign({}, response.data)
-      Object.assign(formatObj, {index: this.index_uploaded, alt: '', title: ''})
-      this.index_uploaded++
-      this.dropzone_uploaded.push(formatObj)
-
-      this.$nextTick(() => {
-        const deletedElems = document.getElementsByClassName('dz_close')
-        let count = 1;
-        for (let item of deletedElems) {
-          item.setAttribute('id', `close-${count}`);
-          let index = count
-          item.onclick = () => {
-            this.removedFile(index)
-          }
-          count++
-        }
-      })
-    },
-    removedFile(id) {
-      console.log(id)
-      const index = this.dropzone_uploaded.findIndex(elem => {
-        return elem.index === id
-      })
-      if (index !== -1) {
-        this.$store.dispatch('deleteFile', this.dropzone_uploaded[index].id).then(() => {
-          this.dropzone_uploaded.splice(index, 1)
-          for (let i = 0; i < this.dropzone_uploaded.length; i++) {
-            console.log(this.dropzone_uploaded[i].index)
-            console.log(document.getElementById(`close-${this.dropzone_uploaded[i].index}`))
-            const block = document.getElementById(`close-${this.dropzone_uploaded[i].index}`)
-            block.id = `close-${i+1}`
-            block.onclick = () => {
-              this.removedFile(i+1)
-            }
-            this.dropzone_uploaded[i].index = i+1
-          }
-          this.index_uploaded = this.dropzone_uploaded.length+1
-        })
-      }
-    },
-    clearDropZoneTemplate() {
-      for (let i = 1; i < this.dropzone_uploaded.length+1; i++) {
-        this.$nextTick(() => {
-          let template = document.getElementById(`close-${i}`)
-          console.log(template)
-          template.click()
-        })
-      }
-    },
-    triggerUpload() {
-      document.getElementById('dropzone').click()
-    },
-
     deleteQuestion() {
       const elem = document.getElementById(`component_wrapper-${this.index_component}`)
       elem.remove()
@@ -424,6 +361,7 @@ export default {
           this.range_one = 0
         })
       }
+      this.changeAnswer()
     },
     getData() {
       if (Object.keys(this.$store.state.ArticleModule.selectedComponent).length) {
@@ -488,6 +426,27 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.list-enter-active, .list-leave-active {
+  transition: all .8s;
+}
+
+.list-enter, .list-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+.slide-fade-enter-active {
+  transition: all .8s ease;
+}
+.slide-fade-leave-active {
+  transition: all .6s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+}
+.slide-fade-enter, .slide-fade-leave-to
+  /* .slide-fade-leave-active до версии 2.1.8 */ {
+  transform: translateX(-30px);
+  opacity: 0;
+}
+
 .question_wrapper {
   max-width: 600px;
   position: relative;
