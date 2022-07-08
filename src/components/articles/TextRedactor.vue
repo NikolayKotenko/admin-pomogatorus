@@ -125,6 +125,9 @@ export default {
       return new Promise((resolve) => {
         console.log('initialize')
         if (_store.components_after_request.length) {
+          const br = document.createElement('br')
+          const div = document.createElement('div')
+
           console.log('YA RABOTAU')
           _store.loadingArticle = true
           this.geting_from_server = true
@@ -160,8 +163,12 @@ export default {
                     range.collapse(false);
                     _store.list_components[index] = this.getStructureForInstance(elem.component)
                     _store.list_components[index].instance.$mount()
+                    range.insertNode(br);
+                    range.insertNode(br);
+                    range.insertNode(br);
+                    range.insertNode(div);
                     range.insertNode(_store.list_components[index].instance.$el)
-                  this.$store.commit('changeSelectedObject', {})
+                    this.$store.commit('changeSelectedObject', {})
               })
             })
             _store.loadingArticle = false
@@ -229,20 +236,24 @@ export default {
 
         const br = document.createElement('br')
         const div = document.createElement('div')
+        div.appendChild(br)
+        const br2 = document.createElement('br')
+        const div2 = document.createElement('div')
+        div2.appendChild(br2)
 
         if (_store.range && (_store.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' || _store.range.commonAncestorContainer?.offsetParent?._prevClass === "textRedactor")) {
           if (window.getSelection) {
-            _store.range.insertNode(br);
             _store.range.insertNode(div);
             _store.range.insertNode(calledElem.instance.$el);
+            _store.range.insertNode(div2);
           } else if (document.selection && document.selection.createRange) {
             if (_store.range && (_store.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' || _store.range.commonAncestorContainer.offsetParent._prevClass === "textRedactor")) {
               this.htmlSelected = (calledElem.instance.$el.nodeType == 3) ?
                   calledElem.instance.$el.innerHTML.data :
                   calledElem.instance.$el.outerHTML;
-              _store.range.pasteHTML(br);
               _store.range.pasteHTML(div);
               _store.range.pasteHTML(this.htmlSelected);
+              _store.range.pasteHTML(div2);
             }
           }
         } else {
@@ -250,9 +261,9 @@ export default {
             let range = document.createRange();
             range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
             range.collapse(false);
-            range.range.insertNode(br);
-            range.range.insertNode(div);
+            range.insertNode(div);
             range.insertNode(calledElem.instance.$el);
+            range.insertNode(div2);
           } else if (document.selection && document.selection.createRange) {
             let range = document.createRange();
             range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
@@ -260,9 +271,9 @@ export default {
             this.htmlSelected = (calledElem.instance.$el.nodeType == 3) ?
                 calledElem.instance.$el.innerHTML.data :
                 calledElem.instance.$el.outerHTML;
-            range.range.pasteHTML(br);
-            range.range.pasteHTML(div);
+            range.pasteHTML(div);
             range.pasteHTML(this.htmlSelected);
+            range.pasteHTML(div2);
           }
         }
         resolve()
