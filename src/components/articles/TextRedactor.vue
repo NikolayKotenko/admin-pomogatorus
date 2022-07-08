@@ -227,14 +227,21 @@ export default {
         const calledElem = _store.list_components[_store.counters.layout - 1]
         calledElem.instance.$mount()
 
+        const br = document.createElement('br')
+        const div = document.createElement('div')
+
         if (_store.range && (_store.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' || _store.range.commonAncestorContainer?.offsetParent?._prevClass === "textRedactor")) {
           if (window.getSelection) {
+            _store.range.insertNode(br);
+            _store.range.insertNode(div);
             _store.range.insertNode(calledElem.instance.$el);
           } else if (document.selection && document.selection.createRange) {
             if (_store.range && (_store.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' || _store.range.commonAncestorContainer.offsetParent._prevClass === "textRedactor")) {
               this.htmlSelected = (calledElem.instance.$el.nodeType == 3) ?
                   calledElem.instance.$el.innerHTML.data :
                   calledElem.instance.$el.outerHTML;
+              _store.range.pasteHTML(br);
+              _store.range.pasteHTML(div);
               _store.range.pasteHTML(this.htmlSelected);
             }
           }
@@ -243,6 +250,8 @@ export default {
             let range = document.createRange();
             range.setStart(document.getElementsByClassName("textRedactor__content").item(0), 0)
             range.collapse(false);
+            range.range.insertNode(br);
+            range.range.insertNode(div);
             range.insertNode(calledElem.instance.$el);
           } else if (document.selection && document.selection.createRange) {
             let range = document.createRange();
@@ -251,6 +260,8 @@ export default {
             this.htmlSelected = (calledElem.instance.$el.nodeType == 3) ?
                 calledElem.instance.$el.innerHTML.data :
                 calledElem.instance.$el.outerHTML;
+            range.range.pasteHTML(br);
+            range.range.pasteHTML(div);
             range.pasteHTML(this.htmlSelected);
           }
         }
