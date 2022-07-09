@@ -190,7 +190,6 @@
               {{ tag.name }}
             </v-chip>
           </v-chip-group>
-<!--          <div style="width: 100%">-->
             <v-autocomplete
                 :loading="$store.state.ArticleModule.loadingModalList"
                 :disabled="$store.state.ArticleModule.loadingModalList"
@@ -202,9 +201,8 @@
                 v-model="$store.state.ArticleModule.selectedComponent"
                 @click:clear="$nextTick(() => {$store.state.ArticleModule.selectedComponent = {}})"
                 placeholder="Наименование"
-                attach
-            ></v-autocomplete>
-<!--          </div>-->
+            >
+            </v-autocomplete>
         </v-card-text>
         <v-card-actions>
           <v-btn
@@ -350,6 +348,9 @@ export default {
     },
   },
   computed: {
+    isMobile() {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    },
     check_count_auth() {
       return _store.counters.auth >= 1
     },

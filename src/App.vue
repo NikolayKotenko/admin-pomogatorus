@@ -54,9 +54,13 @@ export default {
 <style lang="scss">
 @media only screen and (max-width : 600px) {
   .v-menu__content.theme--light.menuable__content__active.v-autocomplete__content {
-    //top: 68px!important;
     max-height: 90px !important;
+    max-width: 200px !important;
   }
+}
+
+.v-menu__content {
+  max-width: 480px !important;
 }
 
 body {
