@@ -470,6 +470,11 @@ export default {
 
     .question_wrapper__admin_controls-header {
       opacity: 1;
+      pointer-events: unset;
+      visibility: visible;
+      &__img {
+        pointer-events: unset;
+      }
     }
   }
 
@@ -487,9 +492,12 @@ export default {
     padding: 4px;
     height: 16px;
     width: 100%;
+    pointer-events: none;
+    visibility: hidden;
     &__img {
       width: 14px;
       height: 14px;
+      pointer-events: none;
     }
   }
 
@@ -497,7 +505,7 @@ export default {
     display: flex;
     column-gap: 15px;
     padding-bottom: 5px;
-    align-items: center;
+    align-items: flex-start;
   }
   &__divider {
     margin-top: 10px;
@@ -514,6 +522,7 @@ export default {
 }
 
 .helper_wrapper {
+  padding-top: 3px;
   display: flex;
   justify-content: center;
   align-items: center;

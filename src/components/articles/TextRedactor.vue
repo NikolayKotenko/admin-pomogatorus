@@ -55,6 +55,7 @@ export default {
   }),
   mounted() {
     this.preventInsertingStyles()
+    this.onkeydownInEditable()
     setTimeout(() => {
       this.initializeContent().then(() => {
         this.changeIndexQuestion()
@@ -120,13 +121,84 @@ export default {
         _this.onContentChange()
       }
     },
+    onkeydownInEditable() {
+      const _this = this
+      this.$refs.content.onkeydown = function (e) {
+        if (e.key === "Backspace" || e.key === "Delete" || e.key === "Paste") {
+          // e.preventDefault();
+          const selection = window.getSelection();
+          // console.log(selection)
+          // Don't allow deleting nodes
+          if (!selection.anchorNode) return
+          if (selection.anchorNode.textContent === '' && selection.anchorNode.className !== 'textRedactor__content' && selection.anchorNode.isContentEditable) {
+            e.preventDefault();
+            selection.anchorNode.parentNode.removeChild(selection.anchorNode)
+            _this.onContentChange()
+          }
+        }
+        /*else if (e.key === 'Enter') {
+          e.preventDefault();
+          const selection = window.getSelection(),
+              range = selection.getRangeAt(0),
+              node = document.getSelection().anchorNode,
+              pNode = node.parentNode;
+          let tag = pNode.nodeName.toUpperCase();
+          if(e.ctrlKey){
+            tag = 'div';
+          } else
+            switch(tag) {
+              case 'P':
+                tag = 'BR';
+                break;
+
+              case 'DIV':
+                tag = 'p';
+                break;
+
+              case 'SPAN':
+                tag = 'span';
+                break;
+
+              case 'BR':
+                tag = null;
+                break;
+
+              default:
+                tag = 'BR';
+
+            }
+
+          const el = document.createElement( tag );
+
+          range.deleteContents();
+          range.insertNode(el);
+
+          if ('BR'===tag) {
+            range.setStartAfter(el);
+            range.setEndAfter(el);
+          } else {
+            range.setStart(el, 0);
+            range.setEnd(el, 0);
+          }
+
+          const ze = document.createTextNode("\u200B");
+          range.insertNode(ze);
+          range.setStartBefore(ze);
+          range.setEndBefore(ze);
+
+          selection.removeAllRanges();
+          selection.addRange(range);
+          e.stopPropagation();
+        }*/
+      }
+    },
     /* INITIALIZE DATA FROM BACK OR INDEXEDDB */
     initializeContent() {
       return new Promise((resolve) => {
         console.log('initialize')
         if (_store.components_after_request.length) {
-          const br = document.createElement('br')
-          const div = document.createElement('div')
+          // const br = document.createElement('br')
+          // const div = document.createElement('div')
 
           console.log('YA RABOTAU')
           _store.loadingArticle = true
@@ -163,10 +235,10 @@ export default {
                     range.collapse(false);
                     _store.list_components[index] = this.getStructureForInstance(elem.component)
                     _store.list_components[index].instance.$mount()
-                    range.insertNode(br);
-                    range.insertNode(br);
-                    range.insertNode(br);
-                    range.insertNode(div);
+                    // range.insertNode(br);
+                    // range.insertNode(br);
+                    // range.insertNode(br);
+                    // range.insertNode(div);
                     range.insertNode(_store.list_components[index].instance.$el)
                     this.$store.commit('changeSelectedObject', {})
               })
@@ -234,12 +306,14 @@ export default {
         const calledElem = _store.list_components[_store.counters.layout - 1]
         calledElem.instance.$mount()
 
-        const br = document.createElement('br')
+        // const br = document.createElement('br')
         const div = document.createElement('div')
-        div.appendChild(br)
-        const br2 = document.createElement('br')
+        div.style.minHeight = '24px';
+        // div.appendChild(br)
+        // const br2 = document.createElement('br')
         const div2 = document.createElement('div')
-        div2.appendChild(br2)
+        div2.style.minHeight = '24px';
+        // div2.appendChild(br2)
 
         if (_store.range && (_store.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' || _store.range.commonAncestorContainer?.offsetParent?._prevClass === "textRedactor")) {
           if (window.getSelection) {

@@ -168,7 +168,7 @@
         <v-card-title>
           <span class="text-h6" style="font-size: 0.8em !important; text-align: center; width: 100%">Какой вопрос?</span>
         </v-card-title>
-        <v-card-text>
+        <v-card-text id="questionSelector">
           <v-chip-group
               multiple
               show-arrows
@@ -190,18 +190,21 @@
               {{ tag.name }}
             </v-chip>
           </v-chip-group>
-          <v-autocomplete
-              class="list_questions_modal"
-              :loading="$store.state.ArticleModule.loadingModalList"
-              :disabled="$store.state.ArticleModule.loadingModalList"
-              :items="$store.state.ArticleModule.list_questions"
-              item-text="name"
-              :menu-props="{bottom: true, offsetY: true, maxHeight: 250}"
-              return-object
-              v-model="$store.state.ArticleModule.selectedComponent"
-              placeholder="Наименование"
-          >
-          </v-autocomplete>
+<!--          <div style="width: 100%">-->
+            <v-autocomplete
+                :loading="$store.state.ArticleModule.loadingModalList"
+                :disabled="$store.state.ArticleModule.loadingModalList"
+                :items="$store.state.ArticleModule.list_questions"
+                item-text="name"
+                :menu-props="{bottom: true, offsetY: true}"
+                return-object
+                clearable
+                v-model="$store.state.ArticleModule.selectedComponent"
+                @click:clear="$nextTick(() => {$store.state.ArticleModule.selectedComponent = {}})"
+                placeholder="Наименование"
+                attach
+            ></v-autocomplete>
+<!--          </div>-->
         </v-card-text>
         <v-card-actions>
           <v-btn
@@ -498,5 +501,9 @@ export default {
 ::v-deep .v-slide-group__next, ::v-deep .v-slide-group__prev {
   min-width: 15px !important;
   flex: 0 1 15px !important;
+}
+
+::v-deep .v-menu__content.theme--light.menuable__content__active.v-autocomplete__content {
+  max-width: 280px !important;
 }
 </style>

@@ -9,6 +9,9 @@
   //}
 }
 
+::v-deep .v-list-item__content {
+  border-bottom: 1px solid lightgray !important;
+}
 
 .disabled {
   pointer-events: none;
