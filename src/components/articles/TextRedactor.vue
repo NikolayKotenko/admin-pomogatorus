@@ -125,9 +125,7 @@ export default {
       const _this = this
       this.$refs.content.onkeydown = function (e) {
         if (e.key === "Backspace" || e.key === "Delete" || e.key === "Paste") {
-          // e.preventDefault();
           const selection = window.getSelection();
-          // console.log(selection)
           // Don't allow deleting nodes
           if (!selection.anchorNode) return
           if (selection.anchorNode.textContent === '' && selection.anchorNode.className !== 'textRedactor__content' && selection.anchorNode.isContentEditable) {
@@ -136,60 +134,6 @@ export default {
             _this.onContentChange()
           }
         }
-        /*else if (e.key === 'Enter') {
-          e.preventDefault();
-          const selection = window.getSelection(),
-              range = selection.getRangeAt(0),
-              node = document.getSelection().anchorNode,
-              pNode = node.parentNode;
-          let tag = pNode.nodeName.toUpperCase();
-          if(e.ctrlKey){
-            tag = 'div';
-          } else
-            switch(tag) {
-              case 'P':
-                tag = 'BR';
-                break;
-
-              case 'DIV':
-                tag = 'p';
-                break;
-
-              case 'SPAN':
-                tag = 'span';
-                break;
-
-              case 'BR':
-                tag = null;
-                break;
-
-              default:
-                tag = 'BR';
-
-            }
-
-          const el = document.createElement( tag );
-
-          range.deleteContents();
-          range.insertNode(el);
-
-          if ('BR'===tag) {
-            range.setStartAfter(el);
-            range.setEndAfter(el);
-          } else {
-            range.setStart(el, 0);
-            range.setEnd(el, 0);
-          }
-
-          const ze = document.createTextNode("\u200B");
-          range.insertNode(ze);
-          range.setStartBefore(ze);
-          range.setEndBefore(ze);
-
-          selection.removeAllRanges();
-          selection.addRange(range);
-          e.stopPropagation();
-        }*/
       }
     },
     /* INITIALIZE DATA FROM BACK OR INDEXEDDB */
@@ -356,7 +300,6 @@ export default {
 
     changeIndexQuestion() {
       let questions = [...document.getElementsByClassName('question_wrapper')]
-      console.log(questions)
 
       this.$nextTick(() => {
         let counter = 1
@@ -371,32 +314,12 @@ export default {
             return (elem.data.index == id)
           })
 
-          console.log(id)
-          console.log(component)
-
           const key_data = `index_${component[0].data.component.name}`
-          // component[0].data.component[key_data] = counter
           component[0].instance.$data[key_data] = counter
 
           counter++
         })
-        // let questionsArr = _store.list_components.filter(elem => {
-        //   return (elem.data.component.name === 'question' || elem.data.component.name === 'questions')
-        // })
-        //
-        // let counter = 1
-        //
-        // questionsArr.forEach(elem => {
-        //   let tmpStr  = str.match(":(.*);");
-        //   var newStr = tmpStr[1];
-        //   console.log(`index_${elem.component.name}`)
-        // })
       })
-
-
-      // let result = [...questions].map(elem => {
-      //
-      // })
     },
 
     deletingComponent() {
