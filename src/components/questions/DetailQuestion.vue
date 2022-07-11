@@ -163,11 +163,12 @@
                       v-for="answer in newQuestion.value_type_answer"
                       :key="answer.id"
                   >
-                    <v-text-field
+                    <v-textarea
                         class="question_main_wrapper__item__value"
                         :class="{inputFocused: answer.focused}"
                         placeholder="Введите значение"
                         auto-grow
+                        multi-line
                         rows="1"
                         dense
                         hide-details
@@ -180,7 +181,7 @@
                         @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
                         @input="saveDBQuestion(newQuestion)"
                     >
-                    </v-text-field>
+                    </v-textarea>
                     <div class="divider" v-if="answer.showComentary"></div>
                     <v-textarea
                         class="question_main_wrapper__item__description"
@@ -189,6 +190,7 @@
                         auto-grow
                         rows="1"
                         dense
+                        multi-line
                         hide-details
                         flat
                         solo
@@ -911,6 +913,9 @@ export default {
                 transition: all .6s ease-in-out;
               }
             }
+            ::v-deep .v-textarea.v-text-field--solo .v-input__control textarea {
+              padding: 0 !important;
+            }
 
             ::v-deep .v-text-field.v-text-field--enclosed:not(.v-text-field--rounded) > .v-input__control > .v-input__slot, .v-text-field.v-text-field--enclosed .v-text-field__details {
               padding: 0 6px !important;
@@ -926,7 +931,7 @@ export default {
               font-size: 14px;
               ::v-deep textarea {
                 color: darkgray;
-                transition: all .6s ease-in-out;
+                transition: color .6s ease-in-out;
               }
             }
           }
