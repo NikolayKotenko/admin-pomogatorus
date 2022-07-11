@@ -191,9 +191,10 @@
             </v-chip>
           </v-chip-group>
             <v-autocomplete
+                style="position: sticky; top: 0;"
                 :loading="$store.state.ArticleModule.loadingModalList"
                 :disabled="$store.state.ArticleModule.loadingModalList"
-                :items="$store.state.ArticleModule.list_questions"
+                :items="listQuestions"
                 item-text="name"
                 :menu-props="{bottom: true, offsetY: true}"
                 return-object
@@ -201,6 +202,7 @@
                 v-model="$store.state.ArticleModule.selectedComponent"
                 @click:clear="$nextTick(() => {$store.state.ArticleModule.selectedComponent = {}})"
                 placeholder="Наименование"
+                ref="selector"
             >
             </v-autocomplete>
         </v-card-text>
@@ -297,6 +299,7 @@ import iconsModels from "../../models/iconsModels";
 import Vue from "vue";
 
 import titlesStore from '@/store/modules/article/index.js'
+
 const _store = titlesStore.state
 
 export default {
@@ -335,6 +338,9 @@ export default {
     '$store.state.ArticleModule.selectComponent.questions': {
       handler(v) {
         if (v) {
+          this.$nextTick(() => {
+            window.addEventListener('scroll', this.disableInput, true)
+          })
           this.$store.dispatch('getListQuestions', _store.name_component)
           this.$store.dispatch('getGeneralTagsArticle')
         }
@@ -370,8 +376,30 @@ export default {
         duplicateCheck: true,
       }
     },
+    arrIds() {
+      return _store.list_components.filter(component => {
+        return component.data.component.name === 'questions' || component.data.component.name === 'question'
+      }).map(elem => elem.data.component.id)
+      // return _store.list_questions.filter(question => {
+      //   return _store.list_components.map(component => {
+      //     return component.data.component.name === 'questions' || component.data.component.name === 'question'
+      //   }).forEach(component => {return component.data.component.id !== question.id})
+      // })
+    },
+    listQuestions() {
+      return _store.list_questions.filter(question => {
+        return !this.arrIds.includes(question.id)
+      })
+    },
   },
   methods: {
+    disableInput() {
+      this.$nextTick(() => {
+        setTimeout(() => {
+          this.$refs.selector.$refs.input.blur()
+        })
+      })
+    },
     /* DROPZONE */
     sendingData(file, xhr, formData) {
       console.log(file.upload.uuid)
@@ -487,6 +515,9 @@ export default {
         this.$emit('callCheckout', elem)
       }
     }
+  },
+  beforeDestroy() {
+    document.removeEventListener('scroll', this.disableInput)
   },
 }
 </script>
