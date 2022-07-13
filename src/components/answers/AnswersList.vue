@@ -28,9 +28,9 @@
       </thead>
       <tbody
           class="table-container-wrapper-main-items"
-          v-if="!!$store.state.AnswersModule.listAnswers.length"
+          v-if="!!$store.state.AnswersModule.listAnswers.length && !$store.state.AnswersModule.loadingList"
       >
-      <tr
+        <tr
           v-for="(row, index) in $store.state.AnswersModule.listAnswers"
           :key="index"
           @click="showDetail(row)"
@@ -54,8 +54,15 @@
         text
         prominent
         type="error"
-        v-if="!$store.state.AnswersModule.listAnswers.length"
+        v-if="!$store.state.AnswersModule.listAnswers.length && !$store.state.AnswersModule.loadingList"
     >Список пуст</v-alert>
+    <div class="loaderList" v-else-if="$store.state.AnswersModule.loadingList">
+      <v-progress-circular
+          :size="50"
+          color="primary"
+          indeterminate
+      ></v-progress-circular>
+    </div>
   </div>
 </template>
 

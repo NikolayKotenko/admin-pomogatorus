@@ -128,16 +128,9 @@
       </div>
       <div class="table_list">
         <AnswersList
-            v-if="!$store.state.AnswersModule.loadingList"
             @showModalAnswer="showModalAnswer"
             @sortItems="sortItems"
         />
-        <v-progress-circular
-            v-else
-            :size="50"
-            color="primary"
-            indeterminate
-        ></v-progress-circular>
       </div>
       <div class="table-container-wrapper-footer">
         <div class="table-container-wrapper-footer__counter">
