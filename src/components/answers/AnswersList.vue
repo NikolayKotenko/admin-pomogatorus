@@ -1,51 +1,62 @@
 <template>
-  <table class="table-container-wrapper-main" :class="{four_columns: !isMobile, three_columns: isMobile}">
-    <thead class="table-container-wrapper-main-header">
-    <tr>
-      <th
-          v-if="!isMobile"
-          class="table-container-wrapper-main-header__title"
-          data-type="text-short"
-      >
-      #
-      <th
-          class="table-container-wrapper-main-header__title"
-          v-for="(title, index) in titles"
-          :key="index"
-          data-type="text-short"
-      >
-        <span class="table-container-wrapper-main-header__title__text">{{ title.TEXT }}</span>
-        <img
-            class="table-container-wrapper-main-header__title__sort"
-            :src="require('/src/assets/svg/sort_arrow.svg')" alt=""
-            style="position: absolute; top: 5px; right: 5px"
+  <div>
+    <table class="table-container-wrapper-main" :class="{four_columns: !isMobile, three_columns: isMobile}">
+      <thead class="table-container-wrapper-main-header">
+      <tr>
+        <th
+            v-if="!isMobile"
+            class="table-container-wrapper-main-header__title"
+            data-type="text-short"
         >
-      </th>
-    </tr>
-    </thead>
-    <tbody
-        class="table-container-wrapper-main-items"
-    >
-    <tr
-        v-for="(row, index) in $store.state.AnswersModule.listAnswers"
-        :key="index"
-        @click="showDetail(row)"
-    >
-      <td v-if="!isMobile">
-        {{index+1}}
-      </td>
-      <td>
-        {{ nameAnswer(row) }}
-      </td>
-      <td>
-        {{ answer(row) }}
-      </td>
-      <td>
-        {{ row.updated_at }}
-      </td>
-    </tr>
-    </tbody>
-  </table>
+          #
+        <th
+            class="table-container-wrapper-main-header__title"
+            v-for="(title, index) in titles"
+            :key="index"
+            data-type="text-short"
+        >
+          <span class="table-container-wrapper-main-header__title__text">{{ title.TEXT }}</span>
+          <img
+              v-if="title.VALUE !== 'answer'"
+              class="table-container-wrapper-main-header__title__sort"
+              :src="require('/src/assets/svg/sort_arrow.svg')" alt=""
+              style="position: absolute; top: 5px; right: 5px"
+              @click="startSort(title)"
+          >
+        </th>
+      </tr>
+      </thead>
+      <tbody
+          class="table-container-wrapper-main-items"
+          v-if="!!$store.state.AnswersModule.listAnswers.length"
+      >
+      <tr
+          v-for="(row, index) in $store.state.AnswersModule.listAnswers"
+          :key="index"
+          @click="showDetail(row)"
+      >
+        <td v-if="!isMobile">
+          {{index+1}}
+        </td>
+        <td>
+          {{ nameAnswer(row) }}
+        </td>
+        <td>
+          {{ answer(row) }}
+        </td>
+        <td>
+          {{ row.updated_at }}
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <v-alert
+        text
+        prominent
+        type="error"
+        v-if="!$store.state.AnswersModule.listAnswers.length"
+    >Список пуст</v-alert>
+  </div>
 </template>
 
 <script>
@@ -57,6 +68,7 @@ export default {
         ID: 1,
         TEXT: 'Заголовок вопроса',
         VALUE: 'name',
+        SORT: 'asc'
       },
       {
         ID: 2,
@@ -66,7 +78,8 @@ export default {
       {
         ID: 3,
         TEXT: 'Дата ответа',
-        VALUE: 'dateAnswer',
+        VALUE: 'created_at',
+        SORT: 'asc'
       },
     ],
   }),
@@ -84,6 +97,17 @@ export default {
     },
     answer(row) {
       return JSON.parse(row.value_answer) ? JSON.parse(row.value_answer) : row.detailed_response
+    },
+    startSort(title) {
+      this.$emit('sortItems', title)
+      const index = this.titles.findIndex(elem => {
+        return elem.VALUE === title.VALUE
+      })
+      if (index !== -1) {
+        let value = (title.SORT === 'asc') ? 'desc' : 'asc'
+        this.titles[index].SORT = value
+      }
+      // [0].SORT = title.SORT === 'asc' ? 'desc' : 'asc'
     }
   }
 }

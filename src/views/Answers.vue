@@ -38,11 +38,42 @@
             class="answer_list__selector"
             dense
             hide-details
-            placeholder="Поиск..."
+            placeholder="Начните ввод"
             :loading="$store.state.AnswersModule.loadingList"
             :disabled="$store.state.AnswersModule.loadingList"
             prepend-inner-icon="mdi-magnify"
+            hide-no-data
+            label="Поиск..."
+            :search-input.sync="search"
+            @update:search-input="getValues()"
+            :items="itemsArray"
+            item-text="text"
+            item-value="query"
+            return-object
+            clearable
+            @change="getItems()"
+            v-model="filterQuery"
         >
+          <template v-slot:selection="data">
+            <v-chip
+                v-bind="data.attrs"
+                :input-value="data.selected"
+                small
+            >
+              {{ data.item.text }} - {{ data.item.category }}
+            </v-chip>
+          </template>
+          <template v-slot:item="data">
+            <template v-if="typeof data.item !== 'object'">
+              <v-list-item-content v-text="data.item"></v-list-item-content>
+            </template>
+            <template v-else>
+              <v-list-item-content>
+                <v-list-item-title v-html="data.item.text"></v-list-item-title>
+                <v-list-item-subtitle v-html="data.item.category"></v-list-item-subtitle>
+              </v-list-item-content>
+            </template>
+          </template>
         </v-autocomplete>
         <v-dialog
             ref="dialog"
@@ -69,18 +100,26 @@
               first-day-of-week=1
               :max="maxDate"
           >
+            <v-btn
+                text
+                color="red darken-1"
+                @click="modal = false"
+            >
+              Отмена
+            </v-btn>
             <v-spacer></v-spacer>
             <v-btn
                 text
                 color="primary"
-                @click="modal = false"
+                @click="date = null; $refs.dialog.save(date); getItems()"
             >
-              Cancel
+              Очистить
             </v-btn>
+            <v-spacer></v-spacer>
             <v-btn
                 text
                 color="primary"
-                @click="$refs.dialog.save(date)"
+                @click="$refs.dialog.save(date); getItems()"
             >
               OK
             </v-btn>
@@ -89,8 +128,9 @@
       </div>
       <div class="table_list">
         <AnswersList
-            v-if="!$store.state.AnswersModule.loadingList || $store.state.AnswersModule.loadingList"
+            v-if="!$store.state.AnswersModule.loadingList"
             @showModalAnswer="showModalAnswer"
+            @sortItems="sortItems"
         />
         <v-progress-circular
             v-else
@@ -261,6 +301,10 @@ export default {
     date: null,
     selected: null,
     modal: false,
+    search: null,
+    debounceTimeout: null,
+    filterQuery: null,
+    sortQuery: null,
   }),
   mounted() {
     this.getItems()
@@ -277,19 +321,42 @@ export default {
     },
     maxDate() {
       return new Date().toJSON().slice(0,10)
+    },
+    itemsArray() {
+      if (!this.$store.state.AnswersModule.listVariables.length) return []
+      const arr = []
+      let category = ""
+      this.$store.state.AnswersModule.listVariables.forEach(elem => {
+        if (elem.category === category) {
+          arr.push(elem)
+        } else {
+          if (arr.length) arr.push({ divider: true })
+          category = elem.category
+          arr.push({ header: category })
+          arr.push(elem)
+        }
+      })
+      return arr
     }
   },
   methods: {
+    sortItems(title) {
+      const { VALUE, SORT } = title
+      this.sortQuery = { [VALUE]: SORT }
+      this.getItems()
+    },
+    getValues() {
+      if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
+      this.debounceTimeout = setTimeout(() => {
+        if (!this.search) return;
+        this.$store.dispatch('getListVariables', this.search)
+      }, 600)
+    },
     getItems() {
       this.$store.dispatch('getListAnswers', {
-        id_question: '',
-        id_user: '',
-        id_agent_utm: '',
-        id_article: '',
-        created_at: '',
-        name: '',
-        updated_at: '',
-        sort_created_at: '',
+        queryObj: this.filterQuery,
+        date: this.date,
+        sort: this.sortQuery
       })
     },
     showModalAnswer(object) {
@@ -374,23 +441,16 @@ export default {
   transform: scaleY(-1);
 }
 
-.filters_wrapper {
-  display: flex;
-  flex-direction: column;
-  row-gap: 15px;
-
-  ::v-deep .v-text-field__slot {
-    width: 100% !important;
-  }
-  ::v-deep .v-label theme--light {
-    width: 100% !important;
-  }
-
-  &__elem {
-
-    &__label {
-
-    }
-  }
+::v-deep .v-select.v-input--dense .v-chip {
+  margin: 0 4px 4px 4px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+::v-deep .v-autocomplete.v-select.v-input--is-focused input {
+  min-width: 2px;
+}
+::v-deep .v-select__selections {
+  flex-wrap: nowrap;
 }
 </style>
