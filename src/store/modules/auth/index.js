@@ -22,9 +22,15 @@ export default {
             return await Request.post(this.state.BASE_URL+'/auth/validate-auth')
         },
         async refreshTokens({commit}){
-            const tokensData = await Request.post(this.state.BASE_URL+'/auth/refresh')
-            commit('set_user_data', tokensData.data)
-            return tokensData
+            try {
+                const tokensData = await Request.post(this.state.BASE_URL+'/auth/refresh')
+                if (!tokensData) return null
+                commit('set_user_data', tokensData.data)
+                return tokensData
+            } catch (e) {
+                console.log(e)
+                commit('change_notification_modal', e, { root: true })
+            }
         },
         async loginUser({commit}, objData) {
             const tokensData = await Request.post(this.state.BASE_URL+'/auth/login', objData)
