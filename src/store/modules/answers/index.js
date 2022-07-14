@@ -28,7 +28,7 @@ export default {
         },
         changeListVariables(state, array) {
             state.listVariables = array
-        }
+        },
     },
     actions: {
         async getListVariables({commit}, query) {

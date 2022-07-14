@@ -98,40 +98,28 @@
                   :loading="$store.state.QuestionsModule.loadingQuestion"
                   @input="saveDBQuestion(newQuestion)"
               ></v-textarea>
-              <!--            <v-textarea-->
-              <!--                class="question_title_help__description"-->
-              <!--                :class="{-->
-              <!--                inputFocused: newQuestion.purpose_of_question.focused,-->
-              <!--                invalid: !newQuestion.purpose_of_question.value && $v.newQuestion.purpose_of_question.$dirty && !$v.newQuestion.purpose_of_question.required-->
-              <!--                }"-->
-              <!--                placeholder="Введите цель вопроса"-->
-              <!--                auto-grow-->
-              <!--                rows="1"-->
-              <!--                dense-->
-              <!--                hide-details-->
-              <!--                flat-->
-              <!--                solo-->
-              <!--                v-model="newQuestion.purpose_of_question.value"-->
-              <!--                @focus="onFocus(newQuestion.purpose_of_question)"-->
-              <!--                @focusout="outFocus(newQuestion.purpose_of_question)"-->
-              <!--                :loading="$store.state.QuestionsModule.loadingQuestion"-->
-              <!--                @change="onChange"-->
-              <!--            ></v-textarea>-->
-              <!--            <small-->
-              <!--                v-if="!newQuestion.purpose_of_question.value && $v.newQuestion.purpose_of_question.$dirty && !$v.newQuestion.purpose_of_question.required"-->
-              <!--                style="color: lightcoral"-->
-              <!--            >-->
-              <!--              Поле обязательно для заполнения-->
-              <!--            </small>-->
+            </div>
+          </div>
+
+          <!-- AGENTS -->
+          <div class="question_main">
+            <div class="question_main_selector">
+              <span class="question_main_selector__title" :class="{focused: agentFocused}">
+                Агенты
+              </span>
+              <AgentList
+                @onFocus="onFocusFrom"
+                @outFocus="outFocusFrom"
+              />
             </div>
           </div>
 
           <!-- SELECTOR & INPUT'S -->
           <div class="question_main">
             <div class="question_main_selector">
-            <span class="question_main_selector__title" :class="{focused: newQuestion.id_type_answer.focused}">
-              Тип ответа
-            </span>
+              <span class="question_main_selector__title" :class="{focused: newQuestion.id_type_answer.focused}">
+                Тип ответа
+              </span>
               <v-select
                   outlined
                   dense
@@ -145,6 +133,7 @@
                   @focus="onFocus(newQuestion.id_type_answer)"
                   @focusout="outFocus(newQuestion.id_type_answer)"
                   :loading="$store.state.QuestionsModule.loadingQuestion"
+                  :menu-props="{bottom: true, offsetY: true}"
                   :class="{invalidSelector: !newQuestion.id_type_answer.value && $v.newQuestion.id_type_answer.$dirty && !$v.newQuestion.id_type_answer.required}"
               ></v-select>
               <small
@@ -367,6 +356,7 @@ import { required } from 'vuelidate/lib/validators'
 import { mapGetters } from 'vuex'
 
 import QuestionTags from "./QuestionTags";
+import AgentList from "./AgentList";
 
 /* INDEXEDDB */
 const DB_NAME = 'questionDB'
@@ -376,7 +366,7 @@ let DB;
 
 export default {
   name: "CreateQuestion",
-  components: {QuestionTags},
+  components: {AgentList, QuestionTags},
   validations: {
     newQuestion: {
       name: {
@@ -387,7 +377,7 @@ export default {
       // },
       id_type_answer: {
         value: {required}
-      }
+      },
     },
     validationGroup: ['newQuestion.name.value', 'newQuestion.id_type_answer.value']
     // 'newQuestion.purpose_of_question.value'
@@ -396,6 +386,7 @@ export default {
     lastIdAnswer: 1,
     debounceTimeout: null,
     rangeError: false,
+    agentFocused: false,
     newQuestion: {
       id: 1,
       name: {
@@ -417,6 +408,10 @@ export default {
       id_type_answer: {
         value: null,
         focused: false
+      },
+      agent: {
+        value: null,
+        focused: false,
       },
       state_detailed_response: 0,
       state_attachment_response: 0,
@@ -620,6 +615,12 @@ export default {
     addVariable() {
       this.lastIdAnswer++
       this.newQuestion.value_type_answer.push(new this.AnswerVariable(this.lastIdAnswer))
+    },
+    onFocusFrom(value) {
+      this.agentFocused = value
+    },
+    outFocusFrom(value) {
+      this.agentFocused = value
     },
     onFocus(obj, id) {
       obj.focused = true

@@ -57,10 +57,13 @@ export default {
     max-height: 120px !important;
     max-width: 200px !important;
   }
+  .v-menu__content.theme--light.menuable__content__active {
+    max-height: 235px !important;
+  }
 }
 
 .v-menu__content {
-  max-width: 480px !important;
+  //max-width: 480px !important;
 }
 
 body {

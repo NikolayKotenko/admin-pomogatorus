@@ -20,6 +20,7 @@ import QuestionsModule from "./modules/questions";
 import ArticleModule from "./modules/article";
 import AuthModule from "./modules/auth";
 import AnswersModule from "./modules/answers";
+import Request from "../services/request";
 
 export default new Vuex.Store({
   state: {
@@ -30,6 +31,8 @@ export default new Vuex.Store({
       message: '',
     },
     cur_num: 0,
+    loadingAgents: false,
+    listAgents: [],
   },
   mutations: {
     change_notification_modal(state, value) {
@@ -40,8 +43,37 @@ export default new Vuex.Store({
     change_cur_num(state, value) {
       state.cur_num = value
     },
+    changeListAgents(state, array) {
+      state.listAgents = array
+    },
+    changeLoadingAgents(state, value) {
+      state.loadingAgents = value
+    }
   },
   actions: {
+    async getListAgents({commit}) {
+      commit('changeLoadingAgents', true)
+
+      try {
+        // const { data } = await Request.get(`${this.state.BASE_URL}/entity/groups`, {'sort[name]': 'asc'})
+        //
+        // let arr = []
+        //
+        // if (Array.isArray(data)) {
+        //   arr = data
+        // } else {
+        //   arr = Object.values(data)
+        // }
+        // const id = arr.filter(elem => elem.code === 'agenty')[0].id
+        const result = await Request.get(`${this.state.BASE_URL}/users/get-list-users`, {'filter[is_agent]': true})
+        commit('changeListAgents', result.data)
+      } catch (e) {
+        console.log(e)
+        commit('change_notification_modal', e, { root: true })
+      }
+
+      commit('changeLoadingAgents', false)
+    },
   },
   modules: {
     QuestionsModule,
