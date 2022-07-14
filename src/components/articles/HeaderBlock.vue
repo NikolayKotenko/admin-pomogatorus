@@ -324,6 +324,7 @@ export default {
       tag: [],
     },
     debounceTimeout: null,
+    arrIds: [],
   }),
   created() {
     const ComponentClass = Vue.extend(PreviewTemplate);
@@ -341,7 +342,11 @@ export default {
           this.$nextTick(() => {
             window.addEventListener('scroll', this.disableInput, true)
           })
-          this.$store.dispatch('getListQuestions', _store.name_component)
+          console.log('VOPROS')
+          this.$store.dispatch('getListQuestions', _store.name_component).then(() => {
+            console.log('YBURAU')
+            this.getArrID()
+          })
           this.$store.dispatch('getGeneralTagsArticle')
         }
       }
@@ -376,23 +381,22 @@ export default {
         duplicateCheck: true,
       }
     },
-    arrIds() {
-      return _store.list_components.filter(component => {
-        return component.data.component.name === 'questions' || component.data.component.name === 'question'
-      }).map(elem => elem.data.component.id)
-      // return _store.list_questions.filter(question => {
-      //   return _store.list_components.map(component => {
-      //     return component.data.component.name === 'questions' || component.data.component.name === 'question'
-      //   }).forEach(component => {return component.data.component.id !== question.id})
-      // })
-    },
     listQuestions() {
+      if (!_store.list_questions.length) return []
       return _store.list_questions.filter(question => {
         return !this.arrIds.includes(question.id)
       })
     },
   },
   methods: {
+    getArrID() {
+      this.$nextTick(() => {
+        console.log(_store.list_components)
+        this.arrIds = _store.list_components.filter(component => {
+          return component?.data?.component?.name === 'questions' || component?.data?.component?.name === 'question'
+        }).map(elem => elem?.data?.component?.id)
+      })
+    },
     disableInput() {
       this.$nextTick(() => {
         setTimeout(() => {
@@ -517,7 +521,7 @@ export default {
     }
   },
   beforeDestroy() {
-    document.removeEventListener('scroll', this.disableInput)
+    window.removeEventListener('scroll', this.disableInput, true)
   },
 }
 </script>

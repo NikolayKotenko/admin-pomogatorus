@@ -372,9 +372,11 @@ export default {
   grid-template-columns: 50% auto;
   &__title {
     color: darkgrey;
+    word-break: break-all;
   }
   &__value {
     font-weight: 600;
+    word-break: break-all;
   }
 }
 .sub_child {

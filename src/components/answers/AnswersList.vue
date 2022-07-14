@@ -102,6 +102,13 @@ export default {
     nameAnswer(row) {
       return row.e_question?.name ? row.e_question?.name : 'Ошибка в записи ответа'
     },
+    /*
+    * let arr = ["BOBA <a href='https://api-test.agregatorus.com/docs' id='aquatekhnik'> ssylka </a>"]
+    * let string1 = JSON.stringify(JSON.stringify(arr));
+    * let string2 = JSON.stringify(arr);
+    * console.log(JSON.parse(JSON.parse(string1)));
+    * console.log(JSON.parse(string2));
+    * */
     answer(row) {
       return JSON.parse(row.value_answer) ? JSON.parse(row.value_answer) : row.detailed_response
     },
