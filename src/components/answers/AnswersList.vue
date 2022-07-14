@@ -41,8 +41,7 @@
         <td>
           {{ nameAnswer(row) }}
         </td>
-        <td>
-          {{ answer(row) }}
+        <td v-html="answer(row)">
         </td>
         <td>
           {{ row.updated_at }}
@@ -102,15 +101,28 @@ export default {
     nameAnswer(row) {
       return row.e_question?.name ? row.e_question?.name : 'Ошибка в записи ответа'
     },
-    /*
-    * let arr = ["BOBA <a href='https://api-test.agregatorus.com/docs' id='aquatekhnik'> ssylka </a>"]
-    * let string1 = JSON.stringify(JSON.stringify(arr));
-    * let string2 = JSON.stringify(arr);
-    * console.log(JSON.parse(JSON.parse(string1)));
-    * console.log(JSON.parse(string2));
-    * */
+    isJson(str) {
+      try {
+        JSON.parse(str);
+      } catch (e) {
+        return false;
+      }
+      return true;
+    },
     answer(row) {
-      return JSON.parse(row.value_answer) ? JSON.parse(row.value_answer) : row.detailed_response
+      if (!row) return ""
+      if (!row.value_answer) {
+        return row.detailed_response ? row.detailed_response : "Ничего не найдено"
+      }
+      if (this.isJson(row.value_answer)) {
+        let parsed = JSON.parse(row.value_answer)
+        if (this.isJson(parsed)) parsed = JSON.parse(parsed)
+        if (Array.isArray(parsed)) {
+          return parsed.join(" ")
+        } else {
+          return parsed ? parsed : row.detailed_response ? row.detailed_response : "Ничего не найдено"
+        }
+      }
     },
     startSort(title) {
       this.$emit('sortItems', title)
@@ -121,7 +133,6 @@ export default {
         let value = (title.SORT === 'asc') ? 'desc' : 'asc'
         this.titles[index].SORT = value
       }
-      // [0].SORT = title.SORT === 'asc' ? 'desc' : 'asc'
     }
   }
 }

@@ -213,8 +213,7 @@
             <span class="answer_block__title">
               Ответ:
             </span>
-            <span class="answer_block__value">
-              {{ JSON.parse(detail.value_answer) ? JSON.parse(detail.value_answer) : detail.detailed_response }}
+            <span class="answer_block__value" v-html="answer(detail)">
             </span>
           </div>
           <div class="answer_block">
@@ -333,6 +332,29 @@ export default {
     }
   },
   methods: {
+    isJson(str) {
+      try {
+        JSON.parse(str);
+      } catch (e) {
+        return false;
+      }
+      return true;
+    },
+    answer(row) {
+      if (!row) return ""
+      if (!row.value_answer) {
+        return row.detailed_response ? row.detailed_response : "Ничего не найдено"
+      }
+      if (this.isJson(row.value_answer)) {
+        let parsed = JSON.parse(row.value_answer)
+        if (this.isJson(parsed)) parsed = JSON.parse(parsed)
+        if (Array.isArray(parsed)) {
+          return parsed.join(" ")
+        } else {
+          return parsed ? parsed : row.detailed_response ? row.detailed_response : "Ничего не найдено"
+        }
+      }
+    },
     sortItems(title) {
       const { VALUE, SORT } = title
       this.sortQuery = { [VALUE]: SORT }

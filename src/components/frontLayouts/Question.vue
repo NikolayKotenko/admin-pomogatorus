@@ -136,6 +136,12 @@
             :disabled="!!detailed_response"
             @change="changeAnswer"
         >
+          <template v-slot:selection="data">
+            <span
+                v-bind="data.attrs"
+                v-html="data.item.answer"
+            ></span>
+          </template>
           <template v-slot:item="{ active, item, attrs, on }">
             <v-list-item v-on="on" v-bind="attrs">
               <v-list-item-content>

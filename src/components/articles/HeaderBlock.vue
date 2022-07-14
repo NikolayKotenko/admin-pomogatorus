@@ -342,9 +342,7 @@ export default {
           this.$nextTick(() => {
             window.addEventListener('scroll', this.disableInput, true)
           })
-          console.log('VOPROS')
           this.$store.dispatch('getListQuestions', _store.name_component).then(() => {
-            console.log('YBURAU')
             this.getArrID()
           })
           this.$store.dispatch('getGeneralTagsArticle')
