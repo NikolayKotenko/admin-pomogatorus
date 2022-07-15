@@ -67,7 +67,7 @@
               @change="changeAnswer"
           >
             <template slot="label">
-              <div style="display: flex; column-gap: 20px; align-items: center">
+              <div style="display: flex; column-gap: 20px; align-items: flex-start;">
                 <span v-html="item.answer" @click.stop></span>
                 <div v-if="item.commentary">
                   <v-tooltip bottom>
@@ -101,7 +101,7 @@
             @change="changeAnswer"
         >
           <template slot="label">
-            <div style="display: flex; column-gap: 20px">
+            <div style="display: flex; column-gap: 20px; align-items: flex-start;">
               <span v-html="item.answer" @click.stop></span>
               <div v-if="item.commentary">
                 <v-tooltip bottom>
@@ -146,7 +146,7 @@
             <v-list-item v-on="on" v-bind="attrs">
               <v-list-item-content>
                 <v-list-item-title>
-                  <v-row no-gutters align="center">
+                  <v-row no-gutters style="align-items: flex-start">
                     <span v-html="item.answer" @click.stop></span>
                     <v-spacer></v-spacer>
                     <div v-if="item.commentary">

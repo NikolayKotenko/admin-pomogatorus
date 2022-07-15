@@ -53,6 +53,7 @@
             clearable
             @change="getItems()"
             v-model="filterQuery"
+            no-filter
         >
           <template v-slot:selection="data">
             <v-chip
