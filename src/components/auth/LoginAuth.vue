@@ -12,7 +12,7 @@
       <v-container>
           <v-text-field
               type="text"
-              name="email_user"
+              name="email"
               v-model="email_user"
               label="Введите почту"
               :rules="emailRules"
