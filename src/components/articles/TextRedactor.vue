@@ -273,14 +273,10 @@ export default {
         const calledElem = _store.list_components[_store.counters.layout - 1]
         calledElem.instance.$mount()
 
-        // const br = document.createElement('br')
         const div = document.createElement('div')
         div.style.minHeight = '24px';
-        // div.appendChild(br)
-        // const br2 = document.createElement('br')
         const div2 = document.createElement('div')
         div2.style.minHeight = '24px';
-        // div2.appendChild(br2)
 
         if (_store.range && (_store.range.commonAncestorContainer.parentElement.className === 'textRedactor__content' || _store.range.commonAncestorContainer?.offsetParent?._prevClass === "textRedactor")) {
           if (window.getSelection) {
@@ -378,29 +374,6 @@ export default {
           _store.list_components.splice(index, 1)
 
           this.resetCounter(_store.list_components)
-
-          // const global_counter = {
-          //   index_questions: 1,
-          //   index_image: 1,
-          //   index_auth: 1,
-          //   counter_index: 1,
-          // }
-          //
-          // _store.list_components.forEach(elem => {
-          //   elem.data.index = global_counter.counter_index
-          //   const key_data = `index_${elem.data.component.name}`
-          //   elem.data.component[key_data] = global_counter[key_data]
-          //   elem.instance.$data[key_data] = global_counter[key_data]
-          //   const block = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
-          //   block.id =  `component_wrapper-${global_counter.counter_index}`
-          //   elem.instance.$data.index_component = global_counter.counter_index
-          //
-          //   this.$store.commit('change_counter', {name: elem.data.component.name, count: global_counter[key_data]})
-          //   global_counter[key_data]++
-          //   global_counter.counter_index++
-          // })
-          //
-          // this.$store.commit('change_counter', {name: 'layout', count: global_counter.counter_index-1})
           this.$store.commit('delete_component_by_id', 0)
 
           this.saveDB = true

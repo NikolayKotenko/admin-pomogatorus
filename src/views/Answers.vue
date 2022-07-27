@@ -250,17 +250,17 @@
             </div>
             <div v-if="showFiles && detail.e_client_files.length" class="files__detail">
               <div class="sub_child_detail_image">
-                <div
-                    class="sub_child_detail_image__wrapper"
-                    v-for="(img, index) in detail.e_client_files"
-                    :key="index"
+                <viewer
+                  class="sub_child_detail_image__wrapper"
+                  v-for="(img, index) in detail.e_client_files"
+                  :key="index"
+                  :options="viewerOptions"
                 >
                   <img
                       :alt="img.filename"
                       :src="`${$store.state.BASE_URL}${img.full_path}`"
                   >
-                </div>
-
+                </viewer>
               </div>
             </div>
           </div>
@@ -282,6 +282,11 @@
 </template>
 
 <script>
+import 'viewerjs/dist/viewer.css'
+import VueViewer from 'v-viewer'
+import Vue from 'vue'
+Vue.use(VueViewer)
+
 import AnswersList from "../components/answers/AnswersList";
 // import Selector from "../components/table/Selector";
 export default {
@@ -298,6 +303,17 @@ export default {
     debounceTimeout: null,
     filterQuery: null,
     sortQuery: null,
+    viewerOptions: {
+      "navbar": false,
+      "tooltip": true,
+      "movable": false,
+      "zoomable": false,
+      "rotatable": true,
+      "scalable": false,
+      "transition": false,
+      "fullscreen": true,
+      "keyboard": false,
+    }
   }),
   mounted() {
     this.getItems()
@@ -443,7 +459,7 @@ export default {
       justify-content: flex-start;
       align-items: center;
       position: relative;
-      height: 65px;
+      height: 110px;
       max-width: 100%;
       img {
         width: 100%;
