@@ -58,6 +58,7 @@ export default {
     this.onkeydownInEditable()
     setTimeout(() => {
       this.initializeContent().then(() => {
+        this.checkOnDeletedComponents()
         this.changeIndexQuestion()
       })
     }, 500)
@@ -141,10 +142,6 @@ export default {
       return new Promise((resolve) => {
         console.log('initialize')
         if (_store.components_after_request.length) {
-          // const br = document.createElement('br')
-          // const div = document.createElement('div')
-
-          console.log('YA RABOTAU')
           _store.loadingArticle = true
           this.geting_from_server = true
 
@@ -156,12 +153,14 @@ export default {
             promises.push(this.$store.dispatch(`get_${elem.component.name}`, elem))
           })
 
-          Promise.all(promises).finally(() => {
+          Promise.allSettled(promises).finally(() => {
+            console.log('all promises done')
             _store.list_components.sort((a,b) => {
               return a.index - b.index
             })
 
             this.$nextTick(() => {
+              console.log('nextTIck inserting')
               _store.list_components.forEach((elem, index) => {
                     this.checkTypeComponent(elem)
                     let data = elem.data
@@ -179,18 +178,35 @@ export default {
                     range.collapse(false);
                     _store.list_components[index] = this.getStructureForInstance(elem.component)
                     _store.list_components[index].instance.$mount()
-                    // range.insertNode(br);
-                    // range.insertNode(br);
-                    // range.insertNode(br);
-                    // range.insertNode(div);
                     range.insertNode(_store.list_components[index].instance.$el)
                     this.$store.commit('changeSelectedObject', {})
               })
+              _store.loadingArticle = false
+              this.geting_from_server = false
+              console.log('insertingDone')
+              resolve()
             })
-            _store.loadingArticle = false
-            this.geting_from_server = false
-            resolve()
           })
+        }
+      })
+    },
+    checkOnDeletedComponents() {
+      this.$nextTick(() => {
+        if (_store.components_after_request.length !== _store.list_components.length) {
+          const arrIndexes = _store.list_components.map(i => {
+            return i.data.component.index_questions
+          })
+          let deletedId = _store.components_after_request.map(elem => {
+            if (!arrIndexes.includes(elem.component.index_questions)) {
+              return elem.component.index_questions
+            }
+          }).filter(y => y !== undefined)[0]
+          if (deletedId) {
+            let range = document.createRange();
+            range.selectNode(document.getElementById(`component_wrapper-${deletedId}`));
+            range.deleteContents()
+            range.collapse(false);
+          }
         }
       })
     },
@@ -299,11 +315,9 @@ export default {
     },
 
     changeIndexQuestion() {
-      let questions = [...document.getElementsByClassName('question_wrapper')]
-
       this.$nextTick(() => {
+        let questions = [...document.getElementsByClassName('question_wrapper')]
         let counter = 1
-
         questions.forEach(elem => {
           let tmpStr = elem.id.match("-(.*)")
           let id = tmpStr[tmpStr.length-1]
