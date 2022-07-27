@@ -59,6 +59,9 @@ export default {
     setTimeout(() => {
       this.initializeContent().then(() => {
         this.checkOnDeletedComponents()
+        this.$nextTick(() => {
+          this.resetCounter(_store.list_components)
+        })
         this.changeIndexQuestion()
       })
     }, 500)
@@ -193,10 +196,14 @@ export default {
     checkOnDeletedComponents() {
       this.$nextTick(() => {
         if (_store.components_after_request.length !== _store.list_components.length) {
-          const arrIndexes = _store.list_components.map(i => {
+          const arrIndexes = _store.list_components.filter(elem => {
+            return (elem.data.component.name === 'question' || elem.data.component.name === 'questions')
+          }).map(i => {
             return i.data.component.index_questions
           })
-          let deletedId = _store.components_after_request.map(elem => {
+          let deletedId = _store.components_after_request.filter(elem => {
+            return (elem.component.name === 'question' || elem.component.name === 'questions')
+          }).map(elem => {
             if (!arrIndexes.includes(elem.component.index_questions)) {
               return elem.component.index_questions
             }
@@ -336,6 +343,32 @@ export default {
       })
     },
 
+    resetCounter(array) {
+      const global_counter = {
+        index_questions: 1,
+        index_image: 1,
+        index_auth: 1,
+        counter_index: 1,
+      }
+
+      array.forEach(elem => {
+        elem.data.index = global_counter.counter_index
+        const key_data = `index_${elem.data.component.name}`
+        elem.data.component[key_data] = global_counter[key_data]
+        elem.instance.$data[key_data] = global_counter[key_data]
+        const block = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
+        block.id =  `component_wrapper-${global_counter.counter_index}`
+        elem.instance.$data.index_component = global_counter.counter_index
+
+        this.$store.commit('change_counter', {name: elem.data.component.name, count: global_counter[key_data]})
+        global_counter[key_data]++
+        global_counter.counter_index++
+      })
+
+      this.$store.commit('change_counter', {name: 'layout', count: global_counter.counter_index-1})
+
+    },
+
     deletingComponent() {
       if (_store.deletedComponent !== 0) {
         let index = _store.list_components.findIndex((elem) => {
@@ -344,28 +377,30 @@ export default {
         if (index !== -1) {
           _store.list_components.splice(index, 1)
 
-          const global_counter = {
-            index_questions: 1,
-            index_image: 1,
-            index_auth: 1,
-            counter_index: 1,
-          }
+          this.resetCounter(_store.list_components)
 
-          _store.list_components.forEach(elem => {
-            elem.data.index = global_counter.counter_index
-            const key_data = `index_${elem.data.component.name}`
-            elem.data.component[key_data] = global_counter[key_data]
-            elem.instance.$data[key_data] = global_counter[key_data]
-            const block = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
-            block.id =  `component_wrapper-${global_counter.counter_index}`
-            elem.instance.$data.index_component = global_counter.counter_index
-
-            this.$store.commit('change_counter', {name: elem.data.component.name, count: global_counter[key_data]})
-            global_counter[key_data]++
-            global_counter.counter_index++
-          })
-
-          this.$store.commit('change_counter', {name: 'layout', count: global_counter.counter_index-1})
+          // const global_counter = {
+          //   index_questions: 1,
+          //   index_image: 1,
+          //   index_auth: 1,
+          //   counter_index: 1,
+          // }
+          //
+          // _store.list_components.forEach(elem => {
+          //   elem.data.index = global_counter.counter_index
+          //   const key_data = `index_${elem.data.component.name}`
+          //   elem.data.component[key_data] = global_counter[key_data]
+          //   elem.instance.$data[key_data] = global_counter[key_data]
+          //   const block = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
+          //   block.id =  `component_wrapper-${global_counter.counter_index}`
+          //   elem.instance.$data.index_component = global_counter.counter_index
+          //
+          //   this.$store.commit('change_counter', {name: elem.data.component.name, count: global_counter[key_data]})
+          //   global_counter[key_data]++
+          //   global_counter.counter_index++
+          // })
+          //
+          // this.$store.commit('change_counter', {name: 'layout', count: global_counter.counter_index-1})
           this.$store.commit('delete_component_by_id', 0)
 
           this.saveDB = true
