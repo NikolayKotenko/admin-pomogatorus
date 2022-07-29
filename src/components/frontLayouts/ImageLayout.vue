@@ -24,6 +24,7 @@ export default {
     index_component: null,
     index_image: null,
     data_image: null,
+    dataForRerender: {},
   }),
   mounted() {
     this.getData()
@@ -42,6 +43,7 @@ export default {
   methods: {
     getData() {
       this.data_image = this.$store.state.ArticleModule.selectedComponent
+      this.dataForRerender = this.$store.state.ArticleModule.selectedComponent
       this.index_image = this.$store.state.ArticleModule.counters.image
       this.index_component = this.$store.state.ArticleModule.counters.layout
       this.getHeightOfControls()

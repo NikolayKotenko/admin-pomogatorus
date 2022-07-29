@@ -57,7 +57,7 @@
             <v-icon
                 v-bind="attrs"
                 v-on="on"
-                @click="onAction('undo')"
+                @click="onUndo()"
                 size="28"
             >
               mdi-undo
@@ -70,7 +70,7 @@
             <v-icon
                 v-bind="attrs"
                 v-on="on"
-                @click="onAction('redo')"
+                @click="onRedo()"
                 size="28"
             >
               mdi-redo
@@ -464,6 +464,12 @@ export default {
     },
 
     /* ICONS */
+    onUndo() {
+      this.$store.dispatch('getUndo')
+    },
+    onRedo() {
+      this.$store.dispatch('getRedo')
+    },
     onAction(action, icon) {
       document.execCommand(action, false, null);
       if (icon) {

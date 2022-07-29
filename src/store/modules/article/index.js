@@ -1,6 +1,8 @@
 import axios from "axios";
 import qs from "qs";
 
+import ConstructorElem from "../../../helpers/undo_redo_article";
+
 /* DEFAULT STATE */
 const defaultArticle = {
     id: 1,
@@ -74,7 +76,6 @@ export default {
         showAddTag: false,
 
         /* INSERT COMPONENT */
-        // experemental
         selection: null,
         range: null,
         counters: {
@@ -96,8 +97,44 @@ export default {
         loadingModalList: false,
         selectedComponent: {},
         deletedComponent: 0,
+
+        /* UNDO/REDO */
+        arrayState: [],
+        arrayPop: [],
+        arrayUndo: [],
+        startRender: false,
     },
     mutations: {
+        /* UNDO/REDO */
+        change_by_action_editor(state) {
+            state.arrayState.push(new ConstructorElem(state.content, state.list_components))
+            // state.arrayPop = state.arrayState.slice()
+            state.arrayPop = []
+            state.arrayUndo = state.arrayState.slice()
+        },
+        undo_editor(state) {
+            let lastMemento = state.arrayUndo.pop()
+
+            if (lastMemento) {
+                state.arrayPop.push(lastMemento)
+                state.content_from_server = lastMemento.html
+                state.list_components = lastMemento.components
+            }
+        },
+        redo_editor(state) {
+            if (state.arrayPop.length) {
+                let lastMemento = state.arrayPop.pop()
+                if (lastMemento) {
+                    state.arrayUndo.push(lastMemento)
+                    state.content_from_server = lastMemento.html
+                    state.list_components = lastMemento.components
+                }
+            }
+        },
+        change_start_render(state, value) {
+            state.startRender = value
+        },
+
         change_loading_modal_list(state, value) {
             state.loadingModalList = value
         },
@@ -253,6 +290,16 @@ export default {
         },
     },
     actions: {
+        /* UNDO/REDO */
+        getUndo({commit}) {
+            commit('undo_editor')
+            commit('change_start_render', true)
+        },
+        getRedo({commit}) {
+            commit('redo_editor')
+            commit('change_start_render', true)
+        },
+
         /* MAIN ARTICLES */
         async setListArticles({commit, state}) {
             return new Promise((resolve, reject) => {

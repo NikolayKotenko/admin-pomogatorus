@@ -72,6 +72,8 @@ export default {
       index_component: null,
       index_auth: null,
       inserting_component: false,
+
+      dataForRerender: {},
     }
   },
   mounted() {

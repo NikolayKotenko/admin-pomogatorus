@@ -288,6 +288,7 @@ export default {
     debounceTimeout: null,
     status_name: 'sending',
     check_status: false,
+    dataForRerender: {},
 
     /* DATA_BY_TYPES */
     rangeError: false,
@@ -374,6 +375,7 @@ export default {
         this.index_questions = this.$store.state.ArticleModule.counters.questions
         this.index_component = this.$store.state.ArticleModule.counters.layout
         this.question_data = Object.assign({}, this.$store.state.ArticleModule.selectedComponent)
+        this.dataForRerender = Object.assign({}, this.$store.state.ArticleModule.selectedComponent)
         this.getValue_type_answer()
         this.getHeightOfControls()
         this.getWidthOfControls()

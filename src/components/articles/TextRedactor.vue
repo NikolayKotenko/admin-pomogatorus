@@ -93,6 +93,14 @@ export default {
         this.$store.commit('changeContent', this.content)
       }
     },
+    '$store.state.ArticleModule.startRender': {
+      handler(v) {
+        if (v) {
+          console.log('start')
+          this.reRenderFunc()
+        }
+      }
+    }
   },
   computed: {
     check_created_article() {
@@ -140,6 +148,75 @@ export default {
         }
       }
     },
+
+    /* RENDER FUNC */
+    reRenderFunc() {
+      _store.loadingArticle = true
+      this.geting_from_server = true
+
+      this.content = _store.content_from_server
+
+      _store.list_components.sort((a,b) => {
+        return a.index - b.index
+      })
+
+      this.$nextTick(() => {
+        /* TODO: optimise */
+        _store.list_components.forEach((elem, index) => {
+          this.checkTypeComponent(elem.data)
+          let data = elem.instance.$data.dataForRerender
+          if (elem.data.component.name === 'image') {
+            const full_url = document.getElementById(`component_wrapper-${elem.data.index}`).getElementsByClassName( 'inserted_image' )[0].src
+            let sub_url = full_url.split('.com')
+            const alt = document.getElementById(`component_wrapper-${elem.data.index}`).getElementsByClassName( 'inserted_image' )[0].alt
+            data = Object.assign({}, {name: alt}, {full_path: sub_url[1]})
+          }
+          this.$store.commit('change_counter', {name: 'layout', count: elem.data.index})
+          this.$store.commit('changeSelectedObject', data)
+          let range = document.createRange();
+          range.selectNode(document.getElementById(`component_wrapper-${elem.data.index}`));
+          range.deleteContents()
+          range.collapse(false);
+          _store.list_components[index] = this.getStructureForInstance(elem.data.component)
+          _store.list_components[index].instance.$mount()
+          range.insertNode(_store.list_components[index].instance.$el)
+          this.$store.commit('changeSelectedObject', {})
+        })
+
+        _store.loadingArticle = false
+        this.geting_from_server = false
+
+        this.resetCounter(_store.list_components)
+        this.changeIndexQuestion()
+
+        this.$store.commit('change_start_render', false)
+
+      })
+    },
+    renderFunc() {
+      console.log('nextTIck inserting')
+      _store.list_components.forEach((elem, index) => {
+          this.checkTypeComponent(elem)
+          let data = elem.data
+          if (elem.component.name === 'image') {
+            const full_url = document.getElementById(`component_wrapper-${elem.index}`).getElementsByClassName( 'inserted_image' )[0].src
+            let sub_url = full_url.split('.com')
+            const alt = document.getElementById(`component_wrapper-${elem.index}`).getElementsByClassName( 'inserted_image' )[0].alt
+            data = Object.assign({}, {name: alt}, {full_path: sub_url[1]})
+          }
+          this.$store.commit('change_counter', {name: 'layout', count: elem.index})
+          this.$store.commit('changeSelectedObject', data)
+          let range = document.createRange();
+          range.selectNode(document.getElementById(`component_wrapper-${elem.index}`));
+          range.deleteContents()
+          range.collapse(false);
+          _store.list_components[index] = this.getStructureForInstance(elem.component)
+          _store.list_components[index].instance.$mount()
+          range.insertNode(_store.list_components[index].instance.$el)
+          this.$store.commit('changeSelectedObject', {})
+      })
+      console.log('insertingDone')
+    },
     /* INITIALIZE DATA FROM BACK OR INDEXEDDB */
     initializeContent() {
       return new Promise((resolve) => {
@@ -163,30 +240,9 @@ export default {
             })
 
             this.$nextTick(() => {
-              console.log('nextTIck inserting')
-              _store.list_components.forEach((elem, index) => {
-                    this.checkTypeComponent(elem)
-                    let data = elem.data
-                    if (elem.component.name === 'image') {
-                      const full_url = document.getElementById(`component_wrapper-${elem.index}`).getElementsByClassName( 'inserted_image' )[0].src
-                      let sub_url = full_url.split('.com')
-                      const alt = document.getElementById(`component_wrapper-${elem.index}`).getElementsByClassName( 'inserted_image' )[0].alt
-                      data = Object.assign({}, {name: alt}, {full_path: sub_url[1]})
-                    }
-                    this.$store.commit('change_counter', {name: 'layout', count: elem.index})
-                    this.$store.commit('changeSelectedObject', data)
-                    let range = document.createRange();
-                    range.selectNode(document.getElementById(`component_wrapper-${elem.index}`));
-                    range.deleteContents()
-                    range.collapse(false);
-                    _store.list_components[index] = this.getStructureForInstance(elem.component)
-                    _store.list_components[index].instance.$mount()
-                    range.insertNode(_store.list_components[index].instance.$el)
-                    this.$store.commit('changeSelectedObject', {})
-              })
+              this.renderFunc()
               _store.loadingArticle = false
               this.geting_from_server = false
-              console.log('insertingDone')
               resolve()
             })
           })
@@ -228,6 +284,9 @@ export default {
       this.debounceTimeout = setTimeout(() => {
         _store.content = this.content
       })
+      /* Undo/Redo memento manipulation */
+      this.$store.commit('change_by_action_editor')
+
       /* IF WE DELETED COMPONENT BY KEYBOARD */
       _store.list_components.forEach(elem => {
         const elem_content = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
