@@ -60,8 +60,8 @@ export default {
       this.initializeContent().then(() => {
         this.checkOnDeletedComponents()
         this.$nextTick(() => {
-          this.resetCounter(_store.list_components)
-          this.changeIndexQuestion()
+          // this.resetCounter(_store.list_components)
+          // this.changeIndexQuestion()
         })
       })
     }, 500)
@@ -87,8 +87,8 @@ export default {
       },
     },
     '$store.state.ArticleModule.deletedComponent': {
-      handler() {
-        this.deletingComponent()
+      handler(v) {
+        if (v) this.deletingComponent()
       },
     },
     '$store.state.ArticleModule.content_from_server': {
@@ -101,12 +101,14 @@ export default {
       handler(v) {
         if (v) {
           console.log('start')
-          this.reRenderFunc().then(() => {
-            console.log('rerender Done')
-            this.resetCounter(_store.list_components)
-            this.changeIndexQuestion()
-            this.$store.commit('change_start_render', false)
-          })
+          setTimeout(() => {
+            this.reRenderFunc().then(() => {
+              console.log('rerender Done')
+              // this.resetCounter(_store.list_components)
+              // this.changeIndexQuestion()
+              this.$store.commit('change_start_render', false)
+            })
+          }, 500)
         }
       }
     }
@@ -164,35 +166,52 @@ export default {
         _store.loadingArticle = true
         this.geting_from_server = true
 
-        this.content = _store.content_from_server
+        this.$nextTick(() => {
+          this.content = _store.content_from_server
+        })
+
 
         _store.list_components.sort((a,b) => {
           return a.index - b.index
         })
 
+        console.log(_store.list_components.map(elem => elem.data.index))
+
         this.$nextTick(() => {
+          // this.resetCounter(_store.list_components)
+          console.log(_store.list_components.map(elem => elem.data.index))
           /* TODO: optimise */
+          console.log('start render for each')
           _store.list_components.forEach((elem, index) => {
             this.checkTypeComponent(elem.data)
             let data = elem.instance.$data.dataForRerender
             console.log(elem.data.index)
-            if (elem.data.component.name === 'image') {
-              const full_url = document.getElementById(`component_wrapper-${elem.data.index}`).getElementsByClassName( 'inserted_image' )[0].src
-              let sub_url = full_url.split('.com')
-              const alt = document.getElementById(`component_wrapper-${elem.data.index}`).getElementsByClassName( 'inserted_image' )[0].alt
-              data = Object.assign({}, {name: alt}, {full_path: sub_url[1]})
+
+            const block = document.getElementById(`component_wrapper-${elem.data.index}`)
+            console.log(block)
+
+            if (block) {
+              if (elem.data.component.name === 'image') {
+                const full_url = document.getElementById(`component_wrapper-${elem.data.index}`).getElementsByClassName( 'inserted_image' )[0].src
+                let sub_url = full_url.split('.com')
+                const alt = document.getElementById(`component_wrapper-${elem.data.index}`).getElementsByClassName( 'inserted_image' )[0].alt
+                data = Object.assign({}, {name: alt}, {full_path: sub_url[1]})
+              }
+              this.$store.commit('change_counter', {name: 'layout', count: elem.data.index})
+              this.$store.commit('changeSelectedObject', data)
+              let range = document.createRange();
+              range.selectNode(document.getElementById(`component_wrapper-${elem.data.index}`));
+              range.deleteContents()
+              range.collapse(false);
+              _store.list_components[index] = this.getStructureForInstance(elem.data.component)
+              _store.list_components[index].instance.$mount()
+              range.insertNode(_store.list_components[index].instance.$el)
+              this.$store.commit('changeSelectedObject', {})
+              console.log(_store.list_components.map(elem => elem.data.index))
+              console.log(this.content)
             }
-            this.$store.commit('change_counter', {name: 'layout', count: elem.data.index})
-            this.$store.commit('changeSelectedObject', data)
-            let range = document.createRange();
-            range.selectNode(document.getElementById(`component_wrapper-${elem.data.index}`));
-            range.deleteContents()
-            range.collapse(false);
-            _store.list_components[index] = this.getStructureForInstance(elem.data.component)
-            _store.list_components[index].instance.$mount()
-            range.insertNode(_store.list_components[index].instance.$el)
-            this.$store.commit('changeSelectedObject', {})
           })
+          console.log('end render for each')
           _store.loadingArticle = false
           this.geting_from_server = false
           resolve()
@@ -320,7 +339,7 @@ export default {
       if (!_store.txtDisplay.length) this.$store.commit('change_by_action_editor')
 
       this.insertingComponent(data_component).then(() => {
-        this.changeIndexQuestion()
+        // this.changeIndexQuestion()
         this.saveDB = true
         this.clearStateAfterSelect()
         setTimeout(() => {
@@ -389,6 +408,8 @@ export default {
     },
 
     changeIndexQuestion() {
+      console.log('start changing index Question')
+
       let questions = [...document.getElementsByClassName('question_wrapper')]
       let counter = 1
 
@@ -407,15 +428,19 @@ export default {
         })
 
         console.log(component)
+        if (component.length) {
+          const key_data = `index_${component[0].data.component.name}`
+          component[0].instance.$data[key_data] = counter
 
-        const key_data = `index_${component[0].data.component.name}`
-        component[0].instance.$data[key_data] = counter
-
-        counter++
+          counter++
+        }
       })
+      console.log('ended index Question')
     },
 
     resetCounter(array) {
+      console.log('start reset counters')
+
       const global_counter = {
         index_questions: 1,
         index_image: 1,
@@ -424,15 +449,16 @@ export default {
       }
 
       array.forEach(elem => {
+        console.log('resets id')
+        console.log(elem.data.index)
+        console.log(elem.instance.$data.index_component)
         elem.data.index = global_counter.counter_index
         const key_data = `index_${elem.data.component.name}`
         elem.data.component[key_data] = global_counter[key_data]
         elem.instance.$data[key_data] = global_counter[key_data]
+        console.log('block')
+        console.log(document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`))
         const block = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
-        // console.log(document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`))
-        // console.log(elem)
-        // console.log(elem.instance.$data.index_component)
-        // console.log(block)
         block.id =  `component_wrapper-${global_counter.counter_index}`
         elem.instance.$data.index_component = global_counter.counter_index
 
@@ -442,7 +468,8 @@ export default {
       })
 
       this.$store.commit('change_counter', {name: 'layout', count: global_counter.counter_index-1})
-
+      console.log(array)
+      console.log('end reset counters')
     },
 
     deletingComponent() {
@@ -455,12 +482,15 @@ export default {
         })
         if (index !== -1) {
           _store.list_components.splice(index, 1)
-          this.resetCounter(_store.list_components)
           this.$store.commit('delete_component_by_id', 0)
-          this.changeIndexQuestion()
-          this.saveDB = true
-          setTimeout(() => {
-            this.saveDB = false
+          this.$nextTick(() => {
+            console.log(_store.list_components.map(elem => elem.data.index))
+            // this.resetCounter(_store.list_components)
+            // this.changeIndexQuestion()
+            this.saveDB = true
+            setTimeout(() => {
+              this.saveDB = false
+            })
           })
         }
       }
