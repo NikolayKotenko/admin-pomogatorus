@@ -61,8 +61,8 @@ export default {
         this.checkOnDeletedComponents()
         this.$nextTick(() => {
           this.resetCounter(_store.list_components)
+          this.changeIndexQuestion()
         })
-        this.changeIndexQuestion()
       })
     }, 500)
   },
@@ -71,6 +71,10 @@ export default {
       handler(v) {
         if (!this.geting_from_server && v) {
           this.$store.commit('changeContent', this.content)
+          /* Undo/Redo memento manipulation */
+          this.$nextTick(() => {
+            this.$store.commit('change_by_action_editor')
+          })
         }
       },
     },
@@ -97,7 +101,12 @@ export default {
       handler(v) {
         if (v) {
           console.log('start')
-          this.reRenderFunc()
+          this.reRenderFunc().then(() => {
+            console.log('rerender Done')
+            this.resetCounter(_store.list_components)
+            this.changeIndexQuestion()
+            this.$store.commit('change_start_render', false)
+          })
         }
       }
     }
@@ -151,46 +160,43 @@ export default {
 
     /* RENDER FUNC */
     reRenderFunc() {
-      _store.loadingArticle = true
-      this.geting_from_server = true
+      return new Promise((resolve) => {
+        _store.loadingArticle = true
+        this.geting_from_server = true
 
-      this.content = _store.content_from_server
+        this.content = _store.content_from_server
 
-      _store.list_components.sort((a,b) => {
-        return a.index - b.index
-      })
-
-      this.$nextTick(() => {
-        /* TODO: optimise */
-        _store.list_components.forEach((elem, index) => {
-          this.checkTypeComponent(elem.data)
-          let data = elem.instance.$data.dataForRerender
-          if (elem.data.component.name === 'image') {
-            const full_url = document.getElementById(`component_wrapper-${elem.data.index}`).getElementsByClassName( 'inserted_image' )[0].src
-            let sub_url = full_url.split('.com')
-            const alt = document.getElementById(`component_wrapper-${elem.data.index}`).getElementsByClassName( 'inserted_image' )[0].alt
-            data = Object.assign({}, {name: alt}, {full_path: sub_url[1]})
-          }
-          this.$store.commit('change_counter', {name: 'layout', count: elem.data.index})
-          this.$store.commit('changeSelectedObject', data)
-          let range = document.createRange();
-          range.selectNode(document.getElementById(`component_wrapper-${elem.data.index}`));
-          range.deleteContents()
-          range.collapse(false);
-          _store.list_components[index] = this.getStructureForInstance(elem.data.component)
-          _store.list_components[index].instance.$mount()
-          range.insertNode(_store.list_components[index].instance.$el)
-          this.$store.commit('changeSelectedObject', {})
+        _store.list_components.sort((a,b) => {
+          return a.index - b.index
         })
 
-        _store.loadingArticle = false
-        this.geting_from_server = false
-
-        this.resetCounter(_store.list_components)
-        this.changeIndexQuestion()
-
-        this.$store.commit('change_start_render', false)
-
+        this.$nextTick(() => {
+          /* TODO: optimise */
+          _store.list_components.forEach((elem, index) => {
+            this.checkTypeComponent(elem.data)
+            let data = elem.instance.$data.dataForRerender
+            console.log(elem.data.index)
+            if (elem.data.component.name === 'image') {
+              const full_url = document.getElementById(`component_wrapper-${elem.data.index}`).getElementsByClassName( 'inserted_image' )[0].src
+              let sub_url = full_url.split('.com')
+              const alt = document.getElementById(`component_wrapper-${elem.data.index}`).getElementsByClassName( 'inserted_image' )[0].alt
+              data = Object.assign({}, {name: alt}, {full_path: sub_url[1]})
+            }
+            this.$store.commit('change_counter', {name: 'layout', count: elem.data.index})
+            this.$store.commit('changeSelectedObject', data)
+            let range = document.createRange();
+            range.selectNode(document.getElementById(`component_wrapper-${elem.data.index}`));
+            range.deleteContents()
+            range.collapse(false);
+            _store.list_components[index] = this.getStructureForInstance(elem.data.component)
+            _store.list_components[index].instance.$mount()
+            range.insertNode(_store.list_components[index].instance.$el)
+            this.$store.commit('changeSelectedObject', {})
+          })
+          _store.loadingArticle = false
+          this.geting_from_server = false
+          resolve()
+        })
       })
     },
     renderFunc() {
@@ -199,9 +205,9 @@ export default {
           this.checkTypeComponent(elem)
           let data = elem.data
           if (elem.component.name === 'image') {
-            const full_url = document.getElementById(`component_wrapper-${elem.index}`).getElementsByClassName( 'inserted_image' )[0].src
+            const full_url = document.getElementById(`component_wrapper-${elem.index}`).getElementsByClassName( 'inserted_image')[0].src
             let sub_url = full_url.split('.com')
-            const alt = document.getElementById(`component_wrapper-${elem.index}`).getElementsByClassName( 'inserted_image' )[0].alt
+            const alt = document.getElementById(`component_wrapper-${elem.index}`).getElementsByClassName( 'inserted_image')[0].alt
             data = Object.assign({}, {name: alt}, {full_path: sub_url[1]})
           }
           this.$store.commit('change_counter', {name: 'layout', count: elem.index})
@@ -280,12 +286,15 @@ export default {
     },
 
     onContentChange() {
+      if (!_store.txtDisplay.length) this.$store.commit('change_by_action_editor')
       if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
       this.debounceTimeout = setTimeout(() => {
         _store.content = this.content
+        /* Undo/Redo memento manipulation */
+        this.$nextTick(() => {
+          this.$store.commit('change_by_action_editor')
+        })
       })
-      /* Undo/Redo memento manipulation */
-      this.$store.commit('change_by_action_editor')
 
       /* IF WE DELETED COMPONENT BY KEYBOARD */
       _store.list_components.forEach(elem => {
@@ -304,14 +313,17 @@ export default {
         index_questions: _store.counters.questions,
         index_image: _store.counters.image,
         index_auth: _store.counters.auth,
-        src: elem?.dataURL ? elem?.dataURL : '',
+        src: elem?.full_path ? elem?.full_path : '',
       })
 
+      /* Undo/Redo memento manipulation */
+      if (!_store.txtDisplay.length) this.$store.commit('change_by_action_editor')
+
       this.insertingComponent(data_component).then(() => {
+        this.changeIndexQuestion()
         this.saveDB = true
         this.clearStateAfterSelect()
         setTimeout(() => {
-          this.changeIndexQuestion()
           this.saveDB = false
         })
       })
@@ -377,24 +389,29 @@ export default {
     },
 
     changeIndexQuestion() {
-      this.$nextTick(() => {
-        let questions = [...document.getElementsByClassName('question_wrapper')]
-        let counter = 1
-        questions.forEach(elem => {
-          let tmpStr = elem.id.match("-(.*)")
-          let id = tmpStr[tmpStr.length-1]
+      let questions = [...document.getElementsByClassName('question_wrapper')]
+      let counter = 1
 
-          let component = _store.list_components.filter(elem => {
-            return (elem.data.component.name === 'question' || elem.data.component.name === 'questions')
-          }).filter(elem => {
-            return (elem.data.index == id)
-          })
 
-          const key_data = `index_${component[0].data.component.name}`
-          component[0].instance.$data[key_data] = counter
+      questions.forEach(block => {
+        let tmpStr = block.id.match("-(.*)")
+        let id = tmpStr[tmpStr.length-1]
 
-          counter++
+        console.log(block)
+
+        let component = _store.list_components.filter(elem => {
+          return (elem.data.component.name === 'question' || elem.data.component.name === 'questions')
+        }).filter(elem => {
+          console.log(elem)
+          return (elem.data.index == id)
         })
+
+        console.log(component)
+
+        const key_data = `index_${component[0].data.component.name}`
+        component[0].instance.$data[key_data] = counter
+
+        counter++
       })
     },
 
@@ -412,6 +429,10 @@ export default {
         elem.data.component[key_data] = global_counter[key_data]
         elem.instance.$data[key_data] = global_counter[key_data]
         const block = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
+        // console.log(document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`))
+        // console.log(elem)
+        // console.log(elem.instance.$data.index_component)
+        // console.log(block)
         block.id =  `component_wrapper-${global_counter.counter_index}`
         elem.instance.$data.index_component = global_counter.counter_index
 
@@ -426,19 +447,20 @@ export default {
 
     deletingComponent() {
       if (_store.deletedComponent !== 0) {
+        /* Undo/Redo memento manipulation */
+        if (!_store.txtDisplay.length) this.$store.commit('change_by_action_editor')
+
         let index = _store.list_components.findIndex((elem) => {
           return elem.instance.$data.index_component === _store.deletedComponent
         })
         if (index !== -1) {
           _store.list_components.splice(index, 1)
-
           this.resetCounter(_store.list_components)
           this.$store.commit('delete_component_by_id', 0)
-
+          this.changeIndexQuestion()
           this.saveDB = true
           setTimeout(() => {
             this.saveDB = false
-            this.changeIndexQuestion()
           })
         }
       }

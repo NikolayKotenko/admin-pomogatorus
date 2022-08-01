@@ -59,6 +59,7 @@
                 v-on="on"
                 @click="onUndo()"
                 size="28"
+                :disabled="($store.state.ArticleModule.txtDisplay.length <= 1) || ($store.state.ArticleModule.startRender)"
             >
               mdi-undo
             </v-icon>
@@ -72,6 +73,7 @@
                 v-on="on"
                 @click="onRedo()"
                 size="28"
+                :disabled="($store.state.ArticleModule.txtDisplay.length === $store.state.ArticleModule.txtSave.length) || ($store.state.ArticleModule.startRender)"
             >
               mdi-redo
             </v-icon>

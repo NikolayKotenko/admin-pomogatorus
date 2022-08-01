@@ -103,33 +103,57 @@ export default {
         arrayPop: [],
         arrayUndo: [],
         startRender: false,
+        txtSave: [], // array to save values.
+        txtDisplay: [],// array to display values.
+        txtCount: 0, // counts length of current values.
     },
     mutations: {
         /* UNDO/REDO */
         change_by_action_editor(state) {
-            state.arrayState.push(new ConstructorElem(state.content, state.list_components))
+            const index = state.txtDisplay.length;
+            const saveCount = state.txtSave.length;
+            state.txtSave.splice(index, saveCount);
+
+            state.txtDisplay.push(new ConstructorElem(state.content, state.list_components)); // takes whatever was entered in the input and adds it too the displayed array.
+            state.txtSave.push(state.txtDisplay.slice(-1)[0]); // takes the last value in the displayed array and adds it to the end of the saved array.
+
+            // state.arrayState.push(new ConstructorElem(state.content, state.list_components))
             // state.arrayPop = state.arrayState.slice()
-            state.arrayPop = []
-            state.arrayUndo = state.arrayState.slice()
+            // state.arrayPop = []
+            // state.arrayUndo = state.arrayState.slice()
         },
         undo_editor(state) {
-            let lastMemento = state.arrayUndo.pop()
+            state.txtDisplay.pop();
 
-            if (lastMemento) {
-                state.arrayPop.push(lastMemento)
-                state.content_from_server = lastMemento.html
-                state.list_components = lastMemento.components
+            // let lastMemento = state.arrayUndo.pop()
+
+            if (state.txtDisplay.length) {
+                // state.arrayPop.push(lastMemento)
+                // state.content_from_server = lastMemento.html
+                // state.list_components = lastMemento.components
+                state.content_from_server = state.txtDisplay.slice(-1)[0].html
+                state.list_components = state.txtDisplay.slice(-1)[0].components
             }
         },
         redo_editor(state) {
-            if (state.arrayPop.length) {
-                let lastMemento = state.arrayPop.pop()
-                if (lastMemento) {
-                    state.arrayUndo.push(lastMemento)
-                    state.content_from_server = lastMemento.html
-                    state.list_components = lastMemento.components
-                }
+            const txtGetLength = state.txtDisplay.length;
+            const txtGetValue = state.txtSave[txtGetLength];
+            state.txtDisplay.push(txtGetValue);
+
+            let lastMemento = txtGetValue
+            if (lastMemento) {
+                // state.arrayUndo.push(lastMemento)
+                state.content_from_server = lastMemento.html
+                state.list_components = lastMemento.components
             }
+            // if (state.arrayPop.length) {
+            //     let lastMemento = state.arrayPop.pop()
+            //     if (lastMemento) {
+            //         state.arrayUndo.push(lastMemento)
+            //         state.content_from_server = lastMemento.html
+            //         state.list_components = lastMemento.components
+            //     }
+            // }
         },
         change_start_render(state, value) {
             state.startRender = value
