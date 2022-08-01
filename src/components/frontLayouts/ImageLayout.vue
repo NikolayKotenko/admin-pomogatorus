@@ -1,7 +1,7 @@
 <template>
-  <div class="image_wrapper" contenteditable="false" :id="`component_wrapper-${index_component}`">
-    <div class="image_wrapper__admin_controls-header" contenteditable="false">
-      <img class="image_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
+  <div class="componentArticle_wrapper image_wrapper" contenteditable="false" :id="`component_wrapper-${index_component}`">
+    <div class="componentArticle_wrapper__admin_controls-header" contenteditable="false">
+      <img class="componentArticle_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
     </div>
     <img class="inserted_image" :src="srcPath" :alt="altName" :title="title">
   </div>
@@ -85,6 +85,8 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import "src/assets/styles/componentArticle";
+
 .image_wrapper {
   min-height: 150px;
   min-width: 50px;
@@ -108,7 +110,7 @@ export default {
     border-right: 1px solid rgba(83, 158, 224, 0.7);
     border-left: 1px solid rgba(83, 158, 224, 0.7);
 
-    .image_wrapper__admin_controls-header {
+    .componentArticle_wrapper__admin_controls-header {
       opacity: 1;
     }
     ::v-deep .vdr {

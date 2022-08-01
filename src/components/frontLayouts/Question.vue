@@ -1,9 +1,9 @@
 <template>
-  <div class="question_wrapper" contenteditable="false" :id="`component_wrapper-${index_component}`">
-    <div class="question_wrapper__admin_controls-header" contenteditable="false">
-      <img class="question_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
+  <div class="componentArticle_wrapper question_wrapper" contenteditable="false" :id="`component_wrapper-${index_component}`">
+    <div class="componentArticle_wrapper__admin_controls-header" contenteditable="false">
+      <img class="componentArticle_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
     </div>
-    <div class="question_wrapper__title">
+    <div class="componentArticle_wrapper__title">
       <h3>
         <template v-if="index_questions">
           {{ index_questions }}.
@@ -26,7 +26,7 @@
       </div>
     </div>
 
-    <div class="question_wrapper__content">
+    <div class="componentArticle_wrapper__content">
       <template v-if="question_data.id_type_answer == '1'">
         <v-text-field
             dense
@@ -259,7 +259,7 @@
     </div>
 
     <transition name="list">
-      <div class="question_wrapper__content__alert pt-3" v-if="status_question.type !== 'sending' && check_status">
+      <div class="componentArticle_wrapper__content__alert pt-3" v-if="status_question.type !== 'sending' && check_status">
         <v-alert
             :type="status_question.type"
             :icon="status_question.icon"
@@ -434,130 +434,5 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.list-enter-active, .list-leave-active {
-  transition: all .8s;
-}
-
-.list-enter, .list-leave-to {
-  opacity: 0;
-  transform: translateY(-30px);
-}
-
-.slide-fade-enter-active {
-  transition: all .8s ease;
-}
-.slide-fade-leave-active {
-  transition: all .6s cubic-bezier(1.0, 0.5, 0.8, 1.0);
-}
-.slide-fade-enter, .slide-fade-leave-to
-  /* .slide-fade-leave-active до версии 2.1.8 */ {
-  transform: translateX(-30px);
-  opacity: 0;
-}
-
-.question_wrapper {
-  max-width: 600px;
-  position: relative;
-  padding: 16px 10px 8px 10px;
-  //border: 1px solid rgba(83, 158, 224, 0);
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
-  border-bottom: 1px solid rgba(83, 158, 224, 0);
-  border-right: 1px solid rgba(83, 158, 224, 0);
-  border-left: 1px solid rgba(83, 158, 224, 0);
-  transition: all .4s ease-in-out;
-
-
-  &:hover {
-    //border: 1px solid rgba(83, 158, 224, 0.7);
-    border-bottom: 1px solid rgba(83, 158, 224, 0.7);
-    border-right: 1px solid rgba(83, 158, 224, 0.7);
-    border-left: 1px solid rgba(83, 158, 224, 0.7);
-
-    .question_wrapper__admin_controls-header {
-      opacity: 1;
-      pointer-events: unset;
-      visibility: visible;
-      &__img {
-        pointer-events: unset;
-      }
-    }
-  }
-
-  &__admin_controls-header {
-    background: rgba(83, 158, 224, 0.7);
-    position: absolute;
-    top: 0;
-    opacity: 0;
-    transition: all .4s ease-in-out;
-    border-radius: 2px;
-    right: 0;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 4px;
-    height: 16px;
-    width: 100%;
-    pointer-events: none;
-    visibility: hidden;
-    &__img {
-      width: 14px;
-      height: 14px;
-      pointer-events: none;
-    }
-  }
-
-  &__title {
-    display: flex;
-    column-gap: 15px;
-    padding-bottom: 5px;
-    align-items: flex-start;
-  }
-  &__divider {
-    margin-top: 10px;
-    height: 1px;
-    width: 100%;
-    background: darkgrey;
-    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
-  }
-}
-
-.v-menu__content {
-  background: #FFFFFF;
-  padding: 15px;
-}
-
-.helper_wrapper {
-  padding-top: 3px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.helper_wrapper__help {
-  opacity: 0;
-  transition: .2s ease-in-out;
-}
-.help_img {
-  width: 20px;
-  height: 20px;
-  margin-bottom: 3px;
-  padding-top: 2px;
-}
-
-.v-input--selection-controls {
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-}
-
-.rangeError {
-  border: 1px solid lightcoral !important;
-  .question_main_wrapper__item {
-    border-bottom: unset;
-  }
-  ::v-deep input {
-    color: lightcoral;
-  }
-}
+@import "src/assets/styles/componentArticle";
 </style>

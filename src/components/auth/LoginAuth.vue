@@ -1,7 +1,7 @@
 <template>
-  <div class="auth_container" contenteditable="false" :id="`component_wrapper-${index_component}`" :class="{insert_component_wrapper: isComponent}">
-    <div class="insert_component_wrapper-header" contenteditable="false" v-if="isComponent">
-      <img class="insert_component_wrapper-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
+  <div class="auth_container" contenteditable="false" :id="`component_wrapper-${index_component}`" :class="{componentArticle_wrapper: isComponent}">
+    <div class="componentArticle_wrapper__admin_controls-header" contenteditable="false" v-if="isComponent">
+      <img class="componentArticle_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
     </div>
     <v-form v-model="valid" class="login" @submit.prevent="localLoginCreateUser()" contenteditable="false">
       <v-container>
@@ -159,6 +159,7 @@ export default {
 
 <style lang="scss" scoped>
 @import "src/assets/styles/detail";
+@import "src/assets/styles/componentArticle";
 
 form.login{
   margin: 1em;

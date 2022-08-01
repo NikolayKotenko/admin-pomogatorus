@@ -108,7 +108,7 @@ export default {
               // this.changeIndexQuestion()
               this.$store.commit('change_start_render', false)
             })
-          }, 500)
+          }, 600)
         }
       }
     }
@@ -174,7 +174,7 @@ export default {
         _store.list_components.sort((a,b) => {
           return a.index - b.index
         })
-
+        console.log(_store.list_components)
         console.log(_store.list_components.map(elem => elem.data.index))
 
         this.$nextTick(() => {
@@ -343,6 +343,9 @@ export default {
 
       this.insertingComponent(data_component).then(() => {
         // this.changeIndexQuestion()
+        // this.$nextTick(() => {
+        //   this.resetCounter(_store.list_components)
+        // })
         this.saveDB = true
         this.clearStateAfterSelect()
         setTimeout(() => {
@@ -416,25 +419,22 @@ export default {
       let questions = [...document.getElementsByClassName('question_wrapper')]
       let counter = 1
 
-
       questions.forEach(block => {
         let tmpStr = block.id.match("-(.*)")
         let id = tmpStr[tmpStr.length-1]
 
-        console.log(block)
-
         let component = _store.list_components.filter(elem => {
           return (elem.data.component.name === 'question' || elem.data.component.name === 'questions')
         }).filter(elem => {
-          console.log(elem)
           return (elem.data.index == id)
         })
 
-        console.log(component)
+        console.log(block)
+
         if (component.length) {
           const key_data = `index_${component[0].data.component.name}`
           component[0].instance.$data[key_data] = counter
-
+          // component[0].data.index = counter
           counter++
         }
       })
@@ -450,6 +450,9 @@ export default {
         index_auth: 1,
         counter_index: 1,
       }
+
+      let components = [...document.getElementsByClassName('componentArticle_wrapper')]
+      console.log(components)
 
       array.forEach(elem => {
         console.log('resets id')
@@ -471,7 +474,6 @@ export default {
       })
 
       this.$store.commit('change_counter', {name: 'layout', count: global_counter.counter_index-1})
-      console.log(array)
       console.log('end reset counters')
     },
 
@@ -486,8 +488,8 @@ export default {
         if (index !== -1) {
           _store.list_components.splice(index, 1)
           this.$store.commit('delete_component_by_id', 0)
+
           this.$nextTick(() => {
-            console.log(_store.list_components.map(elem => elem.data.index))
             // this.resetCounter(_store.list_components)
             // this.changeIndexQuestion()
             this.saveDB = true
