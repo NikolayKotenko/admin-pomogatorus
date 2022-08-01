@@ -6,7 +6,7 @@
 
     <div
         class="textRedactor__content"
-        :contenteditable="check_created_article"
+        :contenteditable="check_created_article && !$store.state.ArticleModule.startRender"
         spellcheck="false"
         ref="content" @input="onContentChange"
         @click="onSelectionContent()"
@@ -14,7 +14,7 @@
     </div>
 
     <!-- OVERLAYS -->
-    <div class="overlay" v-if="!check_created_article"></div>
+    <div class="overlay" v-if="!check_created_article || $store.state.ArticleModule.startRender"></div>
   </div>
 </template>
 
@@ -189,6 +189,7 @@ export default {
 
             const block = document.getElementById(`component_wrapper-${elem.data.index}`)
             console.log(block)
+            console.log(this.$store.state.ArticleModule.counters.layout)
 
             if (block) {
               if (elem.data.component.name === 'image') {
@@ -196,6 +197,8 @@ export default {
                 let sub_url = full_url.split('.com')
                 const alt = document.getElementById(`component_wrapper-${elem.data.index}`).getElementsByClassName( 'inserted_image' )[0].alt
                 data = Object.assign({}, {name: alt}, {full_path: sub_url[1]})
+              } else if (elem.data.component.name === 'auth') {
+                this.$store.commit('changeInsertingComponents', true)
               }
               this.$store.commit('change_counter', {name: 'layout', count: elem.data.index})
               this.$store.commit('changeSelectedObject', data)
@@ -207,8 +210,8 @@ export default {
               _store.list_components[index].instance.$mount()
               range.insertNode(_store.list_components[index].instance.$el)
               this.$store.commit('changeSelectedObject', {})
-              console.log(_store.list_components.map(elem => elem.data.index))
-              console.log(this.content)
+              // console.log(_store.list_components.map(elem => elem.data.index))
+              // console.log(this.content)
             }
           })
           console.log('end render for each')
@@ -310,9 +313,9 @@ export default {
       this.debounceTimeout = setTimeout(() => {
         _store.content = this.content
         /* Undo/Redo memento manipulation */
-        this.$nextTick(() => {
-          this.$store.commit('change_by_action_editor')
-        })
+        // this.$nextTick(() => {
+        this.$store.commit('change_by_action_editor')
+        // })
       })
 
       /* IF WE DELETED COMPONENT BY KEYBOARD */

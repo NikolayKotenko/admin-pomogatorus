@@ -79,6 +79,7 @@ export default {
   mounted() {
     this.inserting_component = this.$store.state.AuthModule.inserting_component
     this.$store.state.AuthModule.inserting_component = false
+    console.log('isComponent?', this.isComponent)
     if (this.isComponent){
       this.getData()
     }
