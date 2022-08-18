@@ -1,7 +1,7 @@
 <template>
-  <div class="auth_container" contenteditable="false" :id="`component_wrapper-${index_component}`" :class="{insert_component_wrapper: isComponent}">
-    <div class="insert_component_wrapper-header" contenteditable="false" v-if="isComponent">
-      <img class="insert_component_wrapper-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
+  <div class="auth_container" contenteditable="false" :id="`component_wrapper-${index_component}`" :class="{componentArticle_wrapper: isComponent}">
+    <div class="componentArticle_wrapper__admin_controls-header" contenteditable="false" v-if="isComponent">
+      <img class="componentArticle_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
     </div>
     <v-container>
       <v-tabs v-model="tab">
@@ -131,10 +131,14 @@ export default {
       index_component: null,
       index_auth: null,
       inserting_component: false,
+
+      dataForRerender: {},
     }
   },
   mounted() {
     this.inserting_component = this.$store.state.AuthModule.inserting_component
+    this.$store.state.AuthModule.inserting_component = false
+    console.log('isComponent?', this.isComponent)
     if (this.isComponent){
       this.getData()
     }
@@ -188,8 +192,8 @@ export default {
     },
     // inserted_components
     getData() {
-      this.index_component = this.$store.state.TitlesModule.countLayout
-      this.index_auth = this.$store.state.TitlesModule.count_of_auth
+      this.index_component = this.$store.state.ArticleModule.counters.layout
+      this.index_auth = this.$store.state.ArticleModule.counters.auth
       this.getHeightOfControls()
       this.getWidthOfControls()
     },
@@ -224,6 +228,7 @@ export default {
 
 <style lang="scss" scoped>
 @import "src/assets/styles/detail";
+@import "src/assets/styles/componentArticle";
 
 form.login{
   margin: 1em;

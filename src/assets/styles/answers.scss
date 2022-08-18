@@ -1,0 +1,21 @@
+.answer_list {
+  padding: 15px;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 15px;
+
+  &__table {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    row-gap: 10px;
+  }
+  &__selector {
+    width: 100% !important;
+  }
+  &__date {
+    width: 100% !important;
+  }
+}

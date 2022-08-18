@@ -7,6 +7,7 @@ import Desktop from "../views/Desktop";
 import Companies from "../views/Companies"
 import Questions from "../views/Questions";
 import Articles from "../views/Articles";
+import Answers from "../views/Answers";
 
 /* COMPONENTS */
 import DetailQuestion from "../components/questions/DetailQuestion";
@@ -110,6 +111,20 @@ const routes = [
       ru_name: 'Авторизация',
     }
   },
+  {
+    path: '/answers',
+    name: 'Answers',
+    component: Answers,
+    meta: {
+      ru_name: 'Ответы пользователей',
+      requiresAuth: true,
+      canCreate: false,
+      // createLink: {
+      //   name: 'DetailQuestion',
+      //   params: {action: 'create'},
+      // },
+    },
+  },
   // {
   //   path: '/about',
   //   name: 'About',
@@ -141,13 +156,14 @@ router.beforeEach(async (to, from, next) => {
     //   console.log('process.env.NODE_ENV -', process.env.NODE_ENV)
     // console.groupEnd()
 
-    if (process.env.NODE_ENV === 'production') {
-      if (Vue.$cookies.get('accessToken') === null) {
-        const refreshResponse = await store.dispatch('refreshTokens')
-        if (Logging.checkExistErr(refreshResponse))
-          next('/login')
-      }
+    // if (process.env.NODE_ENV === 'production') {
+    if (Vue.$cookies.get('accessToken') === null) {
+      const refreshResponse = await store.dispatch('refreshTokens')
+      if (!refreshResponse) next('/login')
+      if (Logging.checkExistErr(refreshResponse))
+        next('/login')
     }
+    // }
 
     next()
 });

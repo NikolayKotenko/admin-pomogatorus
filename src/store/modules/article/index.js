@@ -1,7 +1,7 @@
-// import qs from 'qs';
 import axios from "axios";
 import qs from "qs";
 
+import ConstructorElem from "../../../helpers/undo_redo_article";
 
 /* DEFAULT STATE */
 const defaultArticle = {
@@ -25,13 +25,6 @@ const defaultArticle = {
     _all_tags: [],
     mtomtags: [],
 }
-
-/* CONSTRUCTORS */
-// function InsertedComponents(elem) {
-//     this.index = elem.index
-//     this.id_component = elem.component.id_component
-//     this.type_component = elem.component.type_component
-// }
 
 export default {
     state: {
@@ -83,22 +76,109 @@ export default {
         showAddTag: false,
 
         /* INSERT COMPONENT */
-        listComponents: [],
+        selection: null,
+        range: null,
+        counters: {
+            layout: 0,
+            image: 0,
+            auth: 0,
+            questions: 0,
+        },
+        selectComponent: {
+            questions: false,
+            image: false,
+            auth: false,
+        },
+        list_components: [],
+        name_component: '',
+
+        list_questions: [],
         components_after_request: [],
         loadingModalList: false,
         selectedComponent: {},
-        countLayout: 0,
-        count_of_images: 0,
-        count_of_questions: 0,
-        count_of_auth: 0,
-        willShow: true,
         deletedComponent: 0,
 
-        /* TEST */
-        fonts: [],
-        dataFromChild: '',
+        /* UNDO/REDO */
+        startRender: false,
+        txtSave: [], // array to save values.
+        txtDisplay: [],// array to display values.
     },
     mutations: {
+        /* UNDO/REDO */
+        change_by_action_editor(state) {
+            const index = state.txtDisplay.length;
+            const saveCount = state.txtSave.length;
+            state.txtSave.splice(index, saveCount);
+
+            state.txtDisplay.push(new ConstructorElem(JSON.stringify(state.content), state.list_components)); // takes whatever was entered in the input and adds it too the displayed array.
+            state.txtSave.push(state.txtDisplay.slice(-1)[0]); // takes the last value in the displayed array and adds it to the end of the saved array.
+
+            console.log(state.txtDisplay.map(elem => elem.html))
+        },
+        undo_editor(state) {
+            state.txtDisplay.pop();
+
+            if (state.txtDisplay.length) {
+                state.content_from_server = JSON.parse(state.txtDisplay.slice(-1)[0].html)
+                state.list_components = state.txtDisplay.slice(-1)[0].components
+            }
+        },
+        redo_editor(state) {
+            const txtGetLength = state.txtDisplay.length;
+            const txtGetValue = state.txtSave[txtGetLength];
+
+            if (txtGetValue) {
+                state.txtDisplay.push(txtGetValue);
+                state.content_from_server = JSON.parse(txtGetValue.html)
+                state.list_components = txtGetValue.components
+            }
+        },
+        change_start_render(state, value) {
+            state.startRender = value
+        },
+
+        change_loading_modal_list(state, value) {
+            state.loadingModalList = value
+        },
+        get_range(state, should_collapse) {
+            state.range = null
+            if (window.getSelection) {
+                state.selection = null
+                state.selection = window.getSelection();
+                if (state.selection.getRangeAt && state.selection.rangeCount) {
+                    state.range = null
+                    state.range = state.selection.getRangeAt(0);
+                    should_collapse ? state.range.collapse(false) : ''
+                }
+            } else if (document.selection && document.selection.createRange) {
+                state.range = null
+                state.range = document.selection.createRange();
+                should_collapse ? state.range.collapse(false) : ''
+            }
+        },
+        set_list_questions(state, result) {
+            state.list_questions = []
+            if (Array.isArray(result)) {
+                state.list_questions = result
+            } else {
+                for (let key in result) {
+                    state.list_questions.push(result[key])
+                }
+            }
+
+        },
+        change_counter(state, object) {
+            const {name, count} = object
+            state.counters[name] = count
+        },
+        change_name_component(state, value) {
+            state.name_component = value
+        },
+        change_select_component(state, object) {
+            const {name, value} = object
+            state.selectComponent[name] = value
+        },
+
         /* MAIN ARTICLE */
         set_list_articles(state, result) {
             state.listArticles = []
@@ -116,20 +196,6 @@ export default {
         set_list_general_tags_article(state, result) {
             state.listGeneralTags = []
             state.listGeneralTags = result
-        },
-        reset_articles_tags(state) {
-            state.tagsLoaded = false
-            state.createdTag = {}
-            state.showCreateTag = false
-            state.newTag = ''
-            state.tagSearch = null
-            state.tagError = {
-                isError: false,
-                errObj: {
-                    name: '',
-                },
-            }
-            state.showAddTag = false
         },
 
         /* DETAIL ARTICLES */
@@ -155,19 +221,15 @@ export default {
                         state.content_from_server = JSON.parse(result[key])
                     }
                 } else if (key === 'inserted_components') {
-                    if (!JSON.parse(JSON.parse(result[key])).length) {
-                        state.inserted_components = []
-                    } else {
+                    state.components_after_request = []
+                    if (JSON.parse(JSON.parse(result[key])).length) {
                         let parsed = null
                         parsed = JSON.parse(JSON.parse(JSON.parse(result[key])))
                         console.log(parsed)
                         if (Array.isArray(parsed)) {
-                            state.inserted_components = []
                             parsed.forEach(elem => {
-                                state.inserted_components.push(elem)
+                                state.components_after_request.push(elem)
                             })
-                        } else {
-                            state.inserted_components = []
                         }
                     }
                 } else state.newArticle[key] = result[key]
@@ -179,15 +241,39 @@ export default {
         },
 
         /* INSERT COMPONENT */
+        add_to_list_components(state, elem) {
+          state.list_components.push(elem)
+        },
         change_list_components(state, result) {
-            state.listComponents = result
+            state.list_questions = result
         },
         delete_component_by_id(state, id) {
             state.deletedComponent = id
         },
         changeSelectedComponent(state, {data, index, component}) {
             const obj = Object.assign({}, {data, index: index, component})
-            state.components_after_request.push(obj)
+            state.list_components.push(obj)
+        },
+        changeContent(state, result) {
+            state.content = result
+        },
+        changeSelectedObject(state, value) {
+            state.selectedComponent = value
+        },
+
+        /* CLEANER */
+        clean_store(state) {
+            state.list_questions = []
+            state.selectedComponent = {}
+            for (let key in state.counters) {
+                state.counters[key] = 0
+            }
+            state.name_component = ''
+            state.content_from_server = ''
+            state.content = ''
+            state.inserted_components = []
+            state.list_components = []
+            state.components_after_request = []
         },
 
         /* LOCAL_STORAGE */
@@ -200,20 +286,22 @@ export default {
         },
         get_from_local_storage() {
             if (localStorage.getItem('article') !== null) {
-                this.state.TitlesModule.newArticle = Object.assign({}, defaultArticle)
-                this.state.TitlesModule.newArticle = JSON.parse(localStorage.getItem('article'))
+                this.state.ArticleModule.newArticle = Object.assign({}, defaultArticle)
+                this.state.ArticleModule.newArticle = JSON.parse(localStorage.getItem('article'))
             }
         },
-
-        /* TEST */
-        changeFonts(state, result) {
-            state.fonts = result.data.items
-        },
-        changeDataFromChild(state, result) {
-            state.dataFromChild = result
-        }
     },
     actions: {
+        /* UNDO/REDO */
+        getUndo({commit}) {
+            commit('undo_editor')
+            commit('change_start_render', true)
+        },
+        getRedo({commit}) {
+            commit('redo_editor')
+            commit('change_start_render', true)
+        },
+
         /* MAIN ARTICLES */
         async setListArticles({commit, state}) {
             return new Promise((resolve, reject) => {
@@ -231,6 +319,39 @@ export default {
                     .catch((error) => {
                         console.log('test')
                         state.loadingList = false
+                        reject(error)
+                    })
+            })
+        },
+        async setFilteredListQuestionsModal({state, commit}, data) {
+            return new Promise((resolve, reject) => {
+                state.loadingList = true
+
+                const {tag, updated_at, name} = data
+
+                const filter = {}
+                filter['filter[tag]'] = tag
+                filter['filter[updated_at]'] = updated_at
+                filter['filter[name]'] = name
+
+                axios.get(`${this.state.BASE_URL}/entity/questions`, {
+                    headers: {
+                        Authorization: '666777'
+                    },
+                    params: {
+                        ...filter
+                    }
+                })
+                    .then((response) => {
+                        console.log(response)
+                        commit('set_list_questions', response.data.data)
+                        state.loadingList = false
+                        resolve()
+                    })
+                    .catch((error) => {
+                        state.loadingList = false
+                        commit('set_list_questions', [])
+                        state.questionNotification = error.response.data.message
                         reject(error)
                     })
             })
@@ -413,7 +534,11 @@ export default {
                         }
                     } else bodyFormData.append(key, data[key])
                 }
-                const inserted_components = JSON.stringify(state.inserted_components)
+                const arr = []
+                state.list_components.forEach(elem => {
+                  arr.push(elem.data)
+                })
+                const inserted_components = JSON.stringify(arr)
                 bodyFormData.append('code', data.name.value)
                 bodyFormData.append('content', JSON.stringify(state.content))
                 bodyFormData.append('inserted_components', inserted_components)
@@ -458,7 +583,11 @@ export default {
                     } else requestData[key] = data[key]
                 }
                 requestData['content'] = JSON.stringify(state.content)
-                requestData['inserted_components'] = JSON.stringify(JSON.stringify(state.inserted_components))
+                const arr = []
+                state.list_components.forEach(elem => {
+                    arr.push(elem.data)
+                })
+                requestData['inserted_components'] = JSON.stringify(JSON.stringify(arr))
 
                 const options = {
                     method: 'PUT',
@@ -519,7 +648,8 @@ export default {
         deleteComponent({commit}, id) {
           commit('delete_component_by_id', id)
         },
-        getAuth({commit, state}, params) {
+        get_auth({commit, state, rootState}, params) {
+            rootState.AuthModule.inserting_component = true
             return new Promise((resolve) => {
                 const {index, component} = params
 
@@ -534,7 +664,7 @@ export default {
                 resolve()
             })
         },
-        imageFromServer({commit, state}, params) {
+        get_image({commit, state}, params) {
             return new Promise((resolve) => {
               const {index, component} = params
 
@@ -549,7 +679,7 @@ export default {
               resolve()
             })
         },
-        getComponentsById({commit, state}, params) {
+        get_questions({commit, state}, params) {
             return new Promise((resolve, reject) => {
                 const {index, component} = params
 
@@ -572,7 +702,7 @@ export default {
                     })
             })
         },
-        getListComponents({commit, state}, params) {
+        getListQuestions({commit, state}, params) {
             return new Promise((resolve, reject) => {
                 state.loadingModalList = true
                 axios.get(`${this.state.BASE_URL}/entity/${params}`, {
@@ -630,21 +760,6 @@ export default {
             return new Promise((resolve) => {
                 commit('get_from_local_storage')
                 resolve()
-            })
-        },
-
-        /* TEST */
-        testFont({commit}) {
-            return new Promise((resolve, reject) => {
-                axios.get('https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyCnefZ3KzL_qWHIzDin8kUPkmJSzXOZvpM')
-                    .then((response) => {
-                        console.log(response)
-                        commit('changeFonts', response)
-                        resolve()
-                    })
-                    .catch((error) => {
-                        reject(error)
-                    })
             })
         },
     },

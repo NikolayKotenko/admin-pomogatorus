@@ -60,10 +60,10 @@
         </div>
         <div class="questions_wrapper__item__bottom">
           <div class="questions_wrapper__item__bottom__date" :class="{filterShow: show_filter}">
-            {{question.updated_at}}
+            {{question.created_at}}
           </div>
-          <div class="questions_wrapper__item__bottom__code" :class="{filterShow: show_filter}">
-            {{question.name_param_env}}
+          <div class="questions_wrapper__item__bottom__date" :class="{filterShow: show_filter}">
+            {{question.updated_at}}
           </div>
         </div>
       </div>
@@ -333,9 +333,9 @@ export default {
       &__top {
         display: flex;
         justify-content: space-between;
-        align-items: center;
         border-bottom: 2px solid #539ee0;
         transition: all .4s ease-in-out;
+        align-items: flex-start;
         &__title {
           color: #539ee0;
           transition: all .4s ease-in-out;
@@ -345,8 +345,9 @@ export default {
           }
         }
         &__icons {
-          padding-bottom: 2px;
+          //padding-bottom: 2px;
           transition: all .4s ease-in-out;
+          display: flex;
         }
       }
       &__bottom {

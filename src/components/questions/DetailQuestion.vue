@@ -98,40 +98,28 @@
                   :loading="$store.state.QuestionsModule.loadingQuestion"
                   @input="saveDBQuestion(newQuestion)"
               ></v-textarea>
-              <!--            <v-textarea-->
-              <!--                class="question_title_help__description"-->
-              <!--                :class="{-->
-              <!--                inputFocused: newQuestion.purpose_of_question.focused,-->
-              <!--                invalid: !newQuestion.purpose_of_question.value && $v.newQuestion.purpose_of_question.$dirty && !$v.newQuestion.purpose_of_question.required-->
-              <!--                }"-->
-              <!--                placeholder="Введите цель вопроса"-->
-              <!--                auto-grow-->
-              <!--                rows="1"-->
-              <!--                dense-->
-              <!--                hide-details-->
-              <!--                flat-->
-              <!--                solo-->
-              <!--                v-model="newQuestion.purpose_of_question.value"-->
-              <!--                @focus="onFocus(newQuestion.purpose_of_question)"-->
-              <!--                @focusout="outFocus(newQuestion.purpose_of_question)"-->
-              <!--                :loading="$store.state.QuestionsModule.loadingQuestion"-->
-              <!--                @change="onChange"-->
-              <!--            ></v-textarea>-->
-              <!--            <small-->
-              <!--                v-if="!newQuestion.purpose_of_question.value && $v.newQuestion.purpose_of_question.$dirty && !$v.newQuestion.purpose_of_question.required"-->
-              <!--                style="color: lightcoral"-->
-              <!--            >-->
-              <!--              Поле обязательно для заполнения-->
-              <!--            </small>-->
+            </div>
+          </div>
+
+          <!-- AGENTS -->
+          <div class="question_main">
+            <div class="question_main_selector">
+              <span class="question_main_selector__title" :class="{focused: agentFocused}">
+                Агенты
+              </span>
+              <AgentList
+                @onFocus="onFocusFrom"
+                @outFocus="outFocusFrom"
+              />
             </div>
           </div>
 
           <!-- SELECTOR & INPUT'S -->
           <div class="question_main">
             <div class="question_main_selector">
-            <span class="question_main_selector__title" :class="{focused: newQuestion.id_type_answer.focused}">
-              Тип ответа
-            </span>
+              <span class="question_main_selector__title" :class="{focused: newQuestion.id_type_answer.focused}">
+                Тип ответа
+              </span>
               <v-select
                   outlined
                   dense
@@ -145,6 +133,7 @@
                   @focus="onFocus(newQuestion.id_type_answer)"
                   @focusout="outFocus(newQuestion.id_type_answer)"
                   :loading="$store.state.QuestionsModule.loadingQuestion"
+                  :menu-props="{bottom: true, offsetY: true}"
                   :class="{invalidSelector: !newQuestion.id_type_answer.value && $v.newQuestion.id_type_answer.$dirty && !$v.newQuestion.id_type_answer.required}"
               ></v-select>
               <small
@@ -163,11 +152,12 @@
                       v-for="answer in newQuestion.value_type_answer"
                       :key="answer.id"
                   >
-                    <v-text-field
+                    <v-textarea
                         class="question_main_wrapper__item__value"
                         :class="{inputFocused: answer.focused}"
                         placeholder="Введите значение"
                         auto-grow
+                        multi-line
                         rows="1"
                         dense
                         hide-details
@@ -180,7 +170,7 @@
                         @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
                         @input="saveDBQuestion(newQuestion)"
                     >
-                    </v-text-field>
+                    </v-textarea>
                     <div class="divider" v-if="answer.showComentary"></div>
                     <v-textarea
                         class="question_main_wrapper__item__description"
@@ -189,6 +179,7 @@
                         auto-grow
                         rows="1"
                         dense
+                        multi-line
                         hide-details
                         flat
                         solo
@@ -365,6 +356,7 @@ import { required } from 'vuelidate/lib/validators'
 import { mapGetters } from 'vuex'
 
 import QuestionTags from "./QuestionTags";
+import AgentList from "./AgentList";
 
 /* INDEXEDDB */
 const DB_NAME = 'questionDB'
@@ -374,7 +366,7 @@ let DB;
 
 export default {
   name: "CreateQuestion",
-  components: {QuestionTags},
+  components: {AgentList, QuestionTags},
   validations: {
     newQuestion: {
       name: {
@@ -385,7 +377,7 @@ export default {
       // },
       id_type_answer: {
         value: {required}
-      }
+      },
     },
     validationGroup: ['newQuestion.name.value', 'newQuestion.id_type_answer.value']
     // 'newQuestion.purpose_of_question.value'
@@ -394,6 +386,7 @@ export default {
     lastIdAnswer: 1,
     debounceTimeout: null,
     rangeError: false,
+    agentFocused: false,
     newQuestion: {
       id: 1,
       name: {
@@ -415,6 +408,10 @@ export default {
       id_type_answer: {
         value: null,
         focused: false
+      },
+      agent: {
+        value: null,
+        focused: false,
       },
       state_detailed_response: 0,
       state_attachment_response: 0,
@@ -581,6 +578,7 @@ export default {
         this.$store.dispatch('getDetailQuestion', this.$route.query.question_id).then(() => {
           if (this.$store.state.QuestionsModule.newQuestion.name) {
             this.newQuestion = this.$store.state.QuestionsModule.newQuestion
+            this.$store.commit('change_cur_num', this.newQuestion.id)
             if (Array.isArray(this.$store.state.QuestionsModule.newQuestion.value_type_answer)) {
               this.lastIdAnswer = this.$store.state.QuestionsModule.newQuestion.value_type_answer.length
             }
@@ -617,6 +615,12 @@ export default {
     addVariable() {
       this.lastIdAnswer++
       this.newQuestion.value_type_answer.push(new this.AnswerVariable(this.lastIdAnswer))
+    },
+    onFocusFrom(value) {
+      this.agentFocused = value
+    },
+    outFocusFrom(value) {
+      this.agentFocused = value
     },
     onFocus(obj, id) {
       obj.focused = true
@@ -751,6 +755,7 @@ export default {
   beforeDestroy() {
     this.$store.state.QuestionsModule.newQuestion._all_tags = []
     this.$store.commit('reset_questions_tags')
+    this.$store.commit('change_cur_num', 0)
   }
 }
 </script>
@@ -810,7 +815,6 @@ export default {
           }
           ::v-deep textarea {
             min-height: 26px !important;
-            height: 26px !important;
           }
           ::v-deep .v-text-field.v-text-field--solo.v-input--dense > .v-input__control {
             min-height: 26px !important;
@@ -910,6 +914,9 @@ export default {
                 transition: all .6s ease-in-out;
               }
             }
+            ::v-deep .v-textarea.v-text-field--solo .v-input__control textarea {
+              padding: 0 !important;
+            }
 
             ::v-deep .v-text-field.v-text-field--enclosed:not(.v-text-field--rounded) > .v-input__control > .v-input__slot, .v-text-field.v-text-field--enclosed .v-text-field__details {
               padding: 0 6px !important;
@@ -925,7 +932,7 @@ export default {
               font-size: 14px;
               ::v-deep textarea {
                 color: darkgray;
-                transition: all .6s ease-in-out;
+                transition: color .6s ease-in-out;
               }
             }
           }

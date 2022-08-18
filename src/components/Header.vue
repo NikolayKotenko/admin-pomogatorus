@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="position: sticky; top: 50px; z-index: 9999">
     <v-app-bar
         dense
         dark
@@ -16,14 +16,7 @@
         </v-icon>
       </template>
       <template v-else>
-        <template v-if="computedArrowBurger">
-          <v-icon color="#6d767f" style="cursor: pointer; padding: 0 10px" @click="returnToList">
-            mdi-arrow-left
-          </v-icon>
-        </template>
-        <template v-else>
-          <v-app-bar-nav-icon @click="drawer = true" style="margin-left: 5px"></v-app-bar-nav-icon>
-        </template>
+        <v-app-bar-nav-icon @click="drawer = true" style="margin-left: 5px"></v-app-bar-nav-icon>
       </template>
 
         <v-chip
@@ -31,17 +24,13 @@
             text-color="primary"
             style="cursor: pointer"
         >
-          <router-link to="/" style="text-decoration: none">
-            <v-icon small left>
-              mdi-briefcase
-            </v-icon>
-            Рабочий стол
-          </router-link>
-          <div v-if="!!Object.keys($route.meta).includes('ru_name')" style="padding-left: 10px; overflow: hidden; text-overflow: ellipsis;">
-            <v-icon small left>
-              mdi-chevron-right
-            </v-icon>
-            <span>{{ $route.meta.ru_name }}</span>
+          <div v-if="!!Object.keys($route.meta).includes('ru_name')" style="overflow: hidden; text-overflow: ellipsis;">
+            <span>
+              {{ $route.meta.ru_name }}
+              <template v-if="$store.state.cur_num">
+                # {{$store.state.cur_num}}
+              </template>
+            </span>
           </div>
         </v-chip>
 
@@ -73,12 +62,12 @@
         color="#353e47"
         style="z-index: 208 !important;"
     >
-      <div class="navigation-user">
+      <div class="navigation_user">
         <v-list-item-avatar style="margin-left: 10px">
           <v-img src="https://randomuser.me/api/portraits/women/85.jpg"></v-img>
         </v-list-item-avatar>
         <!-- FIXME: Поменять после бэкенда -->
-        <span class="navigation-user-name">Admin</span>
+        <span class="navigation_user_name">Admin</span>
       </div>
       <v-list
           nav
@@ -95,19 +84,24 @@
           >
             <template v-slot:default="{ active }">
               <v-list-item-action>
-                <v-icon
-                    v-if="!active"
-                    color="#7b858e"
-                >
-                  {{ item.icon }}
-                </v-icon>
+                <template v-if="item.icon">
+                  <v-icon
+                      v-if="!active"
+                      color="#7b858e"
+                  >
+                    {{ item.icon }}
+                  </v-icon>
 
-                <v-icon
-                    v-else
-                    color="white"
-                >
-                  {{ item.icon }}
-                </v-icon>
+                  <v-icon
+                      v-else
+                      color="white"
+                  >
+                    {{ item.icon }}
+                  </v-icon>
+                </template>
+                <template v-else>
+                  <img :src="require(`../assets/svg/${item.nameIcon}`)" :alt="item.title" class="navigation_section_icon">
+                </template>
               </v-list-item-action>
               <v-list-item-content>
                 <v-list-item-title v-text="item.title"></v-list-item-title>
@@ -150,6 +144,13 @@ export default {
         icon: 'mdi-message-text',
         title: 'Статьи',
         link: '/articles'
+      },
+      {
+        id: 5,
+        icon: 'mdi-message-draw',
+        title: 'Ответы пользователей',
+        link: '/answers',
+        nameIcon: 'answers.svg'
       }
     ]
   }),
@@ -188,7 +189,7 @@ export default {
   color: #7b858e !important;
 }
 
-.navigation-user {
+.navigation_user {
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -198,14 +199,17 @@ export default {
   ),
   url('https://www.gettyimages.pt/gi-resources/images/Homepage/Hero/PT/PT_hero_42_153645159.jpg');
   background-size: cover;
-
   width: 100%;
   height: 100px;
-  .navigation-user-name {
+  .navigation_user_name {
     color: white;
     font-weight: 400;
     font-size: 18px;
     letter-spacing: 1px;
   }
+}
+.navigation_section_icon {
+  width: 24px;
+  height: 24px;
 }
 </style>

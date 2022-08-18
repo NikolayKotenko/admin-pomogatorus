@@ -14,7 +14,7 @@ export default class Request {
             cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
             credentials: 'include', // include, *same-origin, omit
             headers: {
-                Authorization: 'Bearer ' + Vue.$cookies.get('accessToken'),
+                Authorization: process.env.NODE_ENV === 'development' ? '666777' : 'Bearer ' + Vue.$cookies.get('accessToken'),
                 'Content-Type': 'application/json'
                 // 'Content-Type': 'application/x-www-form-urlencoded',
             },

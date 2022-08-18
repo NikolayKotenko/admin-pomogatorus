@@ -22,9 +22,15 @@ export default {
             return await Request.post(this.state.BASE_URL+'/auth/validate-auth')
         },
         async refreshTokens({commit}){
-            const tokensData = await Request.post(this.state.BASE_URL+'/auth/refresh')
-            commit('set_user_data', tokensData.data)
-            return tokensData
+            try {
+                const tokensData = await Request.post(this.state.BASE_URL+'/auth/refresh')
+                if (!tokensData) return null
+                commit('set_user_data', tokensData.data)
+                return tokensData
+            } catch (e) {
+                console.log(e)
+                commit('change_notification_modal', e, { root: true })
+            }
         },
         async loginUser({commit}, objData) {
             const tokensData = await Request.post(this.state.BASE_URL+'/auth/login', objData)
@@ -35,6 +41,9 @@ export default {
         async createUserByEmail(_, objData) {
             //Делаем запрос на создание пользователя, если такой есть то будет 409 конфликт ошибка ну и бог с ней
             return await Request.post(this.state.BASE_URL+'/users/create-from-only-email', objData)
+        },
+        async sendEmail(_, objData){
+            return await Request.post(this.state.BASE_URL+'/email/send', objData)
         },
     },
     mutations: {
@@ -47,6 +56,9 @@ export default {
 
             const {token, defined_ttl_minutes} = result.access_token;
             Vue.$cookies.set("accessToken", token, defined_ttl_minutes+'min');
+        },
+        changeInsertingComponents(state, value) {
+            state.inserting_component = value
         },
     },
 }

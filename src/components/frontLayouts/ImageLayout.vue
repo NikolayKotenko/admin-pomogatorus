@@ -1,12 +1,9 @@
 <template>
-  <div class="image_wrapper" contenteditable="false" :id="`component_wrapper-${index_component}`">
-    <div class="image_wrapper__admin_controls-header" contenteditable="false">
-      <img class="image_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
+  <div class="componentArticle_wrapper image_wrapper" contenteditable="false" :id="`component_wrapper-${index_component}`">
+    <div class="componentArticle_wrapper__admin_controls-header" contenteditable="false">
+      <img class="componentArticle_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
     </div>
-    <img class="inserted_image" :src="this.$store.state.BASE_URL+data_image.full_path" :alt="data_image.name">
-<!--    <vue-draggable-resizable :w="100" :h="100" :draggable="false" @resizing="onResize" :parent="true">-->
-<!--      <img class="inserted_image" :src="data_image.dataURL" :alt="data_image.name">-->
-<!--    </vue-draggable-resizable>-->
+    <img class="inserted_image" :src="srcPath" :alt="altName" :title="title">
   </div>
 </template>
 
@@ -27,15 +24,28 @@ export default {
     index_component: null,
     index_image: null,
     data_image: null,
+    dataForRerender: {},
   }),
   mounted() {
     this.getData()
   },
+  computed: {
+    srcPath() {
+      return this.$store.state.BASE_URL+this.data_image?.full_path
+    },
+    altName() {
+      return this.data_image?.alt
+    },
+    title() {
+      return this.data_image?.title
+    },
+  },
   methods: {
     getData() {
-      this.data_image = this.$store.state.TitlesModule.selectedComponent
-      this.index_image = this.$store.state.TitlesModule.count_of_images
-      this.index_component = this.$store.state.TitlesModule.countLayout
+      this.data_image = this.$store.state.ArticleModule.selectedComponent
+      this.dataForRerender = this.$store.state.ArticleModule.selectedComponent
+      this.index_image = this.$store.state.ArticleModule.counters.image
+      this.index_component = this.$store.state.ArticleModule.counters.layout
       this.getHeightOfControls()
       this.getWidthOfControls()
     },
@@ -75,6 +85,8 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import "src/assets/styles/componentArticle";
+
 .image_wrapper {
   min-height: 150px;
   min-width: 50px;
@@ -98,7 +110,7 @@ export default {
     border-right: 1px solid rgba(83, 158, 224, 0.7);
     border-left: 1px solid rgba(83, 158, 224, 0.7);
 
-    .image_wrapper__admin_controls-header {
+    .componentArticle_wrapper__admin_controls-header {
       opacity: 1;
     }
     ::v-deep .vdr {

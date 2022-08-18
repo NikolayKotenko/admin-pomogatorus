@@ -1,10 +1,15 @@
 <template>
-  <div class="question_wrapper" contenteditable="false" :id="`component_wrapper-${index_component}`">
-    <div class="question_wrapper__admin_controls-header" contenteditable="false">
-      <img class="question_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
+  <div class="componentArticle_wrapper question_wrapper" contenteditable="false" :id="`component_wrapper-${index_component}`">
+    <div class="componentArticle_wrapper__admin_controls-header" contenteditable="false">
+      <img class="componentArticle_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
     </div>
-    <div class="question_wrapper__title">
-      <h3>{{ index_question }}. {{ question_data.name }}</h3>
+    <div class="componentArticle_wrapper__title">
+      <h3>
+        <template v-if="index_questions">
+          {{ index_questions }}.
+        </template>
+         {{ question_data.name }}
+      </h3>
       <div class="helper_wrapper" v-if="question_data.title">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
@@ -21,13 +26,15 @@
       </div>
     </div>
 
-    <div class="question_wrapper__content">
+    <div class="componentArticle_wrapper__content">
       <template v-if="question_data.id_type_answer == '1'">
         <v-text-field
             dense
             hide-details
             solo
             placeholder="Введите ответ"
+            v-model="answer"
+            @change="changeAnswer"
         >
         </v-text-field>
       </template>
@@ -41,6 +48,8 @@
             rows="3"
             row-height="25"
             placeholder="Введите ответ"
+            v-model="answer"
+            @change="changeAnswer"
         >
         </v-textarea>
       </template>
@@ -48,17 +57,18 @@
         <v-radio-group
             dense
             hide-details
+            v-model="answer"
         >
           <v-radio
               v-for="(item, index) in value_type_answer"
               :key="index"
               :value="item.answer"
+              :disabled="!!detailed_response"
+              @change="changeAnswer"
           >
             <template slot="label">
-              <div style="display: flex; column-gap: 20px; align-items: center">
-                <span>
-                  {{item.answer}}
-                </span>
+              <div style="display: flex; column-gap: 20px; align-items: flex-start;">
+                <span v-html="item.answer" @click.stop></span>
                 <div v-if="item.commentary">
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on, attrs }">
@@ -82,15 +92,17 @@
         <v-checkbox
             hide-details
             dense
+            multiple
+            v-model="answer"
             v-for="(item, index) in value_type_answer"
             :key="index"
             :value="item.answer"
+            :disabled="!!detailed_response"
+            @change="changeAnswer"
         >
           <template slot="label">
-            <div style="display: flex; column-gap: 20px">
-                <span>
-                  {{item.answer}}
-                </span>
+            <div style="display: flex; column-gap: 20px; align-items: flex-start;">
+              <span v-html="item.answer" @click.stop></span>
               <div v-if="item.commentary">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
@@ -120,13 +132,22 @@
             return-object
             item-text="answer"
             :menu-props="{closeOnContentClick: true, bottom: true, offsetY: true }"
+            v-model="answer"
+            :disabled="!!detailed_response"
+            @change="changeAnswer"
         >
+          <template v-slot:selection="data">
+            <span
+                v-bind="data.attrs"
+                v-html="data.item.answer"
+            ></span>
+          </template>
           <template v-slot:item="{ active, item, attrs, on }">
             <v-list-item v-on="on" v-bind="attrs">
               <v-list-item-content>
                 <v-list-item-title>
-                  <v-row no-gutters align="center">
-                    <span>{{ item.answer }}</span>
+                  <v-row no-gutters style="align-items: flex-start">
+                    <span v-html="item.answer" @click.stop></span>
                     <v-spacer></v-spacer>
                     <div v-if="item.commentary">
                       <v-tooltip bottom>
@@ -159,6 +180,7 @@
             v-model="range_one"
             type="number"
             :class="{rangeError: rangeError}"
+            @change="changeAnswer"
         >
           <template slot="prepend-inner">
             <v-icon color="primary" @click="rangeEdit('minus')">
@@ -212,21 +234,61 @@
           Неккоректные значения
         </small>
       </template>
+      <v-text-field
+        v-if="question_data.state_detailed_response"
+        solo
+        dense
+        hide-details
+        placeholder="Место для развернутого ответа"
+        class="py-2"
+        v-model="detailed_response"
+      ></v-text-field>
     </div>
+
+    <div class="py-3 file_input" v-if="question_data.state_attachment_response">
+      <template>
+        <v-btn
+            color="primary"
+            rounded
+            dark
+        >
+          <v-icon>mdi-upload</v-icon>
+          Загрузить файл
+        </v-btn>
+      </template>
+    </div>
+
+    <transition name="list">
+      <div class="componentArticle_wrapper__content__alert pt-3" v-if="status_question.type !== 'sending' && check_status">
+        <v-alert
+            :type="status_question.type"
+            :icon="status_question.icon"
+        >
+          <span v-html="status_question.text"></span>
+        </v-alert>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script>
+import AnswerController from "../../services/article/AnswerController";
+
 export default {
   name: "Question",
+  components: {
+  },
   data: () => ({
     question_data: {},
     index_component: null,
-    index_question: null,
+    index_questions: null,
     controls_height: 0,
     controls_width: 0,
     value_type_answer: [],
     debounceTimeout: null,
+    status_name: 'sending',
+    check_status: false,
+    dataForRerender: {},
 
     /* DATA_BY_TYPES */
     rangeError: false,
@@ -234,7 +296,11 @@ export default {
     min: 0,
     max: 0,
     range_two: [],
+    answer: null,
+    detailed_response: "",
   }),
+  created() {
+  },
   mounted() {
     this.getData()
   },
@@ -246,12 +312,33 @@ export default {
           this.rangeError = ((parseInt(this.range_one) < parseInt(this.value_type_answer[0].answer)) || (parseInt(this.range_one) > parseInt(this.value_type_answer[1].answer)));
         })
       },
+    },
+    'detailed_response': {
+      handler(v) {
+        if (v) {
+          this.answer = null
+        }
+      },
     }
   },
   computed: {
+    status_question() {
+      let auth_block
+      let index = this.$store.state.ArticleModule.components_after_request.findIndex(i => {
+        return i.component.name === 'auth'
+      })
+      if (index !== -1) auth_block = this.$store.state.ArticleModule.components_after_request[index].index
 
+      return new AnswerController().create_status(this.status_name, auth_block)
+    },
   },
   methods: {
+    changeAnswer() {
+      this.check_status = true
+      setTimeout(() => {
+        this.status_name = 'warning'
+      }, 1000)
+    },
     deleteQuestion() {
       const elem = document.getElementById(`component_wrapper-${this.index_component}`)
       elem.remove()
@@ -281,12 +368,14 @@ export default {
           this.range_one = 0
         })
       }
+      this.changeAnswer()
     },
     getData() {
-      if (Object.keys(this.$store.state.TitlesModule.selectedComponent).length) {
-        this.index_question = this.$store.state.TitlesModule.count_of_questions
-        this.index_component = this.$store.state.TitlesModule.countLayout
-        this.question_data = Object.assign({}, this.$store.state.TitlesModule.selectedComponent)
+      if (Object.keys(this.$store.state.ArticleModule.selectedComponent).length) {
+        this.index_questions = this.$store.state.ArticleModule.counters.questions
+        this.index_component = this.$store.state.ArticleModule.counters.layout
+        this.question_data = Object.assign({}, this.$store.state.ArticleModule.selectedComponent)
+        this.dataForRerender = Object.assign({}, this.$store.state.ArticleModule.selectedComponent)
         this.getValue_type_answer()
         this.getHeightOfControls()
         this.getWidthOfControls()
@@ -345,100 +434,5 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.question_wrapper {
-  max-width: 600px;
-  position: relative;
-  padding: 16px 10px 8px 10px;
-  //border: 1px solid rgba(83, 158, 224, 0);
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
-  border-bottom: 1px solid rgba(83, 158, 224, 0);
-  border-right: 1px solid rgba(83, 158, 224, 0);
-  border-left: 1px solid rgba(83, 158, 224, 0);
-  transition: all .4s ease-in-out;
-
-
-  &:hover {
-    //border: 1px solid rgba(83, 158, 224, 0.7);
-    border-bottom: 1px solid rgba(83, 158, 224, 0.7);
-    border-right: 1px solid rgba(83, 158, 224, 0.7);
-    border-left: 1px solid rgba(83, 158, 224, 0.7);
-
-    .question_wrapper__admin_controls-header {
-      opacity: 1;
-    }
-  }
-
-  &__admin_controls-header {
-    background: rgba(83, 158, 224, 0.7);
-    position: absolute;
-    top: 0;
-    opacity: 0;
-    transition: all .4s ease-in-out;
-    border-radius: 2px;
-    right: 0;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 4px;
-    height: 16px;
-    width: 100%;
-    &__img {
-      width: 14px;
-      height: 14px;
-    }
-  }
-
-  &__title {
-    display: flex;
-    column-gap: 15px;
-    padding-bottom: 5px;
-    align-items: center;
-  }
-  &__divider {
-    margin-top: 10px;
-    height: 1px;
-    width: 100%;
-    background: darkgrey;
-    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
-  }
-}
-
-.v-menu__content {
-  background: #FFFFFF;
-  padding: 15px;
-}
-
-.helper_wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.helper_wrapper__help {
-  opacity: 0;
-  transition: .2s ease-in-out;
-}
-.help_img {
-  width: 20px;
-  height: 20px;
-  margin-bottom: 3px;
-  padding-top: 2px;
-}
-
-.v-input--selection-controls {
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-}
-
-.rangeError {
-  border: 1px solid lightcoral !important;
-  .question_main_wrapper__item {
-    border-bottom: unset;
-  }
-  ::v-deep input {
-    color: lightcoral;
-  }
-}
+@import "src/assets/styles/componentArticle";
 </style>
