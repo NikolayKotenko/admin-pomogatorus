@@ -16,8 +16,8 @@
           return-object
           clearable
           v-model="agent"
-          @focus="$emit('onFocus', true)"
-          @focusout="$emit('outFocus', false)"
+          @focus="$emit('onFocus', 'agentFocused')"
+          @focusout="$emit('outFocus', 'agentFocused')"
       >
         <template v-slot:item="data">
           <v-list-item-content>

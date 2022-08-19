@@ -114,6 +114,21 @@
             </div>
           </div>
 
+          <!-- ENVIRONMENTS -->
+          <div class="question_main">
+            <div class="question_main_selector">
+              <span class="question_main_selector__title" :class="{focused: envFocused}">
+                Переменные окружения
+              </span>
+              <EnvironmentsSelector
+                  @onFocus="onFocusFrom"
+                  @outFocus="outFocusFrom"
+                  @selectedEnvironment="setEnvironment"
+                  :env_param="newQuestion.name_param_env"
+              />
+            </div>
+          </div>
+
           <!-- SELECTOR & INPUT'S -->
           <div class="question_main">
             <div class="question_main_selector">
@@ -357,6 +372,7 @@ import { mapGetters } from 'vuex'
 
 import QuestionTags from "./QuestionTags";
 import AgentList from "./AgentList";
+import EnvironmentsSelector from "../environments/environmentsSelector";
 
 /* INDEXEDDB */
 const DB_NAME = 'questionDB'
@@ -366,7 +382,7 @@ let DB;
 
 export default {
   name: "CreateQuestion",
-  components: {AgentList, QuestionTags},
+  components: {EnvironmentsSelector, AgentList, QuestionTags},
   validations: {
     newQuestion: {
       name: {
@@ -387,6 +403,7 @@ export default {
     debounceTimeout: null,
     rangeError: false,
     agentFocused: false,
+    envFocused: false,
     newQuestion: {
       id: 1,
       name: {
@@ -418,6 +435,7 @@ export default {
       value_type_answer: '',
       _all_tags: [],
       mtomtags: [],
+      name_param_env: '',
     },
     deleteModal: false,
     deleteStorage: false,
@@ -480,6 +498,12 @@ export default {
     },
   },
   methods: {
+    /* ENV */
+    setEnvironment(data) {
+      this.newQuestion.name_param_env = data
+      this.saveDBQuestion(this.newQuestion)
+    },
+
     /* indexedDB */
     async getDb () {
       return new Promise((resolve, reject) => {
@@ -617,10 +641,10 @@ export default {
       this.newQuestion.value_type_answer.push(new this.AnswerVariable(this.lastIdAnswer))
     },
     onFocusFrom(value) {
-      this.agentFocused = value
+      this[value] = true
     },
     outFocusFrom(value) {
-      this.agentFocused = value
+      this[value] = false
     },
     onFocus(obj, id) {
       obj.focused = true
