@@ -18,6 +18,7 @@
               :rules="emailRules"
               single-line
               required
+              :disabled="isComponent"
           ></v-text-field>
         <v-alert
             v-if="alert.state"

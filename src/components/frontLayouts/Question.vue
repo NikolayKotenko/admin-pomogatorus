@@ -35,6 +35,7 @@
             placeholder="Введите ответ"
             v-model="answer"
             @change="changeAnswer"
+            disabled
         >
         </v-text-field>
       </template>
@@ -50,6 +51,7 @@
             placeholder="Введите ответ"
             v-model="answer"
             @change="changeAnswer"
+            disabled
         >
         </v-textarea>
       </template>
@@ -63,8 +65,8 @@
               v-for="(item, index) in value_type_answer"
               :key="index"
               :value="item.answer"
-              :disabled="!!detailed_response"
               @change="changeAnswer"
+              disabled
           >
             <template slot="label">
               <div style="display: flex; column-gap: 20px; align-items: flex-start;">
@@ -97,8 +99,8 @@
             v-for="(item, index) in value_type_answer"
             :key="index"
             :value="item.answer"
-            :disabled="!!detailed_response"
             @change="changeAnswer"
+            disabled
         >
           <template slot="label">
             <div style="display: flex; column-gap: 20px; align-items: flex-start;">
@@ -133,7 +135,7 @@
             item-text="answer"
             :menu-props="{closeOnContentClick: true, bottom: true, offsetY: true }"
             v-model="answer"
-            :disabled="!!detailed_response"
+            disabled
             @change="changeAnswer"
         >
           <template v-slot:selection="data">
@@ -181,6 +183,7 @@
             type="number"
             :class="{rangeError: rangeError}"
             @change="changeAnswer"
+            disabled
         >
           <template slot="prepend-inner">
             <v-icon color="primary" @click="rangeEdit('minus')">
@@ -206,6 +209,7 @@
             hide-details
             type="number"
             class="align-center"
+            disabled
         >
           <template v-slot:prepend>
             <v-text-field
@@ -216,6 +220,7 @@
                 type="number"
                 style="width: 60px"
                 @change="$set(range_two, 0, $event)"
+                disabled
             ></v-text-field>
           </template>
           <template v-slot:append>
@@ -227,6 +232,7 @@
                 type="number"
                 style="width: 60px"
                 @change="$set(range_two, 1, $event)"
+                disabled
             ></v-text-field>
           </template>
         </v-range-slider>
@@ -242,6 +248,7 @@
         placeholder="Место для развернутого ответа"
         class="py-2"
         v-model="detailed_response"
+        disabled
       ></v-text-field>
     </div>
 
