@@ -318,6 +318,7 @@ export default {
     }
   }),
   mounted() {
+    this.initialDate()
     this.getItems()
   },
   computed: {
@@ -357,6 +358,15 @@ export default {
     },
   },
   methods: {
+    initialDate() {
+      const today = new Date()
+      const nowDay = new Date().toJSON().slice(0,10)
+      const agoDay = new Date(today.getTime());
+      agoDay.setDate(today.getDate() - 2);
+      this.date = []
+      this.date.push(agoDay.toJSON().slice(0,10))
+      this.date.push(nowDay)
+    },
     isJson(str) {
       try {
         JSON.parse(str);
