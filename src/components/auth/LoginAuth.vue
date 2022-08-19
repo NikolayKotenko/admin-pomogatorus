@@ -4,7 +4,7 @@
       <img class="componentArticle_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
     </div>
     <v-container>
-      <v-tabs v-model="tab">
+      <v-tabs v-model="tab" hide-slider centered>
         <v-tab :key="0" light>Авторизация</v-tab>
         <v-tab :key="1">Регистрация</v-tab>
         <!--Авторизация-->
@@ -37,6 +37,7 @@
                 @click:append="passStateEye = !passStateEye"
                 required
                 :class="'required'"
+                :disabled="isComponent"
             ></v-text-field>
             <v-btn type="submit"
                    color="blue darken-1"
@@ -65,6 +66,7 @@
                 single-line
                 required
                 :class="'required'"
+                :disabled="isComponent"
             ></v-text-field>
             <v-text-field
                 type="text"
@@ -72,6 +74,7 @@
                 v-model="name"
                 label="Как к вам обращаться ?"
                 single-line
+                :disabled="isComponent"
             ></v-text-field>
             <v-btn type="submit"
                    color="blue darken-0"
@@ -117,6 +120,7 @@ export default {
         v => !!v || 'Обязательное для заполнение поле',
         v => v.length === 4 || 'Необходимо 4 символа',
       ],
+      name: '',
       email_user: '',
       password: '',
       passStateEye: false,
@@ -227,9 +231,15 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import "src/assets/styles/detail";
 @import "src/assets/styles/componentArticle";
+
+@media only screen and (max-width: 375px) {
+  .v-slide-group__prev {
+    display: none !important;
+  }
+}
 
 form.login{
   margin: 1em;
