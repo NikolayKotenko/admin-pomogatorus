@@ -3,48 +3,100 @@
     <div class="componentArticle_wrapper__admin_controls-header" contenteditable="false" v-if="isComponent">
       <img class="componentArticle_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
     </div>
-    <v-form v-model="valid" class="login" @submit.prevent="localLoginCreateUser()" contenteditable="false">
-      <v-container>
-        <v-row>
-          <h1>Авторизация</h1>
-        </v-row>
-      </v-container>
-      <v-container>
-          <v-text-field
-              type="text"
-              name="email"
-              v-model="email_user"
-              label="Введите почту"
-              :rules="emailRules"
-              single-line
-              required
-              :disabled="isComponent"
-          ></v-text-field>
-        <v-alert
-            v-if="alert.state"
-            transition="scale-transition"
-            dismissible
-            :type="alert.type"
-            :value="alert.state"
-            @input="alert.state = false"
-        >
-          <span v-html="alert.message"></span>
-        </v-alert>
-      </v-container>
-      <v-container>
-        <v-row>
-          <v-btn type="submit"
-                 color="primary"
-                 elevation="2"
-                 large
-                 rounded
-                 block
+    <v-container>
+      <v-tabs v-model="tab">
+        <v-tab :key="0" light>Авторизация</v-tab>
+        <v-tab :key="1">Регистрация</v-tab>
+        <!--Авторизация-->
+        <v-tab-item :key="0">
+          <v-form v-model="valid" class="login"
+                  @submit.prevent="localLoginUser(`component_wrapper-${index_component}`)"
+                  contenteditable="false"
           >
-            Войти
-          </v-btn>
-        </v-row>
-      </v-container>
-    </v-form>
+            <v-text-field
+                type="email"
+                name="email"
+                v-model="email_user"
+                label="Введите почту"
+                :rules="emailRules"
+                single-line
+                required
+                :class="'required'"
+                :disabled="isComponent"
+            ></v-text-field>
+            <v-text-field
+                v-model="password"
+                :append-icon="passStateEye ? 'mdi-eye' : 'mdi-eye-off'"
+                :rules="passRules"
+                maxlength="4"
+                :type="passStateEye ? 'text' : 'password'"
+                name="password"
+                label="Введите код доступа"
+                hint="4 символа"
+                counter
+                @click:append="passStateEye = !passStateEye"
+                required
+                :class="'required'"
+            ></v-text-field>
+            <v-btn type="submit"
+                   color="blue darken-1"
+                   elevation="2"
+                   large
+                   rounded
+                   block
+                   class="btn-auth"
+            >
+              Войти
+            </v-btn>
+          </v-form>
+        </v-tab-item>
+        <!--Регистрация-->
+        <v-tab-item :key="1">
+          <v-form v-model="valid" class="login"
+                  @submit.prevent="localCreateUser(`component_wrapper-${index_component}`)"
+                  contenteditable="false"
+          >
+            <v-text-field
+                type="email"
+                name="email"
+                v-model="email_user"
+                label="Введите почту"
+                :rules="emailRules"
+                single-line
+                required
+                :class="'required'"
+            ></v-text-field>
+            <v-text-field
+                type="text"
+                name="name"
+                v-model="name"
+                label="Как к вам обращаться ?"
+                single-line
+            ></v-text-field>
+            <v-btn type="submit"
+                   color="blue darken-0"
+                   elevation="2"
+                   large
+                   rounded
+                   block
+                   class="btn-auth"
+            >
+              Зарегестрироваться
+            </v-btn>
+          </v-form>
+        </v-tab-item>
+      </v-tabs>
+      <v-alert
+          v-if="alert.state"
+          transition="scale-transition"
+          dismissible
+          :type="alert.type"
+          :value="alert.state"
+          @input="alert.state = false"
+      >
+        <span v-html="alert.message"></span>
+      </v-alert>
+    </v-container>
   </div>
 </template>
 
@@ -55,12 +107,19 @@ export default {
   name: "LoginAuth",
   data(){
     return {
+      tab: 0,
       valid: false,
       emailRules: [
         v => !!v || 'Обязательное для заполнение поле',
         v => /.+@.+/.test(v) || 'E-mail должен быть валидным.',
       ],
+      passRules: [
+        v => !!v || 'Обязательное для заполнение поле',
+        v => v.length === 4 || 'Необходимо 4 символа',
+      ],
       email_user: '',
+      password: '',
+      passStateEye: false,
       alert:{
         state: false,
         type: 'info',
@@ -96,7 +155,26 @@ export default {
       this.alert.message = Logging.getMessage(response)
       this.alert.type = Logging.checkExistErr(response) ? 'error' : 'success'
     },
-    async localLoginCreateUser(){
+
+    async localLoginUser(index_component){
+      if (this.valid === false)
+        return false
+
+      const res = await this.$store.dispatch('loginUser',
+          {
+            'email': this.email_user,
+            'password': this.password,
+            'id_dom_elem': index_component,
+            'full_url': window.location.href
+          });
+      if (res.codeResponse === 202) {
+          await this.$router.push({
+            path: '/'
+          })
+      }
+      this.alertCall(res);
+    },
+    async localCreateUser(index_component){
       if (this.valid === false)
         return false
 
@@ -104,24 +182,15 @@ export default {
       const res = await this.$store.dispatch(
           'createUserByEmail', {
             'email': this.email_user,
+            'name': this.name,
+            'id_dom_elem': index_component,
             'full_url': window.location.href
           });
-      if (res.codeResponse === 409) {
-        const res = await this.$store.dispatch('sendEmail',
-            {
-              'email': this.email_user,
-              'full_url': window.location.origin
-
-            });
-        this.alertCall(res);
+      if (res.codeResponse === 200) {
+        this.tab = 0;
       }
-      else{
-        this.alertCall(res);
-      }
-      // Такой пользователь уже есть в базе - авторизоваться
-      // Если такой еще не зарегестрирован придет - 200
+      this.alertCall(res);
     },
-
     // inserted_components
     getData() {
       this.index_component = this.$store.state.ArticleModule.counters.layout
