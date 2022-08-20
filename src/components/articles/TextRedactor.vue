@@ -177,12 +177,60 @@ export default {
       }
     },
 
+    /* CHECK OUT OF SYNC */
+    checkOutOfSync() {
+      this.$nextTick(() => {
+        /* Get all components from DOM by class identifier */
+        const componentsNodes = document.getElementsByClassName('component_container')
+
+        /* Check if components length from DB isn't equal components count by DOM */
+        if (componentsNodes.length !== _store.list_components.length) {
+          let arrCollection = [...componentsNodes]
+          let arrComponentsData = []
+
+          let counters = {
+            index_image: 1,
+            index_questions: 1,
+            index_auth: 1,
+          }
+
+          let dataComponent = {}
+
+          arrCollection.forEach(htmlCollection => {
+            if (htmlCollection.dataset.name) {
+              /* Set index from id HTML element */
+              let tmpStr = htmlCollection.id.match("-(.*)")
+              let index = tmpStr[tmpStr.length-1]
+              /* Set name by data */
+              dataComponent.name = htmlCollection.dataset.name
+              /* Set uniq index_%component% */
+              dataComponent[`index_${htmlCollection.dataset.name}`] = counters[`index_${htmlCollection.dataset.name}`]
+              /* Set uniq data for specific component */
+              if (htmlCollection.dataset.name === 'questions') {
+                dataComponent.id = htmlCollection.dataset.id
+              } else if (htmlCollection.dataset.name === 'image') {
+                dataComponent.src = htmlCollection.dataset.src
+              }
+              /* Push to arr result */
+              arrComponentsData.push(new this.Imported_component({index: index, component: dataComponent}))
+              /* Update global counters */
+              counters[`index_${htmlCollection.dataset.name}`]++
+              /* Clear intermediate object */
+              dataComponent = {}
+            }
+          })
+          /* Rewrite components data for next render function */
+          _store.components_after_request = arrComponentsData
+        }
+      })
+    },
+
     /* RENDER FUNCTIONALITY */
     renderFunc() {
       console.log('nextTIck inserting')
       _store.list_components.forEach((elem, index) => {
 
-          /** Function that change counter by @elem, and call prepare layoyt that we need **/
+          /** Function that change counter by @elem, and call prepare layout that we need **/
           this.checkTypeComponent(elem)
 
           /* Here we set data of component and manipulate by type component */
@@ -231,6 +279,10 @@ export default {
 
           /* Set content from API or UNDO/REDO */
           this.content = _store.content_from_server
+
+          console.log('start check out of sync')
+          this.checkOutOfSync()
+          console.log('end check out of sync')
 
           /* Requests for get data of list_components, that lay on Array<Promises> */
           const promises = []

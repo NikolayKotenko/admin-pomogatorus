@@ -112,10 +112,8 @@ export default {
 
             const arr = []
             state.list_components.forEach(elem => {
-                console.log(elem.data)
                 arr.push(elem.data)
             })
-            console.log(arr)
             const inserted_components = JSON.stringify(arr)
 
             state.txtDisplay.push(new ConstructorElem(JSON.stringify(state.content), inserted_components)); // takes whatever was entered in the input and adds it too the displayed array.

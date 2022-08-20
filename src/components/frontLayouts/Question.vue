@@ -1,5 +1,11 @@
 <template>
-  <div class="componentArticle_wrapper question_wrapper" contenteditable="false" :id="`component_wrapper-${index_component}`">
+  <div
+      class="componentArticle_wrapper question_wrapper component_container"
+      contenteditable="false"
+      :id="`component_wrapper-${index_component}`"
+      data-name="questions"
+      :data-id="dataId"
+  >
     <div class="componentArticle_wrapper__admin_controls-header" contenteditable="false">
       <img class="componentArticle_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
     </div>
@@ -337,6 +343,10 @@ export default {
       if (index !== -1) auth_block = this.$store.state.ArticleModule.components_after_request[index].index
 
       return new AnswerController().create_status(this.status_name, auth_block)
+    },
+    dataId() {
+      if (!this.question_data || !this.question_data?.id) return null
+      return this.question_data.id
     },
   },
   methods: {

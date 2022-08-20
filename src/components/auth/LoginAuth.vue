@@ -1,5 +1,11 @@
 <template>
-  <div class="auth_container" contenteditable="false" :id="`component_wrapper-${index_component}`" :class="{componentArticle_wrapper: isComponent}">
+  <div
+      class="auth_container component_container"
+      contenteditable="false"
+      :id="`component_wrapper-${index_component}`"
+      :class="{componentArticle_wrapper: isComponent}"
+      data-name="auth"
+  >
     <div class="componentArticle_wrapper__admin_controls-header" contenteditable="false" v-if="isComponent">
       <img class="componentArticle_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
     </div>

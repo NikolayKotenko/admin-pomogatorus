@@ -1,5 +1,11 @@
 <template>
-  <div class="componentArticle_wrapper image_wrapper" contenteditable="false" :id="`component_wrapper-${index_component}`">
+  <div
+      class="componentArticle_wrapper image_wrapper component_container"
+      contenteditable="false"
+      :id="`component_wrapper-${index_component}`"
+      data-name="image"
+      :data-src="shortPath"
+  >
     <div class="componentArticle_wrapper__admin_controls-header" contenteditable="false">
       <img class="componentArticle_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
     </div>
@@ -30,6 +36,10 @@ export default {
     this.getData()
   },
   computed: {
+    shortPath() {
+      if (!this.data_image || !this.data_image?.full_path) return null
+      return this.data_image.full_path
+    },
     srcPath() {
       return this.$store.state.BASE_URL+this.data_image?.full_path
     },
