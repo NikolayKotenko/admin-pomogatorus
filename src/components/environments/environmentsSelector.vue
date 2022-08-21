@@ -1,19 +1,17 @@
 <template>
-  <div class="environments_wrapper">
-    <template v-if="env_param">
-      <div>
-        <span>К вопросу прикреплена переменная окружения: {{ env_param }}</span>
-      </div>
-    </template>
+  <div class="environments_wrapper" :class="{removeSpace: flat}">
     <v-autocomplete
-        outlined
+        :class="{innerSelector: flat, focused: flatFocused}"
+        :outlined="!flat"
+        :solo="flat"
+        :flat="flat"
         dense
         hide-details
-        placeholder="Начните ввод"
+        :placeholder="flat ? 'Введите переменную окружения' : 'Начните ввод'"
         :loading="loadingList"
         :disabled="loadingList"
         hide-no-data
-        label="Поиск..."
+        :label="flat ? '' : 'Поиск...'"
         :search-input.sync="search"
         @update:search-input="getValues()"
         :items="firstEnvItemsArray"
@@ -27,7 +25,7 @@
         @focus="$emit('onFocus', 'envFocused')"
         @focusout="$emit('outFocus', 'envFocused')"
     >
-      <template v-slot:selection="data">
+      <template v-slot:selection="data" v-if="!flat">
         <v-chip
             v-bind="data.attrs"
             :input-value="data.selected"
@@ -49,18 +47,22 @@
       </template>
     </v-autocomplete>
     <template v-if="checkFirst">
+      <div class="divider" v-if="flat"></div>
       <v-autocomplete
-          outlined
+          :class="{innerSelector: flat, focused: flatFocused}"
+          :outlined="!flat"
+          :solo="flat"
+          :flat="flat"
           dense
           hide-details
           placeholder="Выберите"
           :loading="loadingList"
           :disabled="loadingList"
           hide-no-data
-          label="Выберите"
+          :label="flat ? '' : 'Выберите'"
           :items="secondEnvItemsArray"
           item-text="ru_text"
-          item-value="column"
+          return-object
           clearable
           @change="selectSecondEnv()"
           v-model="secondEnv"
@@ -77,7 +79,7 @@ import Request from "../../services/request";
 
 export default {
   name: "environmentsSelector",
-  props: ['env_param'],
+  props: ['flat', 'dataEnv', 'flatFocused'],
   data: () => ({
     loadingList: false,
     debounceTimeout: null,
@@ -91,6 +93,12 @@ export default {
     secondEnv: null,
   }),
   mounted() {
+    if (this.dataEnv) {
+      this.firstEnv = this.dataEnv
+      this.secondEnv = this.firstEnv.data.data
+      this.firstEnvItemsArray.push(this.firstEnv)
+      this.secondEnvItemsArray.push(this.firstEnv.data.data)
+    }
   },
   watch: {
   },
@@ -143,13 +151,47 @@ export default {
       }
     },
     selectSecondEnv() {
-      this.$emit('selectedEnvironment', this.secondEnv)
+      this.firstEnv.data.data = this.secondEnv
+      this.$emit('update:dataEnv', this.firstEnv);
+      // this.$emit('selectedEnvironment', this.secondEnv)
     },
   },
 }
 </script>
 
 <style lang="scss" scoped>
+
+.focused {
+  ::v-deep textarea {
+    color: black !important;
+  }
+  ::v-deep input {
+    color: black !important;
+  }
+}
+
+.divider {
+  border-bottom: 1px dashed;
+  width: 15%;
+  margin-left: 6px;
+}
+
+.innerSelector {
+  font-size: 14px;
+  ::v-deep textarea {
+    color: darkgray;
+    transition: color .6s ease-in-out;
+  }
+  ::v-deep input {
+    color: darkgray;
+    transition: color .6s ease-in-out;
+  }
+}
+
+.removeSpace {
+  row-gap: 0 !important;
+}
+
 .environments_wrapper {
   display: flex;
   flex-direction: column;

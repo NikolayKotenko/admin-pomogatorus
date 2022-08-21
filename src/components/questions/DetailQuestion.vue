@@ -114,21 +114,6 @@
             </div>
           </div>
 
-          <!-- ENVIRONMENTS -->
-          <div class="question_main">
-            <div class="question_main_selector">
-              <span class="question_main_selector__title" :class="{focused: envFocused}">
-                Переменные окружения
-              </span>
-              <EnvironmentsSelector
-                  @onFocus="onFocusFrom"
-                  @outFocus="outFocusFrom"
-                  @selectedEnvironment="setEnvironment"
-                  :env_param="newQuestion.name_param_env"
-              />
-            </div>
-          </div>
-
           <!-- SELECTOR & INPUT'S -->
           <div class="question_main">
             <div class="question_main_selector">
@@ -186,24 +171,35 @@
                         @input="saveDBQuestion(newQuestion)"
                     >
                     </v-textarea>
-                    <div class="divider" v-if="answer.showComentary"></div>
-                    <v-textarea
-                        class="question_main_wrapper__item__description"
-                        :class="{inputFocused: answer.focused}"
-                        placeholder="Введите примечание"
-                        auto-grow
-                        rows="1"
-                        dense
-                        multi-line
-                        hide-details
-                        flat
-                        solo
-                        v-model="answer.commentary"
-                        v-if="answer.showComentary"
-                        @focus="onFocus(newQuestion.id_type_answer, answer.id)"
-                        @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
-                        @input="saveDBQuestion(newQuestion)"
-                    ></v-textarea>
+                    <template v-if="answer.showComentary">
+                      <div class="divider"></div>
+                      <v-textarea
+                          class="question_main_wrapper__item__description"
+                          :class="{inputFocused: answer.focused}"
+                          placeholder="Введите примечание"
+                          auto-grow
+                          rows="1"
+                          dense
+                          multi-line
+                          hide-details
+                          flat
+                          solo
+                          v-model="answer.commentary"
+                          @focus="onFocus(newQuestion.id_type_answer, answer.id)"
+                          @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
+                          @input="saveDBQuestion(newQuestion)"
+                      ></v-textarea>
+                      <div class="divider"></div>
+                      <!-- ENVIRONMENTS -->
+                      <EnvironmentsSelector
+                          @onFocus="onFocusFrom; onFocus(newQuestion.id_type_answer, answer.id)"
+                          @outFocus="outFocusFrom; onFocus(newQuestion.id_type_answer, answer.id)"
+                          @selectedEnvironment="setEnvironment"
+                          :flatFocused="answer.focused"
+                          :flat="true"
+                          :dataEnv.sync="answer.dataEnv"
+                      />
+                    </template>
                   </div>
                 </transition-group>
               </div>
@@ -253,6 +249,22 @@
               </small>
             </template>
           </div>
+
+          <!-- ENVIRONMENTS -->
+          <div class="question_main" v-if="showEnv">
+            <div class="question_main_selector">
+              <span class="question_main_selector__title" :class="{focused: envFocused}">
+                Переменные окружения
+              </span>
+              <EnvironmentsSelector
+                  @onFocus="onFocusFrom"
+                  @outFocus="outFocusFrom"
+                  @selectedEnvironment="setEnvironment"
+                  :dataEnv.sync="newQuestion.value_type_answer[0].dataEnv"
+              />
+            </div>
+          </div>
+
           <div class="question_settings">
             <v-checkbox
                 hide-details
@@ -496,6 +508,9 @@ export default {
           (this.rangeError)
       )
     },
+    showEnv() {
+      return (this.newQuestion.id_type_answer.value === 1 || this.newQuestion.id_type_answer.value === 2 || this.newQuestion.id_type_answer.value === 6 || this.newQuestion.id_type_answer.value === 7) && !!this.newQuestion.id_type_answer.value
+    },
   },
   methods: {
     /* ENV */
@@ -626,15 +641,18 @@ export default {
       this.$store.dispatch('setListTypesQuestions')
     },
     onSelect() {
+      this.lastIdAnswer = 1
       if (this.newQuestion.id_type_answer.value === 6 || this.newQuestion.id_type_answer.value === 7) {
         this.newQuestion.value_type_answer = []
         this.newQuestion.value_type_answer.push(new this.AnswerRangeMin(this.lastIdAnswer))
         this.lastIdAnswer++
         this.newQuestion.value_type_answer.push(new this.AnswerRangeMax(this.lastIdAnswer))
-      } else if (this.newQuestion.id_type_answer.value !== 1 && this.newQuestion.id_type_answer.value !== 2) {
+      //  if (this.newQuestion.id_type_answer.value !== 1 && this.newQuestion.id_type_answer.value !== 2)
+      } else {
         this.newQuestion.value_type_answer = []
         this.newQuestion.value_type_answer.push(new this.AnswerVariable(this.lastIdAnswer))
-      } else this.newQuestion.value_type_answer = []
+      }
+      // else this.newQuestion.value_type_answer = []
     },
     addVariable() {
       this.lastIdAnswer++
@@ -758,6 +776,7 @@ export default {
       this.commentary = ''
       this.showComentary = true
       this.focused = false
+      this.dataEnv = null
     },
     AnswerRangeMin(id) {
       this.id = id
@@ -766,6 +785,7 @@ export default {
       this.showComentary = true
       this.focused = false
       this.placeholder = 'Введите минимальное значение'
+      this.dataEnv = null
     },
     AnswerRangeMax(id) {
       this.id = id
@@ -774,6 +794,7 @@ export default {
       this.showComentary = true
       this.focused = false
       this.placeholder = 'Введите максимальное значение'
+      this.dataEnv = null
     },
   },
   beforeDestroy() {
@@ -933,7 +954,7 @@ export default {
 
             &__value {
               font-size: 14px;
-              ::v-deep input {
+              ::v-deep textarea {
                 color: darkgray;
                 transition: all .6s ease-in-out;
               }
