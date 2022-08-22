@@ -60,8 +60,8 @@ export default {
       this.initializeContent().then(() => {
         this.checkOnDeletedComponents()
         this.$nextTick(() => {
-          // this.resetCounter(_store.list_components)
-          // this.changeIndexQuestion()
+          this.resetCounter(_store.list_components)
+          this.changeIndexQuestion()
         })
       })
     }, 500)
@@ -71,10 +71,7 @@ export default {
       handler(v) {
         if (!this.geting_from_server && v) {
           this.$store.commit('changeContent', this.content)
-          /* Undo/Redo memento manipulation */
-          this.$nextTick(() => {
-            this.$store.commit('change_by_action_editor')
-          })
+          this.$store.commit('change_by_action_editor')
         }
       },
     },
@@ -100,14 +97,34 @@ export default {
     '$store.state.ArticleModule.startRender': {
       handler(v) {
         if (v) {
-          console.log('start')
+          console.log('start rerender')
+          /* Only way to get time for procedure render DOM */
           setTimeout(() => {
-            this.reRenderFunc().then(() => {
-              console.log('rerender Done')
-              // this.resetCounter(_store.list_components)
-              // this.changeIndexQuestion()
-              this.$store.commit('change_start_render', false)
+            /* Change content on article by static HTML */
+            this.$nextTick(() => {
+              this.content = _store.content_from_server
             })
+            /* Start render */
+            if (_store.components_after_request.length) {
+              /* Initialise render func */
+              this.initializeContent().then(() => {
+                /* Check if some questions was deleted from DB */
+                this.checkOnDeletedComponents()
+                this.$nextTick(() => {
+                  /* Reset Counters & Question number */
+                  this.resetCounter(_store.list_components)
+                  this.changeIndexQuestion()
+                  /* Set start Render to default and prepare for next rerender */
+                  this.$store.commit('change_start_render', false)
+                  /* Call save Article on DB when manipulating is done */
+                  this.$emit('saveArticle')
+                })
+              })
+            } else {
+              this.$store.commit('clear_list_components', [])
+              this.$store.commit('change_start_render', false)
+              this.$emit('saveArticle')
+            }
           }, 600)
         }
       }
@@ -160,87 +177,87 @@ export default {
       }
     },
 
-    /* RENDER FUNC */
-    reRenderFunc() {
-      return new Promise((resolve) => {
-        _store.loadingArticle = true
-        this.geting_from_server = true
+    /* CHECK OUT OF SYNC */
+    checkOutOfSync() {
+      this.$nextTick(() => {
+        /* Get all components from DOM by class identifier */
+        const componentsNodes = document.getElementsByClassName('component_container')
 
-        this.$nextTick(() => {
-          this.content = _store.content_from_server
-        })
+        /* Check if components length from DB isn't equal components count by DOM */
+        if (componentsNodes.length !== _store.list_components.length) {
+          let arrCollection = [...componentsNodes]
+          let arrComponentsData = []
 
+          let counters = {
+            index_image: 1,
+            index_questions: 1,
+            index_auth: 1,
+          }
 
-        _store.list_components.sort((a,b) => {
-          return a.index - b.index
-        })
-        console.log(_store.list_components)
-        console.log(_store.list_components.map(elem => elem.data.index))
+          let dataComponent = {}
 
-        this.$nextTick(() => {
-          // this.resetCounter(_store.list_components)
-          console.log(_store.list_components.map(elem => elem.data.index))
-          /* TODO: optimise */
-          console.log('start render for each')
-          _store.list_components.forEach((elem, index) => {
-            this.checkTypeComponent(elem.data)
-            let data = elem.instance.$data.dataForRerender
-            console.log(elem.data.index)
-
-            const block = document.getElementById(`component_wrapper-${elem.data.index}`)
-            console.log(block)
-            console.log(this.$store.state.ArticleModule.counters.layout)
-
-            if (block) {
-              if (elem.data.component.name === 'image') {
-                const full_url = document.getElementById(`component_wrapper-${elem.data.index}`).getElementsByClassName( 'inserted_image' )[0].src
-                let sub_url = full_url.split('.com')
-                const alt = document.getElementById(`component_wrapper-${elem.data.index}`).getElementsByClassName( 'inserted_image' )[0].alt
-                data = Object.assign({}, {name: alt}, {full_path: sub_url[1]})
-              } else if (elem.data.component.name === 'auth') {
-                this.$store.commit('changeInsertingComponents', true)
+          arrCollection.forEach(htmlCollection => {
+            if (htmlCollection.dataset.name) {
+              /* Set index from id HTML element */
+              let tmpStr = htmlCollection.id.match("-(.*)")
+              let index = tmpStr[tmpStr.length-1]
+              /* Set name by data */
+              dataComponent.name = htmlCollection.dataset.name
+              /* Set uniq index_%component% */
+              dataComponent[`index_${htmlCollection.dataset.name}`] = counters[`index_${htmlCollection.dataset.name}`]
+              /* Set uniq data for specific component */
+              if (htmlCollection.dataset.name === 'questions') {
+                dataComponent.id = htmlCollection.dataset.id
+              } else if (htmlCollection.dataset.name === 'image') {
+                dataComponent.src = htmlCollection.dataset.src
               }
-              this.$store.commit('change_counter', {name: 'layout', count: elem.data.index})
-              this.$store.commit('changeSelectedObject', data)
-              let range = document.createRange();
-              range.selectNode(document.getElementById(`component_wrapper-${elem.data.index}`));
-              range.deleteContents()
-              range.collapse(false);
-              _store.list_components[index] = this.getStructureForInstance(elem.data.component)
-              _store.list_components[index].instance.$mount()
-              range.insertNode(_store.list_components[index].instance.$el)
-              this.$store.commit('changeSelectedObject', {})
-              // console.log(_store.list_components.map(elem => elem.data.index))
-              // console.log(this.content)
+              /* Push to arr result */
+              arrComponentsData.push(new this.Imported_component({index: index, component: dataComponent}))
+              /* Update global counters */
+              counters[`index_${htmlCollection.dataset.name}`]++
+              /* Clear intermediate object */
+              dataComponent = {}
             }
           })
-          console.log('end render for each')
-          _store.loadingArticle = false
-          this.geting_from_server = false
-          resolve()
-        })
+          /* Rewrite components data for next render function */
+          _store.components_after_request = arrComponentsData
+        }
       })
     },
+
+    /* RENDER FUNCTIONALITY */
     renderFunc() {
       console.log('nextTIck inserting')
       _store.list_components.forEach((elem, index) => {
+
+          /** Function that change counter by @elem, and call prepare layout that we need **/
           this.checkTypeComponent(elem)
+
+          /* Here we set data of component and manipulate by type component */
           let data = elem.data
+          /* If component is image we get URL of img and title/alt */
           if (elem.component.name === 'image') {
             const full_url = document.getElementById(`component_wrapper-${elem.index}`).getElementsByClassName( 'inserted_image')[0].src
             let sub_url = full_url.split('.com')
             const alt = document.getElementById(`component_wrapper-${elem.index}`).getElementsByClassName( 'inserted_image')[0].alt
             data = Object.assign({}, {name: alt}, {full_path: sub_url[1]})
           }
+          /* Here change global counter of component in article */
           this.$store.commit('change_counter', {name: 'layout', count: elem.index})
+          /* Here we pass data to store, that can be getted from layout component */
           this.$store.commit('changeSelectedObject', data)
+          /* Now we get place on DOM in our contentEditable div to place HTML on article */
           let range = document.createRange();
           range.selectNode(document.getElementById(`component_wrapper-${elem.index}`));
           range.deleteContents()
           range.collapse(false);
+          /* Constructor return our FullReady component to get mounted on DOM */
           _store.list_components[index] = this.getStructureForInstance(elem.component)
+          /* Start Vue Component lifecycle hook that provides us reactive $data and methods */
           _store.list_components[index].instance.$mount()
+          /* Place mounted component on DOM */
           range.insertNode(_store.list_components[index].instance.$el)
+          /* Clear global store data for next circle */
           this.$store.commit('changeSelectedObject', {})
       })
       console.log('insertingDone')
@@ -249,28 +266,48 @@ export default {
     initializeContent() {
       return new Promise((resolve) => {
         console.log('initialize')
+
+        /* First we clean list_components on store */
+        this.$store.commit('clear_list_components', [])
+
+        /* If we have backendView component from API or UNDO/REDO start get data */
         if (_store.components_after_request.length) {
+
+          /* LOADERS & OVERLAY */
           _store.loadingArticle = true
           this.geting_from_server = true
 
+          /* Set content from API or UNDO/REDO */
           this.content = _store.content_from_server
 
-          const promises = []
+          console.log('start check out of sync')
+          this.checkOutOfSync()
+          console.log('end check out of sync')
 
+          /* Requests for get data of list_components, that lay on Array<Promises> */
+          const promises = []
           _store.components_after_request.forEach(elem => {
             promises.push(this.$store.dispatch(`get_${elem.component.name}`, elem))
           })
 
+          /* As soon as Promises done, we start render */
           Promise.allSettled(promises).finally(() => {
             console.log('all promises done')
+
+            /* Sorting list_components for index, to get right structure on article */
             _store.list_components.sort((a,b) => {
               return a.index - b.index
             })
 
+            /* $nextTick to be sure that content rendered on DOM */
             this.$nextTick(() => {
+              /* MAIN RENDER FUCNTION */
               this.renderFunc()
+
+              /* LOADERS & OVERLAY */
               _store.loadingArticle = false
               this.geting_from_server = false
+
               resolve()
             })
           })
@@ -313,9 +350,7 @@ export default {
       this.debounceTimeout = setTimeout(() => {
         _store.content = this.content
         /* Undo/Redo memento manipulation */
-        // this.$nextTick(() => {
         this.$store.commit('change_by_action_editor')
-        // })
       })
 
       /* IF WE DELETED COMPONENT BY KEYBOARD */
@@ -342,10 +377,10 @@ export default {
       if (!_store.txtDisplay.length) this.$store.commit('change_by_action_editor')
 
       this.insertingComponent(data_component).then(() => {
-        // this.changeIndexQuestion()
-        // this.$nextTick(() => {
-        //   this.resetCounter(_store.list_components)
-        // })
+        this.$nextTick(() => {
+          this.resetCounter(_store.list_components)
+          this.changeIndexQuestion()
+        })
         this.saveDB = true
         this.clearStateAfterSelect()
         setTimeout(() => {
@@ -463,8 +498,8 @@ export default {
         elem.data.component[key_data] = global_counter[key_data]
         elem.instance.$data[key_data] = global_counter[key_data]
         console.log('block')
-        console.log(document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`))
         const block = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
+        console.log(block)
         block.id =  `component_wrapper-${global_counter.counter_index}`
         elem.instance.$data.index_component = global_counter.counter_index
 
@@ -490,12 +525,12 @@ export default {
           this.$store.commit('delete_component_by_id', 0)
 
           this.$nextTick(() => {
-            // this.resetCounter(_store.list_components)
-            // this.changeIndexQuestion()
-            this.saveDB = true
-            setTimeout(() => {
-              this.saveDB = false
-            })
+            this.resetCounter(_store.list_components)
+            this.changeIndexQuestion()
+          })
+          this.saveDB = true
+          setTimeout(() => {
+            this.saveDB = false
           })
         }
       }

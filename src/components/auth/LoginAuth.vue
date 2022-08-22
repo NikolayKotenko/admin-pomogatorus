@@ -1,10 +1,16 @@
 <template>
-  <div class="auth_container" contenteditable="false" :id="`component_wrapper-${index_component}`" :class="{componentArticle_wrapper: isComponent}">
+  <div
+      class="auth_container component_container"
+      contenteditable="false"
+      :id="`component_wrapper-${index_component}`"
+      :class="{componentArticle_wrapper: isComponent}"
+      data-name="auth"
+  >
     <div class="componentArticle_wrapper__admin_controls-header" contenteditable="false" v-if="isComponent">
       <img class="componentArticle_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
     </div>
     <v-container>
-      <v-tabs v-model="tab">
+      <v-tabs v-model="tab" hide-slider centered>
         <v-tab :key="0" light>Авторизация</v-tab>
         <v-tab :key="1">Регистрация</v-tab>
         <!--Авторизация-->
@@ -22,6 +28,7 @@
                 single-line
                 required
                 :class="'required'"
+                :disabled="isComponent"
             ></v-text-field>
             <v-text-field
                 v-model="password"
@@ -33,6 +40,7 @@
                 counter
                 required
                 :class="'required field_password'"
+                :disabled="isComponent"
             >
               <template v-slot:append>
                 <v-tooltip
@@ -86,12 +94,14 @@
                 single-line
                 required
                 :class="'required'"
+                :disabled="isComponent"
             ></v-text-field>
             <v-text-field
                 type="text"
                 v-model="name"
                 label="Как к вам обращаться ?"
                 single-line
+                :disabled="isComponent"
             ></v-text-field>
             <v-btn type="submit"
                    :loading="loading"
@@ -276,9 +286,15 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import "src/assets/styles/detail";
 @import "src/assets/styles/componentArticle";
+
+@media only screen and (max-width: 375px) {
+  .v-slide-group__prev {
+    display: none !important;
+  }
+}
 
 form.login{
   margin: 1em;

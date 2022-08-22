@@ -100,6 +100,7 @@
               locale="ru-RU"
               first-day-of-week=1
               :max="maxDate"
+              range
           >
             <v-btn
                 text
@@ -285,9 +286,10 @@
 import 'viewerjs/dist/viewer.css'
 import VueViewer from 'v-viewer'
 import Vue from 'vue'
+import AnswersList from "../components/answers/AnswersList";
+
 Vue.use(VueViewer)
 
-import AnswersList from "../components/answers/AnswersList";
 // import Selector from "../components/table/Selector";
 export default {
   name: "Answers",
@@ -316,6 +318,7 @@ export default {
     }
   }),
   mounted() {
+    this.initialDate()
     this.getItems()
   },
   computed: {
@@ -346,9 +349,24 @@ export default {
         }
       })
       return arr
-    }
+    },
+    refactoredDate() {
+      if (!this.date) return null
+      return this.date.slice().sort((a, b) => {
+        return new Date(a) - new Date(b);
+      })
+    },
   },
   methods: {
+    initialDate() {
+      const today = new Date()
+      const nowDay = new Date().toJSON().slice(0,10)
+      const agoDay = new Date(today.getTime());
+      agoDay.setDate(today.getDate() - 2);
+      this.date = []
+      this.date.push(agoDay.toJSON().slice(0,10))
+      this.date.push(nowDay)
+    },
     isJson(str) {
       try {
         JSON.parse(str);
@@ -387,7 +405,7 @@ export default {
     getItems() {
       this.$store.dispatch('getListAnswers', {
         queryObj: this.filterQuery,
-        date: this.date,
+        date: this.refactoredDate,
         sort: this.sortQuery
       })
     },

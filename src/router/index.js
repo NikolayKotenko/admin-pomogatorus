@@ -156,14 +156,14 @@ router.beforeEach(async (to, from, next) => {
     //   console.log('process.env.NODE_ENV -', process.env.NODE_ENV)
     // console.groupEnd()
 
-    // if (process.env.NODE_ENV === 'production') {
-    if (Vue.$cookies.get('accessToken') === null) {
-      const refreshResponse = await store.dispatch('refreshTokens')
-      if (!refreshResponse) next('/login')
-      if (Logging.checkExistErr(refreshResponse))
-        next('/login')
+    if (process.env.NODE_ENV === 'production') {
+      if (Vue.$cookies.get('accessToken') === null) {
+        const refreshResponse = await store.dispatch('refreshTokens')
+        if (!refreshResponse) next('/login')
+        if (Logging.checkExistErr(refreshResponse))
+          next('/login')
+      }
     }
-    // }
 
     next()
 });

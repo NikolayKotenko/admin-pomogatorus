@@ -39,6 +39,7 @@ function AnswerVariable(answer) {
     this.commentary = answer.commentary
     this.showComentary = true
     this.focused = false
+    this.dataEnv = answer.dataEnv
 }
 
 export default {
@@ -153,7 +154,7 @@ export default {
                     }
                 } else if (key === 'value_type_answer') {
                     // FIXME: парсинг чет страдает
-                    if (result['id_type_answer'] !== 1 && result['id_type_answer'] !== 2) {
+                    // if (result['id_type_answer'] !== 1 && result['id_type_answer'] !== 2) {
                         let parsed = null
                         parsed = JSON.parse(JSON.parse(result[key]))
                         if (Array.isArray(parsed)) {
@@ -164,9 +165,9 @@ export default {
                         } else {
                             state.newQuestion[key] = []
                         }
-                    } else {
-                        state.newQuestion[key] = JSON.parse(result[key])
-                    }
+                    // } else {
+                    //     state.newQuestion[key] = JSON.parse(result[key])
+                    // }
                 } else state.newQuestion[key] = result[key]
             }
             state.nonEditState = Object.assign({}, state.newQuestion)
@@ -497,10 +498,13 @@ export default {
                             let arr = []
                             let obj = {}
                             data[key].map(elem => {
-                                if (elem.answer) {
+                                console.log(elem)
+                                if (elem.answer || elem.dataEnv) {
+                                    console.log(elem.dataEnv)
                                     obj.id = elem.id
                                     obj.answer = elem.answer
                                     obj.commentary = elem.commentary
+                                    obj.dataEnv = elem.dataEnv
                                     arr.push(obj)
                                     obj = {}
                                 }

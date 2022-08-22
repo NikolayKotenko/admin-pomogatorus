@@ -110,17 +110,21 @@ export default {
             const saveCount = state.txtSave.length;
             state.txtSave.splice(index, saveCount);
 
-            state.txtDisplay.push(new ConstructorElem(JSON.stringify(state.content), state.list_components)); // takes whatever was entered in the input and adds it too the displayed array.
-            state.txtSave.push(state.txtDisplay.slice(-1)[0]); // takes the last value in the displayed array and adds it to the end of the saved array.
+            const arr = []
+            state.list_components.forEach(elem => {
+                arr.push(elem.data)
+            })
+            const inserted_components = JSON.stringify(arr)
 
-            console.log(state.txtDisplay.map(elem => elem.html))
+            state.txtDisplay.push(new ConstructorElem(JSON.stringify(state.content), inserted_components)); // takes whatever was entered in the input and adds it too the displayed array.
+            state.txtSave.push(state.txtDisplay.slice(-1)[0]); // takes the last value in the displayed array and adds it to the end of the saved array.
         },
         undo_editor(state) {
             state.txtDisplay.pop();
 
             if (state.txtDisplay.length) {
                 state.content_from_server = JSON.parse(state.txtDisplay.slice(-1)[0].html)
-                state.list_components = state.txtDisplay.slice(-1)[0].components
+                state.components_after_request = JSON.parse(state.txtDisplay.slice(-1)[0].components)
             }
         },
         redo_editor(state) {
@@ -130,13 +134,14 @@ export default {
             if (txtGetValue) {
                 state.txtDisplay.push(txtGetValue);
                 state.content_from_server = JSON.parse(txtGetValue.html)
-                state.list_components = txtGetValue.components
+                state.components_after_request = JSON.parse(txtGetValue.components)
             }
         },
         change_start_render(state, value) {
             state.startRender = value
         },
 
+        /* ARTICLE BODY */
         change_loading_modal_list(state, value) {
             state.loadingModalList = value
         },
@@ -242,7 +247,10 @@ export default {
 
         /* INSERT COMPONENT */
         add_to_list_components(state, elem) {
-          state.list_components.push(elem)
+            state.list_components.push(elem)
+        },
+        clear_list_components(state) {
+            state.list_components = []
         },
         change_list_components(state, result) {
             state.list_questions = result

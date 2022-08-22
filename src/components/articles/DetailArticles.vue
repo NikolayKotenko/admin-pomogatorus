@@ -107,7 +107,7 @@
           </div>
 
           <!-- TEXTAREA -->
-          <text-redactor :newArticle="newArticle" :deletedContent="deletedContent"/>
+          <text-redactor :newArticle="newArticle" :deletedContent="deletedContent" @saveArticle="initialSaveArticle"/>
 
           <!-- Tags Component -->
           <question-tags/>
@@ -428,6 +428,9 @@ export default {
           })
         }
       }
+    },
+    initialSaveArticle() {
+      this.saveArticle(this.newArticle)
     },
     async saveArticle() {
       if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
