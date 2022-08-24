@@ -509,14 +509,25 @@ export default {
       )
     },
     showEnv() {
+      if (!this.newQuestion.value_type_answer || !this.newQuestion.value_type_answer.length) return false
       return (this.newQuestion.id_type_answer.value === 1 || this.newQuestion.id_type_answer.value === 2 || this.newQuestion.id_type_answer.value === 6 || this.newQuestion.id_type_answer.value === 7) && !!this.newQuestion.id_type_answer.value
     },
   },
   methods: {
     /* ENV */
-    setEnvironment(data) {
-      this.newQuestion.name_param_env = data
+    setEnvironment() {
       this.saveDBQuestion(this.newQuestion)
+    },
+    restoreDataEnv() {
+      this.$nextTick(() => {
+        if (this.newQuestion.value_type_answer && this.newQuestion.value_type_answer.length) {
+          this.newQuestion.value_type_answer.forEach(elem => {
+            elem?.dataEnv ? '' : elem.dataEnv = null
+          })
+        } else {
+          this.addVariable()
+        }
+      })
     },
 
     /* indexedDB */
@@ -617,6 +628,7 @@ export default {
         this.$store.dispatch('getDetailQuestion', this.$route.query.question_id).then(() => {
           if (this.$store.state.QuestionsModule.newQuestion.name) {
             this.newQuestion = this.$store.state.QuestionsModule.newQuestion
+            this.restoreDataEnv()
             this.$store.commit('change_cur_num', this.newQuestion.id)
             if (Array.isArray(this.$store.state.QuestionsModule.newQuestion.value_type_answer)) {
               this.lastIdAnswer = this.$store.state.QuestionsModule.newQuestion.value_type_answer.length
