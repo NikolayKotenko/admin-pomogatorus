@@ -48,6 +48,12 @@ export default {
             parentElem: '',
             styleName: 'text-align: justify',
         },
+        formatBlock: {
+            active: false,
+            tag: "<h2",
+            parentElem: 'h2',
+            styleName: 'krkozybtra',
+        }
     },
     array_align_content: [
         {
