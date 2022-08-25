@@ -30,7 +30,7 @@ const defaultArticle = {
         value: '',
         focused: false,
     },
-    activity: false,
+    activity: '0',
     _all_tags: [],
     mtomtags: [],
 }
@@ -256,6 +256,8 @@ export default {
                             })
                         }
                     }
+                } else if (key === 'activity') {
+                    state.newArticle[key] = ''+result[key]
                 } else state.newArticle[key] = result[key]
             }
             state.nonEditState = Object.assign({}, state.newArticle)

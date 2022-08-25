@@ -150,6 +150,8 @@
               <v-checkbox
                   v-model="newArticle.activity"
                   label="Активность"
+                  false-value="0"
+                  true-value="1"
               ></v-checkbox>
             </div>
           </div>
@@ -303,7 +305,7 @@ export default {
         value: '',
         focused: false,
       },
-      activity: false,
+      activity: '0',
       _all_tags: [],
       mtomtags: [],
     },
