@@ -15,13 +15,13 @@
         <v-tab :key="1">Регистрация</v-tab>
         <!--Авторизация-->
         <v-tab-item :key="0">
-          <v-form v-model="valid" class="login"
+          <v-form v-model="valid" class="login" ref="form"
                   @submit.prevent="localLoginUser(`component_wrapper-${index_component}`)"
                   contenteditable="false"
           >
             <v-text-field
                 type="email"
-                name="email"
+                ref="email_user"
                 v-model="email_user"
                 label="Введите почту"
                 :rules="emailRules"
@@ -32,20 +32,43 @@
             ></v-text-field>
             <v-text-field
                 v-model="password"
-                :append-icon="passStateEye ? 'mdi-eye' : 'mdi-eye-off'"
                 :rules="passRules"
                 maxlength="4"
                 :type="passStateEye ? 'text' : 'password'"
-                name="password"
                 label="Введите код доступа"
                 hint="4 символа"
                 counter
-                @click:append="passStateEye = !passStateEye"
                 required
-                :class="'required'"
+                :class="'required field_password'"
                 :disabled="isComponent"
-            ></v-text-field>
+            >
+              <template v-slot:append>
+                <v-tooltip
+                    bottom
+                >
+                  <template v-slot:activator="{ on }">
+                    <v-icon v-on="on" @click="passStateEye = !passStateEye">
+                      {{ passStateEye ? 'mdi-eye' : 'mdi-eye-off' }}
+                    </v-icon>
+                  </template>
+                  Показать/скрыть пароль
+                </v-tooltip>
+              </template>
+              <template v-slot:append-outer>
+                <v-tooltip
+                    bottom
+                >
+                  <template v-slot:activator="{ on }">
+                    <v-icon v-on="on" @click="localResendUserPass(`component_wrapper-${index_component}`)">
+                      mdi-lock-reset
+                    </v-icon>
+                  </template>
+                  Восстановить Код доступа
+                </v-tooltip>
+              </template>
+            </v-text-field>
             <v-btn type="submit"
+                   :loading="loading"
                    color="blue darken-1"
                    elevation="2"
                    large
@@ -65,7 +88,6 @@
           >
             <v-text-field
                 type="email"
-                name="email"
                 v-model="email_user"
                 label="Введите почту"
                 :rules="emailRules"
@@ -76,13 +98,13 @@
             ></v-text-field>
             <v-text-field
                 type="text"
-                name="name"
                 v-model="name"
                 label="Как к вам обращаться ?"
                 single-line
                 :disabled="isComponent"
             ></v-text-field>
             <v-btn type="submit"
+                   :loading="loading"
                    color="blue darken-0"
                    elevation="2"
                    large
@@ -96,7 +118,7 @@
         </v-tab-item>
       </v-tabs>
       <v-alert
-          v-if="alert.state"
+          v-if="alert.state && !loading"
           transition="scale-transition"
           dismissible
           :type="alert.type"
@@ -118,6 +140,7 @@ export default {
     return {
       tab: 0,
       valid: false,
+      loading: false,
       emailRules: [
         v => !!v || 'Обязательное для заполнение поле',
         v => /.+@.+/.test(v) || 'E-mail должен быть валидным.',
@@ -126,9 +149,9 @@ export default {
         v => !!v || 'Обязательное для заполнение поле',
         v => v.length === 4 || 'Необходимо 4 символа',
       ],
-      name: '',
       email_user: '',
       password: '',
+      name: '',
       passStateEye: false,
       alert:{
         state: false,
@@ -164,12 +187,14 @@ export default {
       this.alert.state = true
       this.alert.message = Logging.getMessage(response)
       this.alert.type = Logging.checkExistErr(response) ? 'error' : 'success'
+      this.loading = false
     },
 
     async localLoginUser(index_component){
       if (this.valid === false)
         return false
 
+      this.loading = true;
       const res = await this.$store.dispatch('loginUser',
           {
             'email': this.email_user,
@@ -188,6 +213,7 @@ export default {
       if (this.valid === false)
         return false
 
+      this.loading = true;
       // Пытаемся создать пользователя
       const res = await this.$store.dispatch(
           'createUserByEmail', {
@@ -196,11 +222,34 @@ export default {
             'id_dom_elem': index_component,
             'full_url': window.location.href
           });
-      if (res.codeResponse === 200) {
+      if (res.codeResponse === 200 || res.codeResponse === 409) {
         this.tab = 0;
       }
       this.alertCall(res);
     },
+    async localResendUserPass(index_component){
+      if (this.$refs.email_user.validate(true) === false)
+        return false
+
+      this.loading = true;
+      // Пытаемся создать пользователя
+      const res = await this.$store.dispatch(
+          'resendUserPass', {
+            'email': this.email_user,
+            'name': this.name,
+            'id_dom_elem': index_component,
+            'full_url': window.location.href
+          });
+      if (res.codeResponse === 404){
+        this.email_user = '';
+        this.$refs.email_user.validate(true)
+      }
+      if (res.codeResponse === 200 || res.codeResponse === 409) {
+        this.tab = 0;
+      }
+      this.alertCall(res);
+    },
+
     // inserted_components
     getData() {
       this.index_component = this.$store.state.ArticleModule.counters.layout
@@ -251,6 +300,24 @@ form.login{
   margin: 1em;
   h1{
     margin: auto;
+  }
+}
+
+.auth_container {
+  border-radius: 10px;
+  border: 1px solid lightgrey;
+  @media only screen and (min-width: 768px) {
+    width: 50%;
+    margin: auto;
+  }
+  .required .v-label::after {
+    content: " *";
+    color: red;
+  }
+  .field_password{
+    .v-icon{
+      margin-top: unset;
+    }
   }
 }
 .showBorder {
