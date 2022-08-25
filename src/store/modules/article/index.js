@@ -22,6 +22,15 @@ const defaultArticle = {
         value: '',
         focused: false,
     },
+    seo_description: {
+        value: '',
+        focused: false,
+    },
+    seo_keywords: {
+        value: '',
+        focused: false,
+    },
+    active: false,
     _all_tags: [],
     mtomtags: [],
 }
@@ -54,6 +63,14 @@ export default {
                 focused: false,
             },
             preview: {
+                value: '',
+                focused: false,
+            },
+            seo_description: {
+                value: '',
+                focused: false,
+            },
+            seo_keywords: {
                 value: '',
                 focused: false,
             },
@@ -211,10 +228,12 @@ export default {
                     (key === 'name') ||
                     (key === 'short_header') ||
                     (key === 'purpose_of_article') ||
-                    (key === 'preview')
+                    (key === 'preview') ||
+                    (key === 'seo_description') ||
+                    (key === 'seo_keywords')
                 ) {
                     state.newArticle[key] =  {
-                        value: result[key],
+                        value: result[key] ? result[key] : '',
                         focused: false
                     }
                 } else if (key === 'content') {

@@ -36,9 +36,9 @@
               Поле обязательно для заполнения
             </small>
             <div class="detail-wrapper__content__title__help">
-            <span class="detail-wrapper__content__title__help__title" :class="{focused: newArticle.short_header.focused}">
-              Короткое наименование
-            </span>
+              <span class="detail-wrapper__content__title__help__title" :class="{focused: newArticle.short_header.focused}">
+                Короткое наименование
+              </span>
               <v-textarea
                   class="detail-wrapper__content__title__help__description"
                   :class="{inputFocused: newArticle.short_header.focused, invalid: !newArticle.short_header.value && $v.newArticle.short_header.$dirty && !$v.newArticle.short_header.required}"
@@ -63,13 +63,13 @@
               </small>
             </div>
             <div class="detail-wrapper__content__title__help">
-            <span class="detail-wrapper__content__title__help__title" :class="{focused: newArticle.purpose_of_article.focused}">
-              Описание статьи
-            </span>
+              <span class="detail-wrapper__content__title__help__title" :class="{focused: newArticle.purpose_of_article.focused}">
+                Описание статьи
+              </span>
               <v-textarea
                   class="detail-wrapper__content__title__help__description"
                   :class="{inputFocused: newArticle.purpose_of_article.focused}"
-                  placeholder="Введите описание статьи"
+                  placeholder="Введите цель статьи"
                   auto-grow
                   rows="1"
                   dense
@@ -84,9 +84,9 @@
               ></v-textarea>
             </div>
             <div class="detail-wrapper__content__title__help">
-            <span class="detail-wrapper__content__title__help__title" :class="{focused: newArticle.preview.focused}">
-              Анонс
-            </span>
+              <span class="detail-wrapper__content__title__help__title" :class="{focused: newArticle.preview.focused}">
+                Анонс
+              </span>
               <v-textarea
                   class="detail-wrapper__content__title__help__description"
                   :class="{ inputFocused: newArticle.preview.focused }"
@@ -103,6 +103,54 @@
                   :loading="$store.state.ArticleModule.loadingArticle"
                   @input="saveArticle(newArticle)"
               ></v-textarea>
+            </div>
+            <div class="detail-wrapper__content__title__help">
+              <span class="detail-wrapper__content__title__help__title" :class="{focused: newArticle.seo_description.focused}">
+                SEO-description
+              </span>
+              <v-textarea
+                  class="detail-wrapper__content__title__help__description"
+                  :class="{ inputFocused: newArticle.seo_description.focused }"
+                  placeholder="Введите SEO-описание для статьи"
+                  auto-grow
+                  rows="1"
+                  dense
+                  hide-details
+                  flat
+                  solo
+                  v-model="newArticle.seo_description.value"
+                  @focus="onFocus(newArticle.seo_description)"
+                  @focusout="outFocus(newArticle.seo_description)"
+                  :loading="$store.state.ArticleModule.loadingArticle"
+                  @input="saveArticle(newArticle)"
+              ></v-textarea>
+            </div>
+            <div class="detail-wrapper__content__title__help">
+              <span class="detail-wrapper__content__title__help__title" :class="{focused: newArticle.seo_keywords.focused}">
+                SEO-keywords
+              </span>
+              <v-textarea
+                  class="detail-wrapper__content__title__help__description"
+                  :class="{ inputFocused: newArticle.seo_keywords.focused }"
+                  placeholder="Введите SEO ключевые слова для статьи"
+                  auto-grow
+                  rows="1"
+                  dense
+                  hide-details
+                  flat
+                  solo
+                  v-model="newArticle.seo_keywords.value"
+                  @focus="onFocus(newArticle.seo_keywords)"
+                  @focusout="outFocus(newArticle.seo_keywords)"
+                  :loading="$store.state.ArticleModule.loadingArticle"
+                  @input="saveArticle(newArticle)"
+              ></v-textarea>
+            </div>
+            <div class="detail-wrapper__content__title__help">
+              <v-checkbox
+                  v-model="newArticle.active"
+                  label="Активность"
+              ></v-checkbox>
             </div>
           </div>
 
@@ -247,6 +295,15 @@ export default {
         value: '',
         focused: false,
       },
+      seo_description: {
+        value: '',
+        focused: false,
+      },
+      seo_keywords: {
+        value: '',
+        focused: false,
+      },
+      active: false,
       _all_tags: [],
       mtomtags: [],
     },

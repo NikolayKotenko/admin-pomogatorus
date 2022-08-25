@@ -496,8 +496,6 @@ export default {
       }
     },
     setH2() {
-      console.log(_store.range.commonAncestorContainer.parentElement)
-      console.log(_store.range.commonAncestorContainer.parentElement.tagName === 'H2')
       if (_store.range.commonAncestorContainer.parentElement.tagName === 'H2') {
         document.execCommand('formatBlock', false, 'p');
         iconsModels.icons_panel.formatBlock.active = false
