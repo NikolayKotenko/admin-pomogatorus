@@ -64,7 +64,7 @@
             </div>
             <div class="detail-wrapper__content__title__help">
               <span class="detail-wrapper__content__title__help__title" :class="{focused: newArticle.purpose_of_article.focused}">
-                Описание статьи
+                Цель статьи
               </span>
               <v-textarea
                   class="detail-wrapper__content__title__help__description"
