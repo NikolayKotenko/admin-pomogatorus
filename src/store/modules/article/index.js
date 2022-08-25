@@ -30,7 +30,7 @@ const defaultArticle = {
         value: '',
         focused: false,
     },
-    active: false,
+    activity: false,
     _all_tags: [],
     mtomtags: [],
 }

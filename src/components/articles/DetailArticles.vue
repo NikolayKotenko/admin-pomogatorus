@@ -148,7 +148,7 @@
             </div>
             <div class="detail-wrapper__content__title__help">
               <v-checkbox
-                  v-model="newArticle.active"
+                  v-model="newArticle.activity"
                   label="Активность"
               ></v-checkbox>
             </div>
@@ -303,7 +303,7 @@ export default {
         value: '',
         focused: false,
       },
-      active: false,
+      activity: false,
       _all_tags: [],
       mtomtags: [],
     },
