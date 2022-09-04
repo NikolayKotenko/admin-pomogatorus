@@ -58,7 +58,7 @@ export default {
     this.onkeydownInEditable()
     setTimeout(() => {
       this.initializeContent().then(() => {
-        this.checkOnDeletedComponents()
+        // this.checkOnDeletedComponents()
         this.$nextTick(() => {
           this.resetCounter(_store.list_components)
           this.changeIndexQuestion()
@@ -109,7 +109,7 @@ export default {
               /* Initialise render func */
               this.initializeContent().then(() => {
                 /* Check if some questions was deleted from DB */
-                this.checkOnDeletedComponents()
+                // this.checkOnDeletedComponents()
                 this.$nextTick(() => {
                   /* Reset Counters & Question number */
                   this.resetCounter(_store.list_components)
@@ -330,7 +330,7 @@ export default {
           }).map(elem => {
             console.log('notInclude', !arrIndexes.includes(elem.component.index_component))
             if (!arrIndexes.includes(elem.component.index_questions)) {
-              return elem.index
+              return elem.index_questions
             }
           }).filter(y => y !== undefined)[0]
 
