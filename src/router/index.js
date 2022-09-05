@@ -17,6 +17,8 @@ import Question from "../components/frontLayouts/Question";
 
 import LoginAuth from "../components/auth/LoginAuth";
 import Logging from "@/services/logging";
+import TagsList from "@/components/tags/TagsList";
+import DetailTag from "@/components/tags/DetailTag";
 
 Vue.use(VueRouter)
 
@@ -99,6 +101,33 @@ const routes = [
       returnLink: {
         name: 'Articles',
         path: '/articles'
+      }
+    },
+  },
+  {
+    path: '/tags',
+    name: 'TagsList',
+    component: TagsList,
+    meta: {
+      ru_name: 'Тэги',
+      requiresAuth: true,
+      canCreate: true,
+      createLink: {
+        name: 'DetailTag',
+        params: {action: 'create'},
+      },
+    },
+  },
+  {
+    path: '/tags/:action/',
+    name: 'DetailTag',
+    component: DetailTag,
+    meta: {
+      ru_name: 'Создание нового тэга',
+      requiresAuth: true,
+      returnLink: {
+        name: 'Tags',
+        path: '/tags'
       }
     },
   },

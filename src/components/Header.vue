@@ -151,7 +151,14 @@ export default {
         title: 'Ответы пользователей',
         link: '/answers',
         nameIcon: 'answers.svg'
-      }
+      },
+      {
+        id: 6,
+        icon: 'mdi-message-draw',
+        title: 'Тэги',
+        link: '/tags',
+        nameIcon: 'answers.svg'
+      },
     ]
   }),
   computed: {

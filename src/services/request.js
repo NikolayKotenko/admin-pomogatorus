@@ -31,8 +31,8 @@ export default class Request {
             options.body = JSON.stringify(params) // body data type must match "Content-Type" header
         }
 
-        console.log('options.body');
-        console.log(options.body);
+        // console.log('options.body');
+        // console.log(options.body);
 
         return await fetch(url, options)
             .then(response => response.json())
@@ -48,6 +48,12 @@ export default class Request {
     }
     static async post ( url, params ) {
         return this.request( url, params, 'POST' );
+    }
+    static async put(url, params){
+        return this.request( url, params, 'PUT' );
+    }
+    static async delete(url, params){
+        return this.request( url, params, 'DELETE' );
     }
 
     static bodyFromData(paramBody) {
