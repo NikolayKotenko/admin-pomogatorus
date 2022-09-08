@@ -37,6 +37,15 @@
       <v-spacer></v-spacer>
 
       <v-icon
+          v-if="$route.meta.canEdit"
+          color="green"
+          large
+          style="padding-left: 10px"
+          @click="onEdit()"
+      >
+        mdi-lead-pencil
+      </v-icon>
+      <v-icon
           v-if="$route.meta.canCreate"
           color="green"
           x-large
@@ -167,10 +176,19 @@ export default {
     },
   },
   methods: {
+    onEdit() {
+      this.$route.meta.editLink.query.id = this.$route.query.id;
+      this.$router.push({
+        name: this.$route.meta.editLink.name,
+        params: this.$route.meta.editLink.params,
+        query: this.$route.meta.editLink.query
+      })
+    },
     onCreate() {
       this.$router.push({
         name: this.$route.meta.createLink.name,
         params: this.$route.meta.createLink.params,
+        query: {},
       })
     },
     returnToList() {

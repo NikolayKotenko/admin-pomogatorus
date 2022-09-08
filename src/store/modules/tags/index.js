@@ -18,6 +18,17 @@ export default {
             created_at: null,
             updated_at: null
         },
+        defaultTag: {
+            id: null,
+            code: null,
+            name: null,
+            public: false,
+            description: null,
+            seo_keywords: null,
+            seo_description: null,
+            created_at: null,
+            updated_at: null
+        },
     },
     mutations: {
         changeShowFilters(state, value) {
@@ -32,24 +43,20 @@ export default {
             }
         },
         setTag(state, object){
-            state.tag = {
-                id: null,
-                code: null,
-                name: null,
-                public: false,
-                description: null,
-                seo_keywords: null,
-                seo_description: null,
-                created_at: null,
-                updated_at: null
-            };
+            state.tag = state.defaultTag;
             state.tag = object;
+        },
+        clearTag(state){
+            state.tag = state.defaultTag;
         },
         changeLoadingList(state, value) {
             state.loadingList = value
         },
     },
     actions: {
+        clearTag({commit}){
+            commit('clearTag')
+        },
         async deleteTag({commit, dispatch}) {
             await Request.delete(this.state.BASE_URL+'/dictionary/tags/'+this.state.TagsModule.tag.id)
             await dispatch('getListTags');
@@ -57,10 +64,19 @@ export default {
             commit('changeLoadingList', false)
         },
         async onSubmit({commit, dispatch}){
-            let response = await dispatch('createTag');
-            if (response.codeResponse === 409){
-                this.state.TagsModule.tag.id = response.data.id;
+            if (this.state.TagsModule.tag.name == null)
+                return false;
+
+            let response = null;
+            if (location.pathname.match('edit')){
                 response = await dispatch('updateTag');
+            }
+            else{
+                response = await dispatch('createTag');
+                if (response.codeResponse === 409){
+                    this.state.TagsModule.tag.id = response.data.id;
+                    response = await dispatch('updateTag');
+                }
             }
             commit('setTag', response.data)
         },
@@ -90,14 +106,23 @@ export default {
                 commit('changeLoadingList', false)
             }
         },
-        async getListTags({commit}) {
+        async getListTags({commit}, id) {
             commit('changeLoadingList', true)
 
             try {
                 const result = await Request.get(this.state.BASE_URL+'/dictionary/tags')
                 commit('changeListTags', result.data)
                 const listTags = this.state.TagsModule.listTags;
-                commit('setTag', listTags[listTags.length - 1])
+
+                const getTag = () => {
+                    if (id){
+                        return listTags.find((elem) => elem.id == id)
+                    }
+                    else{
+                        return listTags[listTags.length - 1]
+                    }
+                }
+                commit('setTag', getTag())
 
             } catch (e) {
                 console.log(e)
@@ -106,5 +131,6 @@ export default {
             commit('changeLoadingList', false)
         },
     },
-    getters: {},
+    getters: {
+    },
 }

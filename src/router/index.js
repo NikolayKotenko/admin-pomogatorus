@@ -112,9 +112,15 @@ const routes = [
       ru_name: 'Тэги',
       requiresAuth: true,
       canCreate: true,
+      canEdit: true,
       createLink: {
         name: 'DetailTag',
         params: {action: 'create'},
+      },
+      editLink: {
+        name: 'DetailTag',
+        params: {action: 'edit'},
+        query: {id: null},
       },
     },
   },
@@ -123,7 +129,7 @@ const routes = [
     name: 'DetailTag',
     component: DetailTag,
     meta: {
-      ru_name: 'Создание нового тэга',
+      ru_name: 'Создание/редактирование тэга',
       requiresAuth: true,
       returnLink: {
         name: 'Tags',

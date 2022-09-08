@@ -1,19 +1,29 @@
 <template>
   <div>
-    <vue-editor v-model="$store.state.TagsModule.tag.seo_description"/>
+    <vue-editor
+        v-model="$store.state.TagsModule.tag.description"
+        :disabled="stateEditCreate"
+        :class="{'disabledMode': stateEditCreate}"
+    />
     <v-checkbox
         class="mb-5 mt-5"
         hide-details
         dense
         label="Публичный"
-        @change="$store.dispatch('onSubmit')"
         v-model="$store.state.TagsModule.tag.public"
         :loading="$store.state.TagsModule.loadingList"
-        :disabled="$store.state.TagsModule.loadingList"
+        :disabled="$store.state.TagsModule.loadingList || stateEditCreate"
     >
     </v-checkbox>
     <v-text-field
         class="mt-5"
+        outlined
+        dense
+        label="Seo описание"
+        v-model="$store.state.TagsModule.tag.seo_description"
+        :disabled="$store.state.TagsModule.loadingList || stateEditCreate"
+    ></v-text-field>
+    <v-text-field
         outlined
         dense
         label="Псевдоним"
@@ -46,7 +56,7 @@
               text
               :disabled="$store.state.TagsModule.loadingRequest"
               :loading="$store.state.TagsModule.loadingRequest"
-              @click="$store.dispatch('deleteTag')"
+              @click="$store.dispatch('deleteTag'); $router.push({path: '/tags'});"
           >
             Да
           </v-btn>
@@ -65,26 +75,35 @@ export default {
   data: () => ({
     debounceTimeout: null,
   }),
-  methods:{},
-  watch:{
-    '$store.state.TagsModule.tag.seo_description': {
-      handler(newValue, oldValue) {
-        //TODO
-        console.log('oldValue', String(oldValue))
-        console.log('newValue', String(newValue))
-        if (String(newValue) == String(oldValue))
-          return false;
-
-        if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
-        this.debounceTimeout = setTimeout(() => {
-          this.$store.dispatch('onSubmit')
-        }, 2000)
-      },
-    },
+  methods:{
   },
+  watch:{
+    // '$store.state.TagsModule.tag.seo_description': {
+    //   handler(newValue, oldValue) {
+    //     //TODO
+    //     console.log('oldValue', String(oldValue))
+    //     console.log('newValue', String(newValue))
+    //     if (String(newValue) == String(oldValue))
+    //       return false;
+    //
+    //     if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
+    //     this.debounceTimeout = setTimeout(() => {
+    //       this.$store.dispatch('onSubmit')
+    //     }, 2000)
+    //   },
+    // },
+  },
+  computed:{
+    stateEditCreate(){
+      const aaa = this.$route.params.action === 'edit' || this.$route.params.action === 'create'
+      return !aaa;
+    }
+  }
 }
 </script>
 
 <style scoped>
-
+.quillWrapper.disabledMode{
+  opacity: 0.5;
+}
 </style>

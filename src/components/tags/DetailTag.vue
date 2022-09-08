@@ -4,7 +4,7 @@
       <v-text-field
           outlined
           dense
-          label="Введите новое имя тэга"
+          label="Введите имя тэга"
           item-text="name"
           item-value="id"
           return-object
@@ -12,9 +12,10 @@
           v-model="$store.state.TagsModule.tag.name"
           class="mb-5"
           hide-details
-          @change="$store.dispatch('onSubmit')"
+          required
           :loading="$store.state.TagsModule.loadingList"
           :disabled="$store.state.TagsModule.loadingList"
+          :rules="nameRules"
       >
       </v-text-field>
       <general-tag></general-tag>
@@ -30,7 +31,7 @@
         <v-btn
             color="blue darken-1"
             text
-            @click.prevent="$store.dispatch('onSubmit'); goBack()"
+            @click.prevent="$store.dispatch('onSubmit'); $router.push({path: '/tags'}); "
         >
           Закончить работу
         </v-btn>
@@ -44,19 +45,21 @@ import GeneralTag from "@/components/tags/GeneralTag";
 export default {
   components: {GeneralTag },
   name: "DetailTag",
-  data: () => ({}),
-  mounted() {
+  data: () => ({
+    nameRules: [
+      v => !!v || 'Обязательное для заполнение поле',
+    ]
+  }),
+  async mounted() {
+    await this.$store.dispatch('getListTags', this.$route.query.id)
+
+    console.log(this.$route.params.action);
+    if (this.$route.params.action === 'create')
+      await this.$store.dispatch('clearTag');
   },
-  computed: {
-  },
+  computed: {},
   watch:{},
-  methods: {
-    goBack(){
-      this.$router.push({
-        path: '/tags'
-      })
-    },
-  },
+  methods: {},
 }
 </script>
 

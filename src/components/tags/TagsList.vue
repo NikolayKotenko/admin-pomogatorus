@@ -11,7 +11,6 @@
             item-text="name"
             item-value="id"
             return-object
-            clearable
             v-model="$store.state.TagsModule.tag"
             class="mb-5"
             hide-details
@@ -41,7 +40,16 @@ export default {
   name: "TagsList",
   data: () => ({}),
   mounted() {
-    this.$store.dispatch('getListTags')
+    this.$store.dispatch('getListTags', this.$route.query.id)
+  },
+  watch:{
+    '$store.state.TagsModule.tag.id':{
+      handler(newValue) {
+        this.$router.replace({
+          path: '/tags'+'?id='+newValue
+        }).catch(()=>{});
+      }
+    },
   },
   computed: {},
   methods: {},
