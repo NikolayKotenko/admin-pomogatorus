@@ -31,6 +31,24 @@
         disabled
     ></v-text-field>
 
+    <footer class="detail_footer">
+      <v-btn
+          color="red darken-1"
+          text
+          @click="$store.dispatch('stateModalAction', true)"
+      >
+        Удалить
+      </v-btn>
+      <v-btn
+          v-if="$route.params.action === 'edit' || $route.params.action === 'create'"
+          color="blue darken-1"
+          text
+          @click.prevent="$store.dispatch('onSubmit'); $router.push({path: '/tags'+'?id='+$store.state.TagsModule.tag.id}); "
+      >
+        Закончить работу
+      </v-btn>
+    </footer>
+
     <!--  MODALS  -->
     <v-dialog
         v-model="$store.state.TagsModule.deleteModal"
@@ -44,7 +62,7 @@
           <v-btn
               color="blue darken-1"
               text
-              @click="$store.state.TagsModule.deleteModal = false"
+              @click="$store.dispatch('stateModalAction', false)"
               :disabled="$store.state.TagsModule.loadingRequest"
               :loading="$store.state.TagsModule.loadingRequest"
           >
@@ -102,8 +120,14 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import "src/assets/styles/detail";
+
 .quillWrapper.disabledMode{
   opacity: 0.5;
+}
+.detail_footer{
+  position: fixed;
+  left: 0;
 }
 </style>

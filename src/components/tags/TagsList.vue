@@ -19,16 +19,6 @@
 
       <general-tag></general-tag>
     </v-container>
-
-    <footer class="detail_footer">
-        <v-btn
-            color="red darken-1"
-            text
-            @click="$store.state.TagsModule.deleteModal = true"
-        >
-          Удалить
-        </v-btn>
-    </footer>
   </div>
 </template>
 
@@ -56,7 +46,4 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-@import "src/assets/styles/detail";
-
-</style>
+<style lang="scss" scoped></style>

@@ -18,17 +18,6 @@ export default {
             created_at: null,
             updated_at: null
         },
-        defaultTag: {
-            id: null,
-            code: null,
-            name: null,
-            public: false,
-            description: null,
-            seo_keywords: null,
-            seo_description: null,
-            created_at: null,
-            updated_at: null
-        },
     },
     mutations: {
         changeShowFilters(state, value) {
@@ -43,24 +32,43 @@ export default {
             }
         },
         setTag(state, object){
-            state.tag = state.defaultTag;
+            if (object == null)
+                return false;
+
             state.tag = object;
         },
         clearTag(state){
-            state.tag = state.defaultTag;
+            state.tag = {
+                id: null,
+                code: null,
+                name: null,
+                public: false,
+                description: null,
+                seo_keywords: null,
+                seo_description: null,
+                created_at: null,
+                updated_at: null
+            };
         },
         changeLoadingList(state, value) {
             state.loadingList = value
         },
+        deleteModalCommit(state, value){
+            state.deleteModal = value
+        }
     },
     actions: {
+        stateModalAction({commit}, value){
+            commit('deleteModalCommit', value)
+        },
         clearTag({commit}){
             commit('clearTag')
         },
         async deleteTag({commit, dispatch}) {
+            commit('deleteModalCommit', false)
             await Request.delete(this.state.BASE_URL+'/dictionary/tags/'+this.state.TagsModule.tag.id)
             await dispatch('getListTags');
-            this.state.TagsModule.deleteModal = false
+            commit('clearTag')
             commit('changeLoadingList', false)
         },
         async onSubmit({commit, dispatch}){
@@ -117,9 +125,6 @@ export default {
                 const getTag = () => {
                     if (id){
                         return listTags.find((elem) => elem.id == id)
-                    }
-                    else{
-                        return listTags[listTags.length - 1]
                     }
                 }
                 commit('setTag', getTag())
