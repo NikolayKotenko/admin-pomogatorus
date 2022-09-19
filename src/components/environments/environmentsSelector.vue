@@ -153,7 +153,7 @@ export default {
     selectSecondEnv() {
       this.firstEnv.data.data = this.secondEnv
       this.$emit('update:dataEnv', this.firstEnv);
-      // this.$emit('selectedEnvironment', this.secondEnv)
+      this.$emit('selectedEnvironment', this.secondEnv)
     },
   },
 }

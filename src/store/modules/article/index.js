@@ -1,6 +1,7 @@
 import axios from "axios";
 import qs from "qs";
 
+import _clone from "../../../helpers/deepClone";
 import ConstructorElem from "../../../helpers/undo_redo_article";
 
 /* DEFAULT STATE */
@@ -22,6 +23,15 @@ const defaultArticle = {
         value: '',
         focused: false,
     },
+    seo_description: {
+        value: '',
+        focused: false,
+    },
+    seo_keywords: {
+        value: '',
+        focused: false,
+    },
+    activity: '0',
     _all_tags: [],
     mtomtags: [],
 }
@@ -54,6 +64,14 @@ export default {
                 focused: false,
             },
             preview: {
+                value: '',
+                focused: false,
+            },
+            seo_description: {
+                value: '',
+                focused: false,
+            },
+            seo_keywords: {
                 value: '',
                 focused: false,
             },
@@ -112,7 +130,7 @@ export default {
 
             const arr = []
             state.list_components.forEach(elem => {
-                arr.push(elem.data)
+                arr.push(_clone(elem.data));
             })
             const inserted_components = JSON.stringify(arr)
 
@@ -211,10 +229,12 @@ export default {
                     (key === 'name') ||
                     (key === 'short_header') ||
                     (key === 'purpose_of_article') ||
-                    (key === 'preview')
+                    (key === 'preview') ||
+                    (key === 'seo_description') ||
+                    (key === 'seo_keywords')
                 ) {
                     state.newArticle[key] =  {
-                        value: result[key],
+                        value: result[key] ? result[key] : '',
                         focused: false
                     }
                 } else if (key === 'content') {
@@ -237,6 +257,8 @@ export default {
                             })
                         }
                     }
+                } else if (key === 'activity') {
+                    state.newArticle[key] = ''+result[key]
                 } else state.newArticle[key] = result[key]
             }
             state.nonEditState = Object.assign({}, state.newArticle)

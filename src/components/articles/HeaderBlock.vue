@@ -115,6 +115,23 @@
           <span>{{ item.text }}</span>
         </v-tooltip>
       </div>
+      <!-- Вставить заголовок -->
+      <div class="header__elBlock right">
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <v-icon
+                v-bind="attrs"
+                v-on="on"
+                @click="setH2()"
+                :color="icons_panel.formatBlock.active ? 'blue darken-4' : ''"
+                size="28"
+            >
+              mdi-format-header-2
+            </v-icon>
+          </template>
+          <span>Вставить заголовок</span>
+        </v-tooltip>
+      </div>
       <!-- Отступы -->
       <div class="header__elBlock right">
         <v-tooltip bottom>
@@ -476,6 +493,18 @@ export default {
       document.execCommand(action, false, null);
       if (icon) {
         icon.active = true
+      }
+    },
+    setH2() {
+      if (_store.range.commonAncestorContainer.parentElement.tagName === 'H2') {
+        document.execCommand('formatBlock', false, 'p');
+        iconsModels.icons_panel.formatBlock.active = false
+      } else if (_store.range.commonAncestorContainer.parentElement.tagName === 'DIV') {
+        document.execCommand('formatBlock', false, 'p');
+        iconsModels.icons_panel.formatBlock.active = false
+      } else {
+        document.execCommand('formatBlock', false, 'h2');
+        iconsModels.icons_panel.formatBlock.active = true
       }
     },
     /* MODALS */
