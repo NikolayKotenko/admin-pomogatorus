@@ -58,7 +58,7 @@ export default {
     this.onkeydownInEditable()
     setTimeout(() => {
       this.initializeContent().then(() => {
-        // this.checkOnDeletedComponents()
+        this.checkOnDeletedComponents()
         this.$nextTick(() => {
           this.resetCounter(_store.list_components)
           this.changeIndexQuestion()
@@ -109,7 +109,7 @@ export default {
               /* Initialise render func */
               this.initializeContent().then(() => {
                 /* Check if some questions was deleted from DB */
-                // this.checkOnDeletedComponents()
+                this.checkOnDeletedComponents()
                 this.$nextTick(() => {
                   /* Reset Counters & Question number */
                   this.resetCounter(_store.list_components)
@@ -136,7 +136,7 @@ export default {
     },
     content: {
       cache: false,
-      get: function () { return this.$refs.content.innerHTML ; },
+      get: function () { return this.$refs.content.innerHTML },
       set: function (val) {
         this.$refs.content.innerHTML  = val;
       }
@@ -324,21 +324,21 @@ export default {
           }).map(i => {
             return i.data.component.index_questions
           })
-          console.log(arrIndexes)
+          // console.log(arrIndexes)
           let deletedId = _store.components_after_request.filter(elem => {
             return (elem.component.name === 'question' || elem.component.name === 'questions')
           }).map(elem => {
-            console.log('notInclude', !arrIndexes.includes(elem.component.index_component))
+            // console.log('notInclude', !arrIndexes.includes(elem.component.index_component))
             if (!arrIndexes.includes(elem.component.index_questions)) {
               return elem.index_questions
             }
           }).filter(y => y !== undefined)[0]
 
-          console.log(deletedId)
+          // console.log(deletedId)
 
           if (deletedId) {
             let range = document.createRange();
-            console.log(document.getElementById(`component_wrapper-${deletedId}`))
+            // console.log(document.getElementById(`component_wrapper-${deletedId}`))
             range.selectNode(document.getElementById(`component_wrapper-${deletedId}`));
             range.deleteContents()
             range.collapse(false);
@@ -473,12 +473,11 @@ export default {
           return (elem.data.index == id)
         })
 
-        console.log(block)
+        // console.log(block)
 
         if (component.length) {
           const key_data = `index_${component[0].data.component.name}`
           component[0].instance.$data[key_data] = counter
-          // component[0].data.index = counter
           counter++
         }
       })
@@ -495,20 +494,20 @@ export default {
         counter_index: 1,
       }
 
-      let components = [...document.getElementsByClassName('componentArticle_wrapper')]
-      console.log(components)
+      // let components = [...document.getElementsByClassName('componentArticle_wrapper')]
+      // console.log(components)
 
       array.forEach(elem => {
         console.log('resets id')
-        console.log(elem.data.index)
-        console.log(elem.instance.$data.index_component)
+        // console.log(elem.data.index)
+        // console.log(elem.instance.$data.index_component)
         elem.data.index = global_counter.counter_index
         const key_data = `index_${elem.data.component.name}`
         elem.data.component[key_data] = global_counter[key_data]
         elem.instance.$data[key_data] = global_counter[key_data]
         console.log('block')
         const block = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
-        console.log(block)
+        // console.log(block)
         block.id =  `component_wrapper-${global_counter.counter_index}`
         elem.instance.$data.index_component = global_counter.counter_index
 

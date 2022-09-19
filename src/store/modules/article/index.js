@@ -1,6 +1,7 @@
 import axios from "axios";
 import qs from "qs";
 
+import _clone from "../../../helpers/deepClone";
 import ConstructorElem from "../../../helpers/undo_redo_article";
 
 /* DEFAULT STATE */
@@ -129,7 +130,7 @@ export default {
 
             const arr = []
             state.list_components.forEach(elem => {
-                arr.push(elem.data)
+                arr.push(_clone(elem.data));
             })
             const inserted_components = JSON.stringify(arr)
 
