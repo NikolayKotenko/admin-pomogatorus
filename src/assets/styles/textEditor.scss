@@ -1,5 +1,6 @@
 @media only screen and (max-width: 375px) and (orientation: portrait) {
-  ::v-deep .v-list-item__title, .v-list-item__subtitle {
+  ::v-deep .v-list-item__title,
+  .v-list-item__subtitle {
     font-size: 14px !important;
   }
   ::v-deep .v-list-item {
@@ -11,7 +12,8 @@
   border-bottom: 1px solid lightgray !important;
 }
 
-::v-deep .v-list-item__title, .v-list-item__subtitle {
+::v-deep .v-list-item__title,
+.v-list-item__subtitle {
   text-overflow: unset;
   white-space: pre-wrap;
 }
@@ -117,7 +119,6 @@
   }
 }
 
-
 .overlay {
   position: absolute;
   top: 0;
@@ -136,7 +137,7 @@
 
 .v-menu-item {
   font-size: 1em;
-  padding-left: 10px
+  padding-left: 10px;
 }
 
 ::v-deep .v-color-picker__color {

@@ -1,10 +1,10 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import store from '../store/index'
+import Vue from "vue";
+import VueRouter from "vue-router";
+import store from "../store/index";
 
 /* VIEWS */
 import Desktop from "../views/Desktop";
-import Companies from "../views/Companies"
+import Companies from "../views/Companies";
 import Questions from "../views/Questions";
 import Articles from "../views/Articles";
 import Answers from "../views/Answers";
@@ -18,105 +18,105 @@ import Question from "../components/frontLayouts/Question";
 import LoginAuth from "../components/auth/LoginAuth";
 import Logging from "@/services/logging";
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
 const routes = [
   {
-    path: '/',
-    name: 'Desktop',
+    path: "/",
+    name: "Desktop",
     component: Desktop,
     meta: {
-      ru_name: 'Рабочий стол',
+      ru_name: "Рабочий стол",
       requiresAuth: true,
     },
   },
   {
-    path: '/companies',
-    name: 'Companies',
+    path: "/companies",
+    name: "Companies",
     component: Companies,
     meta: {
-      ru_name: 'Компании',
+      ru_name: "Компании",
       requiresAuth: true,
     },
   },
   {
-    path: '/question',
-    name: 'Question',
+    path: "/question",
+    name: "Question",
     component: Question,
     meta: {
-      ru_name: 'Вопрос',
+      ru_name: "Вопрос",
       requiresAuth: true,
     },
   },
   {
-    path: '/questions',
-    name: 'Questions',
+    path: "/questions",
+    name: "Questions",
     component: Questions,
     meta: {
-      ru_name: 'Список вопросов',
+      ru_name: "Список вопросов",
       requiresAuth: true,
       canCreate: true,
       createLink: {
-        name: 'DetailQuestion',
-        params: {action: 'create'},
+        name: "DetailQuestion",
+        params: { action: "create" },
       },
     },
   },
   {
-    path: '/questions/:action/',
-    name: 'DetailQuestion',
+    path: "/questions/:action/",
+    name: "DetailQuestion",
     component: DetailQuestion,
     meta: {
-      ru_name: 'Вопрос',
+      ru_name: "Вопрос",
       requiresAuth: true,
       returnLink: {
-        name: 'Questions',
-        path: '/questions'
-      }
-    },
-  },
-  {
-    path: '/articles',
-    name: 'Articles',
-    component: Articles,
-    meta: {
-      ru_name: 'Список статей',
-      requiresAuth: true,
-      canCreate: true,
-      createLink: {
-        name: 'DetailArticles',
-        params: {action: 'create'},
+        name: "Questions",
+        path: "/questions",
       },
     },
   },
   {
-    path: '/articles/:action/',
-    name: 'DetailArticles',
-    component: DetailArticles,
+    path: "/articles",
+    name: "Articles",
+    component: Articles,
     meta: {
-      ru_name: 'Статья',
+      ru_name: "Список статей",
       requiresAuth: true,
-      returnLink: {
-        name: 'Articles',
-        path: '/articles'
-      }
+      canCreate: true,
+      createLink: {
+        name: "DetailArticles",
+        params: { action: "create" },
+      },
     },
   },
   {
-    path: '/login/',
-    name: 'login',
+    path: "/articles/:action/",
+    name: "DetailArticles",
+    component: DetailArticles,
+    meta: {
+      ru_name: "Статья",
+      requiresAuth: true,
+      returnLink: {
+        name: "Articles",
+        path: "/articles",
+      },
+    },
+  },
+  {
+    path: "/login/",
+    name: "login",
     component: LoginAuth,
     meta: {
       visible_front: false,
-      ru_name: 'Авторизация',
-    }
+      ru_name: "Авторизация",
+    },
   },
   {
-    path: '/answers',
-    name: 'Answers',
+    path: "/answers",
+    name: "Answers",
     component: Answers,
     meta: {
-      ru_name: 'Ответы пользователей',
+      ru_name: "Ответы пользователей",
       requiresAuth: true,
       canCreate: false,
       // createLink: {
@@ -133,39 +133,36 @@ const routes = [
   //   // which is lazy-loaded when the route is visited.
   //   component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
   // }
-]
+];
 
 const router = new VueRouter({
-  mode: 'history',
+  mode: "history",
   base: process.env.BASE_URL,
-  routes
+  routes,
 });
 
 router.beforeEach(async (to, from, next) => {
-    //Если валидация на этом компоненте не нужна - пропускаем
-    if(! to.matched.some(record => record.meta.requiresAuth))
-      next()
+  //Если валидация на этом компоненте не нужна - пропускаем
+  if (!to.matched.some((record) => record.meta.requiresAuth)) next();
 
-    //Если есть параметр из email письма с авторизацией то аутентифицируем (пишем в userData)
-    if (to.query.userEmail)
-      await store.dispatch('loginUser', {'userEmail': to.query.userEmail})
+  //Если есть параметр из email письма с авторизацией то аутентифицируем (пишем в userData)
+  if (to.query.userEmail)
+    await store.dispatch("loginUser", { userEmail: to.query.userEmail });
 
+  // console.group('tokens')
+  //   console.log("Vue.$cookies.get('accessToken') === null - ", Vue.$cookies.get('accessToken') === null)
+  //   console.log('process.env.NODE_ENV -', process.env.NODE_ENV)
+  // console.groupEnd()
 
-    // console.group('tokens')
-    //   console.log("Vue.$cookies.get('accessToken') === null - ", Vue.$cookies.get('accessToken') === null)
-    //   console.log('process.env.NODE_ENV -', process.env.NODE_ENV)
-    // console.groupEnd()
-
-    if (process.env.NODE_ENV === 'production') {
-      if (Vue.$cookies.get('accessToken') === null) {
-        const refreshResponse = await store.dispatch('refreshTokens')
-        if (!refreshResponse) next('/login')
-        if (Logging.checkExistErr(refreshResponse))
-          next('/login')
-      }
+  if (process.env.NODE_ENV === "production") {
+    if (Vue.$cookies.get("accessToken") === null) {
+      const refreshResponse = await store.dispatch("refreshTokens");
+      if (!refreshResponse) next("/login");
+      if (Logging.checkExistErr(refreshResponse)) next("/login");
     }
+  }
 
-    next()
+  next();
 });
 
-export default router
+export default router;
