@@ -136,7 +136,7 @@ export default {
     },
     content: {
       cache: false,
-      get: function () { return this.$refs.content.innerHTML ; },
+      get: function () { return this.$refs.content.innerHTML },
       set: function (val) {
         this.$refs.content.innerHTML  = val;
       }
@@ -316,26 +316,35 @@ export default {
     },
     checkOnDeletedComponents() {
       this.$nextTick(() => {
+        console.log('start check deleted question')
         if (_store.components_after_request.length !== _store.list_components.length) {
+          console.log('doesnt equal')
           const arrIndexes = _store.list_components.filter(elem => {
             return (elem.data.component.name === 'question' || elem.data.component.name === 'questions')
           }).map(i => {
             return i.data.component.index_questions
           })
+          // console.log(arrIndexes)
           let deletedId = _store.components_after_request.filter(elem => {
             return (elem.component.name === 'question' || elem.component.name === 'questions')
           }).map(elem => {
+            // console.log('notInclude', !arrIndexes.includes(elem.component.index_component))
             if (!arrIndexes.includes(elem.component.index_questions)) {
-              return elem.component.index_questions
+              return elem.index_questions
             }
           }).filter(y => y !== undefined)[0]
+
+          // console.log(deletedId)
+
           if (deletedId) {
             let range = document.createRange();
+            // console.log(document.getElementById(`component_wrapper-${deletedId}`))
             range.selectNode(document.getElementById(`component_wrapper-${deletedId}`));
             range.deleteContents()
             range.collapse(false);
           }
         }
+        console.log('ended check deleted question')
       })
     },
     checkTypeComponent(elem) {
@@ -464,12 +473,11 @@ export default {
           return (elem.data.index == id)
         })
 
-        console.log(block)
+        // console.log(block)
 
         if (component.length) {
           const key_data = `index_${component[0].data.component.name}`
           component[0].instance.$data[key_data] = counter
-          // component[0].data.index = counter
           counter++
         }
       })
@@ -486,20 +494,20 @@ export default {
         counter_index: 1,
       }
 
-      let components = [...document.getElementsByClassName('componentArticle_wrapper')]
-      console.log(components)
+      // let components = [...document.getElementsByClassName('componentArticle_wrapper')]
+      // console.log(components)
 
       array.forEach(elem => {
         console.log('resets id')
-        console.log(elem.data.index)
-        console.log(elem.instance.$data.index_component)
+        // console.log(elem.data.index)
+        // console.log(elem.instance.$data.index_component)
         elem.data.index = global_counter.counter_index
         const key_data = `index_${elem.data.component.name}`
         elem.data.component[key_data] = global_counter[key_data]
         elem.instance.$data[key_data] = global_counter[key_data]
         console.log('block')
         const block = document.getElementById(`component_wrapper-${elem.instance.$data.index_component}`)
-        console.log(block)
+        // console.log(block)
         block.id =  `component_wrapper-${global_counter.counter_index}`
         elem.instance.$data.index_component = global_counter.counter_index
 

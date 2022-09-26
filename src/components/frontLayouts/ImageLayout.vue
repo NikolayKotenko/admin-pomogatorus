@@ -155,6 +155,9 @@ export default {
 .inserted_image {
   width: 100%;
   height: 100%;
+  margin: 0 auto;
+  object-fit: cover;
+  -o-object-fit: cover;
 }
 
 ::v-deep .vdr {
