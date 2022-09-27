@@ -38,7 +38,7 @@
           </div>
           <template>
             <div class="dialog_dropzone_inputs" v-for="(item, index) in dropzone_uploaded" :key="index">
-              <v-img :src="item.full_path" contain></v-img>
+              <v-img :src="$store.state.BASE_URL+item.full_path" contain></v-img>
               <span class="dialog_dropzone_inputs__label"> {{ item.filename }}</span>
               <v-text-field
                   :loading="$store.state.loadingRequestGeneral"
