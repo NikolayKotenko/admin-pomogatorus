@@ -13,8 +13,10 @@ export default {
             name: null,
             public: false,
             description: null,
+            seo_title: null,
             seo_keywords: null,
             seo_description: null,
+            e_client_files: [],
             created_at: null,
             updated_at: null
         },
@@ -44,8 +46,10 @@ export default {
                 name: null,
                 public: false,
                 description: null,
+                seo_title: null,
                 seo_keywords: null,
                 seo_description: null,
+                e_client_files: [],
                 created_at: null,
                 updated_at: null
             };
@@ -67,6 +71,7 @@ export default {
         async deleteTag({commit, dispatch}) {
             commit('deleteModalCommit', false)
             await Request.delete(this.state.BASE_URL+'/dictionary/tags/'+this.state.TagsModule.tag.id)
+            await dispatch('deleteFileGeneral', this.state.TagsModule.tag.e_client_files[0].id)
             await dispatch('getListTags');
             commit('clearTag')
             commit('changeLoadingList', false)

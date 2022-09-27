@@ -22,6 +22,7 @@ import AuthModule from "./modules/auth";
 import AnswersModule from "./modules/answers";
 import TagsModule from "./modules/tags";
 import Request from "../services/request";
+import axios from "axios";
 
 export default new Vuex.Store({
   state: {
@@ -34,6 +35,7 @@ export default new Vuex.Store({
     cur_num: 0,
     loadingAgents: false,
     listAgents: [],
+    loadingRequestGeneral: false,
   },
   mutations: {
     change_notification_modal(state, value) {
@@ -74,6 +76,33 @@ export default new Vuex.Store({
       }
 
       commit('changeLoadingAgents', false)
+    },
+    deleteFileGeneral({state}, id) {
+      state.loadingRequestGeneral = true
+      return new Promise((resolve) => {
+
+        const options = {
+          method: 'DELETE',
+          url: `${this.state.BASE_URL}/entity/files/${id}`,
+          headers: {
+            Authorization: '666777'
+          },
+        }
+
+        axios(options)
+            .then((response) => {
+              //handle success
+              state.loadingRequestGeneral = false
+              resolve()
+              console.log(response);
+            })
+            .catch((response) => {
+              //handle error
+              state.loadingRequestGeneral = false
+              resolve()
+              console.log(response.body);
+            });
+      })
     },
   },
   modules: {

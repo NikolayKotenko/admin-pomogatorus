@@ -10,12 +10,12 @@
           return-object
           clearable
           v-model="$store.state.TagsModule.tag.name"
+          :disabled="$store.state.TagsModule.loadingList"
           class="mb-5"
           hide-details
           required
-          :loading="$store.state.TagsModule.loadingList"
-          :disabled="$store.state.TagsModule.loadingList"
           :rules="nameRules"
+          @change="$store.dispatch('onSubmit');"
       >
       </v-text-field>
       <general-tag></general-tag>
@@ -35,9 +35,9 @@ export default {
     ]
   }),
   async mounted() {
-    await this.$store.dispatch('getListTags', this.$route.query.id)
+    if (this.$route.query?.id)
+      await this.$store.dispatch('getListTags', this.$route.query.id)
 
-    console.log(this.$route.params.action);
     if (this.$route.params.action === 'create')
       await this.$store.dispatch('clearTag');
   },
