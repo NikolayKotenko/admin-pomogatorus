@@ -47,7 +47,7 @@
       </v-icon>
       <v-icon
           v-if="$route.meta.canEdit"
-          :disabled="disabledEditBtn()"
+          :disabled="!this.$route.params.id"
           :color="($route.query.action === 'edit') ? 'red' : 'green'"
           large
           style="padding-left: 10px"
@@ -194,41 +194,20 @@ export default {
   },
   methods: {
     onView(){
-      if (this.$route.name === 'DetailUser'){
-        this.$router.replace({
-          path: this.$route.meta.returnLink.path
-        }).catch(() => {});
-      }
+      this.$router.replace({
+        path: this.$route.meta.returnLink.path
+      }).catch(() => {});
     },
     onEdit() {
-      if (this.$route.name === 'DetailUser'){
-          this.$router.replace({
-            query: {action: 'edit'}
-          }).catch(()=>{});
-      }
-      else{
-        this.$route.meta.editLink.query.id = this.$route.query.id;
-        this.$router.push({
-          name: this.$route.meta.editLink.name,
-          params: this.$route.meta.editLink.params,
-          query: this.$route.meta.editLink.query
-        })
-      }
+        this.$router.replace({
+          query: {action: 'edit'}
+        }).catch(()=>{});
     },
     onCreate() {
-      if (this.$route.name === 'DetailUser'){
-          this.$router.replace({
-            query: {action: 'create'},
-            path: this.$route.meta.returnLink.path
-          }).catch(()=>{});
-      }
-      else {
-        this.$router.push({
-          name: this.$route.meta.createLink.name,
-          params: this.$route.meta.createLink.params,
-          query: {},
-        })
-      }
+        this.$router.replace({
+          query: {action: 'create'},
+          path: this.$route.meta.returnLink.path
+        }).catch(()=>{});
     },
     returnToList() {
       this.$router.push({
@@ -236,14 +215,6 @@ export default {
         path: this.$route.meta.returnLink.path
       })
     },
-    disabledEditBtn(){
-      if (this.$route.name === 'DetailUser'){
-        return !this.$route.params.id
-      }
-      else{
-        return !this.$route.query.id;
-      }
-    }
   },
 }
 </script>

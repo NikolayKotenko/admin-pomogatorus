@@ -41,6 +41,9 @@ export default new Vuex.Store({
       v => !!v || 'Обязательное для заполнение поле',
       v => /.+@.+/.test(v) || 'E-mail должен быть валидным.',
     ],
+    nameRules: [
+      v => !!v || 'Обязательное для заполнение поле',
+    ]
   },
   mutations: {
     change_notification_modal(state, value) {
@@ -56,6 +59,9 @@ export default new Vuex.Store({
     },
     changeLoadingAgents(state, value) {
       state.loadingAgents = value
+    },
+    changeLoadingGeneral(state, value){
+      state.loadingRequestGeneral = value;
     }
   },
   actions: {

@@ -3,7 +3,6 @@ import Request from "../../../services/request";
 export default {
     state: {
         listTags: [],
-        loadingList: false,
         showFilters: false,
         listVariables: [],
         deleteModal: false,
@@ -54,9 +53,6 @@ export default {
                 updated_at: null
             };
         },
-        changeLoadingList(state, value) {
-            state.loadingList = value
-        },
         deleteModalCommit(state, value){
             state.deleteModal = value
         }
@@ -69,58 +65,60 @@ export default {
             commit('clearTag')
         },
         async deleteTag({commit, dispatch}) {
-            commit('deleteModalCommit', false)
+            commit('changeLoadingGeneral', true)
+
+            if (this.state.TagsModule.tag.e_client_files.length) {
+                await dispatch('deleteFileGeneral', this.state.TagsModule.tag.e_client_files[0].id)
+            }
             await Request.delete(this.state.BASE_URL+'/dictionary/tags/'+this.state.TagsModule.tag.id)
-            await dispatch('deleteFileGeneral', this.state.TagsModule.tag.e_client_files[0].id)
             await dispatch('getListTags');
             commit('clearTag')
-            commit('changeLoadingList', false)
+            commit('changeLoadingGeneral', false)
+            commit('deleteModalCommit', false)
         },
         async onSubmit({commit, dispatch}){
             if (this.state.TagsModule.tag.name == null)
                 return false;
 
+            //START
+            commit('changeLoadingGeneral', true)
+
             let response = null;
-            if (location.pathname.match('edit')){
+            if (location.search.match('create')) {
+                response = await dispatch('createTag');
+            } else {
                 response = await dispatch('updateTag');
             }
-            else{
-                response = await dispatch('createTag');
-                if (response.codeResponse === 409){
-                    this.state.TagsModule.tag.id = response.data.id;
-                    response = await dispatch('updateTag');
-                }
-            }
-            commit('setTag', response.data)
+            await dispatch('getListTags', response.data.id);
+
+            //END
+            commit('changeLoadingGeneral', false)
         },
         async createTag({commit}){
-            commit('changeLoadingList', true)
+            commit('changeLoadingGeneral', true)
             try {
                 const response = await Request.post(this.state.BASE_URL+'/dictionary/tags', this.state.TagsModule.tag)
-                commit('changeLoadingList', false)
+                commit('setTag', response.data)
+                commit('changeLoadingGeneral', false)
                 return response;
             } catch (e) {
                 console.log(e)
                 commit('change_notification_modal', e, { root: true })
-                commit('changeLoadingList', false)
+                commit('changeLoadingGeneral', false)
             }
         },
         async updateTag({commit}){
-            commit('changeLoadingList', true)
             try {
-                const response =  await Request.put(
+                return await Request.put(
                     this.state.BASE_URL+'/dictionary/tags/'+this.state.TagsModule.tag.id,
                         this.state.TagsModule.tag)
-                commit('changeLoadingList', false)
-                return response;
             } catch (e) {
                 console.log(e)
                 commit('change_notification_modal', e, { root: true })
-                commit('changeLoadingList', false)
             }
         },
         async getListTags({commit}, id) {
-            commit('changeLoadingList', true)
+            commit('changeLoadingGeneral', true)
 
             try {
                 const result = await Request.get(this.state.BASE_URL+'/dictionary/tags')
@@ -138,7 +136,7 @@ export default {
                 console.log(e)
                 commit('change_notification_modal', e, { root: true })
             }
-            commit('changeLoadingList', false)
+            commit('changeLoadingGeneral', false)
         },
     },
     getters: {
