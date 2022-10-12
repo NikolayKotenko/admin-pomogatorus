@@ -37,8 +37,18 @@
       <v-spacer></v-spacer>
 
       <v-icon
+          v-if="$route.meta.canView"
+          :color="($route.query.action === 'view') ? 'red' : 'green'"
+          large
+          style="padding-left: 10px"
+          @click="onView()"
+      >
+        mdi-home-search
+      </v-icon>
+      <v-icon
           v-if="$route.meta.canEdit"
-          color="green"
+          :disabled="disabledEditBtn()"
+          :color="($route.query.action === 'edit') ? 'red' : 'green'"
           large
           style="padding-left: 10px"
           @click="onEdit()"
@@ -47,7 +57,7 @@
       </v-icon>
       <v-icon
           v-if="$route.meta.canCreate"
-          color="green"
+          :color="($route.query.action === 'create') ? 'red' : 'green'"
           x-large
           style="padding-left: 10px"
           @click="onCreate()"
@@ -168,6 +178,13 @@ export default {
         link: '/tags',
         nameIcon: 'answers.svg'
       },
+      {
+        id: 7,
+        icon: 'mdi-account-arrow-right',
+        title: 'Пользователи',
+        link: '/users',
+        nameIcon: 'answers.svg'
+      },
     ]
   }),
   computed: {
@@ -176,20 +193,42 @@ export default {
     },
   },
   methods: {
+    onView(){
+      if (this.$route.name === 'DetailUser'){
+        this.$router.replace({
+          path: this.$route.meta.returnLink.path
+        }).catch(() => {});
+      }
+    },
     onEdit() {
-      this.$route.meta.editLink.query.id = this.$route.query.id;
-      this.$router.push({
-        name: this.$route.meta.editLink.name,
-        params: this.$route.meta.editLink.params,
-        query: this.$route.meta.editLink.query
-      })
+      if (this.$route.name === 'DetailUser'){
+          this.$router.replace({
+            query: {action: 'edit'}
+          }).catch(()=>{});
+      }
+      else{
+        this.$route.meta.editLink.query.id = this.$route.query.id;
+        this.$router.push({
+          name: this.$route.meta.editLink.name,
+          params: this.$route.meta.editLink.params,
+          query: this.$route.meta.editLink.query
+        })
+      }
     },
     onCreate() {
-      this.$router.push({
-        name: this.$route.meta.createLink.name,
-        params: this.$route.meta.createLink.params,
-        query: {},
-      })
+      if (this.$route.name === 'DetailUser'){
+          this.$router.replace({
+            query: {action: 'create'},
+            path: this.$route.meta.returnLink.path
+          }).catch(()=>{});
+      }
+      else {
+        this.$router.push({
+          name: this.$route.meta.createLink.name,
+          params: this.$route.meta.createLink.params,
+          query: {},
+        })
+      }
     },
     returnToList() {
       this.$router.push({
@@ -197,6 +236,14 @@ export default {
         path: this.$route.meta.returnLink.path
       })
     },
+    disabledEditBtn(){
+      if (this.$route.name === 'DetailUser'){
+        return !this.$route.params.id
+      }
+      else{
+        return !this.$route.query.id;
+      }
+    }
   },
 }
 </script>

@@ -24,7 +24,7 @@
                 ref="email_user"
                 v-model="email_user"
                 label="Введите почту"
-                :rules="emailRules"
+                :rules="$store.state.emailRules"
                 single-line
                 required
                 :class="'required'"
@@ -90,7 +90,7 @@
                 type="email"
                 v-model="email_user"
                 label="Введите почту"
-                :rules="emailRules"
+                :rules="$store.state.emailRules"
                 single-line
                 required
                 :class="'required'"
@@ -141,10 +141,6 @@ export default {
       tab: 0,
       valid: false,
       loading: false,
-      emailRules: [
-        v => !!v || 'Обязательное для заполнение поле',
-        v => /.+@.+/.test(v) || 'E-mail должен быть валидным.',
-      ],
       passRules: [
         v => !!v || 'Обязательное для заполнение поле',
         v => v.length === 4 || 'Необходимо 4 символа',

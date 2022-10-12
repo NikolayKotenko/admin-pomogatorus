@@ -139,7 +139,7 @@
           text
           @click.prevent="$store.dispatch('onSubmit'); $router.push({path: '/tags'+'?id='+$store.state.TagsModule.tag.id}); "
       >
-        Закончить работу
+        Сохранить
       </v-btn>
     </footer>
 
@@ -288,9 +288,5 @@ export default {
 
 .disabledMode{
   opacity: 0.5;
-}
-.detail_footer{
-  position: fixed;
-  left: 0;
 }
 </style>

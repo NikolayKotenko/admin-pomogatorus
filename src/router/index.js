@@ -19,6 +19,7 @@ import LoginAuth from "../components/auth/LoginAuth";
 import Logging from "@/services/logging";
 import TagsList from "@/components/tags/TagsList";
 import DetailTag from "@/components/tags/DetailTag";
+import DetailUser from "@/components/users/DetailUser";
 
 Vue.use(VueRouter)
 
@@ -134,6 +135,31 @@ const routes = [
       returnLink: {
         name: 'Tags',
         path: '/tags'
+      }
+    },
+  },
+  {
+    path: '/users/:id?',
+    name: 'DetailUser',
+    component: DetailUser,
+    meta: {
+      ru_name: 'Просмотр/назначение пользователя',
+      requiresAuth: true,
+      canCreate: true,
+      canEdit: true,
+      canView: true,
+      createLink: {
+        name: 'DetailUser',
+        params: {action: 'create'},
+      },
+      editLink: {
+        name: 'DetailUser',
+        params: {action: 'edit'},
+        query: {id: null},
+      },
+      returnLink: {
+        name: 'Users',
+        path: '/users'
       }
     },
   },

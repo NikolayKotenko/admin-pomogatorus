@@ -21,6 +21,7 @@ import ArticleModule from "./modules/article";
 import AuthModule from "./modules/auth";
 import AnswersModule from "./modules/answers";
 import TagsModule from "./modules/tags";
+import UsersModule from "./modules/users";
 import Request from "../services/request";
 import axios from "axios";
 
@@ -36,6 +37,10 @@ export default new Vuex.Store({
     loadingAgents: false,
     listAgents: [],
     loadingRequestGeneral: false,
+    emailRules: [
+      v => !!v || 'Обязательное для заполнение поле',
+      v => /.+@.+/.test(v) || 'E-mail должен быть валидным.',
+    ],
   },
   mutations: {
     change_notification_modal(state, value) {
@@ -105,11 +110,17 @@ export default new Vuex.Store({
       })
     },
   },
+  getters:{
+    stateEditCreate:() => (action) => {
+      return ['create', 'edit'].includes(action)
+    }
+  },
   modules: {
     QuestionsModule,
     ArticleModule,
     AuthModule,
     AnswersModule,
-    TagsModule
+    TagsModule,
+    UsersModule
   }
 })
