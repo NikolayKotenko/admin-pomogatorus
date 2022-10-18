@@ -62,7 +62,7 @@ export default new Vuex.Store({
     },
     changeLoadingGeneral(state, value){
       state.loadingRequestGeneral = value;
-    }
+    },
   },
   actions: {
     async getListAgents({commit}) {
@@ -115,6 +115,15 @@ export default new Vuex.Store({
             });
       })
     },
+    setTitle(_, title){
+      // console.log('setTitle title = ', title)
+      if (! title) return false;
+      if (document.title.match('>')) return false;
+
+      const dynamicTitle = (title) ? ' > '+title : '';
+      document.title = document.title + dynamicTitle;
+      console.log('2', document.title)
+    }
   },
   getters:{
     stateEditCreate:() => (action) => {

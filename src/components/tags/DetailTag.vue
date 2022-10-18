@@ -249,11 +249,9 @@ export default {
     stateDropzone: false,
     dropzone_uploaded: [],
   }),
-  mounted() {
-    this.$store.dispatch('getListTags', this.$route.params.id)
-  },
-  created() {
-
+  async mounted() {
+    await this.$store.dispatch('getListTags', this.$route.params.id)
+    await this.$store.dispatch('setTitle', this.$store.state.TagsModule.tag.name)
   },
   methods:{
     /* DROPZONE */
@@ -334,6 +332,8 @@ export default {
           path: '/tags/'+idEntry,
           query: currentQuery,
         }).catch(()=>{});
+
+        this.$store.dispatch('setTitle', this.$store.state.TagsModule.tag.name)
       }
     },
     '$route.query.action': {

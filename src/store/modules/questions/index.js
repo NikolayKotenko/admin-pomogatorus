@@ -254,12 +254,13 @@ export default {
             return new Promise((resolve, reject) => {
                 state.loadingList = true
 
-                const {tag, updated_at, name} = data
+                const {tag, updated_at, name, activity} = data
 
                 const filter = {}
                 filter['filter[tag]'] = tag
                 filter['filter[updated_at]'] = updated_at
                 filter['filter[name]'] = name
+                filter['filter[activity]'] = activity
 
                 axios.get(`${this.state.BASE_URL}/entity/questions`, {
                     headers: {

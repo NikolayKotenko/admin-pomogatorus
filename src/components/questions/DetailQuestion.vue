@@ -282,6 +282,13 @@
                 :loading="$store.state.QuestionsModule.loadingQuestion"
                 @change="saveDBQuestion(newQuestion)"
             ></v-checkbox>
+            <v-checkbox
+                v-model.number="newQuestion.activity"
+                label="Активность"
+                :false-value="0"
+                :true-value="1"
+                hide-details
+            ></v-checkbox>
           </div>
           <!-- Tags Component -->
           <question-tags/>
@@ -448,6 +455,7 @@ export default {
       _all_tags: [],
       mtomtags: [],
       name_param_env: '',
+      activity: null,
     },
     deleteModal: false,
     deleteStorage: false,
@@ -484,6 +492,8 @@ export default {
             }, 500)
           }
         }
+
+        this.$store.dispatch('setTitle', this.$store.state.QuestionsModule.newQuestion.name.value)
       },
       deep: true
     },

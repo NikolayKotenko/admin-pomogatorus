@@ -28,6 +28,7 @@ const routes = [
     name: 'Desktop',
     component: Desktop,
     meta: {
+      title: 'Рабочий стол',
       ru_name: 'Рабочий стол',
       requiresAuth: true,
     },
@@ -37,6 +38,7 @@ const routes = [
     name: 'Companies',
     component: Companies,
     meta: {
+      title: 'Компании',
       ru_name: 'Компании',
       requiresAuth: true,
     },
@@ -46,6 +48,7 @@ const routes = [
     name: 'Question',
     component: Question,
     meta: {
+      title: 'Вопрос',
       ru_name: 'Вопрос',
       requiresAuth: true,
     },
@@ -55,6 +58,7 @@ const routes = [
     name: 'Questions',
     component: Questions,
     meta: {
+      title: 'Список вопросов',
       ru_name: 'Список вопросов',
       requiresAuth: true,
       canCreate: true,
@@ -69,7 +73,8 @@ const routes = [
     name: 'DetailQuestion',
     component: DetailQuestion,
     meta: {
-      ru_name: 'Вопрос',
+      title: 'Вопросы',
+      ru_name: 'Вопросы',
       requiresAuth: true,
       returnLink: {
         name: 'Questions',
@@ -82,6 +87,7 @@ const routes = [
     name: 'Articles',
     component: Articles,
     meta: {
+      title: 'Список статей',
       ru_name: 'Список статей',
       requiresAuth: true,
       canCreate: true,
@@ -96,6 +102,7 @@ const routes = [
     name: 'DetailArticles',
     component: DetailArticles,
     meta: {
+      title: 'Статья',
       ru_name: 'Статья',
       requiresAuth: true,
       returnLink: {
@@ -109,6 +116,7 @@ const routes = [
     name: 'DetailTag',
     component: DetailTag,
     meta: {
+      title: 'Создание/редактирование тэга',
       ru_name: 'Создание/редактирование тэга',
       requiresAuth: true,
       canCreate: true,
@@ -134,6 +142,7 @@ const routes = [
     name: 'DetailUser',
     component: DetailUser,
     meta: {
+      title: 'Просмотр/назначение пользователя',
       ru_name: 'Просмотр/назначение пользователя',
       requiresAuth: true,
       canCreate: true,
@@ -160,6 +169,7 @@ const routes = [
     component: LoginAuth,
     meta: {
       visible_front: false,
+      title: 'Авторизация',
       ru_name: 'Авторизация',
     }
   },
@@ -168,6 +178,7 @@ const routes = [
     name: 'Answers',
     component: Answers,
     meta: {
+      title: 'Ответы пользователей',
       ru_name: 'Ответы пользователей',
       requiresAuth: true,
       canCreate: false,
@@ -194,6 +205,8 @@ const router = new VueRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
+    document.title = to.meta.title;
+
     //Если валидация на этом компоненте не нужна - пропускаем
     if(! to.matched.some(record => record.meta.requiresAuth))
       next()

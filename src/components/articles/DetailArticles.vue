@@ -423,6 +423,7 @@ export default {
     },
     '$store.state.ArticleModule.content': {
       handler() {
+        this.$store.dispatch('setTitle', this.$store.state.ArticleModule.newArticle.name.value)
         this.saveArticle(this.newArticle)
       }
     },

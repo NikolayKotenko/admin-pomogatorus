@@ -241,6 +241,7 @@ export default {
   async mounted() {
     await this.$store.dispatch('UsersModule/getListEntries', this.$route.params.id)
     await this.$store.dispatch('UsersModule/getListGroups')
+    await this.$store.dispatch('setTitle', this.$store.state.UsersModule.entry.email)
   },
   methods:{
     async deleteEntryLocal(){
@@ -290,6 +291,8 @@ export default {
           path: '/users/'+idEntry,
           query: currentQuery,
         }).catch(()=>{});
+
+        this.$store.dispatch('setTitle', this.$store.state.UsersModule.entry.email)
       }
     },
     '$route.query.action': {
