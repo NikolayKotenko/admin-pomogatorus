@@ -57,6 +57,43 @@
       >
       </v-combobox>
 
+      <v-checkbox
+          class="pt-5"
+          hide-details
+          dense
+          label="Собственник дома"
+          v-model.number="$store.state.UsersModule.entry.home_owner"
+          false-value="0"
+          true-value="1"
+          :loading="$store.state.UsersModule.loadingList"
+          :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+      >
+      </v-checkbox>
+      <v-checkbox
+          class="pt-5"
+          hide-details
+          dense
+          label="Профессионально занимаюсь монтажом инженерных систем"
+          v-model.number="$store.state.UsersModule.entry.installation_engineering_systems"
+          false-value="0"
+          true-value="1"
+          :loading="$store.state.UsersModule.loadingList"
+          :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+      >
+      </v-checkbox>
+      <v-checkbox
+          class="pt-5 pb-5"
+          hide-details
+          dense
+          label="Занимаюсь продажей инженерного оборудования"
+          v-model.number="$store.state.UsersModule.entry.selling_engineering_equipment"
+          false-value="0"
+          true-value="1"
+          :loading="$store.state.UsersModule.loadingList"
+          :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+      >
+      </v-checkbox>
+
       <!--Email phone -->
       <v-list outlined>
         <v-list-group :value="false" prepend-icon="mdi-card-account-phone">
