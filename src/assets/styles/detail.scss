@@ -1,4 +1,6 @@
 .detail_footer {
+  //margin-top: 20px;
+  left: 0;
   display: flex;
   justify-content: space-between;
   position: sticky;
@@ -11,10 +13,6 @@
   -webkit-box-shadow: 0px -5px 5px -5px rgba(34, 60, 80, 0.6);
   -moz-box-shadow: 0px -5px 5px -5px rgba(34, 60, 80, 0.6);
   box-shadow: 0px -5px 5px -5px rgba(34, 60, 80, 0.6);
-}
-.detail_footer{
-  position: fixed;
-  left: 0;
 }
 .detail_container {
   height: 100%;

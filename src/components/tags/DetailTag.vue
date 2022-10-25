@@ -140,7 +140,8 @@
       >
       </v-checkbox>
       <v-text-field
-          class="mt-5"
+          class="mt-5 mb-5"
+          hide-details
           outlined
           dense
           label="Seo заголовок (seo title)"
@@ -148,7 +149,8 @@
           :disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
       ></v-text-field>
       <v-text-field
-          class=""
+          class="mb-5"
+          hide-details
           outlined
           dense
           label="Seo описание (seo description)"
@@ -157,35 +159,34 @@
       ></v-text-field>
       <v-text-field
           class="mb-5"
+          hide-details
           outlined
           dense
           label="Псевдоним"
           v-model="$store.state.TagsModule.tag.code"
           disabled
       ></v-text-field>
-
-
-
-      <footer class="detail_footer">
-        <v-btn
-            :disabled="$store.state.loadingRequestGeneral || !$store.state.TagsModule.tag.id"
-            color="red darken-1"
-            text
-            @click="$store.dispatch('stateModalAction', true)"
-        >
-          Удалить
-        </v-btn>
-        <v-btn
-            :disabled="!$store.getters.stateEditCreate($route.query.action)"
-            color="blue darken-1"
-            text
-            @click.prevent="onSubmitLocal()"
-        >
-          Сохранить
-        </v-btn>
-      </footer>
-
     </v-container>
+
+    <footer class="detail_footer">
+      <v-btn
+          :disabled="$store.state.loadingRequestGeneral || !$store.state.TagsModule.tag.id"
+          color="red darken-1"
+          text
+          @click="$store.dispatch('stateModalAction', true)"
+      >
+        Удалить
+      </v-btn>
+      <v-btn
+          :disabled="!$store.getters.stateEditCreate($route.query.action)"
+          color="blue darken-1"
+          text
+          @click.prevent="onSubmitLocal()"
+      >
+        Сохранить
+      </v-btn>
+    </footer>
+
     <!--  MODALS  -->
     <v-dialog
         v-model="$store.state.TagsModule.deleteModal"
