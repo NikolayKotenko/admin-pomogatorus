@@ -352,12 +352,8 @@ export default {
     },
     '$store.state.TagsModule.tag.e_client_files':{
       handler(newValue) {
-        if (!newValue) return false;
-
-        if (this.$route.params.action !== 'create') {
-          this.dropzone_uploaded = [];
-          this.dropzone_uploaded = newValue;
-        }
+        this.dropzone_uploaded = [];
+        this.dropzone_uploaded = newValue;
       }
     },
     // 'dropzone_uploaded':{

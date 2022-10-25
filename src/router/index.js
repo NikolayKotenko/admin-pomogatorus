@@ -124,7 +124,7 @@ const routes = [
       canView: true,
       createLink: {
         name: 'DetailTag',
-        params: {action: 'create'},
+        query: {action: 'create'},
       },
       editLink: {
         name: 'DetailTag',
@@ -150,7 +150,7 @@ const routes = [
       canView: true,
       createLink: {
         name: 'DetailUser',
-        params: {action: 'create'},
+        query: {action: 'create'},
       },
       editLink: {
         name: 'DetailUser',

@@ -204,10 +204,11 @@ export default {
         }).catch(()=>{});
     },
     onCreate() {
-        this.$router.replace({
-          query: {action: 'create'},
-          path: this.$route.meta.returnLink.path
-        }).catch(()=>{});
+      this.$router.push({
+        name: this.$route.meta.createLink.name,
+        params: this.$route.meta.createLink.params,
+        query: this.$route.meta.createLink.query,
+      }).catch(() => {})
     },
     returnToList() {
       this.$router.push({

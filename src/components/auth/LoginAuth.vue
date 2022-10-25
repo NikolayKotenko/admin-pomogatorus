@@ -23,7 +23,7 @@
                 type="email"
                 ref="email_user"
                 v-model="email_user"
-                label="Введите почту"
+                placeholder="Введите почту  *"
                 :rules="$store.state.emailRules"
                 single-line
                 required
@@ -31,11 +31,12 @@
                 :disabled="isComponent"
             ></v-text-field>
             <v-text-field
+                ref="password"
                 v-model="password"
                 :rules="passRules"
                 maxlength="4"
                 :type="passStateEye ? 'text' : 'password'"
-                label="Введите код доступа"
+                placeholder="Введите код доступа *"
                 hint="4 символа"
                 counter
                 required
@@ -88,8 +89,9 @@
           >
             <v-text-field
                 type="email"
+                ref="email_user"
                 v-model="email_user"
-                label="Введите почту"
+                placeholder="Введите почту *"
                 :rules="$store.state.emailRules"
                 single-line
                 required
@@ -99,7 +101,7 @@
             <v-text-field
                 type="text"
                 v-model="name"
-                label="Как к вам обращаться ?"
+                placeholder="Как к вам обращаться ?"
                 single-line
                 :disabled="isComponent"
             ></v-text-field>
@@ -187,8 +189,9 @@ export default {
     },
 
     async localLoginUser(index_component){
-      if (this.valid === false)
-        return false
+      if (this.$refs.email_user.validate(true) === false) return false
+      if (this.$refs.password.validate(true) === false) return false
+      if (this.valid === false) return false
 
       this.loading = true;
       const res = await this.$store.dispatch('loginUser',
@@ -206,8 +209,8 @@ export default {
       this.alertCall(res);
     },
     async localCreateUser(index_component){
-      if (this.valid === false)
-        return false
+      if (this.$refs.email_user.validate(true) === false) return false
+      if (this.valid === false) return false
 
       this.loading = true;
       // Пытаемся создать пользователя
