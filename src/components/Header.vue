@@ -47,11 +47,30 @@
       <v-spacer></v-spacer>
 
       <v-icon
-        v-if="$route.meta.canCreate"
-        color="green"
-        x-large
-        style="padding-left: 10px"
-        @click="onCreate()"
+          v-if="$route.meta.canView"
+          :color="($route.query.action === 'view') ? 'red' : 'green'"
+          large
+          style="padding-left: 10px"
+          @click="onView()"
+      >
+        mdi-home-search
+      </v-icon>
+      <v-icon
+          v-if="$route.meta.canEdit"
+          :disabled="!this.$route.params.id"
+          :color="($route.query.action === 'edit') ? 'red' : 'green'"
+          large
+          style="padding-left: 10px"
+          @click="onEdit()"
+      >
+        mdi-lead-pencil
+      </v-icon>
+      <v-icon
+          v-if="$route.meta.canCreate"
+          :color="($route.query.action === 'create') ? 'red' : 'green'"
+          x-large
+          style="padding-left: 10px"
+          @click="onCreate()"
       >
         mdi-plus-thick
       </v-icon>
@@ -144,12 +163,26 @@ export default {
       },
       {
         id: 5,
-        icon: "mdi-message-draw",
-        title: "Ответы пользователей",
-        link: "/answers",
-        nameIcon: "answers.svg",
+        icon: 'mdi-message-draw',
+        title: 'Ответы пользователей',
+        link: '/answers',
+        nameIcon: 'answers.svg'
       },
-    ],
+      {
+        id: 6,
+        icon: 'mdi-message-draw',
+        title: 'Тэги',
+        link: '/tags',
+        nameIcon: 'answers.svg'
+      },
+      {
+        id: 7,
+        icon: 'mdi-account-arrow-right',
+        title: 'Пользователи',
+        link: '/users',
+        nameIcon: 'answers.svg'
+      },
+    ]
   }),
   computed: {
     computedArrowBurger() {
@@ -160,11 +193,22 @@ export default {
     },
   },
   methods: {
+    onView(){
+      this.$router.replace({
+        path: this.$route.meta.returnLink.path
+      }).catch(() => {});
+    },
+    onEdit() {
+        this.$router.replace({
+          query: {action: 'edit'}
+        }).catch(()=>{});
+    },
     onCreate() {
       this.$router.push({
         name: this.$route.meta.createLink.name,
         params: this.$route.meta.createLink.params,
-      });
+        query: this.$route.meta.createLink.query,
+      }).catch(() => {})
     },
     returnToList() {
       this.$router.push({

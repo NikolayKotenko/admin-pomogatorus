@@ -244,7 +244,7 @@
           <div class="answer_block">
             <span class="answer_block__title"> Статья: </span>
             <span class="answer_block__value">
-              {{ detail.e_article.name }}
+              {{ (detail.e_article) ? detail.e_article.name : '' }}
             </span>
           </div>
           <div class="answer_block">

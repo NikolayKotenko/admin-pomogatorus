@@ -34,27 +34,28 @@
             contenteditable="false"
           >
             <v-text-field
-              type="email"
-              ref="email_user"
-              v-model="email_user"
-              label="Введите почту"
-              :rules="emailRules"
-              single-line
-              required
-              :class="'required'"
-              :disabled="isComponent"
+                type="email"
+                ref="email_user"
+                v-model="email_user"
+                placeholder="Введите почту  *"
+                :rules="$store.state.emailRules"
+                single-line
+                required
+                :class="'required'"
+                :disabled="isComponent"
             ></v-text-field>
             <v-text-field
-              v-model="password"
-              :rules="passRules"
-              maxlength="4"
-              :type="passStateEye ? 'text' : 'password'"
-              label="Введите код доступа"
-              hint="4 символа"
-              counter
-              required
-              :class="'required field_password'"
-              :disabled="isComponent"
+                ref="password"
+                v-model="password"
+                :rules="passRules"
+                maxlength="4"
+                :type="passStateEye ? 'text' : 'password'"
+                placeholder="Введите код доступа *"
+                hint="4 символа"
+                counter
+                required
+                :class="'required field_password'"
+                :disabled="isComponent"
             >
               <template v-slot:append>
                 <v-tooltip bottom>
@@ -109,21 +110,22 @@
             contenteditable="false"
           >
             <v-text-field
-              type="email"
-              v-model="email_user"
-              label="Введите почту"
-              :rules="emailRules"
-              single-line
-              required
-              :class="'required'"
-              :disabled="isComponent"
+                type="email"
+                ref="email_user"
+                v-model="email_user"
+                placeholder="Введите почту *"
+                :rules="$store.state.emailRules"
+                single-line
+                required
+                :class="'required'"
+                :disabled="isComponent"
             ></v-text-field>
             <v-text-field
-              type="text"
-              v-model="name"
-              label="Как к вам обращаться ?"
-              single-line
-              :disabled="isComponent"
+                type="text"
+                v-model="name"
+                placeholder="Как к вам обращаться ?"
+                single-line
+                :disabled="isComponent"
             ></v-text-field>
             <v-btn
               type="submit"
@@ -164,10 +166,6 @@ export default {
       tab: 0,
       valid: false,
       loading: false,
-      emailRules: [
-        (v) => !!v || "Обязательное для заполнение поле",
-        (v) => /.+@.+/.test(v) || "E-mail должен быть валидным.",
-      ],
       passRules: [
         (v) => !!v || "Обязательное для заполнение поле",
         (v) => v.length === 4 || "Необходимо 4 символа",
@@ -213,8 +211,10 @@ export default {
       this.loading = false;
     },
 
-    async localLoginUser(index_component) {
-      if (this.valid === false) return false;
+    async localLoginUser(index_component){
+      if (this.$refs.email_user.validate(true) === false) return false
+      if (this.$refs.password.validate(true) === false) return false
+      if (this.valid === false) return false
 
       this.loading = true;
       const res = await this.$store.dispatch("loginUser", {
@@ -230,8 +230,9 @@ export default {
       }
       this.alertCall(res);
     },
-    async localCreateUser(index_component) {
-      if (this.valid === false) return false;
+    async localCreateUser(index_component){
+      if (this.$refs.email_user.validate(true) === false) return false
+      if (this.valid === false) return false
 
       this.loading = true;
       // Пытаемся создать пользователя

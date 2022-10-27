@@ -1,29 +1,30 @@
 <template>
   <div class="environments_wrapper" :class="{ removeSpace: flat }">
     <v-autocomplete
-      :class="{ innerSelector: flat, focused: flatFocused }"
-      :outlined="!flat"
-      :solo="flat"
-      :flat="flat"
-      dense
-      hide-details
-      :placeholder="flat ? 'Введите переменную окружения' : 'Начните ввод'"
-      :loading="loadingList"
-      :disabled="loadingList"
-      hide-no-data
-      :label="flat ? '' : 'Поиск...'"
-      :search-input.sync="search"
-      @update:search-input="getValues()"
-      :items="firstEnvItemsArray"
-      item-text="text"
-      item-value="query"
-      return-object
-      clearable
-      @change="selectFirstEnv()"
-      v-model="firstEnv"
-      no-filter
-      @focus="$emit('onFocus', 'envFocused')"
-      @focusout="$emit('outFocus', 'envFocused')"
+        prepend-icon="mdi-paperclip"
+        :class="{innerSelector: flat, focused: flatFocused}"
+        :outlined="!flat"
+        :solo="flat"
+        :flat="flat"
+        dense
+        hide-details
+        :placeholder="flat ? 'Введите переменную окружения' : 'Начните ввод'"
+        :loading="loadingList"
+        :disabled="loadingList"
+        hide-no-data
+        :label="flat ? '' : 'Поиск...'"
+        :search-input.sync="search"
+        @update:search-input="getValues()"
+        :items="firstEnvItemsArray"
+        item-text="text"
+        item-value="query"
+        return-object
+        clearable
+        @change="selectFirstEnv()"
+        v-model="firstEnv"
+        no-filter
+        @focus="$emit('onFocus', 'envFocused')"
+        @focusout="$emit('outFocus', 'envFocused')"
     >
       <template v-slot:selection="data" v-if="!flat">
         <v-chip v-bind="data.attrs" :input-value="data.selected" small>
@@ -45,27 +46,27 @@
       </template>
     </v-autocomplete>
     <template v-if="checkFirst">
-      <div class="divider" v-if="flat"></div>
       <v-autocomplete
-        :class="{ innerSelector: flat, focused: flatFocused }"
-        :outlined="!flat"
-        :solo="flat"
-        :flat="flat"
-        dense
-        hide-details
-        placeholder="Выберите"
-        :loading="loadingList"
-        :disabled="loadingList"
-        hide-no-data
-        :label="flat ? '' : 'Выберите'"
-        :items="secondEnvItemsArray"
-        item-text="ru_text"
-        return-object
-        clearable
-        @change="selectSecondEnv()"
-        v-model="secondEnv"
-        @focus="$emit('onFocus', 'envFocused')"
-        @focusout="$emit('outFocus', 'envFocused')"
+          prepend-icon="mdi-grid"
+          :class="{innerSelector: flat, focused: flatFocused}"
+          :outlined="!flat"
+          :solo="flat"
+          :flat="flat"
+          dense
+          hide-details
+          placeholder="Выберите"
+          :loading="loadingList"
+          :disabled="loadingList"
+          hide-no-data
+          :label="flat ? '' : 'Выберите'"
+          :items="secondEnvItemsArray"
+          item-text="ru_text"
+          return-object
+          clearable
+          @change="selectSecondEnv()"
+          v-model="secondEnv"
+          @focus="$emit('onFocus', 'envFocused')"
+          @focusout="$emit('outFocus', 'envFocused')"
       >
       </v-autocomplete>
     </template>

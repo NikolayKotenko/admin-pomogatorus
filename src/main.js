@@ -13,6 +13,8 @@ Vue.config.productionTip = false;
 
 WebFont.load({ google: { families: ["Roboto"] } });
 
+Vue.config.devtools = true;
+
 new Vue({
   router,
   store,

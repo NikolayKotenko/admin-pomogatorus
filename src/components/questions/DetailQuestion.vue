@@ -201,51 +201,43 @@
                     :key="answer.id"
                   >
                     <v-textarea
-                      class="question_main_wrapper__item__value"
-                      :class="{ inputFocused: answer.focused }"
-                      placeholder="Введите значение"
-                      auto-grow
-                      multi-line
-                      rows="1"
-                      dense
-                      hide-details
-                      flat
-                      solo
-                      :append-icon="
-                        answer.showComentary
-                          ? 'mdi-menu-right'
-                          : 'mdi-menu-down'
-                      "
-                      @click:append="
-                        answer.showComentary = !answer.showComentary
-                      "
-                      v-model="answer.answer"
-                      @focus="onFocus(newQuestion.id_type_answer, answer.id)"
-                      @focusout="
-                        outFocus(newQuestion.id_type_answer, answer.id)
-                      "
-                      @input="saveDBQuestion(newQuestion)"
+                        prepend-icon="mdi-message-reply-outline"
+                        class="question_main_wrapper__item__value"
+                        :class="{inputFocused: answer.focused}"
+                        placeholder="Введите значение"
+                        auto-grow
+                        multi-line
+                        rows="1"
+                        dense
+                        hide-details
+                        flat
+                        solo
+                        :append-icon="answer.showComentary ? 'mdi-menu-right' : 'mdi-menu-down'"
+                        @click:append="answer.showComentary = !answer.showComentary"
+                        v-model="answer.answer"
+                        @focus="onFocus(newQuestion.id_type_answer, answer.id);"
+                        @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
+                        @input="saveDBQuestion(newQuestion)"
                     >
                     </v-textarea>
                     <template v-if="answer.showComentary">
                       <div class="divider"></div>
                       <v-textarea
-                        class="question_main_wrapper__item__description"
-                        :class="{ inputFocused: answer.focused }"
-                        placeholder="Введите примечание"
-                        auto-grow
-                        rows="1"
-                        dense
-                        multi-line
-                        hide-details
-                        flat
-                        solo
-                        v-model="answer.commentary"
-                        @focus="onFocus(newQuestion.id_type_answer, answer.id)"
-                        @focusout="
-                          outFocus(newQuestion.id_type_answer, answer.id)
-                        "
-                        @input="saveDBQuestion(newQuestion)"
+                          prepend-icon="mdi-help-circle-outline"
+                          class="question_main_wrapper__item__description"
+                          :class="{inputFocused: answer.focused}"
+                          placeholder="Введите примечание"
+                          auto-grow
+                          rows="1"
+                          dense
+                          multi-line
+                          hide-details
+                          flat
+                          solo
+                          v-model="answer.commentary"
+                          @focus="onFocus(newQuestion.id_type_answer, answer.id)"
+                          @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
+                          @input="saveDBQuestion(newQuestion)"
                       ></v-textarea>
                       <div class="divider"></div>
                       <!-- ENVIRONMENTS -->
@@ -352,12 +344,19 @@
               @change="saveDBQuestion(newQuestion)"
             ></v-checkbox>
             <v-checkbox
-              hide-details
-              class="question_settings__checkbox"
-              label="Наличие вложения в ответе"
-              v-model="newQuestion.state_attachment_response"
-              :loading="$store.state.QuestionsModule.loadingQuestion"
-              @change="saveDBQuestion(newQuestion)"
+                hide-details
+                class="question_settings__checkbox"
+                label="Наличие вложения в ответе"
+                v-model="newQuestion.state_attachment_response"
+                :loading="$store.state.QuestionsModule.loadingQuestion"
+                @change="saveDBQuestion(newQuestion)"
+            ></v-checkbox>
+            <v-checkbox
+                v-model.number="newQuestion.activity"
+                label="Активность"
+                :false-value="0"
+                :true-value="1"
+                hide-details
             ></v-checkbox>
           </div>
           <!-- Tags Component -->
@@ -516,6 +515,7 @@ export default {
       value_type_answer: "",
       _all_tags: [],
       mtomtags: [],
+      activity: null,
       name_param_env: "",
     },
     deleteModal: false,
@@ -569,6 +569,8 @@ export default {
             }, 500);
           }
         }
+
+        this.$store.dispatch('setTitle', this.$store.state.QuestionsModule.newQuestion.name.value)
       },
       deep: true,
     },
@@ -1110,6 +1112,7 @@ export default {
 
           &__item {
             border-bottom: 1px solid lightgray;
+            padding: 10px;
 
             &__value {
               font-size: 14px;
@@ -1128,12 +1131,6 @@ export default {
               > .v-input__slot,
             .v-text-field.v-text-field--enclosed .v-text-field__details {
               padding: 0 6px !important;
-            }
-
-            .divider {
-              border-bottom: 1px dashed;
-              width: 15%;
-              margin-left: 6px;
             }
 
             &__description {
@@ -1216,5 +1213,13 @@ export default {
 
 ::v-deep .v-dialog > .v-card > .v-card__title {
   justify-content: center;
+}
+</style>
+<style lang="scss">
+.divider {
+  border-bottom: 1px dashed;
+  width: 30vw!important;
+  //margin-left: 6px;
+  margin: 5px 0!important;
 }
 </style>
