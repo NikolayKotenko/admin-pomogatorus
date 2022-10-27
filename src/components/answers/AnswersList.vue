@@ -41,7 +41,9 @@
         <td>
           {{ nameAnswer(row) }}
         </td>
-        <td v-html="answer(row)">
+        <td>
+          <v-icon v-if="row.e_client_files.length">mdi-paperclip</v-icon>
+          <span v-html="answer(row)"></span>
         </td>
         <td>
           {{ row.updated_at }}
