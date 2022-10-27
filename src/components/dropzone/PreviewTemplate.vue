@@ -1,10 +1,15 @@
 <template>
   <v-card class="wrapper">
     <div data-dz-image>
-      <img data-dz-thumbnail alt="" class="image">
+      <img data-dz-thumbnail alt="" class="image" />
     </div>
     <div class="menu">
-      <img class="dz_close" data-dz-remove :src="require('/src/assets/svg/close.svg')" alt="close">
+      <img
+        class="dz_close"
+        data-dz-remove
+        :src="require('/src/assets/svg/close.svg')"
+        alt="close"
+      />
       <span id="name" data-dz-name></span>
       <span data-dz-size></span>
     </div>
@@ -14,7 +19,7 @@
 <script>
 export default {
   name: "PreviewTemplate",
-}
+};
 </script>
 
 <style scoped lang="scss">
@@ -40,7 +45,7 @@ export default {
     width: 100%;
     height: 100%;
     opacity: 0;
-    transition: all .4s ease-in-out;
+    transition: all 0.4s ease-in-out;
     top: 0;
     display: flex;
     flex-direction: column;

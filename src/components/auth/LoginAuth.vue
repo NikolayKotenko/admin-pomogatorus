@@ -1,13 +1,22 @@
 <template>
   <div
-      class="auth_container component_container"
-      contenteditable="false"
-      :id="`component_wrapper-${index_component}`"
-      :class="{componentArticle_wrapper: isComponent}"
-      data-name="auth"
+    class="auth_container component_container"
+    contenteditable="false"
+    :id="`component_wrapper-${index_component}`"
+    :class="{ componentArticle_wrapper: isComponent }"
+    data-name="auth"
   >
-    <div class="componentArticle_wrapper__admin_controls-header" contenteditable="false" v-if="isComponent">
-      <img class="componentArticle_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
+    <div
+      class="componentArticle_wrapper__admin_controls-header"
+      contenteditable="false"
+      v-if="isComponent"
+    >
+      <img
+        class="componentArticle_wrapper__admin_controls-header__img"
+        :src="require(`/src/assets/svg/closeIcon.svg`)"
+        alt="close"
+        @click="deleteQuestion()"
+      />
     </div>
     <v-container>
       <v-tabs v-model="tab" hide-slider centered>
@@ -15,9 +24,14 @@
         <v-tab :key="1">Регистрация</v-tab>
         <!--Авторизация-->
         <v-tab-item :key="0">
-          <v-form v-model="valid" class="login" ref="form"
-                  @submit.prevent="localLoginUser(`component_wrapper-${index_component}`)"
-                  contenteditable="false"
+          <v-form
+            v-model="valid"
+            class="login"
+            ref="form"
+            @submit.prevent="
+              localLoginUser(`component_wrapper-${index_component}`)
+            "
+            contenteditable="false"
           >
             <v-text-field
                 type="email"
@@ -44,23 +58,26 @@
                 :disabled="isComponent"
             >
               <template v-slot:append>
-                <v-tooltip
-                    bottom
-                >
+                <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
                     <v-icon v-on="on" @click="passStateEye = !passStateEye">
-                      {{ passStateEye ? 'mdi-eye' : 'mdi-eye-off' }}
+                      {{ passStateEye ? "mdi-eye" : "mdi-eye-off" }}
                     </v-icon>
                   </template>
                   Показать/скрыть пароль
                 </v-tooltip>
               </template>
               <template v-slot:append-outer>
-                <v-tooltip
-                    bottom
-                >
+                <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
-                    <v-icon v-on="on" @click="localResendUserPass(`component_wrapper-${index_component}`)">
+                    <v-icon
+                      v-on="on"
+                      @click="
+                        localResendUserPass(
+                          `component_wrapper-${index_component}`
+                        )
+                      "
+                    >
                       mdi-lock-reset
                     </v-icon>
                   </template>
@@ -68,14 +85,15 @@
                 </v-tooltip>
               </template>
             </v-text-field>
-            <v-btn type="submit"
-                   :loading="loading"
-                   color="blue darken-1"
-                   elevation="2"
-                   large
-                   rounded
-                   block
-                   class="btn-auth"
+            <v-btn
+              type="submit"
+              :loading="loading"
+              color="blue darken-1"
+              elevation="2"
+              large
+              rounded
+              block
+              class="btn-auth"
             >
               Войти
             </v-btn>
@@ -83,9 +101,13 @@
         </v-tab-item>
         <!--Регистрация-->
         <v-tab-item :key="1">
-          <v-form v-model="valid" class="login"
-                  @submit.prevent="localCreateUser(`component_wrapper-${index_component}`)"
-                  contenteditable="false"
+          <v-form
+            v-model="valid"
+            class="login"
+            @submit.prevent="
+              localCreateUser(`component_wrapper-${index_component}`)
+            "
+            contenteditable="false"
           >
             <v-text-field
                 type="email"
@@ -105,14 +127,15 @@
                 single-line
                 :disabled="isComponent"
             ></v-text-field>
-            <v-btn type="submit"
-                   :loading="loading"
-                   color="blue darken-0"
-                   elevation="2"
-                   large
-                   rounded
-                   block
-                   class="btn-auth"
+            <v-btn
+              type="submit"
+              :loading="loading"
+              color="blue darken-0"
+              elevation="2"
+              large
+              rounded
+              block
+              class="btn-auth"
             >
               Зарегестрироваться
             </v-btn>
@@ -120,12 +143,12 @@
         </v-tab-item>
       </v-tabs>
       <v-alert
-          v-if="alert.state && !loading"
-          transition="scale-transition"
-          dismissible
-          :type="alert.type"
-          :value="alert.state"
-          @input="alert.state = false"
+        v-if="alert.state && !loading"
+        transition="scale-transition"
+        dismissible
+        :type="alert.type"
+        :value="alert.state"
+        @input="alert.state = false"
       >
         <span v-html="alert.message"></span>
       </v-alert>
@@ -138,23 +161,23 @@ import Logging from "@/services/logging";
 
 export default {
   name: "LoginAuth",
-  data(){
+  data() {
     return {
       tab: 0,
       valid: false,
       loading: false,
       passRules: [
-        v => !!v || 'Обязательное для заполнение поле',
-        v => v.length === 4 || 'Необходимо 4 символа',
+        (v) => !!v || "Обязательное для заполнение поле",
+        (v) => v.length === 4 || "Необходимо 4 символа",
       ],
-      email_user: '',
-      password: '',
-      name: '',
+      email_user: "",
+      password: "",
+      name: "",
       passStateEye: false,
-      alert:{
+      alert: {
         state: false,
-        type: 'info',
-        message: '',
+        type: "info",
+        message: "",
       },
 
       // inserted_component
@@ -165,27 +188,27 @@ export default {
       inserting_component: false,
 
       dataForRerender: {},
-    }
+    };
   },
   mounted() {
-    this.inserting_component = this.$store.state.AuthModule.inserting_component
-    this.$store.state.AuthModule.inserting_component = false
-    console.log('isComponent?', this.isComponent)
-    if (this.isComponent){
-      this.getData()
+    this.inserting_component = this.$store.state.AuthModule.inserting_component;
+    this.$store.state.AuthModule.inserting_component = false;
+    console.log("isComponent?", this.isComponent);
+    if (this.isComponent) {
+      this.getData();
     }
   },
-  computed : {
+  computed: {
     isComponent() {
-      return this.$store.getters.checkAdminPanel && this.inserting_component
-    }
+      return this.$store.getters.checkAdminPanel && this.inserting_component;
+    },
   },
   methods: {
-    alertCall(response){
-      this.alert.state = true
-      this.alert.message = Logging.getMessage(response)
-      this.alert.type = Logging.checkExistErr(response) ? 'error' : 'success'
-      this.loading = false
+    alertCall(response) {
+      this.alert.state = true;
+      this.alert.message = Logging.getMessage(response);
+      this.alert.type = Logging.checkExistErr(response) ? "error" : "success";
+      this.loading = false;
     },
 
     async localLoginUser(index_component){
@@ -194,17 +217,16 @@ export default {
       if (this.valid === false) return false
 
       this.loading = true;
-      const res = await this.$store.dispatch('loginUser',
-          {
-            'email': this.email_user,
-            'password': this.password,
-            'id_dom_elem': index_component,
-            'full_url': window.location.href
-          });
+      const res = await this.$store.dispatch("loginUser", {
+        email: this.email_user,
+        password: this.password,
+        id_dom_elem: index_component,
+        full_url: window.location.href,
+      });
       if (res.codeResponse === 202) {
-          await this.$router.push({
-            path: '/'
-          })
+        await this.$router.push({
+          path: "/",
+        });
       }
       this.alertCall(res);
     },
@@ -214,34 +236,31 @@ export default {
 
       this.loading = true;
       // Пытаемся создать пользователя
-      const res = await this.$store.dispatch(
-          'createUserByEmail', {
-            'email': this.email_user,
-            'name': this.name,
-            'id_dom_elem': index_component,
-            'full_url': window.location.href
-          });
+      const res = await this.$store.dispatch("createUserByEmail", {
+        email: this.email_user,
+        name: this.name,
+        id_dom_elem: index_component,
+        full_url: window.location.href,
+      });
       if (res.codeResponse === 200 || res.codeResponse === 409) {
         this.tab = 0;
       }
       this.alertCall(res);
     },
-    async localResendUserPass(index_component){
-      if (this.$refs.email_user.validate(true) === false)
-        return false
+    async localResendUserPass(index_component) {
+      if (this.$refs.email_user.validate(true) === false) return false;
 
       this.loading = true;
       // Пытаемся создать пользователя
-      const res = await this.$store.dispatch(
-          'resendUserPass', {
-            'email': this.email_user,
-            'name': this.name,
-            'id_dom_elem': index_component,
-            'full_url': window.location.href
-          });
-      if (res.codeResponse === 404){
-        this.email_user = '';
-        this.$refs.email_user.validate(true)
+      const res = await this.$store.dispatch("resendUserPass", {
+        email: this.email_user,
+        name: this.name,
+        id_dom_elem: index_component,
+        full_url: window.location.href,
+      });
+      if (res.codeResponse === 404) {
+        this.email_user = "";
+        this.$refs.email_user.validate(true);
       }
       if (res.codeResponse === 200 || res.codeResponse === 409) {
         this.tab = 0;
@@ -251,38 +270,44 @@ export default {
 
     // inserted_components
     getData() {
-      this.index_component = this.$store.state.ArticleModule.counters.layout
-      this.index_auth = this.$store.state.ArticleModule.counters.auth
-      this.getHeightOfControls()
-      this.getWidthOfControls()
+      this.index_component = this.$store.state.ArticleModule.counters.layout;
+      this.index_auth = this.$store.state.ArticleModule.counters.auth;
+      this.getHeightOfControls();
+      this.getWidthOfControls();
     },
     deleteQuestion() {
-      const elem = document.getElementById(`component_wrapper-${this.index_component}`)
-      elem.remove()
-      this.$store.dispatch('deleteComponent', this.index_component)
+      const elem = document.getElementById(
+        `component_wrapper-${this.index_component}`
+      );
+      elem.remove();
+      this.$store.dispatch("deleteComponent", this.index_component);
     },
     getWidthOfControls() {
       this.$nextTick(() => {
-        const elem = document.getElementById(`component_wrapper-${this.index_component}`)
+        const elem = document.getElementById(
+          `component_wrapper-${this.index_component}`
+        );
         if (elem) {
           this.controls_width = elem.getBoundingClientRect().width + 6;
         } else {
-          this.controls_width = 0
+          this.controls_width = 0;
         }
-      })
+      });
     },
     getHeightOfControls() {
       this.$nextTick(() => {
-        const elem = document.getElementById(`component_wrapper-${this.index_component}`)
+        const elem = document.getElementById(
+          `component_wrapper-${this.index_component}`
+        );
         if (elem) {
           this.controls_height = elem.getBoundingClientRect().height + 22;
         } else {
-          this.controls_height = 0
+          this.controls_height = 0;
         }
-      })
+      });
     },
-  }
-}
+  },
+};
 </script>
 
 <style lang="scss">
@@ -295,9 +320,9 @@ export default {
   }
 }
 
-form.login{
+form.login {
   margin: 1em;
-  h1{
+  h1 {
     margin: auto;
   }
 }
@@ -313,13 +338,12 @@ form.login{
     content: " *";
     color: red;
   }
-  .field_password{
-    .v-icon{
+  .field_password {
+    .v-icon {
       margin-top: unset;
     }
   }
 }
 .showBorder {
-
 }
 </style>

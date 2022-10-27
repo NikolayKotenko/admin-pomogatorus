@@ -1,5 +1,5 @@
 <template>
-  <div class="environments_wrapper" :class="{removeSpace: flat}">
+  <div class="environments_wrapper" :class="{ removeSpace: flat }">
     <v-autocomplete
         prepend-icon="mdi-paperclip"
         :class="{innerSelector: flat, focused: flatFocused}"
@@ -27,11 +27,7 @@
         @focusout="$emit('outFocus', 'envFocused')"
     >
       <template v-slot:selection="data" v-if="!flat">
-        <v-chip
-            v-bind="data.attrs"
-            :input-value="data.selected"
-            small
-        >
+        <v-chip v-bind="data.attrs" :input-value="data.selected" small>
           {{ data.item.text }} - {{ data.item.category }}
         </v-chip>
       </template>
@@ -42,7 +38,9 @@
         <template v-else>
           <v-list-item-content>
             <v-list-item-title v-html="data.item.text"></v-list-item-title>
-            <v-list-item-subtitle v-html="data.item.category"></v-list-item-subtitle>
+            <v-list-item-subtitle
+              v-html="data.item.category"
+            ></v-list-item-subtitle>
           </v-list-item-content>
         </template>
       </template>
@@ -80,13 +78,13 @@ import Request from "../../services/request";
 
 export default {
   name: "environmentsSelector",
-  props: ['flat', 'dataEnv', 'flatFocused'],
+  props: ["flat", "dataEnv", "flatFocused"],
   data: () => ({
     loadingList: false,
     debounceTimeout: null,
     stopTrigger: false,
 
-    search: '',
+    search: "",
     firstEnvItemsArray: [],
     firstEnv: null,
 
@@ -95,73 +93,75 @@ export default {
   }),
   mounted() {
     if (this.dataEnv) {
-      this.firstEnv = this.dataEnv
-      this.secondEnv = this.firstEnv.data.data
-      this.firstEnvItemsArray.push(this.firstEnv)
-      this.secondEnvItemsArray.push(this.firstEnv.data.data)
+      this.firstEnv = this.dataEnv;
+      this.secondEnv = this.firstEnv.data.data;
+      this.firstEnvItemsArray.push(this.firstEnv);
+      this.secondEnvItemsArray.push(this.firstEnv.data.data);
     }
   },
-  watch: {
-  },
+  watch: {},
   computed: {
     checkFirst() {
-      if (!this.firstEnv) return false
-      if (!Object.keys(this.firstEnv).length) return false
+      if (!this.firstEnv) return false;
+      if (!Object.keys(this.firstEnv).length) return false;
       return this.firstEnv?.data?.model;
-    }
+    },
   },
   methods: {
     async getValues() {
       if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
       this.debounceTimeout = setTimeout(async () => {
-        if (!this.search) return
+        if (!this.search) return;
 
-        this.loadingList = true
+        this.loadingList = true;
 
         try {
-          const { data } = await Request.get(`${this.$store.state.BASE_URL}/dictionary/environment/search/{q}?q=${this.search}`)
-          this.firstEnvItemsArray = data
+          const { data } = await Request.get(
+            `${this.$store.state.BASE_URL}/dictionary/environment/search/{q}?q=${this.search}`
+          );
+          this.firstEnvItemsArray = data;
         } catch (e) {
-          console.log(e)
-          this.$store.commit('change_notification_modal', e)
+          console.log(e);
+          this.$store.commit("change_notification_modal", e);
         }
 
-        this.loadingList = false
-      }, 500)
+        this.loadingList = false;
+      }, 500);
     },
     async selectFirstEnv() {
       if (this.checkFirst) {
-        this.loadingList = true
+        this.loadingList = true;
         // this.stopTrigger = true
 
         try {
-          const { data } = await Request.get(`${this.$store.state.BASE_URL}/dictionary/environment-entity-property/${this.checkFirst}`)
-          this.secondEnvItemsArray = data
+          const { data } = await Request.get(
+            `${this.$store.state.BASE_URL}/dictionary/environment-entity-property/${this.checkFirst}`
+          );
+          this.secondEnvItemsArray = data;
         } catch (e) {
-          console.log(e)
-          this.$store.commit('change_notification_modal', e)
+          console.log(e);
+          this.$store.commit("change_notification_modal", e);
         }
 
-        this.loadingList = false
+        this.loadingList = false;
         setTimeout(() => {
           // this.stopTrigger = false
-        }, 500)
+        }, 500);
       } else {
-        this.secondEnv = null
-        this.secondEnvItemsArray = []
+        this.secondEnv = null;
+        this.secondEnvItemsArray = [];
       }
     },
     selectSecondEnv() {
-      this.firstEnv.data.data = this.secondEnv
-      this.$emit('update:dataEnv', this.firstEnv);
-      this.$emit('selectedEnvironment', this.secondEnv)
+      this.firstEnv.data.data = this.secondEnv;
+      this.$emit("update:dataEnv", this.firstEnv);
+      this.$emit("selectedEnvironment", this.secondEnv);
     },
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>
-
 .focused {
   ::v-deep textarea {
     color: black !important;
@@ -181,11 +181,11 @@ export default {
   font-size: 14px;
   ::v-deep textarea {
     color: darkgray;
-    transition: color .6s ease-in-out;
+    transition: color 0.6s ease-in-out;
   }
   ::v-deep input {
     color: darkgray;
-    transition: color .6s ease-in-out;
+    transition: color 0.6s ease-in-out;
   }
 }
 
