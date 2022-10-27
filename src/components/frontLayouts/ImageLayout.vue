@@ -1,21 +1,29 @@
 <template>
   <div
-      class="componentArticle_wrapper image_wrapper component_container"
-      contenteditable="false"
-      :id="`component_wrapper-${index_component}`"
-      data-name="image"
-      :data-src="shortPath"
+    class="componentArticle_wrapper image_wrapper component_container"
+    contenteditable="false"
+    :id="`component_wrapper-${index_component}`"
+    data-name="image"
+    :data-src="shortPath"
   >
-    <div class="componentArticle_wrapper__admin_controls-header" contenteditable="false">
-      <img class="componentArticle_wrapper__admin_controls-header__img" :src="require(`/src/assets/svg/closeIcon.svg`)" alt="close" @click="deleteQuestion()">
+    <div
+      class="componentArticle_wrapper__admin_controls-header"
+      contenteditable="false"
+    >
+      <img
+        class="componentArticle_wrapper__admin_controls-header__img"
+        :src="require(`/src/assets/svg/closeIcon.svg`)"
+        alt="close"
+        @click="deleteQuestion()"
+      />
     </div>
-    <img class="inserted_image" :src="srcPath" :alt="altName" :title="title">
+    <img class="inserted_image" :src="srcPath" :alt="altName" :title="title" />
   </div>
 </template>
 
 <script>
 // import VueDraggableResizable from 'vue-draggable-resizable'
-import 'vue-draggable-resizable/dist/VueDraggableResizable.css'
+import "vue-draggable-resizable/dist/VueDraggableResizable.css";
 
 export default {
   name: "ImageLayout",
@@ -33,65 +41,71 @@ export default {
     dataForRerender: {},
   }),
   mounted() {
-    this.getData()
+    this.getData();
   },
   computed: {
     shortPath() {
-      if (!this.data_image || !this.data_image?.full_path) return null
-      return this.data_image.full_path
+      if (!this.data_image || !this.data_image?.full_path) return null;
+      return this.data_image.full_path;
     },
     srcPath() {
-      return this.$store.state.BASE_URL+this.data_image?.full_path
+      return this.$store.state.BASE_URL + this.data_image?.full_path;
     },
     altName() {
-      return this.data_image?.alt
+      return this.data_image?.alt;
     },
     title() {
-      return this.data_image?.title
+      return this.data_image?.title;
     },
   },
   methods: {
     getData() {
-      this.data_image = this.$store.state.ArticleModule.selectedComponent
-      this.dataForRerender = this.$store.state.ArticleModule.selectedComponent
-      this.index_image = this.$store.state.ArticleModule.counters.image
-      this.index_component = this.$store.state.ArticleModule.counters.layout
-      this.getHeightOfControls()
-      this.getWidthOfControls()
+      this.data_image = this.$store.state.ArticleModule.selectedComponent;
+      this.dataForRerender = this.$store.state.ArticleModule.selectedComponent;
+      this.index_image = this.$store.state.ArticleModule.counters.image;
+      this.index_component = this.$store.state.ArticleModule.counters.layout;
+      this.getHeightOfControls();
+      this.getWidthOfControls();
     },
     deleteQuestion() {
-      const elem = document.getElementById(`component_wrapper-${this.index_component}`)
-      elem.remove()
-      this.$store.dispatch('deleteComponent', this.index_component)
+      const elem = document.getElementById(
+        `component_wrapper-${this.index_component}`
+      );
+      elem.remove();
+      this.$store.dispatch("deleteComponent", this.index_component);
     },
     onResize: function (x, y, width, height) {
-      this.x = x
-      this.y = y
-      this.width = width
-      this.height = height
+      this.x = x;
+      this.y = y;
+      this.width = width;
+      this.height = height;
     },
     getWidthOfControls() {
       this.$nextTick(() => {
-        const elem = document.getElementById(`component_wrapper-${this.index_component}`)
+        const elem = document.getElementById(
+          `component_wrapper-${this.index_component}`
+        );
         if (elem) {
           this.controls_width = elem.getBoundingClientRect().width + 6;
         } else {
-          this.controls_width = 0
+          this.controls_width = 0;
         }
-      })
+      });
     },
     getHeightOfControls() {
       this.$nextTick(() => {
-        const elem = document.getElementById(`component_wrapper-${this.index_component}`)
+        const elem = document.getElementById(
+          `component_wrapper-${this.index_component}`
+        );
         if (elem) {
           this.controls_height = elem.getBoundingClientRect().height + 22;
         } else {
-          this.controls_height = 0
+          this.controls_height = 0;
         }
-      })
+      });
     },
   },
-}
+};
 </script>
 
 <style scoped lang="scss">
@@ -111,8 +125,7 @@ export default {
   border-bottom: 1px solid rgba(83, 158, 224, 0);
   border-right: 1px solid rgba(83, 158, 224, 0);
   border-left: 1px solid rgba(83, 158, 224, 0);
-  transition: all .4s ease-in-out;
-
+  transition: all 0.4s ease-in-out;
 
   &:hover {
     //border: 1px solid rgba(83, 158, 224, 0.7);
@@ -136,7 +149,7 @@ export default {
     position: absolute;
     top: 0;
     opacity: 0;
-    transition: all .4s ease-in-out;
+    transition: all 0.4s ease-in-out;
     border-radius: 2px;
     right: 0;
     display: flex;
@@ -163,12 +176,12 @@ export default {
 ::v-deep .vdr {
   position: relative !important;
   border: 1px dashed rgba(0, 0, 0, 0);
-  transition: border .5s ease-in-out;
+  transition: border 0.5s ease-in-out;
 }
 
 ::v-deep .handle {
   position: absolute !important;
   opacity: 0;
-  transition: opacity .5s ease-in-out;
+  transition: opacity 0.5s ease-in-out;
 }
 </style>

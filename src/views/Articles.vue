@@ -1,68 +1,77 @@
 <template>
   <div class="questions">
-    <div class="questions_wrapper">
+    <div class="questions_wrapper universal_list">
       <div
-          class="questions_wrapper__item"
-          v-for="(article, index) in $store.state.ArticleModule.listArticles"
-          :key="index"
+        class="questions_wrapper__item"
+        v-for="(article, index) in $store.state.ArticleModule.listArticles"
+        :key="index"
       >
         <div class="questions_wrapper__item__top" :class="{filterShow: show_filter}">
           <div class="questions_wrapper__item__top__title" :class="{filterShow: show_filter}">
+            <v-icon class="activity_icon" v-show="article.activity === 0">mdi-eye-off</v-icon>
             <span @click="onShowDetailArticle(article)">
               {{ article.name }}
             </span>
-            <span class="questions_wrapper__item__top__title__quantity">
-            </span>
+            <span class="questions_wrapper__item__top__title__quantity"> </span>
           </div>
-          <div class="questions_wrapper__item__top__icons">
-          </div>
+          <div class="questions_wrapper__item__top__icons"></div>
         </div>
-        <div class="questions_wrapper__item__bottom">
+        <div class="questions_wrapper__item__bottom universal_date">
           <div class="questions_wrapper__item__bottom__date" :class="{filterShow: show_filter}">
             {{article.created_at}}
           </div>
-          <div class="questions_wrapper__item__bottom__date" :class="{filterShow: show_filter}">
-            {{article.updated_at}}
+          <div
+            class="questions_wrapper__item__bottom__date"
+            :class="{ filterShow: show_filter }"
+          >
+            {{ article.updated_at }}
           </div>
         </div>
       </div>
 
       <v-alert
-          v-if="!$store.state.ArticleModule.loadingList && ($store.state.ArticleModule.listArticles === null || !$store.state.ArticleModule.listArticles.length)"
-          type="error"
-          text
-          class="err-msg"
+        v-if="
+          !$store.state.ArticleModule.loadingList &&
+          ($store.state.ArticleModule.listArticles === null ||
+            !$store.state.ArticleModule.listArticles.length)
+        "
+        type="error"
+        text
+        class="err-msg"
       >
-       {{ computedErrMsg }}
+        {{ computedErrMsg }}
       </v-alert>
     </div>
     <v-sheet class="footer">
       <div class="footer_input">
         <v-text-field
-            solo
-            flat
-            dense
-            hide-details
-            placeholder="Поиск в выбранных разделах"
-            v-model="filters.name"
-            :class="{inputFocused: filterValueFocused}"
-            @focus="onFocus()"
-            @focusout="outFocus()"
+          solo
+          flat
+          dense
+          hide-details
+          placeholder="Поиск в выбранных разделах"
+          v-model="filters.name"
+          :class="{ inputFocused: filterValueFocused }"
+          @focus="onFocus()"
+          @focusout="outFocus()"
         ></v-text-field>
       </div>
       <div class="footer_filter">
-        <v-icon x-large :color="!!show_filter ? 'blue' : 'grey'" @click="show_filter = !show_filter">
+        <v-icon
+          x-large
+          :color="!!show_filter ? 'blue' : 'grey'"
+          @click="show_filter = !show_filter"
+        >
           mdi-filter-outline
         </v-icon>
       </div>
     </v-sheet>
 
-
     <!-- LOADER -->
     <v-overlay
         :z-index="207"
         :absolute="true"
-        :value="$store.state.QuestionsModule.loadingList"
+        :value="$store.state.QuestionsModule.loadingList || $store.state.ArticleModule.loadingList"
     >
       <v-progress-circular
           style="margin: auto"
@@ -70,19 +79,18 @@
           :size="70"
           color="blue"
           :indeterminate="true"
-          v-if="$store.state.QuestionsModule.loadingList"
+          v-if="$store.state.QuestionsModule.loadingList || $store.state.ArticleModule.loadingList"
       ></v-progress-circular>
     </v-overlay>
 
-    <v-sheet
+    <v-dialog
         v-model="show_filter"
-        class="bottom_filters"
+        content-class="bottom_filters"
     >
       <transition appear name="slide-y-reverse-transition">
         <v-sheet
             v-show="show_filter"
             class="text-center filter_modal"
-            height="79vh"
         >
           <div class="filter_modal_header">
             <div class="filter_modal_header__close">
@@ -94,21 +102,44 @@
           <div class="filter_modal_filters">
             <div class="filter_modal_filters__item">
               <div class="filter_modal_filters__item__title">
+                Активность:
+              </div>
+              <div class="filter_modal_filters__item__chips">
+                <v-radio-group
+                    v-model="filters.activity"
+                >
+                  <v-radio
+                      label="Активен"
+                      value="true"
+                  ></v-radio>
+                  <v-radio
+                      label="Не активен"
+                      value="false"
+                  ></v-radio>
+                  <v-radio
+                      label="Все"
+                      :value="null"
+                  ></v-radio>
+                </v-radio-group>
+              </div>
+            </div>
+            <div class="filter_modal_filters__item">
+              <div class="filter_modal_filters__item__title">
                 Выбор разделов:
               </div>
               <div class="filter_modal_filters__item__chips">
-                <v-chip-group
-                    column
-                    multiple
-                    v-model="filters.tag"
-                >
+                <v-chip-group column multiple v-model="filters.tag">
                   <v-chip
-                      color="#f2f5f7"
-                      v-for="tag in $store.state.ArticleModule.listGeneralTags"
-                      :key="tag.id"
-                      :value="tag.code"
+                    color="#f2f5f7"
+                    v-for="tag in $store.state.ArticleModule.listGeneralTags"
+                    :key="tag.id"
+                    :value="tag.code"
                   >
-                    <v-icon left color="grey darken-2" v-if="filters.tag.includes(tag.code)">
+                    <v-icon
+                      left
+                      color="grey darken-2"
+                      v-if="filters.tag.includes(tag.code)"
+                    >
                       mdi-check-bold
                     </v-icon>
                     <v-icon left color="grey darken-2" v-else>
@@ -124,14 +155,13 @@
                 Дата последнего редактирования:
               </div>
               <div class="filter_modal_filters__item__chips">
-                <v-radio-group
-                    v-model="filters.updated_at"
-                >
+                <v-radio-group v-model="filters.updated_at">
                   <v-radio
-                      v-for="(variable, index) in $store.state.QuestionsModule.listConfigDate"
-                      :key="index"
-                      :label="variable.text"
-                      :value="variable.value"
+                    v-for="(variable, index) in $store.state.QuestionsModule
+                      .listConfigDate"
+                    :key="index"
+                    :label="variable.text"
+                    :value="variable.value"
                   ></v-radio>
                 </v-radio-group>
               </div>
@@ -139,7 +169,7 @@
           </div>
         </v-sheet>
       </transition>
-    </v-sheet>
+    </v-dialog>
   </div>
 </template>
 
@@ -153,30 +183,33 @@ export default {
       name: null,
       updated_at: null,
       tag: [],
+      activity: null,
     },
     queryObject: {},
     debounceTimeout: null,
-    getFromQuery: false
+    getFromQuery: false,
   }),
   mounted() {
-    this.getConfigDate()
-    this.getTags()
-    this.initializeQuery()
+    this.getConfigDate();
+    this.getTags();
+    this.initializeQuery();
   },
   watch: {
     filters: {
       handler() {
         if (!this.getFromQuery) {
-          this.getFilteredArticles()
-          this.changeQuery()
+          this.getFilteredArticles();
+          this.changeQuery();
         }
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   computed: {
     computedErrMsg() {
-      return (this.$store.state.ArticleModule.questionNotification ? this.$store.state.ArticleModule.questionNotification : 'Ничего не найдено')
+      return this.$store.state.ArticleModule.questionNotification
+        ? this.$store.state.ArticleModule.questionNotification
+        : "Ничего не найдено";
     },
   },
   methods: {
@@ -184,81 +217,88 @@ export default {
       for (let key in this.filters) {
         if (Array.isArray(this.filters[key])) {
           if (this.filters[key].length) {
-            this.queryObject[key] = this.filters[key]
-          } else delete this.queryObject[key]
+            this.queryObject[key] = this.filters[key];
+          } else delete this.queryObject[key];
         } else {
           if (this.filters[key]) {
-            this.queryObject[key] = this.filters[key]
-          } else delete this.queryObject[key]
+            this.queryObject[key] = this.filters[key];
+          } else delete this.queryObject[key];
         }
       }
       this.$router.push({
         path: this.$route.path,
-        query: {...this.queryObject}
-      })
+        query: { ...this.queryObject },
+      });
     },
     onShowDetailArticle(article) {
       this.$router.push({
-        name: 'DetailArticles',
-        params: {action: 'edit'},
-        query: {article_id: article.id}
-      })
+        name: "DetailArticles",
+        params: { action: "edit" },
+        query: { article_id: article.id },
+      });
     },
     getConfigDate() {
-      this.$store.dispatch('setListConfigDate')
+      this.$store.dispatch("setListConfigDate");
     },
     getTags() {
-      this.$store.dispatch('getGeneralTagsArticle')
+      this.$store.dispatch("getGeneralTagsArticle");
     },
     getFilteredArticles() {
       if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
       this.debounceTimeout = setTimeout(() => {
-        this.$store.dispatch('setFilteredListArticles', this.filters)
+        this.$store.dispatch("setFilteredListArticles", this.filters);
       }, 500);
     },
     initializeQuery() {
-      this.getFromQuery = true
+      this.getFromQuery = true;
       if (Object.keys(this.$route.query).length) {
         for (let key in this.filters) {
-          if (Object.keys(this.$route.query).includes(key) && this.$route.query[key] !== null) {
-            if (key === 'tag') {
+          if (
+            Object.keys(this.$route.query).includes(key) &&
+            this.$route.query[key] !== null
+          ) {
+            if (key === "tag") {
               if (Array.isArray(this.$route.query[key])) {
-                this.filters[key] = []
-                this.filters[key].push(...this.$route.query[key])
+                this.filters[key] = [];
+                this.filters[key].push(...this.$route.query[key]);
               } else {
-                this.filters[key] = []
-                this.filters[key].push(this.$route.query[key])
+                this.filters[key] = [];
+                this.filters[key].push(this.$route.query[key]);
               }
             } else {
-              if (key === 'updated_at') {
-                this.filters[key] = parseInt(this.$route.query[key])
+              if (key === "updated_at") {
+                this.filters[key] = parseInt(this.$route.query[key]);
               } else {
-                this.filters[key] = this.$route.query[key]
+                this.filters[key] = this.$route.query[key];
               }
             }
           }
         }
       }
       setTimeout(() => {
-        this.getFromQuery = false
-        this.getFilteredArticles()
-      })
+        this.getFromQuery = false;
+        this.getFilteredArticles();
+      });
     },
     onFocus() {
-      this.filterValueFocused = true
+      this.filterValueFocused = true;
     },
     outFocus() {
-      this.filterValueFocused = false
+      this.filterValueFocused = false;
     },
   },
-}
+};
 </script>
+
+<style lang="scss">
+@import "src/assets/styles/main";
+</style>
 
 <style scoped lang="scss">
 .questions {
   display: flex;
   flex-direction: column;
-  min-height:100%;
+  min-height: 100%;
   position: relative;
   .questions_wrapper {
     display: flex;
@@ -274,18 +314,18 @@ export default {
         justify-content: space-between;
         align-items: center;
         border-bottom: 2px solid #539ee0;
-        transition: all .4s ease-in-out;
+        transition: all 0.4s ease-in-out;
         &__title {
           color: #539ee0;
-          transition: all .4s ease-in-out;
+          transition: all 0.4s ease-in-out;
           &__quantity {
             color: lightcoral;
-            transition: all .4s ease-in-out;
+            transition: all 0.4s ease-in-out;
           }
         }
         &__icons {
           padding-bottom: 2px;
-          transition: all .4s ease-in-out;
+          transition: all 0.4s ease-in-out;
         }
       }
       &__bottom {
@@ -325,7 +365,7 @@ export default {
       ::v-deep .v-text-field input {
         font-weight: 500;
         color: darkgray;
-        transition: color .5s ease-in-out;
+        transition: color 0.5s ease-in-out;
       }
     }
     .inputFocused {
@@ -335,77 +375,7 @@ export default {
     }
   }
 }
-.bottom_filters {
-  ::v-deep .v-sheet {
-    position: absolute;
-    bottom: 0;
-  }
-}
-.filter_modal {
-  display: flex;
-  flex-direction: column;
-  border-top: 3px solid darkgray;
-  background: #e3e6e9;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
-  z-index: 206;
-  overflow: hidden;
-  width: 100%;
-  .filter_modal_header {
-    position: relative;
-    height: 35px;
-    width: 100%;
-    &__close {
-      position: absolute;
-      right: 5px;
-    }
-  }
-  .filter_modal_filters {
-    flex: 1;
-    height: 100%;
-    width: 100%;
-    padding: 0 10px 70px 10px;
-    overflow: scroll;
-    &__item {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      align-items: flex-start;
-      &__title {
-        display: flex;
-        color: #539ee0;
-        border-bottom: 2px solid #539ee0;
-        padding-bottom: 5px;
-        width: 100%;
-        font-weight: 600;
-      }
-      &__chips {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        padding: 10px 20px;
 
-        ::v-deep label {
-          font-weight: 500;
-          color: #242424;
-          opacity: 0.9;
-        }
-        ::v-deep .v-chip .v-chip__content {
-          min-width: 100% !important;
-        }
-        ::v-deep .v-chip.v-size--default {
-          width: 100%;
-          border: 2px solid lightgray !important;
-        }
-        ::v-deep .v-chip-group--column .v-slide-group__content {
-          row-gap: 5px;
-        }
-      }
-    }
-  }
-}
 .filterShow {
   color: lightgray !important;
   opacity: 0.8;
