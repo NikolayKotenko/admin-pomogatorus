@@ -272,6 +272,9 @@ export default {
     },
 
     /* INSERT COMPONENT */
+    remove_list_components(state, payload) {
+      state.list_components.splice(payload, 1);
+    },
     add_to_list_components(state, elem) {
       state.list_components.push(elem);
     },
@@ -398,13 +401,13 @@ export default {
       return new Promise((resolve, reject) => {
         state.loadingList = true;
 
-                const {tag, updated_at, name, activity} = data
+        const { tag, updated_at, name, activity } = data;
 
-                const filter = {}
-                filter['filter[tag]'] = tag
-                filter['filter[updated_at]'] = updated_at
-                filter['filter[name]'] = name
-                filter['filter[activity]'] = activity
+        const filter = {};
+        filter["filter[tag]"] = tag;
+        filter["filter[updated_at]"] = updated_at;
+        filter["filter[name]"] = name;
+        filter["filter[activity]"] = activity;
 
         axios
           .get(`${this.state.BASE_URL}/entity/articles`, {

@@ -80,7 +80,19 @@
     word-break: normal;
     white-space: pre-wrap;
     overflow: hidden;
+
+    ::v-deep .v-application p {
+      margin-bottom: 0 !important;
+    }
+
+    p {
+      margin: 0 !important;
+    }
   }
+}
+
+.textRedactor__content p {
+  margin: 0 !important;
 }
 
 .dialog_dropzone {

@@ -1,22 +1,22 @@
 <template>
-  <div class="textRedactor" :class="{ disabled: !check_created_article }">
-    <HeaderBlock @callCheckout="callCheckout" />
+  <div :class="{ disabled: !check_created_article }" class="textRedactor">
+    <HeaderBlock @callCheckout="callCheckout"/>
 
     <div
-      class="textRedactor__content"
-      :contenteditable="
+        ref="content"
+        :contenteditable="
         check_created_article && !$store.state.ArticleModule.startRender
       "
-      spellcheck="false"
-      ref="content"
-      @input="onContentChange"
-      @click="onSelectionContent()"
+        class="textRedactor__content"
+        spellcheck="false"
+        @input="onContentChange"
+        @mouseup="onSelectionContent()"
     ></div>
 
     <!-- OVERLAYS -->
     <div
-      class="overlay"
-      v-if="!check_created_article || $store.state.ArticleModule.startRender"
+        v-if="!check_created_article || $store.state.ArticleModule.startRender"
+        class="overlay"
     ></div>
   </div>
 </template>
@@ -32,12 +32,14 @@ import ImageLayout from "../frontLayouts/ImageLayout";
 import LoginAuth from "../auth/LoginAuth";
 
 import titlesStore from "@/store/modules/article/index.js";
-const _store = titlesStore.state;
-
 import DataComponent from "../../services/article/dataComponent";
-const factory = new DataComponent();
+import {Constructor_instance, Imported_component} from "../../helpers/constructors";
 
 import iconsModels from "../../models/iconsModels";
+
+const _store = titlesStore.state;
+
+const factory = new DataComponent();
 
 export default {
   name: "TextRedactor",
@@ -136,8 +138,8 @@ export default {
   computed: {
     check_created_article() {
       return (
-        this.newArticle.name.value !== "" &&
-        this.newArticle.short_header.value !== ""
+          this.newArticle.name.value !== "" &&
+          this.newArticle.short_header.value !== ""
       );
     },
     content: {
@@ -151,10 +153,10 @@ export default {
     },
     componentLayout() {
       return _store.name_component === "questions"
-        ? Vue.extend(Question)
-        : _store.name_component === "image"
-        ? Vue.extend(ImageLayout)
-        : Vue.extend(LoginAuth);
+          ? Vue.extend(Question)
+          : _store.name_component === "image"
+              ? Vue.extend(ImageLayout)
+              : Vue.extend(LoginAuth);
     },
   },
   methods: {
@@ -187,9 +189,9 @@ export default {
           // Don't allow deleting nodes
           if (!selection.anchorNode) return;
           if (
-            selection.anchorNode.textContent === "" &&
-            selection.anchorNode.className !== "textRedactor__content" &&
-            selection.anchorNode.isContentEditable
+              selection.anchorNode.textContent === "" &&
+              selection.anchorNode.className !== "textRedactor__content" &&
+              selection.anchorNode.isContentEditable
           ) {
             e.preventDefault();
             selection.anchorNode.parentNode.removeChild(selection.anchorNode);
@@ -201,64 +203,67 @@ export default {
 
     /* CHECK OUT OF SYNC */
     checkOutOfSync() {
-      this.$nextTick(() => {
-        /* Get all components from DOM by class identifier */
-        const componentsNodes = document.getElementsByClassName(
+      let arrComponentsData = [];
+      /* Get all components from DOM by class identifier */
+      const componentsNodes = document.getElementsByClassName(
           "component_container"
-        );
+      );
 
-        /* Check if components length from DB isn't equal components count by DOM */
-        if (componentsNodes.length !== _store.list_components.length) {
-          let arrCollection = [...componentsNodes];
-          let arrComponentsData = [];
+      /* Check if components length from DB isn't equal components count by DOM */
+      if (componentsNodes.length !== _store.list_components.length) {
+        let arrCollection = [...componentsNodes];
 
-          let counters = {
-            index_image: 1,
-            index_questions: 1,
-            index_auth: 1,
-          };
+        let counters = {
+          index_image: 1,
+          index_questions: 1,
+          index_auth: 1,
+        };
 
-          let dataComponent = {};
+        let dataComponent = {};
 
-          arrCollection.forEach((htmlCollection) => {
-            if (htmlCollection.dataset.name) {
-              /* Set index from id HTML element */
-              let tmpStr = htmlCollection.id.match("-(.*)");
-              let index = tmpStr[tmpStr.length - 1];
-              /* Set name by data */
-              dataComponent.name = htmlCollection.dataset.name;
-              /* Set uniq index_%component% */
-              dataComponent[`index_${htmlCollection.dataset.name}`] =
+        arrCollection.forEach((htmlCollection) => {
+          if (htmlCollection.dataset.name) {
+            /* Set index from id HTML element */
+            let tmpStr = htmlCollection.id.match("-(.*)");
+            let index = tmpStr[tmpStr.length - 1];
+            /* Set name by data */
+            dataComponent.name = htmlCollection.dataset.name;
+            /* Set uniq index_%component% */
+            dataComponent[`index_${htmlCollection.dataset.name}`] =
                 counters[`index_${htmlCollection.dataset.name}`];
-              /* Set uniq data for specific component */
-              if (htmlCollection.dataset.name === "questions") {
-                dataComponent.id = htmlCollection.dataset.id;
-              } else if (htmlCollection.dataset.name === "image") {
-                dataComponent.src = htmlCollection.dataset.src;
-              }
-              /* Push to arr result */
-              arrComponentsData.push(
-                new this.Imported_component({
+            /* Set uniq data for specific component */
+            if (htmlCollection.dataset.name === "questions") {
+              dataComponent.id = htmlCollection.dataset.id;
+            } else if (htmlCollection.dataset.name === "image") {
+              dataComponent.src = htmlCollection.dataset.src;
+            }
+            /* Push to arr result */
+            arrComponentsData.push(
+                new Imported_component({
                   index: index,
                   component: dataComponent,
                 })
-              );
-              /* Update global counters */
-              counters[`index_${htmlCollection.dataset.name}`]++;
-              /* Clear intermediate object */
-              dataComponent = {};
-            }
-          });
-          /* Rewrite components data for next render function */
-          _store.components_after_request = arrComponentsData;
-        }
-      });
+            );
+            /* Update global counters */
+            counters[`index_${htmlCollection.dataset.name}`]++;
+            /* Clear intermediate object */
+            dataComponent = {};
+          }
+        });
+        console.log('end restore components by html')
+      }
+      /* Rewrite components data for next render function */
+      return arrComponentsData;
     },
 
     /* RENDER FUNCTIONALITY */
     renderFunc() {
       console.log("nextTIck inserting");
+
+      let deletedIndexes = []
+
       _store.list_components.forEach((elem, index) => {
+        console.log('countInserted', index)
         /** Function that change counter by @elem, and call prepare layout that we need **/
         this.checkTypeComponent(elem);
 
@@ -267,13 +272,13 @@ export default {
         /* If component is image we get URL of img and title/alt */
         if (elem.component.name === "image") {
           const full_url = document
-            .getElementById(`component_wrapper-${elem.index}`)
-            .getElementsByClassName("inserted_image")[0].src;
+              .getElementById(`component_wrapper-${elem.index}`)
+              .getElementsByClassName("inserted_image")[0].src;
           let sub_url = full_url.split(".com");
           const alt = document
-            .getElementById(`component_wrapper-${elem.index}`)
-            .getElementsByClassName("inserted_image")[0].alt;
-          data = Object.assign({}, { name: alt }, { full_path: sub_url[1] });
+              .getElementById(`component_wrapper-${elem.index}`)
+              .getElementsByClassName("inserted_image")[0].alt;
+          data = Object.assign({}, {name: alt}, {full_path: sub_url[1]});
         }
         /* Here change global counter of component in article */
         this.$store.commit("change_counter", {
@@ -285,21 +290,38 @@ export default {
         /* Now we get place on DOM in our contentEditable div to place HTML on article */
         let range = document.createRange();
         range.selectNode(
-          document.getElementById(`component_wrapper-${elem.index}`)
+            document.getElementById(`component_wrapper-${elem.index}`)
         );
         range.deleteContents();
         range.collapse(false);
         /* Constructor return our FullReady component to get mounted on DOM */
         _store.list_components[index] = this.getStructureForInstance(
-          elem.component
+            elem.component
         );
+
+        /* Check if question is not active */
+        if (elem.component.name === "questions" || elem.component.name === "question") {
+          if (elem.data.activity !== 1) {
+            console.log(elem.data.id, 'Is not active => remove')
+            deletedIndexes.push(index)
+          }
+        }
+
         /* Start Vue Component lifecycle hook that provides us reactive $data and methods */
         _store.list_components[index].instance.$mount();
         /* Place mounted component on DOM */
         range.insertNode(_store.list_components[index].instance.$el);
+
         /* Clear global store data for next circle */
         this.$store.commit("changeSelectedObject", {});
       });
+
+      if (deletedIndexes.length) {
+        console.log('Not active indexes', deletedIndexes)
+        deletedIndexes.forEach(index => {
+          _store.list_components.splice(index, 1)
+        })
+      }
       console.log("insertingDone");
     },
     /* INITIALIZE DATA FROM BACK OR INDEXEDDB */
@@ -311,95 +333,109 @@ export default {
         this.$store.commit("clear_list_components", []);
 
         /* If we have backendView component from API or UNDO/REDO start get data */
-        if (_store.components_after_request.length) {
-          /* LOADERS & OVERLAY */
-          _store.loadingArticle = true;
-          this.geting_from_server = true;
+        // if (_store.components_after_request.length) {
+        /* LOADERS & OVERLAY */
+        _store.loadingArticle = true;
+        this.geting_from_server = true;
 
-          /* Set content from API or UNDO/REDO */
-          this.content = _store.content_from_server;
+        /* Set content from API or UNDO/REDO */
+        this.content = _store.content_from_server;
 
-          console.log("start check out of sync");
-          this.checkOutOfSync();
-          console.log("end check out of sync");
+        console.log("start check out of sync");
+        let restoredArr = [];
+        // this.$nextTick(() => {
+        restoredArr = this.checkOutOfSync();
+        console.log("end check out of sync");
+        // });
 
-          /* Requests for get data of list_components, that lay on Array<Promises> */
-          const promises = [];
-          _store.components_after_request.forEach((elem) => {
-            promises.push(
-              this.$store.dispatch(`get_${elem.component.name}`, elem)
-            );
-          });
+        console.log(restoredArr)
 
-          /* As soon as Promises done, we start render */
-          Promise.allSettled(promises).finally(() => {
-            console.log("all promises done");
+        let componentsForRequest;
 
-            /* Sorting list_components for index, to get right structure on article */
-            _store.list_components.sort((a, b) => {
-              return a.index - b.index;
-            });
-
-            /* $nextTick to be sure that content rendered on DOM */
-            this.$nextTick(() => {
-              /* MAIN RENDER FUCNTION */
-              this.renderFunc();
-
-              /* LOADERS & OVERLAY */
-              _store.loadingArticle = false;
-              this.geting_from_server = false;
-
-              resolve();
-            });
-          });
+        if (restoredArr.length) {
+          componentsForRequest = restoredArr
+        } else {
+          componentsForRequest = _store.components_after_request
         }
+
+        /* Requests for get data of list_components, that lay on Array<Promises> */
+        const promises = [];
+        componentsForRequest.forEach((elem) => {
+          promises.push(
+              this.$store.dispatch(`get_${elem.component.name}`, elem)
+          );
+        });
+
+        /* As soon as Promises done, we start render */
+        Promise.allSettled(promises).finally(() => {
+          console.log("all promises done");
+
+          /* Sorting list_components for index, to get right structure on article */
+          _store.list_components.sort((a, b) => {
+            return a.index - b.index;
+          });
+
+          /* $nextTick to be sure that content rendered on DOM */
+          this.$nextTick(() => {
+            /* MAIN RENDER FUCNTION */
+            this.renderFunc();
+
+            /* LOADERS & OVERLAY */
+            _store.loadingArticle = false;
+            this.geting_from_server = false;
+
+            resolve();
+          });
+        });
+        // }
       });
     },
     checkOnDeletedComponents() {
       this.$nextTick(() => {
         console.log("start check deleted question");
-        if (
-          _store.components_after_request.length !==
-          _store.list_components.length
-        ) {
-          console.log("doesnt equal");
-          const arrIndexes = _store.list_components
-            .filter((elem) => {
-              return (
-                elem.data.component.name === "question" ||
-                elem.data.component.name === "questions"
-              );
-            })
-            .map((i) => {
-              return i.data.component.index_questions;
-            });
-          // console.log(arrIndexes)
-          let deletedId = _store.components_after_request
-            .filter((elem) => {
-              return (
-                elem.component.name === "question" ||
-                elem.component.name === "questions"
-              );
-            })
-            .map((elem) => {
-              // console.log('notInclude', !arrIndexes.includes(elem.component.index_component))
-              if (!arrIndexes.includes(elem.component.index_questions)) {
-                return elem.index_questions;
+
+        /* Get all components from DOM by class identifier */
+        const componentsNodes = document.getElementsByClassName(
+            "component_container"
+        );
+
+        /* Check if components length from DB isn't equal components count by DOM */
+        if (componentsNodes.length !== _store.list_components.length) {
+          let arrCollection = [...componentsNodes];
+
+          const arrIDs = _store.list_components
+              .filter((elem) => {
+                return (
+                    elem.data.component.name === "question" ||
+                    elem.data.component.name === "questions"
+                );
+              })
+              .map((i) => {
+                return i.data.component.id;
+              });
+
+          console.log(arrIDs)
+
+          arrCollection.forEach((htmlCollection) => {
+            if (htmlCollection.dataset.name && htmlCollection.dataset.name === "questions") {
+              if (!arrIDs.includes(htmlCollection.dataset.id)) {
+                console.log('Question which is deleted', htmlCollection.dataset.id)
+                let tmpStr = htmlCollection.id.match("-(.*)");
+                let index = tmpStr[tmpStr.length - 1];
+                console.log(`index question on the page`, index)
+
+                if (index) {
+                  let range = document.createRange();
+                  console.log('deleted html', document.getElementById(`component_wrapper-${index}`))
+                  range.selectNode(
+                      document.getElementById(`component_wrapper-${index}`)
+                  );
+                  range.deleteContents();
+                  range.collapse(false);
+                }
               }
-            })
-            .filter((y) => y !== undefined)[0];
-
-          // console.log(deletedId)
-
-          if (deletedId) {
-            let range = document.createRange();
-            // console.log(document.getElementById(`component_wrapper-${deletedId}`))
-            range.selectNode(
-              document.getElementById(`component_wrapper-${deletedId}`)
-            );
-            range.deleteContents();
-            range.collapse(false);
-          }
+            }
+          })
         }
         console.log("ended check deleted question");
       });
@@ -407,11 +443,11 @@ export default {
     checkTypeComponent(elem) {
       this.$store.commit("change_name_component", elem.component.name);
       const name = Object.prototype.hasOwnProperty.call(
-        elem.component,
-        "index_question"
+          elem.component,
+          "index_question"
       )
-        ? "question"
-        : elem.component.name;
+          ? "question"
+          : elem.component.name;
       this.$store.commit("change_counter", {
         name: elem.component.name,
         count: elem.component[`index_${name}`],
@@ -431,7 +467,7 @@ export default {
       /* IF WE DELETED COMPONENT BY KEYBOARD */
       _store.list_components.forEach((elem) => {
         const elem_content = document.getElementById(
-          `component_wrapper-${elem.instance.$data.index_component}`
+            `component_wrapper-${elem.instance.$data.index_component}`
         );
         if (!elem_content) {
           _store.deletedComponent = elem.instance.$data.index_component;
@@ -471,12 +507,12 @@ export default {
         store,
         vuetify,
       });
-      const data = new this.Imported_component({
+      const data = new Imported_component({
         index: _store.counters.layout,
         component: data_component,
       });
-      const params = Object.assign({}, { instance: instance }, { data: data });
-      return new this.Constructor_instance(params);
+      const params = Object.assign({}, {instance: instance}, {data: data});
+      return new Constructor_instance(params);
     },
     insertingComponent(data_component) {
       return new Promise((resolve) => {
@@ -491,11 +527,11 @@ export default {
         div2.style.minHeight = "24px";
 
         if (
-          _store.range &&
-          (_store.range.commonAncestorContainer.parentElement.className ===
-            "textRedactor__content" ||
-            _store.range.commonAncestorContainer?.offsetParent?._prevClass ===
-              "textRedactor")
+            _store.range &&
+            (_store.range.commonAncestorContainer.parentElement.className ===
+                "textRedactor__content" ||
+                _store.range.commonAncestorContainer?.offsetParent?._prevClass ===
+                "textRedactor")
         ) {
           if (window.getSelection) {
             _store.range.insertNode(div);
@@ -503,16 +539,16 @@ export default {
             _store.range.insertNode(div2);
           } else if (document.selection && document.selection.createRange) {
             if (
-              _store.range &&
-              (_store.range.commonAncestorContainer.parentElement.className ===
-                "textRedactor__content" ||
-                _store.range.commonAncestorContainer.offsetParent._prevClass ===
-                  "textRedactor")
+                _store.range &&
+                (_store.range.commonAncestorContainer.parentElement.className ===
+                    "textRedactor__content" ||
+                    _store.range.commonAncestorContainer.offsetParent._prevClass ===
+                    "textRedactor")
             ) {
               this.htmlSelected =
-                calledElem.instance.$el.nodeType == 3
-                  ? calledElem.instance.$el.innerHTML.data
-                  : calledElem.instance.$el.outerHTML;
+                  calledElem.instance.$el.nodeType == 3
+                      ? calledElem.instance.$el.innerHTML.data
+                      : calledElem.instance.$el.outerHTML;
               _store.range.pasteHTML(div);
               _store.range.pasteHTML(this.htmlSelected);
               _store.range.pasteHTML(div2);
@@ -522,8 +558,8 @@ export default {
           if (window.getSelection) {
             let range = document.createRange();
             range.setStart(
-              document.getElementsByClassName("textRedactor__content").item(0),
-              0
+                document.getElementsByClassName("textRedactor__content").item(0),
+                0
             );
             range.collapse(false);
             range.insertNode(div);
@@ -532,14 +568,14 @@ export default {
           } else if (document.selection && document.selection.createRange) {
             let range = document.createRange();
             range.setStart(
-              document.getElementsByClassName("textRedactor__content").item(0),
-              0
+                document.getElementsByClassName("textRedactor__content").item(0),
+                0
             );
             range.collapse(false);
             this.htmlSelected =
-              calledElem.instance.$el.nodeType == 3
-                ? calledElem.instance.$el.innerHTML.data
-                : calledElem.instance.$el.outerHTML;
+                calledElem.instance.$el.nodeType == 3
+                    ? calledElem.instance.$el.innerHTML.data
+                    : calledElem.instance.$el.outerHTML;
             range.pasteHTML(div);
             range.pasteHTML(this.htmlSelected);
             range.pasteHTML(div2);
@@ -560,15 +596,15 @@ export default {
         let id = tmpStr[tmpStr.length - 1];
 
         let component = _store.list_components
-          .filter((elem) => {
-            return (
-              elem.data.component.name === "question" ||
-              elem.data.component.name === "questions"
-            );
-          })
-          .filter((elem) => {
-            return elem.data.index == id;
-          });
+            .filter((elem) => {
+              return (
+                  elem.data.component.name === "question" ||
+                  elem.data.component.name === "questions"
+              );
+            })
+            .filter((elem) => {
+              return elem.data.index == id;
+            });
 
         // console.log(block)
 
@@ -604,7 +640,7 @@ export default {
         elem.instance.$data[key_data] = global_counter[key_data];
         console.log("block");
         const block = document.getElementById(
-          `component_wrapper-${elem.instance.$data.index_component}`
+            `component_wrapper-${elem.instance.$data.index_component}`
         );
         // console.log(block)
         block.id = `component_wrapper-${global_counter.counter_index}`;
@@ -633,7 +669,7 @@ export default {
 
         let index = _store.list_components.findIndex((elem) => {
           return (
-            elem.instance.$data.index_component === _store.deletedComponent
+              elem.instance.$data.index_component === _store.deletedComponent
           );
         });
         if (index !== -1) {
@@ -662,7 +698,7 @@ export default {
     checkForStyles(html, icon) {
       if (icon.tag === "<u" || icon.tag === "<strike") {
         return (
-          html.includes("text-decoration-line") && html.includes(icon.styleName)
+            html.includes("text-decoration-line") && html.includes(icon.styleName)
         );
       } else return html.includes(icon.styleName);
     },
@@ -705,29 +741,29 @@ export default {
           parentHTML = parentElem.outerHTML;
         }
         if (
-          elem.className !== "textRedactor__content" &&
-          elem.className !== "textRedactor"
+            elem.className !== "textRedactor__content" &&
+            elem.className !== "textRedactor"
         ) {
           let grandParent = parentHTML
-            ? parentElem.parentElement.outerHTML
-            : elem.outerHTML;
+              ? parentElem.parentElement.outerHTML
+              : elem.outerHTML;
           styleAlign = this.getStyleAlign(grandParent, icons_arr[icon]);
         }
         icons_arr[icon].active =
-          this.checkForStyles(parentHTML, icons_arr[icon]) ||
-          this.checkByTag(parentHTML, icons_arr[icon]) ||
-          this.checkForStyles(styleAlign, icons_arr[icon]) ||
-          this.checkHTMLText(html, icons_arr[icon]) ||
-          this.checkForStyles(html, icons_arr[icon]);
+            this.checkForStyles(parentHTML, icons_arr[icon]) ||
+            this.checkByTag(parentHTML, icons_arr[icon]) ||
+            this.checkForStyles(styleAlign, icons_arr[icon]) ||
+            this.checkHTMLText(html, icons_arr[icon]) ||
+            this.checkForStyles(html, icons_arr[icon]);
       });
     },
     /* Get style name for aligners values */
     getStyleAlign(outerHTML, icon) {
       if (
-        icon.tag !== "<b" &&
-        icon.tag !== "<i" &&
-        icon.tag !== "<u" &&
-        icon.tag !== "<strike"
+          icon.tag !== "<b" &&
+          icon.tag !== "<i" &&
+          icon.tag !== "<u" &&
+          icon.tag !== "<strike"
       ) {
         return outerHTML.includes(icon.styleName) ? icon.styleName : "";
       } else return "";
@@ -750,20 +786,6 @@ export default {
       this.$store.commit("changeSelectedObject", {});
       this.$store.commit("changeInsertingComponents", false);
     },
-
-    /* CONSTRUCTORS */
-    Constructor_instance(params) {
-      const { data, instance } = params;
-
-      this.data = data;
-      this.instance = instance;
-    },
-    Imported_component(data) {
-      const { index, component } = data;
-
-      this.index = index;
-      this.component = component;
-    },
   },
   beforeDestroy() {
     this.$store.commit("clean_store");
@@ -771,6 +793,12 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 @import "src/assets/styles/textEditor";
+</style>
+
+<style lang="scss">
+.v-application p {
+  margin: 0 !important;
+}
 </style>

@@ -1,20 +1,20 @@
 <template>
   <div style="position: sticky; top: 47px; z-index: 1">
-    <div class="textRedactor__header" id="header" style="">
+    <div id="header" class="textRedactor__header" style="">
       <!-- Вставить элемент в текст -->
       <div
-        class="header__elBlock right"
-        style="display: flex; align-items: center; column-gap: 10px !important"
+          class="header__elBlock right"
+          style="display: flex; align-items: center; column-gap: 10px !important"
       >
         <!-- Auth -->
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              v-bind="attrs"
-              v-on="on"
-              size="28"
-              @click="initialiseInserting('auth')"
-              :disabled="check_count_auth"
+                :disabled="check_count_auth"
+                size="28"
+                v-bind="attrs"
+                @click="initialiseInserting('auth')"
+                v-on="on"
             >
               mdi-account-key
             </v-icon>
@@ -25,11 +25,11 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              v-bind="attrs"
-              v-on="on"
-              size="28"
-              @click="initializeSelection('questions')"
-              style="padding-top: 2px"
+                size="28"
+                style="padding-top: 2px"
+                v-bind="attrs"
+                @click="initializeSelection('questions')"
+                v-on="on"
             >
               mdi-message-question
             </v-icon>
@@ -40,10 +40,10 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              v-bind="attrs"
-              v-on="on"
-              size="28"
-              @click="initializeSelection('image')"
+                size="28"
+                v-bind="attrs"
+                @click="initializeSelection('image')"
+                v-on="on"
             >
               mdi-panorama
             </v-icon>
@@ -56,14 +56,14 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              v-bind="attrs"
-              v-on="on"
-              @click="onUndo()"
-              size="28"
-              :disabled="
+                :disabled="
                 $store.state.ArticleModule.txtDisplay.length <= 1 ||
                 $store.state.ArticleModule.startRender
               "
+                size="28"
+                v-bind="attrs"
+                @click="onUndo()"
+                v-on="on"
             >
               mdi-undo
             </v-icon>
@@ -73,15 +73,15 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              v-bind="attrs"
-              v-on="on"
-              @click="onRedo()"
-              size="28"
-              :disabled="
+                :disabled="
                 $store.state.ArticleModule.txtDisplay.length ===
                   $store.state.ArticleModule.txtSave.length ||
                 $store.state.ArticleModule.startRender
               "
+                size="28"
+                v-bind="attrs"
+                @click="onRedo()"
+                v-on="on"
             >
               mdi-redo
             </v-icon>
@@ -92,17 +92,17 @@
       <!-- Жирный/курсив и т.д. -->
       <div class="header__elBlock">
         <v-tooltip
-          bottom
-          v-for="(item, index) in array_edit_content"
-          :key="index"
+            v-for="(item, index) in array_edit_content"
+            :key="index"
+            bottom
         >
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              v-bind="attrs"
-              v-on="on"
-              @click="onAction(item.value, icons_panel[item.value])"
-              :color="icons_panel[item.value].active ? 'blue darken-4' : ''"
-              size="28"
+                :color="icons_panel[item.value].active ? 'blue darken-4' : ''"
+                size="28"
+                v-bind="attrs"
+                @click="onAction(item.value, icons_panel[item.value])"
+                v-on="on"
             >
               {{ item.icon }}
             </v-icon>
@@ -113,17 +113,17 @@
       <!-- Форматирование -->
       <div class="header__elBlock right">
         <v-tooltip
-          bottom
-          v-for="(item, index) in array_align_content"
-          :key="index"
+            v-for="(item, index) in array_align_content"
+            :key="index"
+            bottom
         >
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              v-bind="attrs"
-              v-on="on"
-              @click="onAction(item.value, icons_panel[item.value])"
-              :color="icons_panel[item.value].active ? 'blue darken-4' : ''"
-              size="28"
+                :color="icons_panel[item.value].active ? 'blue darken-4' : ''"
+                size="28"
+                v-bind="attrs"
+                @click="onAction(item.value, icons_panel[item.value])"
+                v-on="on"
             >
               {{ item.icon }}
             </v-icon>
@@ -136,11 +136,11 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              v-bind="attrs"
-              v-on="on"
-              @click="setH2()"
-              :color="icons_panel.formatBlock.active ? 'blue darken-4' : ''"
-              size="28"
+                :color="icons_panel.formatBlock.active ? 'blue darken-4' : ''"
+                size="28"
+                v-bind="attrs"
+                @click="setH2()"
+                v-on="on"
             >
               mdi-format-header-2
             </v-icon>
@@ -153,10 +153,10 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              v-bind="attrs"
-              v-on="on"
-              @click="onAction('indent')"
-              size="28"
+                size="28"
+                v-bind="attrs"
+                @click="onAction('indent')"
+                v-on="on"
             >
               mdi-format-indent-increase
             </v-icon>
@@ -166,10 +166,10 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              v-bind="attrs"
-              v-on="on"
-              @click="onAction('outdent')"
-              size="28"
+                size="28"
+                v-bind="attrs"
+                @click="onAction('outdent')"
+                v-on="on"
             >
               mdi-format-indent-decrease
             </v-icon>
@@ -182,10 +182,10 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              v-bind="attrs"
-              v-on="on"
-              @click="onAction('removeFormat')"
-              size="28"
+                size="28"
+                v-bind="attrs"
+                @click="onAction('removeFormat')"
+                v-on="on"
             >
               mdi-format-clear
             </v-icon>
@@ -196,56 +196,56 @@
     </div>
     <!-- MODALS -->
     <v-dialog
-      v-model="$store.state.ArticleModule.selectComponent.questions"
-      max-width="600"
+        v-model="$store.state.ArticleModule.selectComponent.questions"
+        max-width="600"
     >
       <v-card>
         <v-card-title>
           <span
-            class="text-h6"
-            style="font-size: 0.8em !important; text-align: center; width: 100%"
-            >Какой вопрос?</span
+              class="text-h6"
+              style="font-size: 0.8em !important; text-align: center; width: 100%"
+          >Какой вопрос?</span
           >
         </v-card-title>
         <v-card-text id="questionSelector">
-          <v-chip-group multiple show-arrows v-model="filters.tag">
+          <v-chip-group v-model="filters.tag" multiple show-arrows>
             <v-chip
-              color="#f2f5f7"
-              v-for="tag in $store.state.ArticleModule.listGeneralTags"
-              :key="tag.id"
-              :value="tag.code"
-              small
+                v-for="tag in $store.state.ArticleModule.listGeneralTags"
+                :key="tag.id"
+                :value="tag.code"
+                color="#f2f5f7"
+                small
             >
               <v-icon
-                left
-                color="grey darken-2"
-                v-if="filters.tag.includes(tag.code)"
+                  v-if="filters.tag.includes(tag.code)"
+                  color="grey darken-2"
+                  left
               >
                 mdi-check-bold
               </v-icon>
-              <v-icon left color="grey darken-2" v-else>
+              <v-icon v-else color="grey darken-2" left>
                 mdi-close-thick
               </v-icon>
               {{ tag.name }}
             </v-chip>
           </v-chip-group>
           <v-autocomplete
-            style="position: sticky; top: 0"
-            :loading="$store.state.ArticleModule.loadingModalList"
-            :disabled="$store.state.ArticleModule.loadingModalList"
-            :items="listQuestions"
-            item-text="name"
-            :menu-props="{ bottom: true, offsetY: true }"
-            return-object
-            clearable
-            v-model="$store.state.ArticleModule.selectedComponent"
-            @click:clear="
+              ref="selector"
+              v-model="$store.state.ArticleModule.selectedComponent"
+              :disabled="$store.state.ArticleModule.loadingModalList"
+              :items="listQuestions"
+              :loading="$store.state.ArticleModule.loadingModalList"
+              :menu-props="{ bottom: true, offsetY: true }"
+              clearable
+              item-text="name"
+              placeholder="Наименование"
+              return-object
+              style="position: sticky; top: 0"
+              @click:clear="
               $nextTick(() => {
                 $store.state.ArticleModule.selectedComponent = {};
               })
             "
-            placeholder="Наименование"
-            ref="selector"
           >
           </v-autocomplete>
         </v-card-text>
@@ -255,10 +255,10 @@
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn
-            color="green darken-1"
-            :disabled="!check_selected_component"
-            text
-            @click="onSelectComponent()"
+              :disabled="!check_selected_component"
+              color="green darken-1"
+              text
+              @click="onSelectComponent()"
           >
             Выбрать
           </v-btn>
@@ -266,31 +266,31 @@
       </v-card>
     </v-dialog>
     <v-dialog
-      v-model="$store.state.ArticleModule.selectComponent.image"
-      max-width="600"
+        v-model="$store.state.ArticleModule.selectComponent.image"
+        max-width="600"
     >
       <v-card>
         <v-card-title>
           <span class="text-h6" style="font-size: 0.8em !important"
-            >Загрузите изображение</span
+          >Загрузите изображение</span
           >
         </v-card-title>
         <v-card-text class="dialog_dropzone">
           <div class="dialog_dropzone_wrapper">
             <vue-dropzone
-              ref="myVueDropzone"
-              id="dropzone"
-              :options="options"
-              :useCustomSlot="true"
-              v-if="!loading_dropzone"
-              @vdropzone-success="successData"
-              @vdropzone-sending="sendingData"
+                v-if="!loading_dropzone"
+                id="dropzone"
+                ref="myVueDropzone"
+                :options="options"
+                :useCustomSlot="true"
+                @vdropzone-success="successData"
+                @vdropzone-sending="sendingData"
             >
               <h3 class="dropzone-custom-title">
                 <v-icon
-                  size="120"
-                  color="grey lighten-1"
-                  style="transform: rotate(45deg)"
+                    color="grey lighten-1"
+                    size="120"
+                    style="transform: rotate(45deg)"
                 >
                   mdi-paperclip
                 </v-icon>
@@ -301,38 +301,39 @@
               </div>
             </vue-dropzone>
             <div
-              v-if="dropzone_uploaded.length"
-              @click="triggerUpload()"
-              class="dialog_dropzone_wrapper__upload"
+                v-if="dropzone_uploaded.length"
+                class="dialog_dropzone_wrapper__upload"
+                @click="triggerUpload()"
             >
               <v-icon
-                color="grey lighten-1"
-                size="60"
-                style="transform: rotate(45deg)"
-                >mdi-paperclip</v-icon
+                  color="grey lighten-1"
+                  size="60"
+                  style="transform: rotate(45deg)"
+              >mdi-paperclip
+              </v-icon
               >
             </div>
           </div>
           <template v-if="dropzone_uploaded.length">
             <div
-              class="dialog_dropzone_inputs"
-              v-for="(item, index) in dropzone_uploaded"
-              :key="index"
+                v-for="(item, index) in dropzone_uploaded"
+                :key="index"
+                class="dialog_dropzone_inputs"
             >
               <span class="dialog_dropzone_inputs__label">
                 [{{ index + 1 }}] {{ item.filename }}</span
               >
               <v-text-field
-                dense
-                hide-details
-                placeholder="alt-наименование изображения"
-                v-model="item.alt"
+                  v-model="item.alt"
+                  dense
+                  hide-details
+                  placeholder="alt-наименование изображения"
               ></v-text-field>
               <v-text-field
-                dense
-                hide-details
-                placeholder="подпись изображения"
-                v-model="item.title"
+                  v-model="item.title"
+                  dense
+                  hide-details
+                  placeholder="подпись изображения"
               ></v-text-field>
             </div>
           </template>
@@ -394,7 +395,8 @@ export default {
     this.previewHtml = instance.$el.outerHTML;
     this.loading_dropzone = false;
   },
-  mounted() {},
+  mounted() {
+  },
   watch: {
     "$store.state.ArticleModule.selectComponent.questions": {
       handler(v) {
@@ -403,10 +405,10 @@ export default {
             window.addEventListener("scroll", this.disableInput, true);
           });
           this.$store
-            .dispatch("getListQuestions", _store.name_component)
-            .then(() => {
-              this.getArrID();
-            });
+              .dispatch("getListQuestions", _store.name_component)
+              .then(() => {
+                this.getArrID();
+              });
           this.$store.dispatch("getGeneralTagsArticle");
         }
       },
@@ -421,7 +423,7 @@ export default {
   computed: {
     isMobile() {
       return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
+          navigator.userAgent
       );
     },
     check_count_auth() {
@@ -455,13 +457,13 @@ export default {
       this.$nextTick(() => {
         console.log(_store.list_components);
         this.arrIds = _store.list_components
-          .filter((component) => {
-            return (
-              component?.data?.component?.name === "questions" ||
-              component?.data?.component?.name === "question"
-            );
-          })
-          .map((elem) => elem?.data?.component?.id);
+            .filter((component) => {
+              return (
+                  component?.data?.component?.name === "questions" ||
+                  component?.data?.component?.name === "question"
+              );
+            })
+            .map((elem) => elem?.data?.component?.id);
       });
     },
     disableInput() {
@@ -508,27 +510,27 @@ export default {
       });
       if (index !== -1) {
         this.$store
-          .dispatch("deleteFile", this.dropzone_uploaded[index].id)
-          .then(() => {
-            this.dropzone_uploaded.splice(index, 1);
-            for (let i = 0; i < this.dropzone_uploaded.length; i++) {
-              console.log(this.dropzone_uploaded[i].index);
-              console.log(
-                document.getElementById(
-                  `close-${this.dropzone_uploaded[i].index}`
-                )
-              );
-              const block = document.getElementById(
-                `close-${this.dropzone_uploaded[i].index}`
-              );
-              block.id = `close-${i + 1}`;
-              block.onclick = () => {
-                this.removedFile(i + 1);
-              };
-              this.dropzone_uploaded[i].index = i + 1;
-            }
-            this.index_uploaded = this.dropzone_uploaded.length + 1;
-          });
+            .dispatch("deleteFile", this.dropzone_uploaded[index].id)
+            .then(() => {
+              this.dropzone_uploaded.splice(index, 1);
+              for (let i = 0; i < this.dropzone_uploaded.length; i++) {
+                console.log(this.dropzone_uploaded[i].index);
+                console.log(
+                    document.getElementById(
+                        `close-${this.dropzone_uploaded[i].index}`
+                    )
+                );
+                const block = document.getElementById(
+                    `close-${this.dropzone_uploaded[i].index}`
+                );
+                block.id = `close-${i + 1}`;
+                block.onclick = () => {
+                  this.removedFile(i + 1);
+                };
+                this.dropzone_uploaded[i].index = i + 1;
+              }
+              this.index_uploaded = this.dropzone_uploaded.length + 1;
+            });
       }
     },
     clearDropZoneTemplate() {
@@ -558,18 +560,23 @@ export default {
       }
     },
     setH2() {
+      this.onAction('removeFormat')
       if (_store.range.commonAncestorContainer.parentElement.tagName === "H2") {
         document.execCommand("formatBlock", false, "p");
+        _store.range.collapse(false)
         iconsModels.icons_panel.formatBlock.active = false;
       } else if (
-        _store.range.commonAncestorContainer.parentElement.tagName === "DIV"
+          _store.range.commonAncestorContainer.parentElement.tagName === "DIV"
       ) {
         document.execCommand("formatBlock", false, "p");
+        _store.range.collapse(false)
         iconsModels.icons_panel.formatBlock.active = false;
       } else {
         document.execCommand("formatBlock", false, "h2");
+        _store.range.collapse(false)
         iconsModels.icons_panel.formatBlock.active = true;
       }
+      this.$store.commit('get_range')
     },
     /* MODALS */
     getFilteredQuestions() {
@@ -577,10 +584,10 @@ export default {
       this.debounceTimeout = setTimeout(() => {
         this.$store.commit("change_loading_modal_list", true);
         this.$store
-          .dispatch("setFilteredListQuestionsModal", this.filters)
-          .then(() => {
-            this.$store.commit("change_loading_modal_list", false);
-          });
+            .dispatch("setFilteredListQuestionsModal", this.filters)
+            .then(() => {
+              this.$store.commit("change_loading_modal_list", false);
+            });
       }, 500);
     },
     closeModal(name) {
@@ -648,7 +655,7 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 @import "src/assets/styles/textEditor";
 
 ::v-deep .v-text-field {
@@ -663,7 +670,7 @@ export default {
 }
 
 ::v-deep
-  .v-menu__content.theme--light.menuable__content__active.v-autocomplete__content {
+.v-menu__content.theme--light.menuable__content__active.v-autocomplete__content {
   max-width: 280px !important;
 }
 </style>
