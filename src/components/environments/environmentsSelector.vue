@@ -1,6 +1,7 @@
 <template>
   <div class="environments_wrapper" :class="{removeSpace: flat}">
     <v-autocomplete
+        prepend-icon="mdi-paperclip"
         :class="{innerSelector: flat, focused: flatFocused}"
         :outlined="!flat"
         :solo="flat"
@@ -47,8 +48,8 @@
       </template>
     </v-autocomplete>
     <template v-if="checkFirst">
-      <div class="divider" v-if="flat"></div>
       <v-autocomplete
+          prepend-icon="mdi-grid"
           :class="{innerSelector: flat, focused: flatFocused}"
           :outlined="!flat"
           :solo="flat"

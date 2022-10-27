@@ -153,6 +153,7 @@
                       :key="answer.id"
                   >
                     <v-textarea
+                        prepend-icon="mdi-message-reply-outline"
                         class="question_main_wrapper__item__value"
                         :class="{inputFocused: answer.focused}"
                         placeholder="Введите значение"
@@ -174,6 +175,7 @@
                     <template v-if="answer.showComentary">
                       <div class="divider"></div>
                       <v-textarea
+                          prepend-icon="mdi-help-circle-outline"
                           class="question_main_wrapper__item__description"
                           :class="{inputFocused: answer.focused}"
                           placeholder="Введите примечание"
@@ -973,6 +975,7 @@ export default {
 
           &__item {
             border-bottom: 1px solid lightgray;
+            padding: 10px;
 
             &__value {
               font-size: 14px;
@@ -987,12 +990,6 @@ export default {
 
             ::v-deep .v-text-field.v-text-field--enclosed:not(.v-text-field--rounded) > .v-input__control > .v-input__slot, .v-text-field.v-text-field--enclosed .v-text-field__details {
               padding: 0 6px !important;
-            }
-
-            .divider {
-              border-bottom: 1px dashed;
-              width: 15%;
-              margin-left: 6px;
             }
 
             &__description {
@@ -1071,5 +1068,13 @@ export default {
 
 ::v-deep .v-dialog > .v-card > .v-card__title {
   justify-content: center;
+}
+</style>
+<style lang="scss">
+.divider {
+  border-bottom: 1px dashed;
+  width: 30vw!important;
+  //margin-left: 6px;
+  margin: 5px 0!important;
 }
 </style>
