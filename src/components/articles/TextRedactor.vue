@@ -275,10 +275,11 @@ export default {
               .getElementById(`component_wrapper-${elem.index}`)
               .getElementsByClassName("inserted_image")[0].src;
           let sub_url = full_url.split(".com");
-          const alt = document
-              .getElementById(`component_wrapper-${elem.index}`)
-              .getElementsByClassName("inserted_image")[0].alt;
-          data = Object.assign({}, {name: alt}, {full_path: sub_url[1]});
+          const IdImage = document.getElementById(`component_wrapper-${elem.index}`).dataset.id;
+          data = Object.assign({},
+              { full_path: sub_url[1] },
+              { id: IdImage},
+          );
         }
         /* Here change global counter of component in article */
         this.$store.commit("change_counter", {
@@ -479,7 +480,7 @@ export default {
     callCheckout(elem) {
       let data_component = factory.create(_store.name_component, {
         name: _store.name_component,
-        id: _store.selectedComponent?.id,
+        id: (_store.selectedComponent?.id) ? _store.selectedComponent.id: elem.id,
         index_questions: _store.counters.questions,
         index_image: _store.counters.image,
         index_auth: _store.counters.auth,

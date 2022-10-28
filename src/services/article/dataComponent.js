@@ -24,8 +24,9 @@ class Element_question {
 
 class Element_image {
   constructor(data) {
-    const { name, src, index_image } = data;
+    const { name, src, index_image, id } = data;
 
+    this.id = id;
     this.name = name;
     this.src = src;
     this.index_image = index_image;

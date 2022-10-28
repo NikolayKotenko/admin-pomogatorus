@@ -5,6 +5,7 @@
     :id="`component_wrapper-${index_component}`"
     data-name="image"
     :data-src="shortPath"
+    :data-id="getIdImage"
   >
     <div
       class="componentArticle_wrapper__admin_controls-header"
@@ -14,7 +15,7 @@
         class="componentArticle_wrapper__admin_controls-header__img"
         :src="require(`/src/assets/svg/closeIcon.svg`)"
         alt="close"
-        @click="deleteQuestion()"
+        @click="deleteImage()"
       />
     </div>
     <img class="inserted_image" :src="srcPath" :alt="altName" :title="title" />
@@ -57,6 +58,9 @@ export default {
     title() {
       return this.data_image?.title;
     },
+    getIdImage(){
+      return this.data_image?.id
+    }
   },
   methods: {
     getData() {
@@ -67,12 +71,17 @@ export default {
       this.getHeightOfControls();
       this.getWidthOfControls();
     },
-    deleteQuestion() {
+    async deleteImage() {
+      const response = await this.$store.dispatch('deleteFileGeneral', this.data_image.id);
+      if (response.codeResponse !== 202)
+        return false;
+
+
       const elem = document.getElementById(
         `component_wrapper-${this.index_component}`
       );
       elem.remove();
-      this.$store.dispatch("deleteComponent", this.index_component);
+      await this.$store.dispatch("deleteComponent", this.index_component);
     },
     onResize: function (x, y, width, height) {
       this.x = x;
