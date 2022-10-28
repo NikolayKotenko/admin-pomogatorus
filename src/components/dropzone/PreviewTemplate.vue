@@ -10,8 +10,8 @@
         :src="require('/src/assets/svg/close.svg')"
         alt="close"
       />
-      <span id="name" data-dz-name></span>
-      <span data-dz-size></span>
+      <span id="name" class="dz_name" data-dz-name></span>
+      <span data-dz-size class="dz_size"></span>
     </div>
   </v-card>
 </template>
@@ -60,10 +60,18 @@ export default {
       width: 28px;
       height: 28px;
     }
+    .dz_name, .dz_size{
+      color:white;
+    }
   }
   .image {
     width: 100%;
+    display: grid;
     height: 100%;
+    max-height: 300px;
+    max-width: 300px;
+    object-fit: contain;
+    margin: auto;
   }
 }
 </style>

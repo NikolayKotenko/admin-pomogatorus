@@ -326,13 +326,13 @@
                 dense
                 hide-details
                 placeholder="alt-наименование изображения"
-                v-model="item.alt"
+                v-model="item.alt_image"
               ></v-text-field>
               <v-text-field
                 dense
                 hide-details
                 placeholder="подпись изображения"
-                v-model="item.title"
+                v-model="item.title_image"
               ></v-text-field>
             </div>
           </template>
@@ -342,7 +342,7 @@
             Назад
           </v-btn>
           <v-spacer></v-spacer>
-          <v-btn color="green darken-1" text @click="onSelectComponent()">
+          <v-btn color="green darken-1" text @click="updateDropZoneImage(); onSelectComponent();">
             Выбрать
           </v-btn>
         </v-card-actions>
@@ -360,6 +360,7 @@ import iconsModels from "../../models/iconsModels";
 import Vue from "vue";
 
 import titlesStore from "@/store/modules/article/index.js";
+import Request from "@/services/request";
 
 const _store = titlesStore.state;
 
@@ -478,12 +479,9 @@ export default {
       formData.append("id_article", _store.newArticle.id);
     },
     successData(file, response) {
-      console.log(response);
       const formatObj = Object.assign({}, response.data);
       Object.assign(formatObj, {
         index: this.index_uploaded,
-        alt: "",
-        title: "",
       });
       this.index_uploaded++;
       this.dropzone_uploaded.push(formatObj);
@@ -542,6 +540,13 @@ export default {
     },
     triggerUpload() {
       document.getElementById("dropzone").click();
+    },
+    async updateDropZoneImage(){
+      if (! this.dropzone_uploaded.length) return;
+
+      await Request.put(
+          this.$store.state.BASE_URL+'/entity/files/'+this.dropzone_uploaded[0].id,
+          this.dropzone_uploaded[0])
     },
 
     /* ICONS */

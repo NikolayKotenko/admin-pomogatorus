@@ -253,7 +253,7 @@
                   <v-btn
                       color="blue darken-1"
                       text
-                      @click="removedFile(0);"
+                      @click="removedFile();"
                       :loading="$store.state.loadingRequestGeneral"
                       :disabled="$store.state.loadingRequestGeneral"
                       v-if="dropzone_uploaded.length"
@@ -724,8 +724,10 @@ export default {
       this.dropzone_uploaded.push(formatObj)
       this.$store.state.loadingRequestGeneral = false;
     },
-    async removedFile(index) {
-      await this.$store.dispatch('deleteFileGeneral', this.dropzone_uploaded[index].id);
+    async removedFile() {
+      for (const item of this.dropzone_uploaded) {
+        await this.$store.dispatch('deleteFileGeneral', item.id);
+      }
       this.dropzone_uploaded = [];
       this.$refs.TagDropZone.removeAllFiles();
     },

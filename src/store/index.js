@@ -23,7 +23,6 @@ import AnswersModule from "./modules/answers";
 import TagsModule from "./modules/tags";
 import UsersModule from "./modules/users";
 import Request from "../services/request";
-import axios from "axios";
 
 export default new Vuex.Store({
   state: {
@@ -41,12 +40,10 @@ export default new Vuex.Store({
     listAgents: [],
     loadingRequestGeneral: false,
     emailRules: [
-      v => !!v || 'Обязательное для заполнение поле',
-      v => /.+@.+/.test(v) || 'E-mail должен быть валидным.',
+      (v) => !!v || "Обязательное для заполнение поле",
+      (v) => /.+@.+/.test(v) || "E-mail должен быть валидным.",
     ],
-    nameRules: [
-      v => !!v || 'Обязательное для заполнение поле',
-    ]
+    nameRules: [(v) => !!v || "Обязательное для заполнение поле"],
   },
   mutations: {
     change_notification_modal(state, value) {
@@ -61,9 +58,9 @@ export default new Vuex.Store({
       state.listAgents = array;
     },
     changeLoadingAgents(state, value) {
-      state.loadingAgents = value
+      state.loadingAgents = value;
     },
-    changeLoadingGeneral(state, value){
+    changeLoadingGeneral(state, value) {
       state.loadingRequestGeneral = value;
     },
   },
@@ -94,47 +91,28 @@ export default new Vuex.Store({
 
       commit("changeLoadingAgents", false);
     },
-    deleteFileGeneral({state}, id) {
-      state.loadingRequestGeneral = true
-      return new Promise((resolve) => {
-
-        const options = {
-          method: 'DELETE',
-          url: `${this.state.BASE_URL}/entity/files/${id}`,
-          headers: {
-            Authorization: '666777'
-          },
-        }
-
-        axios(options)
-            .then((response) => {
-              //handle success
-              state.loadingRequestGeneral = false
-              resolve()
-              console.log(response);
-            })
-            .catch((response) => {
-              //handle error
-              state.loadingRequestGeneral = false
-              resolve()
-              console.log(response.body);
-            });
-      })
+    deleteFileGeneral({ state }, id) {
+      state.loadingRequestGeneral = true;
+      const response = Request.delete(
+        this.state.BASE_URL + "/entity/files/" + id
+      );
+      state.loadingRequestGeneral = false;
+      return response;
     },
-    setTitle(_, title){
+    setTitle(_, title) {
       // console.log('setTitle title = ', title)
-      if (! title) return false;
-      if (document.title.match('>')) return false;
+      if (!title) return false;
+      if (document.title.match(">")) return false;
 
-      const dynamicTitle = (title) ? ' > '+title : '';
+      const dynamicTitle = title ? " > " + title : "";
       document.title = document.title + dynamicTitle;
-      console.log('2', document.title)
-    }
+      console.log("2", document.title);
+    },
   },
-  getters:{
-    stateEditCreate:() => (action) => {
-      return ['create', 'edit'].includes(action)
-    }
+  getters: {
+    stateEditCreate: () => (action) => {
+      return ["create", "edit"].includes(action);
+    },
   },
   modules: {
     QuestionsModule,
@@ -142,6 +120,6 @@ export default new Vuex.Store({
     AuthModule,
     AnswersModule,
     TagsModule,
-    UsersModule
-  }
-})
+    UsersModule,
+  },
+});
