@@ -565,7 +565,8 @@ export default {
         }
       });
     },
-    deleteArticle() {
+    async deleteArticle() {
+      await this.removedFile();
       this.$store.dispatch("deleteArticle", this.newArticle).then(() => {
         this.deleteModal = false;
         this.$router.push({
