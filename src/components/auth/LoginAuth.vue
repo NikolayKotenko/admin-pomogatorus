@@ -223,6 +223,11 @@ export default {
         id_dom_elem: index_component,
         full_url: window.location.href,
       });
+      if (res.codeResponse >= 400) {
+        this.alertCall(res);
+        return false;
+      }
+
       if (res.codeResponse === 202 && this.$store.getters.isAdminGroup) {
         await this.$router.push({
           path: "/",
@@ -234,9 +239,7 @@ export default {
           codeResponse: 403
         }
         this.alertCall(response);
-        return false;
       }
-      this.alertCall(res);
     },
     async localCreateUser(index_component){
       if (this.$refs.email_user.validate(true) === false) return false
