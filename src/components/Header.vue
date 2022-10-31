@@ -80,6 +80,7 @@
     </v-app-bar>
 
     <v-navigation-drawer
+      v-if="$store.getters.checkAccessMenu"
       v-model="drawer"
       app
       clipped
@@ -91,7 +92,7 @@
           <v-img src="https://randomuser.me/api/portraits/women/85.jpg"></v-img>
         </v-list-item-avatar>
         <!-- FIXME: Поменять после бэкенда -->
-        <span class="navigation_user_name">Admin</span>
+        <span class="navigation_user_name">{{ getNameUser }}</span>
       </div>
       <v-list nav dense>
         <v-list-item-group v-model="group" active-class="white--text">
@@ -126,11 +127,24 @@
           </v-list-item>
         </v-list-item-group>
       </v-list>
+
+      <div class="wrapper_logout">
+        <v-btn
+            small
+            block
+            bottom
+            @click="logout()"
+        >
+          Выйти
+        </v-btn>
+      </div>
     </v-navigation-drawer>
   </div>
 </template>
 
 <script>
+import {mapGetters} from "vuex";
+
 export default {
   name: "Header",
   data: () => ({
@@ -185,6 +199,8 @@ export default {
     ]
   }),
   computed: {
+    ...mapGetters(['stateAuth']),
+    ...mapGetters(['getNameUser']),
     computedArrowBurger() {
       return (
         Object.keys(this.$route.params).length &&
@@ -215,6 +231,12 @@ export default {
         name: this.$route.meta.returnLink.name,
         path: this.$route.meta.returnLink.path,
       });
+    },
+    async logout(){
+      const response = await this.$store.dispatch('logout');
+      if (response.codeResponse === 202){
+        await this.$router.push({path: "/login"});
+      }
     },
   },
 };
@@ -253,5 +275,12 @@ export default {
 .navigation_section_icon {
   width: 24px;
   height: 24px;
+}
+.wrapper_logout{
+  display: grid;
+  padding: 10px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
 }
 </style>

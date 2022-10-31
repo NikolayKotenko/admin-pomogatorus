@@ -28,8 +28,8 @@ const routes = [
     name: "Desktop",
     component: Desktop,
     meta: {
-      title: 'Рабочий стол',
-      ru_name: 'Рабочий стол',
+      title: "Рабочий стол",
+      ru_name: "Рабочий стол",
       requiresAuth: true,
     },
   },
@@ -38,8 +38,8 @@ const routes = [
     name: "Companies",
     component: Companies,
     meta: {
-      title: 'Компании',
-      ru_name: 'Компании',
+      title: "Компании",
+      ru_name: "Компании",
       requiresAuth: true,
     },
   },
@@ -48,62 +48,62 @@ const routes = [
     name: "Question",
     component: Question,
     meta: {
-      title: 'Вопрос',
-      ru_name: 'Вопрос',
+      title: "Вопрос",
+      ru_name: "Вопрос",
       requiresAuth: true,
     },
   },
   {
-    path: '/questions',
-    name: 'Questions',
+    path: "/questions",
+    name: "Questions",
     component: Questions,
     meta: {
-      title: 'Список вопросов',
-      ru_name: 'Список вопросов',
+      title: "Список вопросов",
+      ru_name: "Список вопросов",
       requiresAuth: true,
       canCreate: true,
       createLink: {
-        name: 'DetailQuestion',
-        params: {action: 'create'},
+        name: "DetailQuestion",
+        params: { action: "create" },
       },
     },
   },
   {
-    path: '/questions/:action/',
-    name: 'DetailQuestion',
+    path: "/questions/:action/",
+    name: "DetailQuestion",
     component: DetailQuestion,
     meta: {
-      title: 'Вопросы',
-      ru_name: 'Вопросы',
+      title: "Вопросы",
+      ru_name: "Вопросы",
       requiresAuth: true,
       returnLink: {
-        name: 'Questions',
-        path: '/questions'
-      }
-    },
-  },
-  {
-    path: '/articles',
-    name: 'Articles',
-    component: Articles,
-    meta: {
-      title: 'Список статей',
-      ru_name: 'Список статей',
-      requiresAuth: true,
-      canCreate: true,
-      createLink: {
-        name: 'DetailArticles',
-        params: {action: 'create'},
+        name: "Questions",
+        path: "/questions",
       },
     },
   },
   {
-    path: '/articles/:action/',
-    name: 'DetailArticles',
+    path: "/articles",
+    name: "Articles",
+    component: Articles,
+    meta: {
+      title: "Список статей",
+      ru_name: "Список статей",
+      requiresAuth: true,
+      canCreate: true,
+      createLink: {
+        name: "DetailArticles",
+        params: { action: "create" },
+      },
+    },
+  },
+  {
+    path: "/articles/:action/",
+    name: "DetailArticles",
     component: DetailArticles,
     meta: {
-      title: 'Статья',
-      ru_name: 'Статья',
+      title: "Статья",
+      ru_name: "Статья",
       requiresAuth: true,
       returnLink: {
         name: "Articles",
@@ -112,74 +112,74 @@ const routes = [
     },
   },
   {
-    path: '/tags/:id?/',
-    name: 'DetailTag',
+    path: "/tags/:id?/",
+    name: "DetailTag",
     component: DetailTag,
     meta: {
-      title: 'Создание/редактирование тэга',
-      ru_name: 'Создание/редактирование тэга',
+      title: "Создание/редактирование тэга",
+      ru_name: "Создание/редактирование тэга",
       requiresAuth: true,
       canCreate: true,
       canEdit: true,
       canView: true,
       createLink: {
-        name: 'DetailTag',
-        query: {action: 'create'},
+        name: "DetailTag",
+        query: { action: "create" },
       },
       editLink: {
-        name: 'DetailTag',
-        params: {action: 'edit'},
-        query: {id: null},
+        name: "DetailTag",
+        params: { action: "edit" },
+        query: { id: null },
       },
       returnLink: {
-        name: 'Tags',
-        path: '/tags'
-      }
+        name: "Tags",
+        path: "/tags",
+      },
     },
   },
   {
-    path: '/users/:id?',
-    name: 'DetailUser',
+    path: "/users/:id?",
+    name: "DetailUser",
     component: DetailUser,
     meta: {
-      title: 'Просмотр/назначение пользователя',
-      ru_name: 'Просмотр/назначение пользователя',
+      title: "Просмотр/назначение пользователя",
+      ru_name: "Просмотр/назначение пользователя",
       requiresAuth: true,
       canCreate: true,
       canEdit: true,
       canView: true,
       createLink: {
-        name: 'DetailUser',
-        query: {action: 'create'},
+        name: "DetailUser",
+        query: { action: "create" },
       },
       editLink: {
-        name: 'DetailUser',
-        params: {action: 'edit'},
-        query: {id: null},
+        name: "DetailUser",
+        params: { action: "edit" },
+        query: { id: null },
       },
       returnLink: {
-        name: 'Users',
-        path: '/users'
-      }
+        name: "Users",
+        path: "/users",
+      },
     },
   },
   {
-    path: '/login/',
-    name: 'login',
+    path: "/login/",
+    name: "login",
     component: LoginAuth,
     meta: {
       visible_front: false,
-      title: 'Авторизация',
-      ru_name: 'Авторизация',
-    }
+      title: "Авторизация",
+      ru_name: "Авторизация",
+    },
   },
   {
-    path: '/answers',
-    name: 'Answers',
+    path: "/answers",
+    name: "Answers",
     component: Answers,
     meta: {
-      title: 'Ответы пользователей',
-      ru_name: 'Ответы пользователей',
+      title: "Ответы пользователей",
+      ru_name: "Ответы пользователей",
       requiresAuth: true,
       canCreate: false,
       // createLink: {
@@ -205,13 +205,13 @@ const router = new VueRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-    document.title = to.meta.title;
+  document.title = to.meta.title;
 
-    //Если валидация на этом компоненте не нужна - пропускаем
-    if(! to.matched.some(record => record.meta.requiresAuth))
-      next()
+  //Если валидация на этом компоненте не нужна - пропускаем
+  if (!to.matched.some((record) => record.meta.requiresAuth)) next();
 
-  //Если есть параметр из email письма с авторизацией то аутентифицируем (пишем в userData)
+  //Если есть параметр из email письма с авторизацией то аутентифицируем (пишем в
+  // )
   if (to.query.userEmail)
     await store.dispatch("loginUser", { userEmail: to.query.userEmail });
 
@@ -221,11 +221,22 @@ router.beforeEach(async (to, from, next) => {
   // console.groupEnd()
 
   if (process.env.NODE_ENV === "production") {
+    // Если access кука пустая вызываем обновление токенов
     if (Vue.$cookies.get("accessToken") === null) {
       const refreshResponse = await store.dispatch("refreshTokens");
       if (!refreshResponse) next("/login");
       if (Logging.checkExistErr(refreshResponse)) next("/login");
+    } else {
+      // Если пустой объект в сторе с пользовательскими данными, вызываем проверку
+      // console.log("store.getters.stateAuth", store.getters.stateAuth);
+      if (!store.getters.stateAuth) {
+        const validateAuth = await store.dispatch("validateAuth");
+        if (Logging.checkExistErr(validateAuth)) next("/login");
+      }
     }
+
+    // Если в пользовательских данных группа не админа то на логин
+    if (!store.getters.isAdminGroup) next("/login");
   }
 
   next();

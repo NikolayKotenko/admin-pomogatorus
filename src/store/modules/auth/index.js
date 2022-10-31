@@ -10,15 +10,35 @@ export default {
     stateAuth(state) {
       return Object.keys(state.userData).length !== 0;
     },
+    checkAccessMenu(state, getters) {
+      // console.log(getters.isAdminGroup);
+      if (process.env.NODE_ENV === "development") return true;
+
+      return process.env.NODE_ENV === "production" && getters.isAdminGroup;
+    },
     checkAdminPanel() {
       if (!process.env.VUE_APP_SERVER) return false;
 
       return Boolean(process.env.VUE_APP_SERVER.match("admin"));
     },
+    getNameUser(state) {
+      return Object.keys(state.userData).length
+        ? state.userData.user_data.first_name
+        : "";
+    },
+    isAdminGroup(state) {
+      return Object.keys(state.userData).length
+        ? state.userData.user_data.is_admin
+        : false;
+    },
   },
   actions: {
-    async validateAuth() {
-      return await Request.post(this.state.BASE_URL + "/auth/validate-auth");
+    async validateAuth({ commit }) {
+      const response = await Request.post(
+        this.state.BASE_URL + "/auth/validate-auth"
+      );
+      commit("set_user_data", response.data);
+      return response;
     },
     async refreshTokens({ commit }) {
       try {
@@ -58,10 +78,17 @@ export default {
     async sendEmail(_, objData) {
       return await Request.post(this.state.BASE_URL + "/email/send", objData);
     },
+    async logout({ commit }) {
+      const response = await Request.post(this.state.BASE_URL + "/auth/logout");
+      commit("set_user_data", {});
+      Vue.$cookies.remove("accessToken");
+      Vue.$cookies.remove("refreshToken");
+      return response;
+    },
   },
   mutations: {
     set_user_data(state, result) {
-      state.userData = [];
+      state.userData = {};
       state.userData = result;
 
       if (!result.access_token) return false;

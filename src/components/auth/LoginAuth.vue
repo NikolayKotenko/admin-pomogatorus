@@ -21,7 +21,7 @@
     <v-container>
       <v-tabs v-model="tab" hide-slider centered>
         <v-tab :key="0" light>Авторизация</v-tab>
-        <v-tab :key="1">Регистрация</v-tab>
+<!--        <v-tab :key="1">Регистрация</v-tab>-->
         <!--Авторизация-->
         <v-tab-item :key="0">
           <v-form
@@ -100,7 +100,7 @@
           </v-form>
         </v-tab-item>
         <!--Регистрация-->
-        <v-tab-item :key="1">
+<!--        <v-tab-item :key="1">
           <v-form
             v-model="valid"
             class="login"
@@ -140,7 +140,7 @@
               Зарегестрироваться
             </v-btn>
           </v-form>
-        </v-tab-item>
+        </v-tab-item>-->
       </v-tabs>
       <v-alert
         v-if="alert.state && !loading"
@@ -223,10 +223,18 @@ export default {
         id_dom_elem: index_component,
         full_url: window.location.href,
       });
-      if (res.codeResponse === 202) {
+      if (res.codeResponse === 202 && this.$store.getters.isAdminGroup) {
         await this.$router.push({
           path: "/",
         });
+      }
+      else{
+        const response = {
+          message: 'Нет доступа',
+          codeResponse: 403
+        }
+        this.alertCall(response);
+        return false;
       }
       this.alertCall(res);
     },
