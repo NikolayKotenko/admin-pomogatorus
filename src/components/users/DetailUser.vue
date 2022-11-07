@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-container class="mb-10">
+    <v-container class="wrap_detail_user mb-10">
       <template v-if="$store.getters.stateEditCreate($route.query.action)">
         <v-text-field
             ref="email_user"
@@ -42,122 +42,25 @@
       </template>
 
       <!--Роли-->
-      <v-combobox
-          class=""
-          outlined
-          hide-details
-          multiple chips
-          v-model="$store.state.UsersModule.entry.groups"
-          :items="$store.state.UsersModule.listGroups"
-          item-text="name"
-          :loading="$store.state.UsersModule.loadingList"
-          :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
-          clearable
-          label="Роли пользователя"
-      >
-      </v-combobox>
-
-      <v-checkbox
-          class="pt-5"
-          hide-details
-          dense
-          label="Собственник дома"
-          v-model="$store.state.UsersModule.entry.home_owner"
-          :false-value="0"
-          :true-value="1"
-          :loading="$store.state.UsersModule.loadingList"
-          :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
-      >
-      </v-checkbox>
-      <v-checkbox
-          class="pt-5"
-          hide-details
-          dense
-          label="Профессионально занимаюсь монтажом инженерных систем"
-          v-model="$store.state.UsersModule.entry.installation_engineering_systems"
-          :false-value="0"
-          :true-value="1"
-          :loading="$store.state.UsersModule.loadingList"
-          :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
-      >
-      </v-checkbox>
-      <v-checkbox
-          class="pt-5 pb-5"
-          hide-details
-          dense
-          label="Занимаюсь продажей инженерного оборудования"
-          v-model="$store.state.UsersModule.entry.selling_engineering_equipment"
-          :false-value="0"
-          :true-value="1"
-          :loading="$store.state.UsersModule.loadingList"
-          :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
-      >
-      </v-checkbox>
-
-      <!--Email phone -->
-      <v-list outlined>
-        <v-list-group :value="false" prepend-icon="mdi-card-account-phone">
-          <template v-slot:activator>
-            <v-list-item-title >Email / телефон</v-list-item-title>
-          </template>
-          <v-text-field
-              type="email"
-              ref="email_user"
-              :rules="$store.state.emailRules"
-              required
-              class="pa-5 pb-0 pt-2"
-              outlined
-              dense
-              label="Email пользователя"
-              v-model="$store.state.UsersModule.entry.email"
-              :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
-          ></v-text-field>
-          <v-checkbox
-              class="pa-5 pt-0"
-              hide-details
-              dense
-              label="Подтвержденный email"
-              v-model.number="$store.state.UsersModule.entry.email_state"
-              :loading="$store.state.UsersModule.loadingList"
-              :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
-          >
-          </v-checkbox>
-          <v-text-field
-              class="pa-5 pb-0 pt-2"
-              outlined
-              dense
-              label="Телефон пользователя"
-              v-model="$store.state.UsersModule.entry.telephone"
-              :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
-          ></v-text-field>
-          <v-checkbox
-              class="pa-5 pt-0"
-              hide-details
-              dense
-              label="Подтвержденный телефон"
-              v-model.number="$store.state.UsersModule.entry.telephone_state"
-              :loading="$store.state.UsersModule.loadingList"
-              :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
-          >
-          </v-checkbox>
-        </v-list-group>
+      <v-list outlined subheader>
+        <v-subheader>Роли пользователя</v-subheader>
+        <v-combobox
+            class="role_user pa-2 pt-0 ma-0"
+            hide-details
+            multiple chips
+            v-model="$store.state.UsersModule.entry.groups"
+            :items="$store.state.UsersModule.listGroups"
+            item-text="name"
+            :loading="$store.state.UsersModule.loadingList"
+            :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+            clearable
+        >
+        </v-combobox>
       </v-list>
 
       <!--Основная информация-->
-      <v-list outlined>
-        <v-list-group :value="false" prepend-icon="mdi-email">
-          <template v-slot:activator>
-              <v-list-item-title >Основная информация</v-list-item-title>
-          </template>
-          <v-text-field
-              class="pa-2"
-              outlined
-              dense
-              hide-details
-              label="Имя пользователя"
-              v-model="$store.state.UsersModule.entry.first_name"
-              :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
-          ></v-text-field>
+      <v-list outlined subheader>
+          <v-subheader>Основная информация</v-subheader>
           <v-text-field
               class="pa-2"
               outlined
@@ -172,38 +75,129 @@
               outlined
               dense
               hide-details
+              label="Имя пользователя"
+              v-model="$store.state.UsersModule.entry.first_name"
+              :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+          ></v-text-field>
+          <v-text-field
+              class="pa-2"
+              outlined
+              dense
+              hide-details
               label="Отчество пользователя"
               v-model="$store.state.UsersModule.entry.middle_name"
               :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
           ></v-text-field>
-        </v-list-group>
+      </v-list>
+
+      <!-- Деятельность пользователей -->
+      <v-list outlined subheader>
+        <v-subheader>Деятельность пользователей</v-subheader>
+        <v-checkbox
+            class="pl-2"
+            hide-details
+            dense
+            label="Собственник дома"
+            v-model="$store.state.UsersModule.entry.home_owner"
+            :false-value="0"
+            :true-value="1"
+            :loading="$store.state.UsersModule.loadingList"
+            :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+        >
+        </v-checkbox>
+        <v-checkbox
+            class="pl-2 pt-2"
+            hide-details
+            dense
+            label="Профессионально занимаюсь монтажом инженерных систем"
+            v-model="$store.state.UsersModule.entry.installation_engineering_systems"
+            :false-value="0"
+            :true-value="1"
+            :loading="$store.state.UsersModule.loadingList"
+            :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+        >
+        </v-checkbox>
+        <v-checkbox
+              class="pl-2 pt-2"
+              hide-details
+              dense
+              label="Занимаюсь продажей инженерного оборудования"
+              v-model="$store.state.UsersModule.entry.selling_engineering_equipment"
+              :false-value="0"
+              :true-value="1"
+              :loading="$store.state.UsersModule.loadingList"
+              :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+          >
+          </v-checkbox>
+      </v-list>
+
+      <!--Контакты -->
+      <v-list outlined subheader>
+        <v-subheader>Контакты</v-subheader>
+        <v-checkbox
+            class="pl-2"
+            hide-details
+            dense
+            label="Подтвержденный email"
+            v-model.number="$store.state.UsersModule.entry.email_state"
+            :loading="$store.state.UsersModule.loadingList"
+            :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+        >
+        </v-checkbox>
+        <v-text-field
+            type="email"
+            ref="email_user"
+            :rules="$store.state.emailRules"
+            required
+            class="pl-2 pt-3"
+            outlined
+            dense
+            label="Email пользователя"
+            v-model="$store.state.UsersModule.entry.email"
+            :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+        ></v-text-field>
+        <v-checkbox
+            class="pl-2"
+            hide-details
+            dense
+            label="Подтвержденный телефон"
+            v-model.number="$store.state.UsersModule.entry.telephone_state"
+            :loading="$store.state.UsersModule.loadingList"
+            :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+        >
+        </v-checkbox>
+        <v-text-field
+            class="pl-2 pt-3"
+            outlined
+            dense
+            label="Телефон пользователя"
+            v-model="$store.state.UsersModule.entry.telephone"
+            :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+        ></v-text-field>
       </v-list>
 
       <!-- Соц сети -->
-      <v-list outlined>
-        <v-list-group :value="false" prepend-icon="mdi-instagram">
-          <template v-slot:activator>
-            <v-list-item-title >Социальные сети</v-list-item-title>
-          </template>
-          <v-text-field
-              class="pa-2"
-              outlined
-              dense
-              hide-details
-              label="vk"
-              v-model="$store.state.UsersModule.entry.vk"
-              :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
-          ></v-text-field>
-          <v-text-field
-              class="pa-2"
-              outlined
-              dense
-              hide-details
-              label="tiktok"
-              v-model="$store.state.UsersModule.entry.tiktok"
-              :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
-          ></v-text-field>
-          <v-text-field
+      <v-list outlined subheader>
+        <v-subheader>Социальные сети</v-subheader>
+        <v-text-field
+            class="pa-2"
+            outlined
+            dense
+            hide-details
+            label="vk"
+            v-model="$store.state.UsersModule.entry.vk"
+            :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+        ></v-text-field>
+        <v-text-field
+            class="pa-2"
+            outlined
+            dense
+            hide-details
+            label="tiktok"
+            v-model="$store.state.UsersModule.entry.tiktok"
+            :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+        ></v-text-field>
+        <v-text-field
               class="pa-2"
               outlined
               dense
@@ -212,7 +206,6 @@
               v-model="$store.state.UsersModule.entry.instagram"
               :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
           ></v-text-field>
-        </v-list-group>
       </v-list>
 
     </v-container>
@@ -353,4 +346,15 @@ export default {
 <style lang="scss" scoped>
 @import "src/assets/styles/detail";
 
+.wrap_detail_user{
+  display: grid;
+  grid-row-gap: 1em;
+}
+</style>
+
+<style lang="scss">
+.role_user{
+  .v-input__slot::before{
+  }
+}
 </style>

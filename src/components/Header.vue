@@ -56,6 +56,16 @@
         mdi-home-search
       </v-icon>
       <v-icon
+          v-if="$route.meta.canDelete"
+          :disabled="!this.$route.params.id"
+          :color="'green'"
+          large
+          style="padding-left: 10px"
+          @click="onDelete()"
+      >
+        mdi-trash-can-outline
+      </v-icon>
+      <v-icon
           v-if="$route.meta.canEdit"
           :disabled="!this.$route.params.id"
           :color="($route.query.action === 'edit') ? 'red' : 'green'"
@@ -209,6 +219,9 @@ export default {
     },
   },
   methods: {
+    onDelete(){
+      this.$store.dispatch(this.$route.meta.deleteLink.actionModalAsk, true)
+    },
     onView(){
       this.$router.replace({
         path: this.$route.meta.returnLink.path

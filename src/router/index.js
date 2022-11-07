@@ -122,6 +122,7 @@ const routes = [
       canCreate: true,
       canEdit: true,
       canView: true,
+      canDelete: true,
       createLink: {
         name: "DetailTag",
         query: { action: "create" },
@@ -134,6 +135,11 @@ const routes = [
       returnLink: {
         name: "Tags",
         path: "/tags",
+      },
+      deleteLink: {
+        name: "Tags",
+        path: "/tags",
+        actionModalAsk: "stateModalAction",
       },
     },
   },
@@ -148,6 +154,7 @@ const routes = [
       canCreate: true,
       canEdit: true,
       canView: true,
+      canDelete: true,
       createLink: {
         name: "DetailUser",
         query: { action: "create" },
@@ -160,6 +167,11 @@ const routes = [
       returnLink: {
         name: "Users",
         path: "/users",
+      },
+      deleteLink: {
+        name: "Tags",
+        path: "/tags",
+        actionModalAsk: "UsersModule/stateModalAction",
       },
     },
   },

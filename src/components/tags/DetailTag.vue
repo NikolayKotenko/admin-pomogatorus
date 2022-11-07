@@ -144,19 +144,23 @@
           hide-details
           outlined
           dense
-          label="Seo заголовок (seo title)"
+          persistent-placeholder
+          placeholder="Введите SEO-заголовок для тэга"
+          label="SEO TITLE"
           v-model="$store.state.TagsModule.tag.seo_title"
           :disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
       ></v-text-field>
-      <v-text-field
+      <v-textarea
           class="mb-5"
           hide-details
           outlined
           dense
-          label="Seo описание (seo description)"
+          persistent-placeholder
+          placeholder="Введите SEO-описание для тэга"
+          label="SEO DESCRIPT"
           v-model="$store.state.TagsModule.tag.seo_description"
           :disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
-      ></v-text-field>
+      ></v-textarea>
       <v-text-field
           class="mb-5"
           hide-details
