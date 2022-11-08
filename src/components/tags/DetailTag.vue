@@ -154,6 +154,8 @@
           class="mb-5"
           hide-details
           outlined
+          auto-grow
+          rows="1"
           dense
           persistent-placeholder
           placeholder="Введите SEO-описание для тэга"
@@ -357,6 +359,7 @@ export default {
     },
     '$store.state.TagsModule.tag.e_client_files':{
       handler(newValue) {
+        if (! newValue) return false;
         this.dropzone_uploaded = [];
         this.dropzone_uploaded = newValue;
       }

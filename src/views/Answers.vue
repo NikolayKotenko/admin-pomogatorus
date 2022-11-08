@@ -1,39 +1,41 @@
 <template>
   <div class="table-container">
-    <div class="table-container-buttons">
-      <v-btn
-        color="blue lighten-1"
-        class="text-capitalize"
-        :small="isMobile"
-        :loading="$store.state.AnswersModule.loadingList"
-        :disabled="$store.state.AnswersModule.loadingList"
-      >
-        <v-icon small color="white">mdi-alert-circle-outline</v-icon>
-        <span class="table-container-buttons__text"
-          >Место для функциональных кнопок</span
-        >
-      </v-btn>
-      <v-btn
-        color="green lighten-1"
-        class="text-capitalize"
-        :small="isMobile"
-        :loading="$store.state.AnswersModule.loadingList"
-        :disabled="$store.state.AnswersModule.loadingList"
-      >
-        <v-icon small color="white">mdi-plus-circle-outline</v-icon>
-        <span class="table-container-buttons__text">Кнопка 1</span>
-      </v-btn>
-      <v-btn
-        color="error"
-        class="text-capitalize"
-        :small="isMobile"
-        :loading="$store.state.AnswersModule.loadingList"
-        :disabled="$store.state.AnswersModule.loadingList"
-      >
-        <v-icon small color="white">mdi-trash-can-outline</v-icon>
-        <span class="table-container-buttons__text">Кнопка 2</span>
-      </v-btn>
-    </div>
+
+<!--    <div class="table-container-buttons">-->
+<!--      <v-btn-->
+<!--        color="blue lighten-1"-->
+<!--        class="text-capitalize"-->
+<!--        :small="isMobile"-->
+<!--        :loading="$store.state.AnswersModule.loadingList"-->
+<!--        :disabled="$store.state.AnswersModule.loadingList"-->
+<!--      >-->
+<!--        <v-icon small color="white">mdi-alert-circle-outline</v-icon>-->
+<!--        <span class="table-container-buttons__text"-->
+<!--          >Место для функциональных кнопок</span-->
+<!--        >-->
+<!--      </v-btn>-->
+<!--      <v-btn-->
+<!--        color="green lighten-1"-->
+<!--        class="text-capitalize"-->
+<!--        :small="isMobile"-->
+<!--        :loading="$store.state.AnswersModule.loadingList"-->
+<!--        :disabled="$store.state.AnswersModule.loadingList"-->
+<!--      >-->
+<!--        <v-icon small color="white">mdi-plus-circle-outline</v-icon>-->
+<!--        <span class="table-container-buttons__text">Кнопка 1</span>-->
+<!--      </v-btn>-->
+<!--      <v-btn-->
+<!--        color="error"-->
+<!--        class="text-capitalize"-->
+<!--        :small="isMobile"-->
+<!--        :loading="$store.state.AnswersModule.loadingList"-->
+<!--        :disabled="$store.state.AnswersModule.loadingList"-->
+<!--      >-->
+<!--        <v-icon small color="white">mdi-trash-can-outline</v-icon>-->
+<!--        <span class="table-container-buttons__text">Кнопка 2</span>-->
+<!--      </v-btn>-->
+<!--    </div>-->
+
     <div class="table-container-wrapper">
       <div class="table-container-wrapper-header header-column">
         <v-autocomplete
@@ -138,14 +140,14 @@
         />
       </div>
       <div class="table-container-wrapper-footer">
-        <div class="table-container-wrapper-footer__counter">
-          <!--          <Selector/>-->
-          <span
-            >Показано от {{ $store.state.AnswersModule.listAnswers.length }} до
-            {{ $store.state.AnswersModule.listAnswers.length }} из
-            {{ $store.state.AnswersModule.listAnswers.length }} записей</span
-          >
-        </div>
+<!--        <div class="table-container-wrapper-footer__counter">-->
+<!--          &lt;!&ndash;          <Selector/>&ndash;&gt;-->
+<!--          <span-->
+<!--            >Показано от {{ $store.state.AnswersModule.listAnswers.length }} до-->
+<!--            {{ $store.state.AnswersModule.listAnswers.length }} из-->
+<!--            {{ $store.state.AnswersModule.listAnswers.length }} записей</span-->
+<!--          >-->
+<!--        </div>-->
         <!--        <div class="table-container-wrapper-footer__page">
           <v-btn
               elevation="0"

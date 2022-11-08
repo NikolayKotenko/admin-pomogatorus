@@ -138,7 +138,7 @@
                 class="detail-wrapper__content__title__help__title"
                 :class="{ focused: newArticle.seo_description.focused }"
               >
-                SEO-description
+                SEO DESCRIPT
               </span>
               <v-textarea
                 class="detail-wrapper__content__title__help__description"
@@ -162,7 +162,7 @@
                 class="detail-wrapper__content__title__help__title"
                 :class="{ focused: newArticle.seo_keywords.focused }"
               >
-                SEO-keywords
+                SEO KEYWORDS
               </span>
               <v-textarea
                 class="detail-wrapper__content__title__help__description"
