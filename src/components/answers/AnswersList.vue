@@ -1,27 +1,5 @@
 <template>
   <div>
-<!--    <v-list class="wrapper_answer" outlined>
-        <v-list-group
-            v-for="(arrAnswers, name) in $store.state.AnswersModule.listAnswersGroupByUser"
-            :key="name"
-        >
-          <template v-slot:activator>
-            <v-list-item-content>
-              <v-list-item-title v-text="name"></v-list-item-title>
-              <v-divider></v-divider>
-            </v-list-item-content>
-          </template>
-
-          <div v-for="(row, index) in arrAnswers" :key="index" class="row">
-            <v-list-item v-if="!isMobile">{{ index + 1 }}</v-list-item >
-            <v-list-item>{{ nameAnswer(row) }}</v-list-item>
-            <v-list-item v-html="answer(row)"></v-list-item>
-            <v-list-item>{{ row.updated_at }}</v-list-item>
-          </div>
-
-        </v-list-group>
-      </v-list>-->
-
     <v-data-table
         v-if="
           !!$store.state.AnswersModule.listAnswers.length &&
@@ -52,7 +30,7 @@
           <td @click="showDetail(item)" style="cursor: pointer">{{ nameAnswer(item) }}</td>
           <td v-html="answer(item)"></td>
           <td class="files">
-            <div v-if="item.e_client_files.length" @click="dialogFiles = true; files = item.e_client_files">
+            <div v-if="item.e_client_files.length" @click="runDialogFiles(item.e_client_files)">
               <v-icon small>mdi-file-multiple-outline</v-icon>
               [ {{ item.e_client_files.length }} ]
             </div>
@@ -84,34 +62,16 @@
     <v-dialog
         v-model="dialogFiles"
         content-class="dialogLocalFiles"
+        scrollable
+        @keydown.esc="files = []"
     >
       <v-card>
-        <v-card-title>
-          <span class="text-h5 align-center">Файлы пользователя</span>
+        <v-card-title style="display: inline-flex; flex-wrap: nowrap">
+          <span class="text-h6" style="margin: auto">Файлы пользователя</span>
+          <v-icon @click="dialogFiles = false;">mdi-close-thick</v-icon>
         </v-card-title>
         <v-card-text>
-          <div :key="index" v-for="(file, index) in files">
-            <v-icon v-if="file.type === 'application/pdf'"
-                    large
-                    :title="file.filename"
-            >
-              mdi-file-multiple-outline
-            </v-icon>
-            <viewer
-                v-if="file.type === 'image/jpeg'"
-                class="viewer_wrapper"
-                :options="$parent.viewerOptions"
-            >
-              <v-img
-                  cover
-                  height="250px"
-                  width="250px"
-                  :title="file.filename"
-                  :alt="file.filename"
-                  :src="`${$store.state.BASE_URL}${file.full_path}`"
-              />
-            </viewer>
-          </div>
+          <card-list-files :files="files" v-if="files.length"></card-list-files>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -127,14 +87,13 @@
 </template>
 
 <script>
-import "viewerjs/dist/viewer.css";
-import Vue from "vue";
-import VueViewer from "v-viewer";
-
-Vue.use(VueViewer);
+import CardListFiles from "../CardListFiles";
 
 export default {
   name: "AnswersList",
+  components:{
+    CardListFiles
+  },
   data: () => ({
     titles: [
       {
@@ -188,6 +147,15 @@ export default {
     },
   },
   methods: {
+    runDialogFiles(e_client_files){
+      this.dialogFiles = true;
+
+      e_client_files.map((elem) => {
+        return elem.url = this.$store.state.BASE_URL + elem.full_path
+      })
+      this.files = [];
+      this.files = e_client_files
+    },
     isEnabled (slot) {
       return this.enabled === slot
     },
@@ -271,10 +239,6 @@ export default {
     flex-wrap: wrap;
     grid-row-gap: 1em;
     grid-column-gap: 1em;
-    .viewer_wrapper {
-      img {
-      }
-    }
   }
 }
 </style>
