@@ -1,5 +1,5 @@
 <template>
-  <div class="main_wrapper_card_list_files" v-if="files.length">
+  <div class="main_wrapper_card_list_files">
     <v-list outlined subheader class="wrapper_list_type">
       <v-subheader>Файлы / документы.</v-subheader>
       <div class="wrapper_type_files">
@@ -28,7 +28,7 @@
               :title="file.filename"
               :alt="file.filename"
               :src="`${$store.state.BASE_URL}${file.full_path}`"
-              @click="toggleFullscreen(file.url)"
+              @click="toggleFullscreen(file)"
           />
           <div v-if="selectedImage" class="overlay_selected_image">
             <v-img
@@ -61,7 +61,7 @@ export default {
   },
   methods:{
     toggleFullscreen(elem) {
-      this.selectedImage = elem;
+      this.selectedImage = elem.url;
     },
   }
 }

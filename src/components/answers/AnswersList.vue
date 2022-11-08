@@ -149,10 +149,6 @@ export default {
   methods: {
     runDialogFiles(e_client_files){
       this.dialogFiles = true;
-
-      e_client_files.map((elem) => {
-        return elem.url = this.$store.state.BASE_URL + elem.full_path
-      })
       this.files = [];
       this.files = e_client_files
     },
