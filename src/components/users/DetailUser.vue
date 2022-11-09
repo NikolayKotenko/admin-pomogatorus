@@ -42,7 +42,7 @@
       </template>
 
       <!--Роли-->
-      <v-list outlined subheader>
+      <v-list subheader elevation="1">
         <v-subheader>Роли пользователя</v-subheader>
         <v-combobox
             class="role_user pa-2 pt-0 ma-0"
@@ -59,7 +59,7 @@
       </v-list>
 
       <!--Основная информация-->
-      <v-list outlined subheader>
+      <v-list subheader elevation="1">
           <v-subheader>Основная информация</v-subheader>
           <v-text-field
               class="pa-2"
@@ -91,7 +91,7 @@
       </v-list>
 
       <!-- Деятельность пользователей -->
-      <v-list outlined subheader>
+      <v-list subheader elevation="1">
         <v-subheader>Деятельность пользователей</v-subheader>
         <v-checkbox
             class="pl-2"
@@ -132,7 +132,7 @@
       </v-list>
 
       <!--Контакты -->
-      <v-list outlined subheader>
+      <v-list subheader elevation="1">
         <v-subheader>Контакты</v-subheader>
         <v-checkbox
             class="pl-2"
@@ -149,7 +149,7 @@
             ref="email_user"
             :rules="$store.state.emailRules"
             required
-            class="pl-2 pt-3"
+            class="pa-2 pt-3"
             outlined
             dense
             label="Email пользователя"
@@ -167,7 +167,7 @@
         >
         </v-checkbox>
         <v-text-field
-            class="pl-2 pt-3"
+            class="pa-2 pt-3"
             outlined
             dense
             label="Телефон пользователя"
@@ -177,7 +177,7 @@
       </v-list>
 
       <!-- Соц сети -->
-      <v-list outlined subheader>
+      <v-list subheader elevation="1">
         <v-subheader>Социальные сети</v-subheader>
         <v-text-field
             class="pa-2"
