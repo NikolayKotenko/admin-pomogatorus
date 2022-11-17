@@ -10,6 +10,7 @@
         hide-default-header
         show-group-by
         :sort-desc.sync="sortDesc"
+        :group-desc.sync="groupDesc"
         :items="$store.state.AnswersModule.listAnswers"
         :item-key="'id'"
         class="elevation-1 table-answers"
@@ -28,6 +29,7 @@
             <th v-for="item in titles" :key="item.id">
               <v-icon
                   v-if="item.groupable"
+                  :title="'Группировка по свойству - '+item.text"
                   color="primary"
                   @click="changeStateGrouping(on, item)"
               >
@@ -36,14 +38,12 @@
               <span>{{ item.text }}</span>
               <v-icon
                   v-if="item.sortable"
+                  :title="'Сортировка по свойству - '+item.text"
                   color="green"
                   @click="changeStateSorting(on, item, options)"
               >
                 {{ (sortDesc && curSortingColumn === item.value) ? 'mdi-arrow-up-thin' : 'mdi-arrow-down-thin'}}
               </v-icon>
-<!--              <span>'sortBy' - {{ options.sortBy }}</span><br>-->
-<!--              <span>'sortDesc - {{ options.sortDesc}}</span><br>-->
-<!--              <span>'on - {{ on }}</span><br>-->
             </th>
           </tr>
         </thead>
@@ -63,7 +63,7 @@
         <tr class="row_items"
             :key="item.id"
         >
-          <td v-if="!isMobile">{{ item.id }}</td>
+          <td v-if="!isMobile" class="id_answer">{{ item.id }}</td>
           <td @click="showDetail(item)" style="cursor: pointer">{{ firstNameUser(item) }}</td>
           <td class="name_answer" @click="showDetail(item)" style="cursor: pointer">{{ nameAnswer(item) }}</td>
           <td v-html="answer(item)"></td>
@@ -187,6 +187,7 @@ export default {
     curGroupingColumn: '',
     curSortingColumn: '',
     sortDesc: false,
+    groupDesc: false,
     dialogFiles: false,
     files: [],
   }),
@@ -213,9 +214,11 @@ export default {
         on.sort(item.value)
         this.curSortingColumn = item.value
         this.sortDesc = true;
+        this.groupDesc = true;
       }
       else{
         this.sortDesc = !this.sortDesc;
+        this.groupDesc = !this.groupDesc;
       }
     },
     getCurrentGroupRuColumnText(columnName){
@@ -340,17 +343,27 @@ export default {
   }
 }
 
+.v-data-table-header{
+  //background: rgb(128 128 128 / 38%);
+}
 .v-data-table thead tr th{
   //display: inline-flex;
   align-items: center;
   grid-column-gap: 5px;
+  font-size: 0.9rem!important;
 }
 .v-data-table .row_items {
+  .id_answer{
+    min-width: 100px;
+  }
   .name_answer{
     max-width: 300px;
   }
   .updated_at_public{
-    min-width: 150px;
+    min-width: 180px;
+  }
+  .files{
+    min-width: 120px;
   }
 }
 //table thead {

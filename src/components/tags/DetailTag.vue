@@ -175,22 +175,24 @@
     </v-container>
 
     <footer class="detail_footer">
-      <v-btn
-          :disabled="$store.state.loadingRequestGeneral || !$store.state.TagsModule.tag.id"
-          color="red darken-1"
-          text
-          @click="$store.dispatch('stateModalAction', true)"
-      >
-        Удалить
-      </v-btn>
-      <v-btn
-          :disabled="!$store.getters.stateEditCreate($route.query.action)"
-          color="blue darken-1"
-          text
-          @click.prevent="onSubmitLocal()"
-      >
-        Сохранить
-      </v-btn>
+      <v-container>
+        <v-btn
+            :disabled="$store.state.loadingRequestGeneral || !$store.state.TagsModule.tag.id"
+            color="red darken-1"
+            text
+            @click="$store.dispatch('stateModalAction', true)"
+        >
+          Удалить
+        </v-btn>
+        <v-btn
+            :disabled="!$store.getters.stateEditCreate($route.query.action)"
+            color="blue darken-1"
+            text
+            @click.prevent="onSubmitLocal()"
+        >
+          Сохранить
+        </v-btn>
+      </v-container>
     </footer>
 
     <!--  MODALS  -->

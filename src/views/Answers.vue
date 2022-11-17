@@ -1,40 +1,40 @@
 <template>
-  <div class="table-container">
+  <v-container class="table-container">
 
-<!--    <div class="table-container-buttons">-->
-<!--      <v-btn-->
-<!--        color="blue lighten-1"-->
-<!--        class="text-capitalize"-->
-<!--        :small="isMobile"-->
-<!--        :loading="$store.state.AnswersModule.loadingList"-->
-<!--        :disabled="$store.state.AnswersModule.loadingList"-->
-<!--      >-->
-<!--        <v-icon small color="white">mdi-alert-circle-outline</v-icon>-->
-<!--        <span class="table-container-buttons__text"-->
-<!--          >Место для функциональных кнопок</span-->
-<!--        >-->
-<!--      </v-btn>-->
-<!--      <v-btn-->
-<!--        color="green lighten-1"-->
-<!--        class="text-capitalize"-->
-<!--        :small="isMobile"-->
-<!--        :loading="$store.state.AnswersModule.loadingList"-->
-<!--        :disabled="$store.state.AnswersModule.loadingList"-->
-<!--      >-->
-<!--        <v-icon small color="white">mdi-plus-circle-outline</v-icon>-->
-<!--        <span class="table-container-buttons__text">Кнопка 1</span>-->
-<!--      </v-btn>-->
-<!--      <v-btn-->
-<!--        color="error"-->
-<!--        class="text-capitalize"-->
-<!--        :small="isMobile"-->
-<!--        :loading="$store.state.AnswersModule.loadingList"-->
-<!--        :disabled="$store.state.AnswersModule.loadingList"-->
-<!--      >-->
-<!--        <v-icon small color="white">mdi-trash-can-outline</v-icon>-->
-<!--        <span class="table-container-buttons__text">Кнопка 2</span>-->
-<!--      </v-btn>-->
-<!--    </div>-->
+<!--    <div class="table-container-buttons">
+      <v-btn
+        color="blue lighten-1"
+        class="text-capitalize"
+        :small="isMobile"
+        :loading="$store.state.AnswersModule.loadingList"
+        :disabled="$store.state.AnswersModule.loadingList"
+      >
+        <v-icon small color="white">mdi-alert-circle-outline</v-icon>
+        <span class="table-container-buttons__text"
+          >Место для функциональных кнопок</span
+        >
+      </v-btn>
+      <v-btn
+        color="green lighten-1"
+        class="text-capitalize"
+        :small="isMobile"
+        :loading="$store.state.AnswersModule.loadingList"
+        :disabled="$store.state.AnswersModule.loadingList"
+      >
+        <v-icon small color="white">mdi-plus-circle-outline</v-icon>
+        <span class="table-container-buttons__text">Кнопка 1</span>
+      </v-btn>
+      <v-btn
+        color="error"
+        class="text-capitalize"
+        :small="isMobile"
+        :loading="$store.state.AnswersModule.loadingList"
+        :disabled="$store.state.AnswersModule.loadingList"
+      >
+        <v-icon small color="white">mdi-trash-can-outline</v-icon>
+        <span class="table-container-buttons__text">Кнопка 2</span>
+      </v-btn>
+    </div>-->
 
     <div class="table-container-wrapper">
       <div class="table-container-wrapper-header header-column">
@@ -292,7 +292,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </div>
+  </v-container>
 </template>
 
 <script>

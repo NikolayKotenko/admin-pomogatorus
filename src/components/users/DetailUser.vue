@@ -129,6 +129,18 @@
               :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
           >
           </v-checkbox>
+        <v-checkbox
+              class="pl-2 pt-2"
+              hide-details
+              dense
+              label="Маркетинг и продажи"
+              v-model="$store.state.UsersModule.entry.marketing_and_sales"
+              :false-value="0"
+              :true-value="1"
+              :loading="$store.state.UsersModule.loadingList"
+              :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+          >
+          </v-checkbox>
       </v-list>
 
       <!--Контакты -->
@@ -211,22 +223,24 @@
     </v-container>
 
     <footer class="detail_footer">
-      <v-btn
-          color="red darken-1"
-          :disabled="$store.state.UsersModule.loadingList || !$store.state.UsersModule.entry.id"
-          text
-          @click="$store.dispatch('UsersModule/stateModalAction', true)"
-      >
-        Удалить
-      </v-btn>
-      <v-btn
-          :disabled="! $store.getters.stateEditCreate($route.query.action) || $store.state.UsersModule.loadingList"
-          color="blue darken-1"
-          text
-          @click.prevent="onSubmitLocal()"
-      >
-        Сохранить
-      </v-btn>
+      <v-container>
+        <v-btn
+            color="red darken-1"
+            :disabled="$store.state.UsersModule.loadingList || !$store.state.UsersModule.entry.id"
+            text
+            @click="$store.dispatch('UsersModule/stateModalAction', true)"
+        >
+          Удалить
+        </v-btn>
+        <v-btn
+            :disabled="! $store.getters.stateEditCreate($route.query.action) || $store.state.UsersModule.loadingList"
+            color="blue darken-1"
+            text
+            @click.prevent="onSubmitLocal()"
+        >
+          Сохранить
+        </v-btn>
+      </v-container>
     </footer>
 
     <!--  MODALS  -->
