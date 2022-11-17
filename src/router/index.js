@@ -73,10 +73,11 @@ const routes = [
     name: "DetailQuestion",
     component: DetailQuestion,
     meta: {
-      title: "Вопросы",
-      ru_name: "Вопросы",
+      title: "Вопрос",
+      ru_name: "Вопрос",
       requiresAuth: true,
       returnLink: {
+        ru_name: "Список вопросов",
         name: "Questions",
         path: "/questions",
       },
@@ -107,6 +108,7 @@ const routes = [
       requiresAuth: true,
       returnLink: {
         name: "Articles",
+        ru_name: "Список статей",
         path: "/articles",
       },
     },

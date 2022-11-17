@@ -30,19 +30,21 @@
         ></v-app-bar-nav-icon>
       </template>
 
-      <v-chip color="white" text-color="primary" style="cursor: pointer">
-        <div
-          v-if="!!Object.keys($route.meta).includes('ru_name')"
-          style="overflow: hidden; text-overflow: ellipsis"
-        >
-          <span>
-            {{ $route.meta.ru_name }}
+      <div v-if="!!Object.keys($route.meta).includes('ru_name')">
+        <v-chip color="white" text-color="primary" style="cursor: pointer">
+          <div style="overflow: hidden; text-overflow: ellipsis">
+            <router-link
+                v-if="$route.meta.returnLink && $route.meta.returnLink.ru_name"
+                :to="$route.meta.returnLink.path ">{{ $route.meta.returnLink.ru_name  }}</router-link>
+            <span v-if="$route.meta.returnLink && $route.meta.returnLink.ru_name">&nbsp; > &nbsp;</span>
+            <span>{{ $route.meta.ru_name }}</span>
             <template v-if="$store.state.cur_num">
               # {{ $store.state.cur_num }}
             </template>
-          </span>
-        </div>
-      </v-chip>
+          </div>
+        </v-chip>
+      </div>
+
 
       <v-spacer></v-spacer>
 
