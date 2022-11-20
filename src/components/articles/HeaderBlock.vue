@@ -323,18 +323,18 @@
               <span class="dialog_dropzone_inputs__label">
                 [{{ index + 1 }}] {{ item.filename }}</span
               >
-              <v-text-field
-                dense
-                hide-details
-                placeholder="alt-наименование изображения"
-                v-model="item.alt_image"
-              ></v-text-field>
-              <v-text-field
-                dense
-                hide-details
-                placeholder="подпись изображения"
-                v-model="item.title_image"
-              ></v-text-field>
+              <InputStyled
+                  :data="item.alt_image"
+                  :index-array="index"
+                  :placeholder="'alt-наименование изображения'"
+                  @update-input="setAlt"
+              ></InputStyled>
+              <InputStyled
+                  :data="item.title_image"
+                  :index-array="index"
+                  :placeholder="'подпись изображения'"
+                  @update-input="setTitle"
+              ></InputStyled>
             </div>
           </template>
         </v-card-text>
@@ -362,12 +362,14 @@ import Vue from "vue";
 
 import titlesStore from "@/store/modules/article/index.js";
 import Request from "@/services/request";
+import InputStyled from "../common/InputStyled";
 
 const _store = titlesStore.state;
 
 export default {
   name: "HeaderBlock",
   components: {
+    InputStyled,
     vueDropzone: vue2Dropzone,
   },
   data: () => ({
@@ -454,6 +456,13 @@ export default {
     },
   },
   methods: {
+    setAlt(data) {
+      this.dropzone_uploaded[data.index].alt_image = data.value
+    },
+    setTitle(data) {
+      this.dropzone_uploaded[data.index].title_image = data.value
+    },
+
     getArrID() {
       this.$nextTick(() => {
         console.log(_store.list_components);
@@ -543,11 +552,11 @@ export default {
     triggerUpload() {
       document.getElementById("dropzone").click();
     },
-    async updateDropZoneImage(){
-      if (! this.dropzone_uploaded.length) return;
+    async updateDropZoneImage() {
+      if (!this.dropzone_uploaded.length) return;
 
       await Request.put(
-          this.$store.state.BASE_URL+'/entity/files/'+this.dropzone_uploaded[0].id,
+          this.$store.state.BASE_URL + '/entity/files/' + this.dropzone_uploaded[0].id,
           this.dropzone_uploaded[0])
     },
 

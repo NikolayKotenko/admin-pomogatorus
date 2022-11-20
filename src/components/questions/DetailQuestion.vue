@@ -5,26 +5,23 @@
         <!--      @submit.prevent="onSubmit" -->
         <div class="question_content">
           <div class="question_title">
-            <v-textarea
-                v-model="newQuestion.name.value"
+            <TextAreaStyled
                 :class="{
                 invalid:
                   !newQuestion.name.value &&
                   $v.newQuestion.name.$dirty &&
                   !$v.newQuestion.name.required,
               }"
-                :loading="$store.state.QuestionsModule.loadingQuestion"
-                auto-grow
+                :data="newQuestion.name.value"
+                :is-flat="true"
+                :is-loading="$store.state.QuestionsModule.loadingQuestion"
+                :is-solo="true"
+                :placeholder="'Введите название вопроса'"
+                :rows-count="'1'"
                 class="question_title__name"
-                dense
-                flat
-                hide-details
-                placeholder="Введите наименование"
-                rows="1"
-                solo
-                @focus="onFocus(newQuestion.name)"
-                @focusout="outFocus(newQuestion.name)"
-                @input="saveDBQuestion(newQuestion)"
+                @update-input="setName"
+                @on-focus="() => {onFocus(newQuestion.name)}"
+                @out-focus="() => {outFocus(newQuestion.name)}"
             >
               <template slot="append">
                 <v-icon
@@ -35,7 +32,7 @@
                   mdi-lead-pencil
                 </v-icon>
               </template>
-            </v-textarea>
+            </TextAreaStyled>
             <small
                 v-if="
                 !newQuestion.name.value &&
@@ -53,22 +50,20 @@
               >
                 Подсказка
               </span>
-              <v-textarea
-                  v-model="newQuestion.title.value"
+              <TextAreaStyled
                   :class="{ inputFocused: newQuestion.title.focused }"
-                  :loading="$store.state.QuestionsModule.loadingQuestion"
-                  auto-grow
+                  :data="newQuestion.title.value"
+                  :is-flat="true"
+                  :is-loading="$store.state.QuestionsModule.loadingQuestion"
+                  :is-solo="true"
+                  :placeholder="'Введите подсказку для вопроса'"
+                  :rows-count="'1'"
                   class="question_title_help__description"
-                  dense
-                  flat
-                  hide-details
-                  placeholder="Введите подсказку для вопроса"
-                  rows="1"
-                  solo
-                  @focus="onFocus(newQuestion.title)"
-                  @focusout="outFocus(newQuestion.title)"
-                  @input="saveDBQuestion(newQuestion)"
-              ></v-textarea>
+                  @update-input="setTitle"
+                  @on-focus="() => {onFocus(newQuestion.title)}"
+                  @out-focus="() => {outFocus(newQuestion.title)}"
+              >
+              </TextAreaStyled>
             </div>
             <div class="question_title_help">
               <span
@@ -77,22 +72,20 @@
               >
                 Разъясняющий текст
               </span>
-              <v-textarea
-                  v-model="newQuestion.article.value"
+              <TextAreaStyled
                   :class="{ inputFocused: newQuestion.article.focused }"
-                  :loading="$store.state.QuestionsModule.loadingQuestion"
-                  auto-grow
+                  :data="newQuestion.article.value"
+                  :is-flat="true"
+                  :is-loading="$store.state.QuestionsModule.loadingQuestion"
+                  :is-solo="true"
+                  :placeholder="'Введите разъясняющий текст'"
+                  :rows-count="'1'"
                   class="question_title_help__description"
-                  dense
-                  flat
-                  hide-details
-                  placeholder="Введите разъясняющий текст"
-                  rows="1"
-                  solo
-                  @focus="onFocus(newQuestion.article)"
-                  @focusout="outFocus(newQuestion.article)"
-                  @input="saveDBQuestion(newQuestion)"
-              ></v-textarea>
+                  @update-input="setArticle"
+                  @on-focus="() => {onFocus(newQuestion.article)}"
+                  @out-focus="() => {outFocus(newQuestion.article)}"
+              >
+              </TextAreaStyled>
             </div>
             <div class="question_title_help">
               <span
@@ -101,24 +94,22 @@
               >
                 Цель вопроса
               </span>
-              <v-textarea
-                  v-model="newQuestion.purpose_of_question.value"
+              <TextAreaStyled
                   :class="{
                   inputFocused: newQuestion.purpose_of_question.focused,
                 }"
-                  :loading="$store.state.QuestionsModule.loadingQuestion"
-                  auto-grow
+                  :data="newQuestion.purpose_of_question.value"
+                  :is-flat="true"
+                  :is-loading="$store.state.QuestionsModule.loadingQuestion"
+                  :is-solo="true"
+                  :placeholder="'Введите цель вопроса'"
+                  :rows-count="'1'"
                   class="question_title_help__description"
-                  dense
-                  flat
-                  hide-details
-                  placeholder="Введите цель вопроса"
-                  rows="1"
-                  solo
-                  @focus="onFocus(newQuestion.purpose_of_question)"
-                  @focusout="outFocus(newQuestion.purpose_of_question)"
-                  @input="saveDBQuestion(newQuestion)"
-              ></v-textarea>
+                  @update-input="setPurpose"
+                  @on-focus="() => {onFocus(newQuestion.purpose_of_question)}"
+                  @out-focus="() => {outFocus(newQuestion.purpose_of_question)}"
+              >
+              </TextAreaStyled>
             </div>
           </div>
 
@@ -196,49 +187,44 @@
               >
                 <transition-group name="list">
                   <div
-                      v-for="answer in newQuestion.value_type_answer"
+                      v-for="(answer, index) in newQuestion.value_type_answer"
                       :key="answer.id"
                       class="question_main_wrapper__item"
                   >
-                    <v-textarea
-                        v-model="answer.answer"
+                    <TextAreaStyled
                         :append-icon="answer.showComentary ? 'mdi-menu-right' : 'mdi-menu-down'"
                         :class="{inputFocused: answer.focused}"
-                        auto-grow
+                        :data="answer.answer"
+                        :index-array="index"
+                        :is-flat="true"
+                        :is-solo="true"
+                        :multi-line="true"
+                        :placeholder="'Введите значение'"
+                        :prepend-icon="'mdi-message-reply-outline'"
+                        :rows-count="'1'"
                         class="question_main_wrapper__item__value"
-                        dense
-                        flat
-                        hide-details
-                        multi-line
-                        placeholder="Введите значение"
-                        prepend-icon="mdi-message-reply-outline"
-                        rows="1"
-                        solo
-                        @focus="onFocus(newQuestion.id_type_answer, answer.id);"
-                        @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
-                        @input="saveDBQuestion(newQuestion)"
+                        @update-input="setSubAnswer"
+                        @on-focus="() => {onFocus(newQuestion.id_type_answer, answer.id)}"
+                        @out-focus="() => {outFocus(newQuestion.id_type_answer, answer.id)}"
                         @click:append="answer.showComentary = !answer.showComentary"
-                    >
-                    </v-textarea>
+                    ></TextAreaStyled>
                     <template v-if="answer.showComentary">
                       <div class="divider"></div>
-                      <v-textarea
-                          v-model="answer.commentary"
+                      <TextAreaStyled
                           :class="{inputFocused: answer.focused}"
-                          auto-grow
+                          :data="answer.commentary"
+                          :index-array="index"
+                          :is-flat="true"
+                          :is-solo="true"
+                          :multi-line="true"
+                          :placeholder="'Введите примечание'"
+                          :prepend-icon="'mdi-help-circle-outline'"
+                          :rows-count="'1'"
                           class="question_main_wrapper__item__description"
-                          dense
-                          flat
-                          hide-details
-                          multi-line
-                          placeholder="Введите примечание"
-                          prepend-icon="mdi-help-circle-outline"
-                          rows="1"
-                          solo
-                          @focus="onFocus(newQuestion.id_type_answer, answer.id)"
-                          @focusout="outFocus(newQuestion.id_type_answer, answer.id)"
-                          @input="saveDBQuestion(newQuestion)"
-                      ></v-textarea>
+                          @update-input="setSubCommentary"
+                          @on-focus="() => {onFocus(newQuestion.id_type_answer, answer.id)}"
+                          @out-focus="() => {outFocus(newQuestion.id_type_answer, answer.id)}"
+                      ></TextAreaStyled>
                       <div class="divider"></div>
                       <!-- ENVIRONMENTS -->
                       <EnvironmentsSelector
@@ -266,27 +252,22 @@
               >
                 <transition-group name="list">
                   <div
-                      v-for="answer in newQuestion.value_type_answer"
+                      v-for="(answer, index) in newQuestion.value_type_answer"
                       :key="answer.id"
                       class="question_main_wrapper__item"
                   >
-                    <v-text-field
-                        v-model="answer.answer"
+                    <InputStyled
                         :class="{ inputFocused: answer.focused }"
+                        :data="answer.answer"
+                        :index-array="index"
+                        :is-flat="true"
+                        :is-solo="true"
                         :placeholder="answer.placeholder"
-                        auto-grow
+                        :type-data="'number'"
                         class="question_main_wrapper__item__value"
-                        dense
-                        flat
-                        hide-details
-                        rows="1"
-                        solo
-                        type="number"
-                        @focus="onFocus(newQuestion.id_type_answer, answer.id)"
-                        @focusout="
-                        outFocus(newQuestion.id_type_answer, answer.id)
-                      "
-                        @input="saveDBQuestion(newQuestion)"
+                        @update-input="setAnswer"
+                        @on-focus="() => {onFocus(newQuestion.id_type_answer, answer.id)}"
+                        @out-focus="() => {outFocus(newQuestion.id_type_answer, answer.id)}"
                     >
                       <template slot="prepend-inner">
                         <v-icon
@@ -306,7 +287,7 @@
                           mdi-plus
                         </v-icon>
                       </template>
-                    </v-text-field>
+                    </InputStyled>
                   </div>
                 </transition-group>
               </div>
@@ -452,6 +433,8 @@ import AgentList from "./AgentList";
 import EnvironmentsSelector from "../environments/environmentsSelector";
 
 import {AnswerRangeMax, AnswerRangeMin, AnswerVariable} from "../../helpers/constructors";
+import InputStyled from "../common/InputStyled";
+import TextAreaStyled from "../common/TextAreaStyled";
 
 /* INDEXEDDB */
 const DB_NAME = "questionDB";
@@ -461,7 +444,7 @@ let DB;
 
 export default {
   name: "CreateQuestion",
-  components: {EnvironmentsSelector, AgentList, QuestionTags},
+  components: {TextAreaStyled, InputStyled, EnvironmentsSelector, AgentList, QuestionTags},
   validations: {
     newQuestion: {
       name: {
@@ -616,6 +599,35 @@ export default {
     },
   },
   methods: {
+    setAnswer(data) {
+      this.newQuestion.value_type_answer[data.index].answer = data.value
+      this.saveDBQuestion(this.newQuestion)
+    },
+    setName(value) {
+      this.newQuestion.name.value = value
+      this.saveDBQuestion(this.newQuestion)
+    },
+    setTitle(value) {
+      this.newQuestion.title.value = value
+      this.saveDBQuestion(this.newQuestion)
+    },
+    setArticle(value) {
+      this.newQuestion.article.value = value
+      this.saveDBQuestion(this.newQuestion)
+    },
+    setPurpose(value) {
+      this.newQuestion.purpose_of_question.value = value
+      this.saveDBQuestion(this.newQuestion)
+    },
+    setSubAnswer(data) {
+      this.newQuestion.value_type_answer[data.index].answer = data.value
+      this.saveDBQuestion(this.newQuestion)
+    },
+    setSubCommentary(data) {
+      this.newQuestion.value_type_answer[data.index].commentary = data.value
+      this.saveDBQuestion(this.newQuestion)
+    },
+
     /* ENV */
     setEnvironment() {
       this.saveDBQuestion(this.newQuestion);

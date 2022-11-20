@@ -2,63 +2,63 @@
   <div class="table-container">
     <div class="table-container-buttons">
       <v-btn
-        color="blue lighten-1"
-        class="text-capitalize"
-        :small="isMobile"
-        :loading="$store.state.AnswersModule.loadingList"
-        :disabled="$store.state.AnswersModule.loadingList"
+          :disabled="$store.state.AnswersModule.loadingList"
+          :loading="$store.state.AnswersModule.loadingList"
+          :small="isMobile"
+          class="text-capitalize"
+          color="blue lighten-1"
       >
-        <v-icon small color="white">mdi-alert-circle-outline</v-icon>
+        <v-icon color="white" small>mdi-alert-circle-outline</v-icon>
         <span class="table-container-buttons__text"
-          >Место для функциональных кнопок</span
+        >Место для функциональных кнопок</span
         >
       </v-btn>
       <v-btn
-        color="green lighten-1"
-        class="text-capitalize"
-        :small="isMobile"
-        :loading="$store.state.AnswersModule.loadingList"
-        :disabled="$store.state.AnswersModule.loadingList"
+          :disabled="$store.state.AnswersModule.loadingList"
+          :loading="$store.state.AnswersModule.loadingList"
+          :small="isMobile"
+          class="text-capitalize"
+          color="green lighten-1"
       >
-        <v-icon small color="white">mdi-plus-circle-outline</v-icon>
+        <v-icon color="white" small>mdi-plus-circle-outline</v-icon>
         <span class="table-container-buttons__text">Кнопка 1</span>
       </v-btn>
       <v-btn
-        color="error"
-        class="text-capitalize"
-        :small="isMobile"
-        :loading="$store.state.AnswersModule.loadingList"
-        :disabled="$store.state.AnswersModule.loadingList"
+          :disabled="$store.state.AnswersModule.loadingList"
+          :loading="$store.state.AnswersModule.loadingList"
+          :small="isMobile"
+          class="text-capitalize"
+          color="error"
       >
-        <v-icon small color="white">mdi-trash-can-outline</v-icon>
+        <v-icon color="white" small>mdi-trash-can-outline</v-icon>
         <span class="table-container-buttons__text">Кнопка 2</span>
       </v-btn>
     </div>
     <div class="table-container-wrapper">
       <div class="table-container-wrapper-header header-column">
         <v-autocomplete
-          class="answer_list__selector"
-          dense
-          hide-details
-          placeholder="Начните ввод"
-          :loading="$store.state.AnswersModule.loadingList"
-          :disabled="$store.state.AnswersModule.loadingList"
-          prepend-inner-icon="mdi-magnify"
-          hide-no-data
-          label="Поиск..."
-          :search-input.sync="search"
-          @update:search-input="getValues()"
-          :items="itemsArray"
-          item-text="text"
-          item-value="query"
-          return-object
-          clearable
-          @change="getItems()"
-          v-model="filterQuery"
-          no-filter
+            v-model="filterQuery"
+            :disabled="$store.state.AnswersModule.loadingList"
+            :items="itemsArray"
+            :loading="$store.state.AnswersModule.loadingList"
+            :search-input.sync="search"
+            class="answer_list__selector"
+            clearable
+            dense
+            hide-details
+            hide-no-data
+            item-text="text"
+            item-value="query"
+            label="Поиск..."
+            no-filter
+            placeholder="Начните ввод"
+            prepend-inner-icon="mdi-magnify"
+            return-object
+            @change="getItems()"
+            @update:search-input="getValues()"
         >
           <template v-slot:selection="data">
-            <v-chip v-bind="data.attrs" :input-value="data.selected" small>
+            <v-chip :input-value="data.selected" small v-bind="data.attrs">
               {{ data.item.text }} - {{ data.item.category }}
             </v-chip>
           </template>
@@ -70,46 +70,46 @@
               <v-list-item-content>
                 <v-list-item-title v-html="data.item.text"></v-list-item-title>
                 <v-list-item-subtitle
-                  v-html="data.item.category"
+                    v-html="data.item.category"
                 ></v-list-item-subtitle>
               </v-list-item-content>
             </template>
           </template>
         </v-autocomplete>
         <v-dialog
-          ref="dialog"
-          v-model="modal"
-          :return-value.sync="date"
-          persistent
-          width="290px"
+            ref="dialog"
+            v-model="modal"
+            :return-value.sync="date"
+            persistent
+            width="290px"
         >
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
-              class="answer_list__date"
-              v-model="date"
-              placeholder="Выберите дату"
-              prepend-inner-icon="mdi-calendar"
-              readonly
-              v-bind="attrs"
-              v-on="on"
+                v-model="date"
+                class="answer_list__date"
+                placeholder="Выберите дату"
+                prepend-inner-icon="mdi-calendar"
+                readonly
+                v-bind="attrs"
+                v-on="on"
             ></v-text-field>
           </template>
           <v-date-picker
-            v-model="date"
-            scrollable
-            locale="ru-RU"
-            first-day-of-week="1"
-            :max="maxDate"
-            range
+              v-model="date"
+              :max="maxDate"
+              first-day-of-week="1"
+              locale="ru-RU"
+              range
+              scrollable
           >
-            <v-btn text color="red darken-1" @click="modal = false">
+            <v-btn color="red darken-1" text @click="modal = false">
               Отмена
             </v-btn>
             <v-spacer></v-spacer>
             <v-btn
-              text
-              color="primary"
-              @click="
+                color="primary"
+                text
+                @click="
                 date = null;
                 $refs.dialog.save(date);
                 getItems();
@@ -119,9 +119,9 @@
             </v-btn>
             <v-spacer></v-spacer>
             <v-btn
-              text
-              color="primary"
-              @click="
+                color="primary"
+                text
+                @click="
                 $refs.dialog.save(date);
                 getItems();
               "
@@ -133,15 +133,15 @@
       </div>
       <div class="table_list">
         <AnswersList
-          @showModalAnswer="showModalAnswer"
-          @sortItems="sortItems"
+            @showModalAnswer="showModalAnswer"
+            @sortItems="sortItems"
         />
       </div>
       <div class="table-container-wrapper-footer">
         <div class="table-container-wrapper-footer__counter">
           <!--          <Selector/>-->
           <span
-            >Показано от {{ $store.state.AnswersModule.listAnswers.length }} до
+          >Показано от {{ $store.state.AnswersModule.listAnswers.length }} до
             {{ $store.state.AnswersModule.listAnswers.length }} из
             {{ $store.state.AnswersModule.listAnswers.length }} записей</span
           >
@@ -183,9 +183,9 @@
 
     <!-- MODALS -->
     <v-dialog
-      v-model="$store.state.AnswersModule.showDetailAnswer"
-      v-if="$store.state.AnswersModule.showDetailAnswer"
-      max-width="600"
+        v-if="$store.state.AnswersModule.showDetailAnswer"
+        v-model="$store.state.AnswersModule.showDetailAnswer"
+        max-width="600"
     >
       <v-card>
         <v-card-title>
@@ -198,42 +198,43 @@
                 {{ emailUser }}
               </span>
               <v-icon
-                :class="{ showUserInfo: showUserInfo }"
-                @click="showUserInfo = !showUserInfo"
-                :disabled="!detail.user || !Object.keys(detail.user).length"
-                >mdi-arrow-down-drop-circle-outline</v-icon
+                  :class="{ showUserInfo: showUserInfo }"
+                  :disabled="!detail.user || !Object.keys(detail.user).length"
+                  @click="showUserInfo = !showUserInfo"
+              >mdi-arrow-down-drop-circle-outline
+              </v-icon
               >
             </div>
             <div
-              v-if="
+                v-if="
                 showUserInfo && (detail.user || Object.keys(detail.user).length)
               "
             >
               <div class="sub_child_detail_block">
                 <span class="sub_child_detail_block__title"
-                  >Зарегистрирован:</span
+                >Зарегистрирован:</span
                 >
                 <span class="sub_child_detail_block__value">{{
-                  dateRegistration
-                }}</span>
+                    dateRegistration
+                  }}</span>
               </div>
               <div class="sub_child_detail_block">
                 <span class="sub_child_detail_block__title">Имя:</span>
                 <span class="sub_child_detail_block__value">{{
-                  detail.user.first_name ? detail.user.first_name : "-"
-                }}</span>
+                    detail.user.first_name ? detail.user.first_name : "-"
+                  }}</span>
               </div>
               <div class="sub_child_detail_block">
                 <span class="sub_child_detail_block__title">Фамилия:</span>
                 <span class="sub_child_detail_block__value">{{
-                  detail.user.last_name ? detail.user.last_name : "-"
-                }}</span>
+                    detail.user.last_name ? detail.user.last_name : "-"
+                  }}</span>
               </div>
               <div class="sub_child_detail_block">
                 <span class="sub_child_detail_block__title">Телефон:</span>
                 <span class="sub_child_detail_block__value">{{
-                  detail.user.telephone ? detail.user.telephone : "-"
-                }}</span>
+                    detail.user.telephone ? detail.user.telephone : "-"
+                  }}</span>
               </div>
             </div>
           </div>
@@ -265,26 +266,27 @@
                 Файлы [{{ detail.e_client_files.length }}]
               </span>
               <v-icon
-                :class="{ showUserInfo: showFiles }"
-                @click="showFiles = !showFiles"
-                :disabled="!detail.e_client_files.length"
-                >mdi-arrow-down-drop-circle-outline</v-icon
+                  :class="{ showUserInfo: showFiles }"
+                  :disabled="!detail.e_client_files.length"
+                  @click="showFiles = !showFiles"
+              >mdi-arrow-down-drop-circle-outline
+              </v-icon
               >
             </div>
             <div
-              v-if="showFiles && detail.e_client_files.length"
-              class="files__detail"
+                v-if="showFiles && detail.e_client_files.length"
+                class="files__detail"
             >
               <div class="sub_child_detail_image">
                 <viewer
-                  class="sub_child_detail_image__wrapper"
-                  v-for="(img, index) in detail.e_client_files"
-                  :key="index"
-                  :options="viewerOptions"
+                    v-for="(img, index) in detail.e_client_files"
+                    :key="index"
+                    :options="viewerOptions"
+                    class="sub_child_detail_image__wrapper"
                 >
                   <img
-                    :alt="img.filename"
-                    :src="`${$store.state.BASE_URL}${img.full_path}`"
+                      :alt="img.filename"
+                      :src="`${$store.state.BASE_URL}${img.full_path}`"
                   />
                 </viewer>
               </div>
@@ -314,7 +316,7 @@ Vue.use(VueViewer);
 // import Selector from "../components/table/Selector";
 export default {
   name: "Answers",
-  components: { AnswersList },
+  components: {AnswersList},
   data: () => ({
     detail: {},
     showUserInfo: false,
@@ -345,18 +347,18 @@ export default {
   computed: {
     isMobile() {
       return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
+          navigator.userAgent
       );
     },
     emailUser() {
       return this.detail.user?.email
-        ? this.detail.user.email
-        : "Отсутствует почта";
+          ? this.detail.user.email
+          : "Отсутствует почта";
     },
     dateRegistration() {
       return this.detail.user?.created_at
-        ? new Date(this.detail.user.created_at).toJSON().slice(0, 10)
-        : "Отсутствует информация";
+          ? new Date(this.detail.user.created_at).toJSON().slice(0, 10)
+          : "Отсутствует информация";
     },
     maxDate() {
       return new Date().toJSON().slice(0, 10);
@@ -369,9 +371,9 @@ export default {
         if (elem.category === category) {
           arr.push(elem);
         } else {
-          if (arr.length) arr.push({ divider: true });
+          if (arr.length) arr.push({divider: true});
           category = elem.category;
-          arr.push({ header: category });
+          arr.push({header: category});
           arr.push(elem);
         }
       });
@@ -406,8 +408,8 @@ export default {
       if (!row) return "";
       if (!row.value_answer) {
         return row.detailed_response
-          ? row.detailed_response
-          : "Ничего не найдено";
+            ? row.detailed_response
+            : "Ничего не найдено";
       }
       if (this.isJson(row.value_answer)) {
         let parsed = JSON.parse(row.value_answer);
@@ -416,16 +418,16 @@ export default {
           return parsed.join(" ");
         } else {
           return parsed
-            ? parsed
-            : row.detailed_response
-            ? row.detailed_response
-            : "Ничего не найдено";
+              ? parsed
+              : row.detailed_response
+                  ? row.detailed_response
+                  : "Ничего не найдено";
         }
       }
     },
     sortItems(title) {
-      const { VALUE, SORT } = title;
-      this.sortQuery = { [VALUE]: SORT };
+      const {VALUE, SORT} = title;
+      this.sortQuery = {[VALUE]: SORT};
       this.getItems();
     },
     getValues() {
@@ -460,28 +462,34 @@ export default {
 .answer_block {
   display: grid;
   grid-template-columns: 50% auto;
+
   &__title {
     color: darkgrey;
     word-break: break-all;
   }
+
   &__value {
     font-weight: 600;
     word-break: break-all;
   }
 }
+
 .sub_child {
   display: flex;
   flex-direction: column;
   border-bottom: 1px solid lightgrey;
   padding-bottom: 5px;
   margin-bottom: 2px;
+
   .sub_child_block {
     display: flex;
     justify-content: space-between;
+
     &__title {
       font-size: 1.1em;
       color: lightcoral;
     }
+
     &__value {
       font-size: 1.1em;
       font-weight: 600;
@@ -489,16 +497,20 @@ export default {
       color: #539ee0;
     }
   }
+
   .sub_child_detail_block {
     display: grid;
     grid-template-columns: 50% auto;
+
     &__title {
       color: darkgrey;
     }
+
     &__value {
       font-weight: 600;
     }
   }
+
   .sub_child_detail_image {
     display: flex;
     flex-direction: column;
@@ -512,6 +524,7 @@ export default {
       position: relative;
       height: 110px;
       max-width: 100%;
+
       img {
         width: 100%;
         height: 100%;
@@ -522,6 +535,7 @@ export default {
     }
   }
 }
+
 .showUserInfo {
   transform: scaleY(-1);
 }
@@ -532,9 +546,11 @@ export default {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
 ::v-deep .v-autocomplete.v-select.v-input--is-focused input {
   min-width: 2px;
 }
+
 ::v-deep .v-select__selections {
   flex-wrap: nowrap;
 }

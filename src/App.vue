@@ -1,18 +1,18 @@
 <template>
   <v-app>
     <v-main>
-      <Header />
-      <router-view />
+      <Header/>
+      <router-view/>
       <v-dialog
-        v-model="$store.state.notification_modal.show_notification"
-        max-width="600"
+          v-model="$store.state.notification_modal.show_notification"
+          max-width="600"
       >
         <v-card>
           <v-card-title>
             <span
-              class="text-h6"
-              :style="`color: ${color_notification}; font-size: 0.8em !important; text-align: center; width: 100%`"
-              >{{ error_or_not }}</span
+                :style="`color: ${color_notification}; font-size: 0.8em !important; text-align: center; width: 100%`"
+                class="text-h6"
+            >{{ error_or_not }}</span
             >
           </v-card-title>
           <v-card-text>
@@ -21,9 +21,9 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn
-              color="blue darken-1"
-              text
-              @click="$store.state.notification_modal.show_notification = false"
+                color="blue darken-1"
+                text
+                @click="$store.state.notification_modal.show_notification = false"
             >
               Закрыть
             </v-btn>
@@ -40,26 +40,28 @@ import Header from "./components/Header";
 
 export default {
   name: "App",
-  components: { Header },
+  components: {Header},
   data: () => ({
     //
   }),
   computed: {
     error_or_not() {
       return this.$store.state.notification_modal.error
-        ? "Ошибка!"
-        : "Уведомление!";
+          ? "Ошибка!"
+          : "Уведомление!";
     },
     color_notification() {
       return this.$store.state.notification_modal.error
-        ? "lightcoral"
-        : "#1976d2";
+          ? "lightcoral"
+          : "#1976d2";
     },
   },
 };
 </script>
 
 <style lang="scss">
+@import "assets/styles/style";
+
 @media only screen and (max-width: 600px) {
   .v-menu__content.theme--light.menuable__content__active.v-autocomplete__content {
     max-height: 120px !important;

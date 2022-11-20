@@ -2,38 +2,34 @@
   <div class="detail_container">
     <v-container>
       <template v-if="$store.getters.stateEditCreate($route.query.action)">
-        <v-text-field
-            outlined
-            dense
-            label="Введите имя тэга"
-            item-text="name"
-            item-value="id"
-            return-object
-            clearable
-            v-model="$store.state.TagsModule.tag.name"
-            :disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
+        <InputStyled
+            :current-rules="$store.state.nameRules"
+            :data="$store.state.TagsModule.tag.name"
+            :is-clearable="true"
+            :is-disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
+            :is-outlined="true"
+            :is-required="true"
+            :item-text="'name'"
+            :item-value="'id'"
+            :placeholder="'Введите имя тэга'"
             class="mb-5"
-            hide-details
-            required
-            :rules="$store.state.nameRules"
-            @change="onChangeLocal()"
-        >
-        </v-text-field>
+            @update-input="setData"
+        />
       </template>
       <template v-else>
         <v-autocomplete
-            outlined
-            dense
-            :loading="$store.state.loadingRequestGeneral"
+            v-model="$store.state.TagsModule.tag"
             :disabled="$store.state.loadingRequestGeneral"
-            label="Выберите тэг"
             :items="$store.state.TagsModule.listTags"
+            :loading="$store.state.loadingRequestGeneral"
+            class="mb-5"
+            dense
+            hide-details
             item-text="name"
             item-value="id"
+            label="Выберите тэг"
+            outlined
             return-object
-            v-model="$store.state.TagsModule.tag"
-            class="mb-5"
-            hide-details
         >
         </v-autocomplete>
       </template>
@@ -44,7 +40,7 @@
           @click="$refs.TagDropZone.removeAllFiles(); stateDropzone = true; insertDropzoneData()"
       >
         Изображение
-        <v-icon color="grey lighten-1"  style="transform: rotate(45deg)">mdi-paperclip</v-icon>
+        <v-icon color="grey lighten-1" style="transform: rotate(45deg)">mdi-paperclip</v-icon>
         [{{ dropzone_uploaded.length }}]
       </v-btn>
       <v-dialog
@@ -54,67 +50,69 @@
       >
         <v-card>
           <v-card-title>
-            <span class="text-h7" v-if="! dropzone_uploaded.length">Загрузите изображение</span>
-            <span class="text-h7" v-else>Изображение уже загружено</span>
+            <span v-if="! dropzone_uploaded.length" class="text-h7">Загрузите изображение</span>
+            <span v-else class="text-h7">Изображение уже загружено</span>
           </v-card-title>
           <v-card-text class="dialog_dropzone">
-            <div class="dialog_dropzone_wrapper" v-show="! dropzone_uploaded.length">
+            <div v-show="! dropzone_uploaded.length" class="dialog_dropzone_wrapper">
               <vue-dropzone
-                  ref="TagDropZone"
                   id="dropzone"
+                  ref="TagDropZone"
                   :options="options"
                   :useCustomSlot=true
                   @vdropzone-success="successData"
                   @vdropzone-sending="sendingData"
               >
                 <h3 class="dropzone-custom-title">
-                  <v-icon size="120" color="grey lighten-1" style="transform: rotate(45deg)">
+                  <v-icon color="grey lighten-1" size="120" style="transform: rotate(45deg)">
                     mdi-paperclip
                   </v-icon>
                 </h3>
-                <div class="subtitle" style="color: darkgrey">Для вставки изображения перетащите файл в зону или нажмите на скрепку</div>
+                <div class="subtitle" style="color: darkgrey">Для вставки изображения перетащите файл в зону или нажмите
+                  на скрепку
+                </div>
               </vue-dropzone>
             </div>
             <template>
-              <div class="dialog_dropzone_inputs" v-for="(item, index) in dropzone_uploaded" :key="index">
+              <div v-for="(item, index) in dropzone_uploaded" :key="index" class="dialog_dropzone_inputs">
                 <v-img :src="$store.state.BASE_URL+item.full_path" contain></v-img>
                 <span class="dialog_dropzone_inputs__label"> {{ item.filename }}</span>
-                <v-text-field
-                    :loading="$store.state.loadingRequestGeneral"
-                    :disabled="$store.state.loadingRequestGeneral"
-                    dense
-                    hide-details
-                    placeholder="alt-наименование изображения"
-                    v-model="item.alt_image"
-                ></v-text-field>
-                <v-text-field
-                    :loading="$store.state.loadingRequestGeneral"
-                    :disabled="$store.state.loadingRequestGeneral"
-                    dense
-                    hide-details
-                    placeholder="подпись изображения"
-                    v-model="item.title_image"
-                ></v-text-field>
+                <InputStyled
+                    :data="item.alt_image"
+                    :index-array="index"
+                    :is-disabled="$store.state.loadingRequestGeneral"
+                    :is-loading="$store.state.loadingRequestGeneral"
+                    :placeholder="'alt-наименование изображения'"
+                    @update-input="setAlt"
+                />
+                <InputStyled
+                    :data="item.title_image"
+                    :index-array="index"
+                    :is-disabled="$store.state.loadingRequestGeneral"
+                    :is-loading="$store.state.loadingRequestGeneral"
+                    :placeholder="'подпись изображения'"
+                    @update-input="setTitle"
+                />
               </div>
             </template>
           </v-card-text>
           <v-card-actions>
             <v-btn
+                v-if="dropzone_uploaded.length"
+                :disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
+                :loading="$store.state.loadingRequestGeneral"
                 color="blue darken-1"
                 text
                 @click="removedFile();"
-                :loading="$store.state.loadingRequestGeneral"
-                :disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
-                v-if="dropzone_uploaded.length"
             >
               Очистить
             </v-btn>
             <v-spacer></v-spacer>
             <v-btn
+                :disabled="$store.state.loadingRequestGeneral"
+                :loading="$store.state.loadingRequestGeneral"
                 color="green darken-1"
                 text
-                :loading="$store.state.loadingRequestGeneral"
-                :disabled="$store.state.loadingRequestGeneral"
                 @click="stateDropzone = false; updateDropZoneImage()"
             >
               Готово
@@ -124,48 +122,45 @@
       </v-dialog>
 
       <vue-editor
-          class="mt-5"
           v-model="$store.state.TagsModule.tag.description"
-          :disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
           :class="{'disabledMode': !$store.getters.stateEditCreate($route.query.action)}"
+          :disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
+          class="mt-5"
       />
       <v-checkbox
-          class="mb-5 mt-5"
-          hide-details
-          dense
-          label="Публичный"
           v-model="$store.state.TagsModule.tag.public"
-          :loading="$store.state.loadingRequestGeneral"
           :disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
+          :loading="$store.state.loadingRequestGeneral"
+          class="mb-5 mt-5"
+          dense
+          hide-details
+          label="Публичный"
       >
       </v-checkbox>
-      <v-text-field
+      <InputStyled
+          :data="$store.state.TagsModule.tag.seo_title"
+          :is-disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
+          :is-outlined="true"
+          :placeholder="'Seo заголовок (seo title)'"
           class="mt-5 mb-5"
-          hide-details
-          outlined
-          dense
-          label="Seo заголовок (seo title)"
-          v-model="$store.state.TagsModule.tag.seo_title"
-          :disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
-      ></v-text-field>
-      <v-text-field
+          @update-input="setTagTitle"
+      />
+      <InputStyled
+          :data="$store.state.TagsModule.tag.seo_description"
+          :is-disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
+          :is-outlined="true"
+          :placeholder="'Seo описание (seo description)'"
           class="mb-5"
-          hide-details
-          outlined
-          dense
-          label="Seo описание (seo description)"
-          v-model="$store.state.TagsModule.tag.seo_description"
-          :disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
-      ></v-text-field>
-      <v-text-field
+          @update-input="setTagDescription"
+      />
+      <InputStyled
+          :data="$store.state.TagsModule.tag.code"
+          :is-disabled="true"
+          :is-outlined="true"
+          :placeholder="'Псевдоним'"
           class="mb-5"
-          hide-details
-          outlined
-          dense
-          label="Псевдоним"
-          v-model="$store.state.TagsModule.tag.code"
-          disabled
-      ></v-text-field>
+          @update-input="setCode"
+      />
     </v-container>
 
     <footer class="detail_footer">
@@ -198,20 +193,20 @@
         </v-card-title>
         <v-card-actions>
           <v-btn
+              :disabled="$store.state.loadingRequestGeneral"
+              :loading="$store.state.loadingRequestGeneral"
               color="blue darken-1"
               text
               @click="$store.dispatch('stateModalAction', false)"
-              :disabled="$store.state.loadingRequestGeneral"
-              :loading="$store.state.loadingRequestGeneral"
           >
             Нет
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn
-              color="red darken-1"
-              text
               :disabled="$store.state.loadingRequestGeneral"
               :loading="$store.state.loadingRequestGeneral"
+              color="red darken-1"
+              text
               @click="deleteLocal()"
           >
             Да
@@ -232,14 +227,16 @@
 <script>
 import vue2Dropzone from 'vue2-dropzone'
 import 'vue2-dropzone/dist/vue2Dropzone.min.css'
-import { VueEditor } from "vue2-editor";
+import {VueEditor} from "vue2-editor";
 import tagsStore from "@/store/modules/tags";
 import Request from "@/services/request";
+import InputStyled from "../common/InputStyled";
 
 const _store = tagsStore.state
 
 export default {
   components: {
+    InputStyled,
     VueEditor,
     vueDropzone: vue2Dropzone,
   },
@@ -254,7 +251,23 @@ export default {
     await this.$store.dispatch('getListTags', this.$route.params.id)
     await this.$store.dispatch('setTitle', this.$store.state.TagsModule.tag.name)
   },
-  methods:{
+  methods: {
+    setAlt(data) {
+      this.dropzone_uploaded[data.index].alt_image = data.value
+    },
+    setTitle(data) {
+      this.dropzone_uploaded[data.index].title_image = data.value
+    },
+    setTagTitle(value) {
+      this.$store.state.TagsModule.tag.seo_title = value
+    },
+    setTagDescription(value) {
+      this.$store.state.TagsModule.tag.seo_description = value
+    },
+    setCode(value) {
+      this.$store.state.TagsModule.tag.code = value
+    },
+
     /* DROPZONE */
     sendingData(file, xhr, formData) {
       formData.append('uuid', file.upload.uuid)
@@ -266,11 +279,12 @@ export default {
       const formatObj = Object.assign({}, response.data)
       this.dropzone_uploaded.push(formatObj)
 
-      await this.$store.dispatch('onSubmit', {},{root:true});
+      await this.$store.dispatch('onSubmit', {}, {root: true});
       await this.$router.replace({
         path: this.$route.path,
         query: this.$route.query
-      }).catch(()=>{});
+      }).catch(() => {
+      });
     },
     async removedFile() {
       if (!this.dropzone_uploaded.length)
@@ -280,49 +294,56 @@ export default {
       this.dropzone_uploaded = [];
       this.$refs.TagDropZone.removeAllFiles();
     },
-    insertDropzoneData(){
-      if (! this.stateDropzone) return;
-      if (! this.dropzone_uploaded.length) return;
+    insertDropzoneData() {
+      if (!this.stateDropzone) return;
+      if (!this.dropzone_uploaded.length) return;
 
       this.$nextTick(() => {
         this.$refs.TagDropZone.manuallyAddFile(this.dropzone_uploaded[0], this.dropzone_uploaded[0].full_path)
       })
     },
-    async updateDropZoneImage(){
-      if (! this.dropzone_uploaded.length) return;
+    async updateDropZoneImage() {
+      if (!this.dropzone_uploaded.length) return;
 
       await Request.put(
-          this.$store.state.BASE_URL+'/entity/files/'+this.dropzone_uploaded[0].id,
+          this.$store.state.BASE_URL + '/entity/files/' + this.dropzone_uploaded[0].id,
           this.dropzone_uploaded[0])
     },
-    async onSubmitLocal(){
-      await this.$store.dispatch('onSubmit', {},{root:true});
-      if (this.$route.query.action === 'create'){
-        await this.$router.replace({path: this.$route.path+'/'+this.$store.state.TagsModule.tag.id}).catch(()=>{});
-      }
-      else{
-        await this.$router.replace({path: this.$route.path}).catch(()=>{});
+    async onSubmitLocal() {
+      await this.$store.dispatch('onSubmit', {}, {root: true});
+      if (this.$route.query.action === 'create') {
+        await this.$router.replace({path: this.$route.path + '/' + this.$store.state.TagsModule.tag.id}).catch(() => {
+        });
+      } else {
+        await this.$router.replace({path: this.$route.path}).catch(() => {
+        });
       }
     },
-    async onChangeLocal(){
+    setData(value) {
+      this.$store.state.TagsModule.tag.name = value
+      this.onChangeLocal()
+    },
+    async onChangeLocal() {
       if (this.$route.query.action !== 'create')
         return false;
 
       await this.$store.dispatch('createTag');
       await this.$router.replace({
-        path: this.$route.path+'/'+this.$store.state.TagsModule.tag.id,
+        path: this.$route.path + '/' + this.$store.state.TagsModule.tag.id,
         query: {
           action: 'edit'
         }
-      }).catch(()=>{});
+      }).catch(() => {
+      });
     },
-    async deleteLocal(){
+    async deleteLocal() {
       await this.$store.dispatch('deleteTag');
-      await this.$router.push({path: '/tags'}).catch(()=>{});
+      await this.$router.push({path: '/tags'}).catch(() => {
+      });
     }
   },
-  watch:{
-    '$store.state.TagsModule.tag.id':{
+  watch: {
+    '$store.state.TagsModule.tag.id': {
       handler(newValue) {
         if (this.$route.query.action === 'create')
           return false;
@@ -330,28 +351,29 @@ export default {
         const currentQuery = this.$route.query;
         const idEntry = (newValue) ? newValue : '';
         this.$router.replace({
-          path: '/tags/'+idEntry,
+          path: '/tags/' + idEntry,
           query: currentQuery,
-        }).catch(()=>{});
+        }).catch(() => {
+        });
 
         this.$store.dispatch('setTitle', this.$store.state.TagsModule.tag.name)
       }
     },
     '$route.query.action': {
       handler(newValue) {
-        if (newValue === 'create'){
+        if (newValue === 'create') {
           this.$store.dispatch('clearTag');
         }
       }
     },
     '$route.params.id': {
       handler(newValue) {
-        if (!newValue){
+        if (!newValue) {
           this.$store.dispatch('clearTag');
         }
       }
     },
-    '$store.state.TagsModule.tag.e_client_files':{
+    '$store.state.TagsModule.tag.e_client_files': {
       handler(newValue) {
         this.dropzone_uploaded = [];
         this.dropzone_uploaded = newValue;
@@ -387,10 +409,10 @@ export default {
     //   },
     // },
   },
-  computed:{
+  computed: {
     options() {
       return {
-        url: this.$store.state.BASE_URL+'/entity/files',
+        url: this.$store.state.BASE_URL + '/entity/files',
         // url: 'https://httpbin.org/post',
         destroyDropzone: false,
         duplicateCheck: true,
@@ -407,7 +429,7 @@ export default {
 <style lang="scss" scoped>
 @import "src/assets/styles/detail";
 
-.disabledMode{
+.disabledMode {
   opacity: 0.5;
 }
 </style>
