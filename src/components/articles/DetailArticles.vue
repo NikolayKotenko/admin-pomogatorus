@@ -211,8 +211,9 @@
                     </vue-dropzone>
                   </div>
                   <template>
-                    <div class="dialog_dropzone_inputs" v-for="(item, index) in dropzone_uploaded" :key="index">
-                      <v-img  max-width="300px" :src="$store.state.BASE_URL+item.full_path" contain></v-img>
+                    <div v-for="(item, index) in dropzone_uploaded" :key="index" class="dialog_dropzone_inputs">
+                      <v-img :src="$store.state.BASE_URL+item.full_path" class="main_img" contain
+                             max-width="300px"></v-img>
                       <span class="dialog_dropzone_inputs__label"> {{ item.filename }}</span>
                       <InputStyled
                           :data="item.alt_image"
@@ -762,7 +763,7 @@ export default {
       if (!this.dropzone_uploaded.length) return;
 
       for (const item of this.dropzone_uploaded) {
-        await Request.put(this.$store.state.BASE_URL+'/entity/files/'+item.id, item)
+        await Request.put(this.$store.state.BASE_URL + '/entity/files/' + item.id, item)
       }
     }
   },
@@ -966,7 +967,7 @@ export default {
   justify-content: center;
 }
 
-.dialog_dropzone{
+.dialog_dropzone {
   display: grid;
   grid-row-gap: 1em;
 }

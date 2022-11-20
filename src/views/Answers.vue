@@ -1,40 +1,40 @@
 <template>
   <v-container class="table-container">
 
-<!--    <div class="table-container-buttons">
-      <v-btn
-        color="blue lighten-1"
-        class="text-capitalize"
-        :small="isMobile"
-        :loading="$store.state.AnswersModule.loadingList"
-        :disabled="$store.state.AnswersModule.loadingList"
-      >
-        <v-icon small color="white">mdi-alert-circle-outline</v-icon>
-        <span class="table-container-buttons__text"
-          >Место для функциональных кнопок</span
-        >
-      </v-btn>
-      <v-btn
-        color="green lighten-1"
-        class="text-capitalize"
-        :small="isMobile"
-        :loading="$store.state.AnswersModule.loadingList"
-        :disabled="$store.state.AnswersModule.loadingList"
-      >
-        <v-icon small color="white">mdi-plus-circle-outline</v-icon>
-        <span class="table-container-buttons__text">Кнопка 1</span>
-      </v-btn>
-      <v-btn
-        color="error"
-        class="text-capitalize"
-        :small="isMobile"
-        :loading="$store.state.AnswersModule.loadingList"
-        :disabled="$store.state.AnswersModule.loadingList"
-      >
-        <v-icon small color="white">mdi-trash-can-outline</v-icon>
-        <span class="table-container-buttons__text">Кнопка 2</span>
-      </v-btn>
-    </div>-->
+    <!--    <div class="table-container-buttons">
+          <v-btn
+            color="blue lighten-1"
+            class="text-capitalize"
+            :small="isMobile"
+            :loading="$store.state.AnswersModule.loadingList"
+            :disabled="$store.state.AnswersModule.loadingList"
+          >
+            <v-icon small color="white">mdi-alert-circle-outline</v-icon>
+            <span class="table-container-buttons__text"
+              >Место для функциональных кнопок</span
+            >
+          </v-btn>
+          <v-btn
+            color="green lighten-1"
+            class="text-capitalize"
+            :small="isMobile"
+            :loading="$store.state.AnswersModule.loadingList"
+            :disabled="$store.state.AnswersModule.loadingList"
+          >
+            <v-icon small color="white">mdi-plus-circle-outline</v-icon>
+            <span class="table-container-buttons__text">Кнопка 1</span>
+          </v-btn>
+          <v-btn
+            color="error"
+            class="text-capitalize"
+            :small="isMobile"
+            :loading="$store.state.AnswersModule.loadingList"
+            :disabled="$store.state.AnswersModule.loadingList"
+          >
+            <v-icon small color="white">mdi-trash-can-outline</v-icon>
+            <span class="table-container-buttons__text">Кнопка 2</span>
+          </v-btn>
+        </div>-->
 
     <div class="table-container-wrapper">
       <div class="table-container-wrapper-header header-column">
@@ -140,14 +140,14 @@
         />
       </div>
       <div class="table-container-wrapper-footer">
-<!--        <div class="table-container-wrapper-footer__counter">-->
-<!--          &lt;!&ndash;          <Selector/>&ndash;&gt;-->
-<!--          <span-->
-<!--            >Показано от {{ $store.state.AnswersModule.listAnswers.length }} до-->
-<!--            {{ $store.state.AnswersModule.listAnswers.length }} из-->
-<!--            {{ $store.state.AnswersModule.listAnswers.length }} записей</span-->
-<!--          >-->
-<!--        </div>-->
+        <!--        <div class="table-container-wrapper-footer__counter">-->
+        <!--          &lt;!&ndash;          <Selector/>&ndash;&gt;-->
+        <!--          <span-->
+        <!--            >Показано от {{ $store.state.AnswersModule.listAnswers.length }} до-->
+        <!--            {{ $store.state.AnswersModule.listAnswers.length }} из-->
+        <!--            {{ $store.state.AnswersModule.listAnswers.length }} записей</span-->
+        <!--          >-->
+        <!--        </div>-->
         <!--        <div class="table-container-wrapper-footer__page">
           <v-btn
               elevation="0"
@@ -185,9 +185,10 @@
 
     <!-- MODALS -->
     <v-dialog
-      v-model="$store.state.AnswersModule.showDetailAnswer"
-      v-if="$store.state.AnswersModule.showDetailAnswer"
-      scrollable
+        v-if="$store.state.AnswersModule.showDetailAnswer"
+        v-model="$store.state.AnswersModule.showDetailAnswer"
+        max-width="600"
+        scrollable
     >
       <v-card>
         <v-card-title style="display: inline-flex; flex-wrap: nowrap; width: 100%;">
@@ -281,7 +282,7 @@
                 v-if="showFiles && detail.e_client_files.length"
                 class="files__detail"
             >
-              <card-list-files :files="detail.e_client_files" v-if="detail.e_client_files.length"></card-list-files>
+              <card-list-files v-if="detail.e_client_files.length" :files="detail.e_client_files"></card-list-files>
             </div>
           </div>
         </v-card-text>
@@ -309,7 +310,7 @@ Vue.use(VueViewer);
 // import Selector from "../components/table/Selector";
 export default {
   name: "Answers",
-  components: { AnswersList, CardListFiles },
+  components: {AnswersList, CardListFiles},
   data: () => ({
     detail: {},
     showUserInfo: false,
@@ -550,7 +551,7 @@ export default {
 </style>
 
 <style lang="scss">
-.v-dialog{
+.v-dialog {
   margin-top: 80px;
 }
 </style>

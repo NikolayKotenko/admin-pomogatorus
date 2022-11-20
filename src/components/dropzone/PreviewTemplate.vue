@@ -1,17 +1,17 @@
 <template>
   <v-card class="wrapper">
     <div data-dz-image>
-      <img data-dz-thumbnail alt="" class="image" />
+      <img alt="" class="main_img image" data-dz-thumbnail/>
     </div>
     <div class="menu">
       <img
-        class="dz_close"
-        data-dz-remove
-        :src="require('/src/assets/svg/close.svg')"
-        alt="close"
+          :src="require('/src/assets/svg/close.svg')"
+          alt="close"
+          class="dz_close"
+          data-dz-remove
       />
       <span id="name" class="dz_name" data-dz-name></span>
-      <span data-dz-size class="dz_size"></span>
+      <span class="dz_size" data-dz-size></span>
     </div>
   </v-card>
 </template>
@@ -22,7 +22,7 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .wrapper {
   position: relative;
   width: 100%;
@@ -40,6 +40,7 @@ export default {
       background: rgba(0, 0, 0, 0.2);
     }
   }
+
   .menu {
     position: absolute;
     width: 100%;
@@ -60,10 +61,12 @@ export default {
       width: 28px;
       height: 28px;
     }
-    .dz_name, .dz_size{
-      color:white;
+
+    .dz_name, .dz_size {
+      color: white;
     }
   }
+
   .image {
     width: 100%;
     display: grid;
