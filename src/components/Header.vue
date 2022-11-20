@@ -30,19 +30,21 @@
         ></v-app-bar-nav-icon>
       </template>
 
-      <v-chip color="white" text-color="primary" style="cursor: pointer">
-        <div
-          v-if="!!Object.keys($route.meta).includes('ru_name')"
-          style="overflow: hidden; text-overflow: ellipsis"
-        >
-          <span>
-            {{ $route.meta.ru_name }}
+      <div v-if="!!Object.keys($route.meta).includes('ru_name')">
+        <v-chip color="white" text-color="primary" style="cursor: pointer">
+          <div style="overflow: hidden; text-overflow: ellipsis">
+            <router-link
+                v-if="$route.meta.returnLink && $route.meta.returnLink.ru_name"
+                :to="$route.meta.returnLink.path ">{{ $route.meta.returnLink.ru_name  }}</router-link>
+            <span v-if="$route.meta.returnLink && $route.meta.returnLink.ru_name">&nbsp; > &nbsp;</span>
+            <span>{{ $route.meta.ru_name }}</span>
             <template v-if="$store.state.cur_num">
               # {{ $store.state.cur_num }}
             </template>
-          </span>
-        </div>
-      </v-chip>
+          </div>
+        </v-chip>
+      </div>
+
 
       <v-spacer></v-spacer>
 
@@ -54,6 +56,16 @@
           @click="onView()"
       >
         mdi-home-search
+      </v-icon>
+      <v-icon
+          v-if="$route.meta.canDelete"
+          :disabled="!this.$route.params.id"
+          :color="'green'"
+          large
+          style="padding-left: 10px"
+          @click="onDelete()"
+      >
+        mdi-trash-can-outline
       </v-icon>
       <v-icon
           v-if="$route.meta.canEdit"
@@ -80,6 +92,7 @@
     </v-app-bar>
 
     <v-navigation-drawer
+      v-if="$store.getters.checkAccessMenu"
       v-model="drawer"
       app
       clipped
@@ -91,7 +104,7 @@
           <v-img src="https://randomuser.me/api/portraits/women/85.jpg"></v-img>
         </v-list-item-avatar>
         <!-- FIXME: Поменять после бэкенда -->
-        <span class="navigation_user_name">Admin</span>
+        <span class="navigation_user_name">{{ getNameUser }}</span>
       </div>
       <v-list nav dense>
         <v-list-item-group v-model="group" active-class="white--text">
@@ -126,11 +139,24 @@
           </v-list-item>
         </v-list-item-group>
       </v-list>
+
+      <div class="wrapper_logout">
+        <v-btn
+            small
+            block
+            bottom
+            @click="logout()"
+        >
+          Выйти
+        </v-btn>
+      </div>
     </v-navigation-drawer>
   </div>
 </template>
 
 <script>
+import {mapGetters} from "vuex";
+
 export default {
   name: "Header",
   data: () => ({
@@ -185,6 +211,8 @@ export default {
     ]
   }),
   computed: {
+    ...mapGetters(['stateAuth']),
+    ...mapGetters(['getNameUser']),
     computedArrowBurger() {
       return (
         Object.keys(this.$route.params).length &&
@@ -193,6 +221,9 @@ export default {
     },
   },
   methods: {
+    onDelete(){
+      this.$store.dispatch(this.$route.meta.deleteLink.actionModalAsk, true)
+    },
     onView(){
       this.$router.replace({
         path: this.$route.meta.returnLink.path
@@ -215,6 +246,12 @@ export default {
         name: this.$route.meta.returnLink.name,
         path: this.$route.meta.returnLink.path,
       });
+    },
+    async logout(){
+      const response = await this.$store.dispatch('logout');
+      if (response.codeResponse === 202){
+        await this.$router.push({path: "/login"});
+      }
     },
   },
 };
@@ -253,5 +290,12 @@ export default {
 .navigation_section_icon {
   width: 24px;
   height: 24px;
+}
+.wrapper_logout{
+  display: grid;
+  padding: 10px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
 }
 </style>

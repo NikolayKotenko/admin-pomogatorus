@@ -106,7 +106,6 @@ export default new Vuex.Store({
 
       const dynamicTitle = title ? " > " + title : "";
       document.title = document.title + dynamicTitle;
-      console.log("2", document.title);
     },
   },
   getters: {

@@ -72,9 +72,9 @@ export default {
       this.getWidthOfControls();
     },
     async deleteImage() {
-      const response = await this.$store.dispatch('deleteFileGeneral', this.data_image.id);
-      if (response.codeResponse !== 202)
-        return false;
+      await this.$store.dispatch('deleteFileGeneral', this.data_image.id);
+      // if (response.codeResponse !== 202)
+      //   return false;
 
 
       const elem = document.getElementById(

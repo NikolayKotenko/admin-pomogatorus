@@ -126,7 +126,7 @@
                   :class="{ focused: newArticle.seo_description.focused }"
                   class="detail-wrapper__content__title__help__title"
               >
-                SEO-description
+                SEO DESCRIPT
               </span>
               <TextAreaStyled
                   :class="{ inputFocused: newArticle.seo_description.focused }"
@@ -147,7 +147,7 @@
                   :class="{ focused: newArticle.seo_keywords.focused }"
                   class="detail-wrapper__content__title__help__title"
               >
-                SEO-keywords
+                SEO KEYWORDS
               </span>
               <TextAreaStyled
                   :class="{ inputFocused: newArticle.seo_keywords.focused }"
@@ -211,8 +211,8 @@
                     </vue-dropzone>
                   </div>
                   <template>
-                    <div v-for="(item, index) in dropzone_uploaded" :key="index" class="dialog_dropzone_inputs">
-                      <v-img :src="$store.state.BASE_URL+item.full_path" contain></v-img>
+                    <div class="dialog_dropzone_inputs" v-for="(item, index) in dropzone_uploaded" :key="index">
+                      <v-img  max-width="300px" :src="$store.state.BASE_URL+item.full_path" contain></v-img>
                       <span class="dialog_dropzone_inputs__label"> {{ item.filename }}</span>
                       <InputStyled
                           :data="item.alt_image"
@@ -583,7 +583,8 @@ export default {
         }
       });
     },
-    deleteArticle() {
+    async deleteArticle() {
+      await this.removedFile();
       this.$store.dispatch("deleteArticle", this.newArticle).then(() => {
         this.deleteModal = false;
         this.$router.push({
@@ -760,9 +761,9 @@ export default {
     async updateDropZoneImage() {
       if (!this.dropzone_uploaded.length) return;
 
-      await Request.put(
-          this.$store.state.BASE_URL + '/entity/files/' + this.dropzone_uploaded[0].id,
-          this.dropzone_uploaded[0])
+      for (const item of this.dropzone_uploaded) {
+        await Request.put(this.$store.state.BASE_URL+'/entity/files/'+item.id, item)
+      }
     }
   },
   beforeDestroy() {
@@ -963,5 +964,10 @@ export default {
 
 ::v-deep .v-dialog > .v-card > .v-card__title {
   justify-content: center;
+}
+
+.dialog_dropzone{
+  display: grid;
+  grid-row-gap: 1em;
 }
 </style>

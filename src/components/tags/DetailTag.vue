@@ -141,7 +141,8 @@
           :data="$store.state.TagsModule.tag.seo_title"
           :is-disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
           :is-outlined="true"
-          :placeholder="'Seo заголовок (seo title)'"
+          persistent-placeholder
+          :placeholder="'Введите SEO-заголовок для тэга'"
           class="mt-5 mb-5"
           @update-input="setTagTitle"
       />
@@ -149,7 +150,8 @@
           :data="$store.state.TagsModule.tag.seo_description"
           :is-disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
           :is-outlined="true"
-          :placeholder="'Seo описание (seo description)'"
+          persistent-placeholder
+          :placeholder="'Введите SEO-описание для тэга'"
           class="mb-5"
           @update-input="setTagDescription"
       />
@@ -164,22 +166,24 @@
     </v-container>
 
     <footer class="detail_footer">
-      <v-btn
-          :disabled="$store.state.loadingRequestGeneral || !$store.state.TagsModule.tag.id"
-          color="red darken-1"
-          text
-          @click="$store.dispatch('stateModalAction', true)"
-      >
-        Удалить
-      </v-btn>
-      <v-btn
-          :disabled="!$store.getters.stateEditCreate($route.query.action)"
-          color="blue darken-1"
-          text
-          @click.prevent="onSubmitLocal()"
-      >
-        Сохранить
-      </v-btn>
+      <v-container>
+        <v-btn
+            :disabled="$store.state.loadingRequestGeneral || !$store.state.TagsModule.tag.id"
+            color="red darken-1"
+            text
+            @click="$store.dispatch('stateModalAction', true)"
+        >
+          Удалить
+        </v-btn>
+        <v-btn
+            :disabled="!$store.getters.stateEditCreate($route.query.action)"
+            color="blue darken-1"
+            text
+            @click.prevent="onSubmitLocal()"
+        >
+          Сохранить
+        </v-btn>
+      </v-container>
     </footer>
 
     <!--  MODALS  -->
@@ -375,6 +379,7 @@ export default {
     },
     '$store.state.TagsModule.tag.e_client_files': {
       handler(newValue) {
+        if (! newValue) return false;
         this.dropzone_uploaded = [];
         this.dropzone_uploaded = newValue;
       }
@@ -433,3 +438,4 @@ export default {
   opacity: 0.5;
 }
 </style>
+

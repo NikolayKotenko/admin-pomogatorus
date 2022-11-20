@@ -4,6 +4,7 @@ export default {
   state: {
     showDetailAnswer: false,
     listAnswers: [],
+    listAnswersGroupByUser: [],
     loadingList: false,
     showFilters: false,
     listVariables: [],
@@ -17,6 +18,19 @@ export default {
     },
     changeListAnswers(state, array) {
       state.listAnswers = [];
+
+      state.listAnswersGroupByUser = [];
+      state.listAnswersGroupByUser = array.reduce((r, a) => {
+        //TODO null user.first_name
+        let resKey = "Не зарегестрированный пользователь";
+        if (a.user?.first_name) {
+          resKey = a.user?.first_name;
+        }
+        r[resKey] = r[resKey] || [];
+        r[resKey].push(a);
+        return r;
+      }, {});
+
       if (Array.isArray(array)) {
         state.listAnswers = array;
       } else {

@@ -1,39 +1,41 @@
 <template>
-  <div class="table-container">
-    <div class="table-container-buttons">
+  <v-container class="table-container">
+
+<!--    <div class="table-container-buttons">
       <v-btn
-          :disabled="$store.state.AnswersModule.loadingList"
-          :loading="$store.state.AnswersModule.loadingList"
-          :small="isMobile"
-          class="text-capitalize"
-          color="blue lighten-1"
+        color="blue lighten-1"
+        class="text-capitalize"
+        :small="isMobile"
+        :loading="$store.state.AnswersModule.loadingList"
+        :disabled="$store.state.AnswersModule.loadingList"
       >
-        <v-icon color="white" small>mdi-alert-circle-outline</v-icon>
+        <v-icon small color="white">mdi-alert-circle-outline</v-icon>
         <span class="table-container-buttons__text"
-        >Место для функциональных кнопок</span
+          >Место для функциональных кнопок</span
         >
       </v-btn>
       <v-btn
-          :disabled="$store.state.AnswersModule.loadingList"
-          :loading="$store.state.AnswersModule.loadingList"
-          :small="isMobile"
-          class="text-capitalize"
-          color="green lighten-1"
+        color="green lighten-1"
+        class="text-capitalize"
+        :small="isMobile"
+        :loading="$store.state.AnswersModule.loadingList"
+        :disabled="$store.state.AnswersModule.loadingList"
       >
-        <v-icon color="white" small>mdi-plus-circle-outline</v-icon>
+        <v-icon small color="white">mdi-plus-circle-outline</v-icon>
         <span class="table-container-buttons__text">Кнопка 1</span>
       </v-btn>
       <v-btn
-          :disabled="$store.state.AnswersModule.loadingList"
-          :loading="$store.state.AnswersModule.loadingList"
-          :small="isMobile"
-          class="text-capitalize"
-          color="error"
+        color="error"
+        class="text-capitalize"
+        :small="isMobile"
+        :loading="$store.state.AnswersModule.loadingList"
+        :disabled="$store.state.AnswersModule.loadingList"
       >
-        <v-icon color="white" small>mdi-trash-can-outline</v-icon>
+        <v-icon small color="white">mdi-trash-can-outline</v-icon>
         <span class="table-container-buttons__text">Кнопка 2</span>
       </v-btn>
-    </div>
+    </div>-->
+
     <div class="table-container-wrapper">
       <div class="table-container-wrapper-header header-column">
         <v-autocomplete
@@ -138,14 +140,14 @@
         />
       </div>
       <div class="table-container-wrapper-footer">
-        <div class="table-container-wrapper-footer__counter">
-          <!--          <Selector/>-->
-          <span
-          >Показано от {{ $store.state.AnswersModule.listAnswers.length }} до
-            {{ $store.state.AnswersModule.listAnswers.length }} из
-            {{ $store.state.AnswersModule.listAnswers.length }} записей</span
-          >
-        </div>
+<!--        <div class="table-container-wrapper-footer__counter">-->
+<!--          &lt;!&ndash;          <Selector/>&ndash;&gt;-->
+<!--          <span-->
+<!--            >Показано от {{ $store.state.AnswersModule.listAnswers.length }} до-->
+<!--            {{ $store.state.AnswersModule.listAnswers.length }} из-->
+<!--            {{ $store.state.AnswersModule.listAnswers.length }} записей</span-->
+<!--          >-->
+<!--        </div>-->
         <!--        <div class="table-container-wrapper-footer__page">
           <v-btn
               elevation="0"
@@ -183,14 +185,16 @@
 
     <!-- MODALS -->
     <v-dialog
-        v-if="$store.state.AnswersModule.showDetailAnswer"
-        v-model="$store.state.AnswersModule.showDetailAnswer"
-        max-width="600"
+      v-model="$store.state.AnswersModule.showDetailAnswer"
+      v-if="$store.state.AnswersModule.showDetailAnswer"
+      scrollable
     >
       <v-card>
-        <v-card-title>
-          <span class="text-h5">{{ detail.e_question.name }}</span>
+        <v-card-title style="display: inline-flex; flex-wrap: nowrap; width: 100%;">
+          <span class="text-h6" style="margin: auto">{{ detail.e_question.name }}</span>
+          <v-icon @click="$store.state.AnswersModule.showDetailAnswer = false;">mdi-close-thick</v-icon>
         </v-card-title>
+
         <v-card-text>
           <div class="sub_child">
             <div class="sub_child_block">
@@ -277,19 +281,7 @@
                 v-if="showFiles && detail.e_client_files.length"
                 class="files__detail"
             >
-              <div class="sub_child_detail_image">
-                <viewer
-                    v-for="(img, index) in detail.e_client_files"
-                    :key="index"
-                    :options="viewerOptions"
-                    class="sub_child_detail_image__wrapper"
-                >
-                  <img
-                      :alt="img.filename"
-                      :src="`${$store.state.BASE_URL}${img.full_path}`"
-                  />
-                </viewer>
-              </div>
+              <card-list-files :files="detail.e_client_files" v-if="detail.e_client_files.length"></card-list-files>
             </div>
           </div>
         </v-card-text>
@@ -302,7 +294,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </div>
+  </v-container>
 </template>
 
 <script>
@@ -310,13 +302,14 @@ import "viewerjs/dist/viewer.css";
 import VueViewer from "v-viewer";
 import Vue from "vue";
 import AnswersList from "../components/answers/AnswersList";
+import CardListFiles from "../components/CardListFiles";
 
 Vue.use(VueViewer);
 
 // import Selector from "../components/table/Selector";
 export default {
   name: "Answers",
-  components: {AnswersList},
+  components: { AnswersList, CardListFiles },
   data: () => ({
     detail: {},
     showUserInfo: false,
@@ -553,5 +546,11 @@ export default {
 
 ::v-deep .v-select__selections {
   flex-wrap: nowrap;
+}
+</style>
+
+<style lang="scss">
+.v-dialog{
+  margin-top: 80px;
 }
 </style>
