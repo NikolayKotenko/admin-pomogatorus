@@ -1,5 +1,3 @@
-import qs from "qs";
-import axios from "axios";
 import Request from "@/services/request";
 
 /* DEFAULT STATE */
@@ -195,44 +193,12 @@ export default {
   actions: {
     /* LIST_QUESTION */
     async setListQuestions({ commit, state }) {
-      // return new Promise((resolve, reject) => {
-      //     Request.get(
-      //         this.state.BASE_URL+'/entity/questions')
-      //         .then((response) => {
-      //             console.log('setListQuestions response')
-      //             console.log(response)
-      //             commit('set_list_questions', response.data.data)
-      //             state.loadingList = false
-      //             resolve()
-      //         })
-      //         .catch((error) => {
-      //             console.log(error)
-      //             state.loadingList = false
-      //             reject(error)
-      //         })
-      // })
-      // return await Request.get(
-      //     this.state.BASE_URL+'/entity/questions')
-      //     .then((response) => {
-      //         console.log('setListQuestions response')
-      //         console.log(response)
-      //         commit('set_list_questions', response.data.data)
-      //         state.loadingList = false
-      //     })
-      //     .catch((error) => {
-      //         console.log(error)
-      //         state.loadingList = false
-      //     })
       return new Promise((resolve, reject) => {
         state.loadingList = true;
-        axios
-          .get(`${this.state.BASE_URL}/entity/questions`, {
-            headers: {
-              Authorization: "666777",
-            },
-          })
+
+        Request.get(`${this.state.BASE_URL}/entity/questions`)
           .then((response) => {
-            commit("set_list_questions", response.data.data);
+            commit("set_list_questions", response.data);
             state.loadingList = false;
             resolve();
           })
@@ -260,26 +226,28 @@ export default {
       return new Promise((resolve, reject) => {
         state.loadingList = true;
 
-                const {tag, updated_at, name, activity} = data
+        const { tag, updated_at, name, activity } = data;
 
-                const filter = {}
-                filter['filter[tag]'] = tag
-                filter['filter[updated_at]'] = updated_at
-                filter['filter[name]'] = name
-                filter['filter[activity]'] = activity
+        const filter = {};
+        if (tag.length) {
+          filter["filter[tag]"] = tag;
+        }
+        if (updated_at) {
+          filter["filter[updated_at]"] = updated_at;
+        }
+        if (name) {
+          filter["filter[name]"] = name;
+        }
+        if (activity) {
+          filter["filter[activity]"] = activity;
+        }
 
-        axios
-          .get(`${this.state.BASE_URL}/entity/questions`, {
-            headers: {
-              Authorization: "666777",
-            },
-            params: {
-              ...filter,
-            },
-          })
+        Request.get(`${this.state.BASE_URL}/entity/questions`, {
+          ...filter,
+        })
           .then((response) => {
             console.log(response);
-            commit("set_list_questions", response.data.data);
+            commit("set_list_questions", response.data);
             state.loadingList = false;
             resolve();
           })
@@ -296,15 +264,11 @@ export default {
     async getGeneralTagsQuestion({ commit, state }) {
       return new Promise((resolve) => {
         state.tagsLoaded = true;
-        axios
-          .get(`${this.state.BASE_URL}/dictionary/tags`, {
-            headers: {
-              Authorization: "666777",
-            },
-          })
+
+        Request.get(`${this.state.BASE_URL}/dictionary/tags`)
           .then((response) => {
             state.tagsLoaded = false;
-            commit("set_list_general_tags_question", response.data.data);
+            commit("set_list_general_tags_question", response.data);
             resolve();
           })
           .catch(() => {
@@ -317,14 +281,10 @@ export default {
     async setNewTagToListQuestion({ dispatch, state }, newTag) {
       return new Promise((resolve) => {
         state.tagsLoaded = true;
-        let bodyFormData = new FormData();
-        bodyFormData.append("name", newTag);
-        axios
-          .post(`${this.state.BASE_URL}/dictionary/tags`, bodyFormData, {
-            headers: {
-              Authorization: "666777",
-            },
-          })
+        let bodyFormData = {};
+        bodyFormData["name"] = newTag;
+
+        Request.post(`${this.state.BASE_URL}/dictionary/tags`, bodyFormData)
           .then((response) => {
             //handle success
             console.log(response);
@@ -357,16 +317,11 @@ export default {
                 return elem.id_tag === tag.id;
               });
               if (mtmIndex === -1) {
-                let tagsFormData = new FormData();
-                tagsFormData.append("id_tag", tag.id);
-                tagsFormData.append("id_question", finded[0].id);
+                let tagsFormData = {};
+                tagsFormData["id_tag"] = tag.id;
+                tagsFormData["id_question"] = finded[0].id;
                 // tagsFormData.append('id_answer', finded[0].id_type_answer)
-                axios
-                  .post(`${this.state.BASE_URL}/m-to-m/tags`, tagsFormData, {
-                    headers: {
-                      Authorization: "666777",
-                    },
-                  })
+                Request.post(`${this.state.BASE_URL}/m-to-m/tags`, tagsFormData)
                   .then((response) => {
                     console.log(response);
                     resolve();
@@ -386,15 +341,7 @@ export default {
       return new Promise((resolve, reject) => {
         state.loadingQuestion = true;
 
-        const options = {
-          method: "DELETE",
-          url: `${this.state.BASE_URL}/m-to-m/tags/${id}`,
-          headers: {
-            Authorization: "666777",
-          },
-        };
-
-        axios(options)
+        Request.delete(`${this.state.BASE_URL}/m-to-m/tags/${id}`)
           .then((response) => {
             //handle success
             state.loadingQuestion = false;
@@ -411,14 +358,9 @@ export default {
 
     /* DETAIL_QUESTION */
     async setListTypesQuestions({ commit }) {
-      axios
-        .get(`${this.state.BASE_URL}/dictionary/type-answers`, {
-          headers: {
-            Authorization: "666777",
-          },
-        })
+      Request.get(`${this.state.BASE_URL}/dictionary/type-answers`)
         .then((response) => {
-          commit("set_list_types_questions", response.data.data);
+          commit("set_list_types_questions", response.data);
         })
         .catch(() => {
           console.log("test");
@@ -427,14 +369,9 @@ export default {
     async getDetailQuestion({ commit, state }, id) {
       state.loadingQuestion = true;
       return new Promise((resolve, reject) => {
-        axios
-          .get(`${this.state.BASE_URL}/entity/questions/${id}`, {
-            headers: {
-              Authorization: "666777",
-            },
-          })
+        Request.get(`${this.state.BASE_URL}/entity/questions/${id}`)
           .then((response) => {
-            commit("set_new_question", response.data.data);
+            commit("set_new_question", response.data);
             state.loadingQuestion = false;
             resolve();
           })
@@ -450,15 +387,15 @@ export default {
       return new Promise((resolve) => {
         state.loadingRequest = true;
         state.loadingQuestion = true;
-        let bodyFormData = new FormData();
+        let bodyFormData = {};
         for (let key in data) {
           if (
             key === "state_attachment_response" ||
             key === "state_detailed_response"
           ) {
             if (data[key]) {
-              bodyFormData.append(key, "1");
-            } else bodyFormData.append(key, "0");
+              bodyFormData[key] = "1";
+            } else bodyFormData[key] = "0";
           } else if (typeof data[key] === "object") {
             if (Array.isArray(data[key])) {
               console.log(data[key]);
@@ -468,22 +405,18 @@ export default {
                   arr.push(elem);
                 }
               });
-              bodyFormData.append(key, JSON.stringify(arr));
+              bodyFormData[key] = JSON.stringify(arr);
             } else {
               if (data[key].value) {
-                bodyFormData.append(key, data[key].value);
+                bodyFormData[key] = data[key].value;
               }
             }
-          } else bodyFormData.append(key, data[key]);
+          } else bodyFormData[key] = data[key];
         }
-        bodyFormData.append("name_param_env", "");
+        bodyFormData["name_param_env"] = "";
         console.log(bodyFormData);
-        axios
-          .post(`${this.state.BASE_URL}/entity/questions`, bodyFormData, {
-            headers: {
-              Authorization: "666777",
-            },
-          })
+
+        Request.post(`${this.state.BASE_URL}/entity/questions`, bodyFormData)
           .then((response) => {
             //handle success
             state.loadingRequest = false;
@@ -545,16 +478,10 @@ export default {
           }
         }
 
-        const options = {
-          method: "PUT",
-          headers: {
-            "content-type": "application/x-www-form-urlencoded",
-            Authorization: "666777",
-          },
-          data: qs.stringify(requestData),
-          url: `${this.state.BASE_URL}/entity/questions/${data.id}`,
-        };
-        axios(options)
+        Request.put(
+          `${this.state.BASE_URL}/entity/questions/${data.id}`,
+          requestData
+        )
           .then((response) => {
             //handle success
             state.loadingRequest = false;
@@ -580,15 +507,7 @@ export default {
     deleteQuestion({ state }, data) {
       state.loadingRequest = true;
       return new Promise((resolve) => {
-        const options = {
-          method: "DELETE",
-          url: `${this.state.BASE_URL}/entity/questions/${data.id}`,
-          headers: {
-            Authorization: "666777",
-          },
-        };
-
-        axios(options)
+        Request.delete(`${this.state.BASE_URL}/entity/questions/${data.id}`)
           .then((response) => {
             //handle success
             state.loadingRequest = false;

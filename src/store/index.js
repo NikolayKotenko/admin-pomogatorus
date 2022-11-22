@@ -1,20 +1,5 @@
 import Vue from "vue";
 import Vuex from "vuex";
-// import axios from "axios";
-// axios.defaults.headers.common['Authorization'] = 666777;
-// axios.defaults.withCredentials = true
-// axios.defaults.headers.common['withCredentials'] = true
-// axios.defaults.headers.common['credentials'] = 'same-origin';
-// axios.defaults.headers.common['supportsCredentials'] = true;
-// axios.defaults.headers.common['crossdomain'] = true;
-// axios.defaults.headers.common['X-CSRF-TOKEN'] = '';
-// axios.defaults.headers.post['Sec-Fetch-Site'] = 'same-origin';
-// axios.defaults.headers.post['Content-Type'] ='application/json;charset=utf-8';
-// axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
-// axios.defaults.headers.post['Access-Control-Allow-Headers'] = 'Authorization, withcredentials, cache-control, supportscredentials, Set-Cookie, Origin, X-Requested-With, Accept, X-PINGOTHER, Content-Type';
-
-Vue.use(Vuex);
-
 // Modules import
 import QuestionsModule from "./modules/questions";
 import ArticleModule from "./modules/article";
@@ -23,6 +8,8 @@ import AnswersModule from "./modules/answers";
 import TagsModule from "./modules/tags";
 import UsersModule from "./modules/users";
 import Request from "../services/request";
+
+Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
@@ -69,16 +56,6 @@ export default new Vuex.Store({
       commit("changeLoadingAgents", true);
 
       try {
-        // const { data } = await Request.get(`${this.state.BASE_URL}/entity/groups`, {'sort[name]': 'asc'})
-        //
-        // let arr = []
-        //
-        // if (Array.isArray(data)) {
-        //   arr = data
-        // } else {
-        //   arr = Object.values(data)
-        // }
-        // const id = arr.filter(elem => elem.code === 'agenty')[0].id
         const result = await Request.get(
           `${this.state.BASE_URL}/users/get-list-users`,
           { "filter[is_agent]": true }

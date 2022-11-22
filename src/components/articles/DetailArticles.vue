@@ -738,8 +738,6 @@ export default {
       formData.append('id_article', this.$store.state.ArticleModule.newArticle.id)
     },
     successData(file, response) {
-      console.log('successData')
-      console.log(response)
       const formatObj = Object.assign({}, response.data)
       this.dropzone_uploaded.push(formatObj)
       this.$store.state.loadingRequestGeneral = false;

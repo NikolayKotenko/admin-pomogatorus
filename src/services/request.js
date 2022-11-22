@@ -18,10 +18,7 @@ export default class Request {
             ? "666777"
             : "Bearer " + Vue.$cookies.get("accessToken"),
         "Content-Type": "application/json",
-        // 'Content-Type': 'application/x-www-form-urlencoded',
       },
-      // redirect: 'follow', // manual, *follow, error
-      // referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
     };
 
     if ("GET" === method) {
@@ -31,31 +28,31 @@ export default class Request {
     } else {
       options.body = JSON.stringify(params); // body data type must match "Content-Type" header
     }
+    return await fetch(url, options)
+      .then((response) => response.json())
+      .then((response) => {
+        return new Logging(response);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
 
-        // console.log('options.body');
-        // console.log(options.body);
+  static async get(url, params = null) {
+    return this.request(url, params, "GET");
+  }
 
-        return await fetch(url, options)
-            .then(response => response.json())
-            .then(response => {
-                return new Logging(response)
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-    }
-    static async get ( url, params = null ) {
-        return this.request( url, params, 'GET' )
-    }
-    static async post ( url, params ) {
-        return this.request( url, params, 'POST' );
-    }
-    static async put(url, params){
-        return this.request( url, params, 'PUT' );
-    }
-    static async delete(url, params){
-        return this.request( url, params, 'DELETE' );
-    }
+  static async post(url, params) {
+    return this.request(url, params, "POST");
+  }
+
+  static async put(url, params) {
+    return this.request(url, params, "PUT");
+  }
+
+  static async delete(url, params) {
+    return this.request(url, params, "DELETE");
+  }
 
   static bodyFromData(paramBody) {
     let bodyFormData = new FormData();

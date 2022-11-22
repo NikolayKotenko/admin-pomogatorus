@@ -465,7 +465,6 @@ export default {
 
     getArrID() {
       this.$nextTick(() => {
-        console.log(_store.list_components);
         this.arrIds = _store.list_components
             .filter((component) => {
               return (
@@ -485,7 +484,6 @@ export default {
     },
     /* DROPZONE */
     sendingData(file, xhr, formData) {
-      console.log(file.upload.uuid);
       formData.append("uuid", file.upload.uuid);
       formData.append("id_article", _store.newArticle.id);
     },
@@ -511,7 +509,6 @@ export default {
       });
     },
     removedFile(id) {
-      console.log(id);
       const index = this.dropzone_uploaded.findIndex((elem) => {
         return elem.index === id;
       });
@@ -521,12 +518,6 @@ export default {
             .then(() => {
               this.dropzone_uploaded.splice(index, 1);
               for (let i = 0; i < this.dropzone_uploaded.length; i++) {
-                console.log(this.dropzone_uploaded[i].index);
-                console.log(
-                    document.getElementById(
-                        `close-${this.dropzone_uploaded[i].index}`
-                    )
-                );
                 const block = document.getElementById(
                     `close-${this.dropzone_uploaded[i].index}`
                 );
@@ -544,7 +535,6 @@ export default {
       for (let i = 1; i < this.dropzone_uploaded.length + 1; i++) {
         this.$nextTick(() => {
           let template = document.getElementById(`close-${i}`);
-          console.log(template);
           template.click();
         });
       }
