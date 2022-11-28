@@ -451,7 +451,7 @@ export default {
     listQuestions() {
       if (!_store.list_questions.length) return [];
       return _store.list_questions.filter((question) => {
-        return !this.arrIds.includes(question.id);
+        return !this.arrIds.includes(question.id) && question.activity === 1;
       });
     },
   },
@@ -465,14 +465,7 @@ export default {
 
     getArrID() {
       this.$nextTick(() => {
-        this.arrIds = _store.list_components
-            .filter((component) => {
-              return (
-                  component?.data?.component?.name === "questions" ||
-                  component?.data?.component?.name === "question"
-              );
-            })
-            .map((elem) => elem?.data?.component?.id);
+        this.arrIds = _store.questions_data.map(elem => elem.id)
       });
     },
     disableInput() {

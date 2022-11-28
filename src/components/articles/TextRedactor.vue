@@ -277,8 +277,8 @@ export default {
           let sub_url = full_url.split(".com");
           const IdImage = document.getElementById(`component_wrapper-${elem.index}`).dataset.id;
           data = Object.assign({},
-              { full_path: sub_url[1] },
-              { id: IdImage},
+              {full_path: sub_url[1]},
+              {id: IdImage},
           );
         }
         /* Here change global counter of component in article */
@@ -343,13 +343,13 @@ export default {
         this.content = _store.content_from_server;
 
         console.log("start check out of sync");
-        let restoredArr = [];
-        // this.$nextTick(() => {
-        restoredArr = this.checkOutOfSync();
-        console.log("end check out of sync");
-        // });
 
-        console.log(restoredArr)
+        let restoredArr = [];
+        restoredArr = this.checkOutOfSync();
+
+        console.log("end check out of sync");
+
+        console.log('restoredArr', restoredArr)
 
         let componentsForRequest;
 
@@ -361,10 +361,26 @@ export default {
 
         /* Requests for get data of list_components, that lay on Array<Promises> */
         const promises = [];
+        const questions_data = _store.questions_data
+        console.log('Questions from BACKEND', questions_data)
+
         componentsForRequest.forEach((elem) => {
-          promises.push(
-              this.$store.dispatch(`get_${elem.component.name}`, elem)
-          );
+          if (elem.component.name === 'questions') {
+            let question = questions_data.filter(question => {
+              return question.id == elem.component.id
+            })[0]
+            if (question) {
+              this.$store.commit("changeSelectedComponent", {
+                data: question,
+                index: elem.index,
+                component: elem.component
+              });
+            }
+          } else {
+            promises.push(
+                this.$store.dispatch(`get_${elem.component.name}`, elem)
+            );
+          }
         });
 
         /* As soon as Promises done, we start render */
@@ -480,12 +496,17 @@ export default {
     callCheckout(elem) {
       let data_component = factory.create(_store.name_component, {
         name: _store.name_component,
-        id: (_store.selectedComponent?.id) ? _store.selectedComponent.id: elem.id,
+        id: (_store.selectedComponent?.id) ? _store.selectedComponent.id : elem.id,
         index_questions: _store.counters.questions,
         index_image: _store.counters.image,
         index_auth: _store.counters.auth,
         src: elem?.full_path ? elem?.full_path : "",
       });
+
+      // QUESTIONS DATA ADD TO ARRAY BECAUSE NEED UNDO/REDO
+      if (_store.name_component === 'questions') {
+        this.$store.commit('add_questions_data', _store.selectedComponent)
+      }
 
       /* Undo/Redo memento manipulation */
       if (!_store.txtDisplay.length)
@@ -674,6 +695,13 @@ export default {
           );
         });
         if (index !== -1) {
+          let question_index = _store.questions_data.findIndex(elem => {
+            return elem.id == _store.list_components[index].instance.$data.question_data.id
+          })
+          if (question_index !== -1) {
+            _store.questions_data.splice(question_index, 1);
+          }
+
           _store.list_components.splice(index, 1);
           this.$store.commit("delete_component_by_id", 0);
 
