@@ -148,6 +148,22 @@
           <span>Вставить заголовок</span>
         </v-tooltip>
       </div>
+      <!-- Вставить ссылку -->
+      <div class="header__elBlock right">
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <v-icon
+                size="28"
+                v-bind="attrs"
+                @click="showLinkSettings"
+                v-on="on"
+            >
+              mdi-link-variant
+            </v-icon>
+          </template>
+          <span>Вставить ссылку</span>
+        </v-tooltip>
+      </div>
       <!-- Отступы -->
       <div class="header__elBlock right">
         <v-tooltip bottom>
@@ -194,6 +210,7 @@
         </v-tooltip>
       </div>
     </div>
+
     <!-- MODALS -->
     <v-dialog
         v-model="$store.state.ArticleModule.selectComponent.questions"
@@ -265,6 +282,51 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog
+        v-model="$store.state.ArticleModule.selectComponent.url"
+        max-width="600"
+    >
+      <v-card>
+        <v-card-title>
+          <span
+              class="text-h6"
+              style="font-size: 0.8em !important; text-align: center; width: 100%"
+          >Ссылка</span
+          >
+        </v-card-title>
+        <v-card-text>
+          <InputStyled
+              :data="$store.state.ArticleModule.urlText"
+              :is-solo="true"
+              :placeholder="'Введите текст ссылки'"
+              class="mb-4"
+              @update-input="setUrlText"
+          />
+          <InputStyled
+              :data="$store.state.ArticleModule.urlValue"
+              :is-solo="true"
+              :placeholder="'Введите адрес ссылки'"
+              @update-input="setUrlValue"
+          />
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="blue darken-1" text @click="closeModal('url')">
+            Назад
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+              :disabled="!check_can_create_url"
+              color="green darken-1"
+              text
+              @click="createLink()"
+          >
+            Сохранить
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-dialog
         v-model="$store.state.ArticleModule.selectComponent.image"
         max-width="600"
@@ -398,8 +460,6 @@ export default {
     this.previewHtml = instance.$el.outerHTML;
     this.loading_dropzone = false;
   },
-  mounted() {
-  },
   watch: {
     "$store.state.ArticleModule.selectComponent.questions": {
       handler(v) {
@@ -435,6 +495,9 @@ export default {
     check_selected_component() {
       return !!Object.keys(_store.selectedComponent).length;
     },
+    check_can_create_url() {
+      return true
+    },
     options() {
       return {
         url: `${this.$store.state.BASE_URL}/entity/files`,
@@ -456,6 +519,22 @@ export default {
     },
   },
   methods: {
+    showLinkSettings() {
+      this.$store.commit("change_select_component", {
+        name: 'url',
+        value: true,
+      });
+    },
+    createLink() {
+
+    },
+    setUrlText(value) {
+      this.$store.commit('set_url_text', value)
+    },
+    setUrlValue(value) {
+      this.$store.commit('set_url_value', value)
+    },
+
     setAlt(data) {
       this.dropzone_uploaded[data.index].alt_image = data.value
     },
@@ -475,6 +554,7 @@ export default {
         });
       });
     },
+
     /* DROPZONE */
     sendingData(file, xhr, formData) {
       formData.append("uuid", file.upload.uuid);
@@ -588,6 +668,10 @@ export default {
       }, 500);
     },
     closeModal(name) {
+      if (name === 'url') {
+        this.$store.commit('clear_url')
+      }
+
       this.$store.commit("change_select_component", {
         name: name,
         value: false,
