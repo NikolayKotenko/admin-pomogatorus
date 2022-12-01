@@ -6,6 +6,7 @@
       :clearable="isClearable"
       :disabled='isDisabled'
       :flat="isFlat"
+      :hide-details="!currentRules.length"
       :item-text="itemText"
       :item-value="itemValue"
       :loading='isLoading'
@@ -20,10 +21,10 @@
       :type="typeData"
       auto-grow
       dense
-      hide-details
       row-height='25'
       @focus='onFocus'
       @focusout='outFocus'
+      @click:clear="(currentData = '')"
   >
     <template slot="prepend-inner">
       <slot name="prepend-inner"></slot>

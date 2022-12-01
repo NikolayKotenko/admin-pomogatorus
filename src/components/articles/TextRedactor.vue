@@ -1,6 +1,6 @@
 <template>
   <div :class="{ disabled: !check_created_article }" class="textRedactor">
-    <HeaderBlock @callCheckout="callCheckout"/>
+    <HeaderBlock @callCheckout="callCheckout" @add-link="addLink"/>
 
     <div
         ref="content"
@@ -493,6 +493,74 @@ export default {
     },
 
     /* MANIPULATING WITH INSERTING COMPONENTS */
+    replaceText(link) {
+      console.log(_store.range)
+      console.log(_store.range.commonAncestorContainer.parentElement)
+      if (_store.range.commonAncestorContainer.parentElement.className !== "textRedactor__content" &&
+          _store.range.commonAncestorContainer.parentElement.className !== "textRedactor" &&
+          _store.range.commonAncestorContainer?.offsetParent?._prevClass !==
+          "textRedactor"
+      ) {
+        _store.range.selectNode(
+            _store.range.commonAncestorContainer.parentElement
+        );
+        _store.range.deleteContents();
+        _store.range.collapse(false);
+        _store.range.insertNode(link);
+      } else {
+        // let re = new RegExp(_store.selectedTextURL, "g");
+        // _store.range.commonAncestorContainer.parentElement.innerText = _store.range.commonAncestorContainer.parentElement.innerText.replace(re, '')
+        // _store.range.collapse(false);
+        // _store.range.insertNode(link);
+      }
+    },
+    addLink() {
+      const link = document.createElement("a")
+      link.href = _store.urlValue
+      link.innerText = _store.urlText
+
+      if (
+          _store.range && (this.checkIfTextEditor(_store.range.commonAncestorContainer) || this.checkIfTextEditor(_store.range.commonAncestorContainer.parentElement))
+      ) {
+        if (window.getSelection) {
+          if (_store.selectedTextURL) {
+            this.replaceText(link)
+          } else {
+            _store.range.insertNode(link);
+          }
+        } else if (document.selection && document.selection.createRange) {
+          if (_store.selectedTextURL) {
+            this.replaceText(link)
+          } else {
+            _store.range.pasteHTML(link);
+          }
+        }
+      } else {
+        if (window.getSelection) {
+          let range = document.createRange();
+          range.setStart(
+              document.getElementsByClassName("textRedactor__content").item(0),
+              0
+          );
+          range.collapse(false);
+          range.insertNode(link);
+        } else if (document.selection && document.selection.createRange) {
+          let range = document.createRange();
+          range.setStart(
+              document.getElementsByClassName("textRedactor__content").item(0),
+              0
+          );
+          range.collapse(false);
+          range.pasteHTML(link);
+        }
+      }
+      this.$store.commit('clear_url')
+      this.saveDB = true;
+      this.clearStateAfterSelect();
+      setTimeout(() => {
+        this.saveDB = false;
+      });
+    },
     callCheckout(elem) {
       let data_component = factory.create(_store.name_component, {
         name: _store.name_component,
@@ -550,10 +618,7 @@ export default {
 
         if (
             _store.range &&
-            (_store.range.commonAncestorContainer.parentElement.className ===
-                "textRedactor__content" ||
-                _store.range.commonAncestorContainer?.offsetParent?._prevClass ===
-                "textRedactor")
+            (this.checkIfTextEditor(_store.range.commonAncestorContainer))
         ) {
           if (window.getSelection) {
             _store.range.insertNode(div);
@@ -745,14 +810,16 @@ export default {
           }
           html = container.innerHTML.replace(/<br>/g, "");
         }
+        // SET SELECTED TEXT - TO CREATE URL
+        this.$store.commit('set_selected_text_url', window.getSelection().toString())
       } else if (typeof document.selection != "undefined") {
         if (document.selection.type == "Text") {
           html = document.selection.createRange().htmlText.replace(/<br>/g, "");
         }
       }
+
       // html for range select return outerHtml
       // range for single selection return tag/outerHTML
-
       const icons_arr = iconsModels.icons_panel;
       Object.keys(icons_arr).forEach((icon) => {
         if (!_store.range?.commonAncestorContainer?.parentElement) return;
@@ -803,6 +870,14 @@ export default {
         return this.recursiveGetIconValue(elem.parentElement);
       } else {
         return elem;
+      }
+    },
+    /* Function for get if we insert component into text-editor area */
+    checkIfTextEditor(elem) {
+      try {
+        return elem.closest('.textRedactor__content') !== null;
+      } catch (e) {
+        return false
       }
     },
 

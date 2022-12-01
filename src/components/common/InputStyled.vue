@@ -21,6 +21,7 @@
       hide-details
       @focus='onFocus'
       @focusout='outFocus'
+      @click:clear="(currentData = '')"
   >
     <template slot="prepend-inner">
       <slot name="prepend-inner"></slot>

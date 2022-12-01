@@ -92,6 +92,7 @@ export default {
     showAddTag: false,
 
     /* INSERT COMPONENT */
+    selectedTextURL: "",
     urlText: "",
     selection: null,
     range: null,
@@ -186,6 +187,9 @@ export default {
       state.questions_data.push(value);
     },
 
+    set_selected_text_url(state, value) {
+      state.selectedTextURL = value;
+    },
     set_url_text(state, value) {
       state.urlText = value;
     },

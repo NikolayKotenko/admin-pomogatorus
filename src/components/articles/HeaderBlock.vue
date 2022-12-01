@@ -284,6 +284,7 @@
     </v-dialog>
 
     <v-dialog
+        v-if="$store.state.ArticleModule.selectComponent.url"
         v-model="$store.state.ArticleModule.selectComponent.url"
         max-width="600"
     >
@@ -292,23 +293,30 @@
           <span
               class="text-h6"
               style="font-size: 0.8em !important; text-align: center; width: 100%"
-          >Ссылка</span
           >
+            Ссылка
+          </span>
         </v-card-title>
         <v-card-text>
-          <InputStyled
-              :data="$store.state.ArticleModule.urlText"
-              :is-solo="true"
-              :placeholder="'Введите текст ссылки'"
-              class="mb-4"
-              @update-input="setUrlText"
-          />
-          <InputStyled
-              :data="$store.state.ArticleModule.urlValue"
-              :is-solo="true"
-              :placeholder="'Введите адрес ссылки'"
-              @update-input="setUrlValue"
-          />
+          <v-form v-model="valid">
+            <InputStyled
+                :data="$store.state.ArticleModule.urlText"
+                :is-clearable="true"
+                :is-solo="true"
+                :placeholder="'Введите текст ссылки'"
+                class="mb-4"
+                @update-input="setUrlText"
+            />
+            <TextAreaStyled
+                :current-rules="emailRules"
+                :data="$store.state.ArticleModule.urlValue"
+                :is-clearable="true"
+                :is-required="true"
+                :is-solo="true"
+                :placeholder="'Введите адрес ссылки'"
+                @update-input="setUrlValue"
+            />
+          </v-form>
         </v-card-text>
         <v-card-actions>
           <v-btn color="blue darken-1" text @click="closeModal('url')">
@@ -425,12 +433,14 @@ import Vue from "vue";
 import titlesStore from "@/store/modules/article/index.js";
 import Request from "@/services/request";
 import InputStyled from "../common/InputStyled";
+import TextAreaStyled from "../common/TextAreaStyled";
 
 const _store = titlesStore.state;
 
 export default {
   name: "HeaderBlock",
   components: {
+    TextAreaStyled,
     InputStyled,
     vueDropzone: vue2Dropzone,
   },
@@ -452,6 +462,14 @@ export default {
     },
     debounceTimeout: null,
     arrIds: [],
+    emailRules: [
+      value => !!value || 'Поле обязательно для заполнения.',
+      value => {
+        const pattern = /^(ftp|http|https):\/\/[^ "]+$/
+        return pattern.test(value) || 'Некорректная ссылка'
+      },
+    ],
+    valid: false,
   }),
   created() {
     const ComponentClass = Vue.extend(PreviewTemplate);
@@ -496,7 +514,7 @@ export default {
       return !!Object.keys(_store.selectedComponent).length;
     },
     check_can_create_url() {
-      return true
+      return this.valid && _store.urlText
     },
     options() {
       return {
@@ -520,13 +538,18 @@ export default {
   },
   methods: {
     showLinkSettings() {
+      if (_store.selectedTextURL) {
+        this.$store.commit('set_url_text', _store.selectedTextURL)
+      }
+      this.$store.commit("get_range", true);
       this.$store.commit("change_select_component", {
         name: 'url',
         value: true,
       });
     },
     createLink() {
-
+      this.$emit("add-link");
+      this.closeModal('url')
     },
     setUrlText(value) {
       this.$store.commit('set_url_text', value)
