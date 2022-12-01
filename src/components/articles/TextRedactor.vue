@@ -494,8 +494,6 @@ export default {
 
     /* MANIPULATING WITH INSERTING COMPONENTS */
     replaceText(link) {
-      console.log(_store.range)
-      console.log(_store.range.commonAncestorContainer.parentElement)
       if (_store.range.commonAncestorContainer.parentElement.className !== "textRedactor__content" &&
           _store.range.commonAncestorContainer.parentElement.className !== "textRedactor" &&
           _store.range.commonAncestorContainer?.offsetParent?._prevClass !==
