@@ -413,6 +413,7 @@ export default {
       activity: "0",
       _all_tags: [],
       mtomtags: [],
+      preview_image: []
     },
     deleteModal: false,
     deleteStorage: false,
@@ -452,7 +453,7 @@ export default {
         this.saveArticle(this.newArticle);
       },
     },
-    '$store.state.ArticleModule.newArticle.e_client_files': {
+    '$store.state.ArticleModule.newArticle.preview_image': {
       handler(newValue) {
         this.dropzone_uploaded = [];
         if (this.$route.params.action !== 'create') {
@@ -585,7 +586,7 @@ export default {
       });
     },
     async deleteArticle() {
-      await this.removedFile();
+      await this.removeFilesArticle();
       this.$store.dispatch("deleteArticle", this.newArticle).then(() => {
         this.deleteModal = false;
         this.$router.push({
@@ -742,6 +743,11 @@ export default {
       this.dropzone_uploaded.push(formatObj)
       this.$store.state.loadingRequestGeneral = false;
     },
+    async removeFilesArticle() {
+      for (const item of this.newArticle.e_client_files) {
+        await this.$store.dispatch('deleteFileGeneral', item.id);
+      }
+    },
     async removedFile() {
       for (const item of this.dropzone_uploaded) {
         await this.$store.dispatch('deleteFileGeneral', item.id);
@@ -763,6 +769,8 @@ export default {
       for (const item of this.dropzone_uploaded) {
         await Request.put(this.$store.state.BASE_URL + '/entity/files/' + item.id, item)
       }
+      this.newArticle.preview_image = this.dropzone_uploaded
+      await this.$store.dispatch('updateArticle', this.newArticle)
     }
   },
   beforeDestroy() {

@@ -277,10 +277,16 @@ export default {
       }
       if (this.isJson(row.value_answer)) {
         let parsed = JSON.parse(row.value_answer);
-        if (this.isJson(parsed)) parsed = JSON.parse(parsed);
+
+        if (this.isJson(parsed)) {
+          parsed = JSON.parse(parsed);
+        }
         if (Array.isArray(parsed)) {
           return parsed.join(" ");
         } else {
+          if (typeof parsed === 'object') {
+            return parsed?.answer ? parsed.answer : row.detailed_response ? row.detailed_response : 'Ничего не найдено'
+          }
           return parsed
               ? parsed
               : row.detailed_response

@@ -791,5 +791,13 @@ export default {
     getTagsArticle(state) {
       return state.newArticle._all_tags;
     },
+    getArticleImages(state) {
+      if (!state.list_components.length) {
+        return [];
+      }
+      return state.list_components.filter((component) => {
+        return component.data.component.name === "image";
+      });
+    },
   },
 };

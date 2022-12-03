@@ -9,8 +9,9 @@
       "
         class="textRedactor__content"
         spellcheck="false"
-        @input="onContentChange"
+        @input="onContentChange; preventStyles"
         @mouseup="onSelectionContent()"
+        @keyup.enter="preventStyles"
     ></div>
 
     <!-- OVERLAYS -->
@@ -160,6 +161,37 @@ export default {
     },
   },
   methods: {
+    preventStyles() {
+      let range = null;
+      if (window.getSelection) {
+        let selection = null;
+        selection = window.getSelection();
+        if (selection.getRangeAt && selection.rangeCount) {
+          range = null;
+          range = selection.getRangeAt(0);
+          range.collapse(false);
+        }
+      } else if (document.selection && document.selection.createRange) {
+        range = null;
+        range = document.selection.createRange();
+        range.collapse(false);
+      }
+
+      if (range) {
+        if (range.commonAncestorContainer.parentElement.nodeName === 'H2') {
+          let value = range.commonAncestorContainer.parentElement.innerText
+          let element = document.createElement('div')
+          element.innerText = value
+
+          range.selectNode(
+              range.commonAncestorContainer.parentElement
+          );
+          range.deleteContents();
+          range.collapse(false);
+          range.insertNode(element);
+        }
+      }
+    },
     escapeText(text) {
       let map = {
         "&": "&amp;",
@@ -712,9 +744,6 @@ export default {
         counter_index: 1,
       };
 
-      // let components = [...document.getElementsByClassName('componentArticle_wrapper')]
-      // console.log(components)
-
       array.forEach((elem) => {
         console.log("resets id");
         // console.log(elem.data.index)
@@ -758,11 +787,13 @@ export default {
           );
         });
         if (index !== -1) {
-          let question_index = _store.questions_data.findIndex(elem => {
-            return elem.id == _store.list_components[index].instance.$data.question_data.id
-          })
-          if (question_index !== -1) {
-            _store.questions_data.splice(question_index, 1);
+          if (_store.list_components[index].data.component.name === 'questions') {
+            let question_index = _store.questions_data.findIndex(elem => {
+              return elem.id == _store.list_components[index].instance.$data.question_data.id
+            })
+            if (question_index !== -1) {
+              _store.questions_data.splice(question_index, 1);
+            }
           }
 
           _store.list_components.splice(index, 1);

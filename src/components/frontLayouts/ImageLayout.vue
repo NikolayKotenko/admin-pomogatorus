@@ -124,7 +124,8 @@ export default {
   min-height: 150px;
   min-width: 50px;
   max-width: 600px;
-  max-height: 600px;
+  //height: 600px;
+  //max-height: 600px;
   position: relative;
   padding: 16px 10px 8px 10px;
   border-bottom-left-radius: 5px;
@@ -181,8 +182,8 @@ export default {
   width: 100%;
   height: 100%;
   margin: 0 auto;
-  object-fit: cover;
-  -o-object-fit: cover;
+  object-fit: contain;
+  -o-object-fit: contain;
 }
 
 ::v-deep .vdr {
