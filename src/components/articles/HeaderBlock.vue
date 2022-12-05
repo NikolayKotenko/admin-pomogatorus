@@ -519,12 +519,10 @@ export default {
     options() {
       return {
         url: `${this.$store.state.BASE_URL}/entity/files`,
-        // url: 'https://httpbin.org/post',
         previewTemplate: this.previewHtml,
         destroyDropzone: false,
         headers: {
-          "My-Awesome-Header": "header value",
-          Authorization: "666777",
+          Authorization: `Bearer ${Vue.$cookies.get("accessToken")}`,
         },
         duplicateCheck: true,
       };
@@ -582,6 +580,7 @@ export default {
     sendingData(file, xhr, formData) {
       formData.append("uuid", file.upload.uuid);
       formData.append("id_article", _store.newArticle.id);
+      formData.append("preview_image", 0);
     },
     successData(file, response) {
       const formatObj = Object.assign({}, response.data);

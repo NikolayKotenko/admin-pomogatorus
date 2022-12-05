@@ -177,87 +177,10 @@
                 class="mb-5"
                 @click="stateDropzone = true; insertDropzoneData()"
             >
-              Изображение
+              Превью-изображение
               <v-icon color="grey lighten-1" style="transform: rotate(45deg)">mdi-paperclip</v-icon>
               [{{ dropzone_uploaded.length }}]
             </v-btn>
-            <v-dialog
-                v-model="stateDropzone"
-                max-width="600"
-            >
-              <v-card>
-                <v-card-title>
-                  <span v-if="dropzone_uploaded.length === 0" class="text-h7">Загрузите изображение</span>
-                  <span v-else class="text-h7">Изображение уже загружено</span>
-                </v-card-title>
-                <v-card-text class="dialog_dropzone">
-                  <div v-show="dropzone_uploaded.length === 0" class="dialog_dropzone_wrapper">
-                    <vue-dropzone
-                        id="dropzone"
-                        ref="TagDropZone"
-                        :options="options"
-                        :useCustomSlot=true
-                        @vdropzone-success="successData"
-                        @vdropzone-sending="sendingData"
-                    >
-                      <h3 class="dropzone-custom-title">
-                        <v-icon color="grey lighten-1" size="120" style="transform: rotate(45deg)">
-                          mdi-paperclip
-                        </v-icon>
-                      </h3>
-                      <div class="subtitle" style="color: darkgrey">Для вставки изображения перетащите файл в зону или
-                        нажмите на скрепку
-                      </div>
-                    </vue-dropzone>
-                  </div>
-                  <template>
-                    <div v-for="(item, index) in dropzone_uploaded" :key="index" class="dialog_dropzone_inputs">
-                      <v-img :src="$store.state.BASE_URL+item.full_path" class="main_img" contain
-                             max-width="300px"></v-img>
-                      <span class="dialog_dropzone_inputs__label"> {{ item.filename }}</span>
-                      <InputStyled
-                          :data="item.alt_image"
-                          :index-array="index"
-                          :is-disabled="$store.state.loadingRequestGeneral"
-                          :is-loading="$store.state.loadingRequestGeneral"
-                          :placeholder="'alt-наименование изображения'"
-                          @update-input="setAlt"
-                      />
-                      <InputStyled
-                          :data="item.title_image"
-                          :index-array="index"
-                          :is-disabled="$store.state.loadingRequestGeneral"
-                          :is-loading="$store.state.loadingRequestGeneral"
-                          :placeholder="'подпись изображения'"
-                          @update-input="setTitle"
-                      />
-                    </div>
-                  </template>
-                </v-card-text>
-                <v-card-actions>
-                  <v-btn
-                      v-if="dropzone_uploaded.length"
-                      :disabled="$store.state.loadingRequestGeneral"
-                      :loading="$store.state.loadingRequestGeneral"
-                      color="blue darken-1"
-                      text
-                      @click="removedFile();"
-                  >
-                    Очистить
-                  </v-btn>
-                  <v-spacer></v-spacer>
-                  <v-btn
-                      :disabled="$store.state.loadingRequestGeneral"
-                      :loading="$store.state.loadingRequestGeneral"
-                      color="green darken-1"
-                      text
-                      @click="stateDropzone = false; updateDropZoneImage()"
-                  >
-                    Готово
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
           </div>
 
           <!-- TEXTAREA -->
@@ -318,6 +241,84 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+
+      <v-dialog
+          v-model="stateDropzone"
+          max-width="600"
+      >
+        <v-card>
+          <v-card-title>
+            <span v-if="dropzone_uploaded.length === 0" class="text-h7">Загрузите изображение</span>
+            <span v-else class="text-h7">Изображение уже загружено</span>
+          </v-card-title>
+          <v-card-text class="dialog_dropzone">
+            <div v-show="dropzone_uploaded.length === 0" class="dialog_dropzone_wrapper">
+              <vue-dropzone
+                  id="dropzone"
+                  ref="TagDropZone"
+                  :options="options"
+                  :useCustomSlot=true
+                  @vdropzone-success="successData"
+                  @vdropzone-sending="sendingData"
+              >
+                <h3 class="dropzone-custom-title">
+                  <v-icon color="grey lighten-1" size="120" style="transform: rotate(45deg)">
+                    mdi-paperclip
+                  </v-icon>
+                </h3>
+                <div class="subtitle" style="color: darkgrey">Для вставки изображения перетащите файл в зону или
+                  нажмите на скрепку
+                </div>
+              </vue-dropzone>
+            </div>
+            <template>
+              <div v-for="(item, index) in dropzone_uploaded" :key="index" class="dialog_dropzone_inputs">
+                <v-img :src="$store.state.BASE_URL+item.full_path" class="main_img" contain
+                       max-width="300px"></v-img>
+                <span class="dialog_dropzone_inputs__label"> {{ item.filename }}</span>
+                <InputStyled
+                    :data="item.alt_image"
+                    :index-array="index"
+                    :is-disabled="$store.state.loadingRequestGeneral"
+                    :is-loading="$store.state.loadingRequestGeneral"
+                    :placeholder="'alt-наименование изображения'"
+                    @update-input="setAlt"
+                />
+                <InputStyled
+                    :data="item.title_image"
+                    :index-array="index"
+                    :is-disabled="$store.state.loadingRequestGeneral"
+                    :is-loading="$store.state.loadingRequestGeneral"
+                    :placeholder="'подпись изображения'"
+                    @update-input="setTitle"
+                />
+              </div>
+            </template>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn
+                v-if="dropzone_uploaded.length"
+                :disabled="$store.state.loadingRequestGeneral"
+                :loading="$store.state.loadingRequestGeneral"
+                color="blue darken-1"
+                text
+                @click="removedFile();"
+            >
+              Очистить
+            </v-btn>
+            <v-spacer></v-spacer>
+            <v-btn
+                :disabled="$store.state.loadingRequestGeneral"
+                :loading="$store.state.loadingRequestGeneral"
+                color="green darken-1"
+                text
+                @click="stateDropzone = false; updateDropZoneImage()"
+            >
+              Готово
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </div>
     <footer class="detail_footer">
       <template v-if="$route.params.action === 'create'">
@@ -362,6 +363,7 @@ import vue2Dropzone from 'vue2-dropzone'
 import 'vue2-dropzone/dist/vue2Dropzone.min.css'
 import TextAreaStyled from "../common/TextAreaStyled";
 import InputStyled from "../common/InputStyled";
+import Vue from "vue";
 
 /* INDEXEDDB */
 const DB_NAME = "articlesDB";
@@ -453,11 +455,13 @@ export default {
         this.saveArticle(this.newArticle);
       },
     },
-    '$store.state.ArticleModule.newArticle.preview_image': {
+    '$store.state.ArticleModule.newArticle.e_client_files': {
       handler(newValue) {
         this.dropzone_uploaded = [];
         if (this.$route.params.action !== 'create') {
-          this.dropzone_uploaded = newValue;
+          this.dropzone_uploaded = newValue.filter(elem => {
+            return elem.preview_image === 1
+          });
         }
       }
     }
@@ -483,12 +487,10 @@ export default {
     options() {
       return {
         url: this.$store.state.BASE_URL + '/entity/files',
-        // url: 'https://httpbin.org/post',
         destroyDropzone: false,
         duplicateCheck: true,
         headers: {
-          "My-Awesome-Header": "header value",
-          Authorization: '666777',
+          Authorization: `Bearer ${Vue.$cookies.get("accessToken")}`,
         },
       }
     },
@@ -737,6 +739,7 @@ export default {
       this.$store.state.loadingRequestGeneral = true;
       formData.append('uuid', file.upload.uuid)
       formData.append('id_article', this.$store.state.ArticleModule.newArticle.id)
+      formData.append("preview_image", 1);
     },
     successData(file, response) {
       const formatObj = Object.assign({}, response.data)
@@ -769,7 +772,6 @@ export default {
       for (const item of this.dropzone_uploaded) {
         await Request.put(this.$store.state.BASE_URL + '/entity/files/' + item.id, item)
       }
-      this.newArticle.preview_image = this.dropzone_uploaded
       await this.$store.dispatch('updateArticle', this.newArticle)
     }
   },
