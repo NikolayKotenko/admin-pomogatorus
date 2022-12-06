@@ -123,13 +123,19 @@ export default {
                   /* Set start Render to default and prepare for next rerender */
                   this.$store.commit("change_start_render", false);
                   /* Call save Article on DB when manipulating is done */
-                  this.$emit("saveArticle");
+                  this.saveDB = true;
+                  setTimeout(() => {
+                    this.saveDB = false;
+                  }, 200);
                 });
               });
             } else {
               this.$store.commit("clear_list_components", []);
               this.$store.commit("change_start_render", false);
-              this.$emit("saveArticle");
+              this.saveDB = true;
+              setTimeout(() => {
+                this.saveDB = false;
+              }, 200);
             }
           }, 600);
         }
@@ -240,6 +246,8 @@ export default {
       const componentsNodes = document.getElementsByClassName(
           "component_container"
       );
+
+      console.log(componentsNodes)
 
       /* Check if components length from DB isn't equal components count by DOM */
       if (componentsNodes.length !== _store.list_components.length) {
@@ -779,7 +787,8 @@ export default {
       if (_store.deletedComponent !== 0) {
         /* Undo/Redo memento manipulation */
         if (!_store.txtDisplay.length)
-          this.$store.commit("change_by_action_editor");
+          console.log('TEST')
+        this.$store.commit("change_by_action_editor");
 
         let index = _store.list_components.findIndex((elem) => {
           return (
@@ -797,15 +806,22 @@ export default {
           }
 
           _store.list_components.splice(index, 1);
-          this.$store.commit("delete_component_by_id", 0);
 
           this.$nextTick(() => {
+            const elem = document.getElementById(
+                `component_wrapper-${_store.deletedComponent}`
+            );
+            console.log(elem)
+            elem.remove();
+            this.$store.commit("delete_component_by_id", 0);
             this.resetCounter(_store.list_components);
             this.changeIndexQuestion();
-          });
-          this.saveDB = true;
-          setTimeout(() => {
-            this.saveDB = false;
+
+            console.log(this.saveDB)
+            this.saveDB = true;
+            setTimeout(() => {
+              this.saveDB = false;
+            }, 200);
           });
         }
       }
@@ -927,7 +943,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "src/assets/styles/textEditor";
+//@import "src/assets/styles/textEditor";
 </style>
 
 <style lang="scss">

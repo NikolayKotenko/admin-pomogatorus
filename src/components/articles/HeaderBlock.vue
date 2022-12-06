@@ -522,7 +522,7 @@ export default {
         previewTemplate: this.previewHtml,
         destroyDropzone: false,
         headers: {
-          Authorization: `Bearer ${Vue.$cookies.get("accessToken")}`,
+          Authorization: `666777`,
         },
         duplicateCheck: true,
       };

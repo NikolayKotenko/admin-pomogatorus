@@ -72,15 +72,7 @@ export default {
       this.getWidthOfControls();
     },
     async deleteImage() {
-      await this.$store.dispatch('deleteFileGeneral', this.data_image.id);
-      // if (response.codeResponse !== 202)
-      //   return false;
-
-
-      const elem = document.getElementById(
-          `component_wrapper-${this.index_component}`
-      );
-      elem.remove();
+      // await this.$store.dispatch('deleteFileGeneral', this.data_image.id);
       await this.$store.dispatch("deleteComponent", this.index_component);
     },
     onResize: function (x, y, width, height) {
