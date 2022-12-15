@@ -514,11 +514,10 @@ export default {
               return elem.id_tag === tag.id;
             });
             if (mtmIndex === -1) {
-              let tagsFormData = new FormData();
-              tagsFormData.append("id_tag", tag.id);
-              tagsFormData.append("id_article", finded[0].id);
-              // tagsFormData.append('id_answer', finded[0].id_type_answer)
-              Request.post(`${this.state.BASE_URL}/m-to-m/tags`, tagsFormData)
+              Request.post(`${this.state.BASE_URL}/m-to-m/tags`, {
+                id_tag: tag.id,
+                id_article: finded[0].id,
+              })
                 .then((response) => {
                   console.log(response);
                   resolve();

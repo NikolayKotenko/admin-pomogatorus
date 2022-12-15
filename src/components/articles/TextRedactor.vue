@@ -415,6 +415,8 @@ export default {
                 index: elem.index,
                 component: elem.component
               });
+            } else {
+              promises.push(this.$store.dispatch(`get_${elem.component.name}`, elem))
             }
           } else {
             promises.push(
