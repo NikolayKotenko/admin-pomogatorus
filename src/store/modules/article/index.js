@@ -1,8 +1,6 @@
-import axios from "axios";
-import qs from "qs";
-
 import _clone from "../../../helpers/deepClone";
 import ConstructorElem from "../../../helpers/undo_redo_article";
+import Request from "../../../services/request";
 
 /* DEFAULT STATE */
 const defaultArticle = {
@@ -102,6 +100,8 @@ export default {
     showAddTag: false,
 
     /* INSERT COMPONENT */
+    selectedTextURL: "",
+    urlText: "",
     selection: null,
     range: null,
     counters: {
@@ -114,6 +114,7 @@ export default {
       questions: false,
       image: false,
       auth: false,
+      url: false,
     },
     list_components: [],
     name_component: "",
@@ -125,6 +126,7 @@ export default {
     deletedComponent: 0,
 
     /* UNDO/REDO */
+    questions_data: [],
     startRender: false,
     txtSave: [], // array to save values.
     txtDisplay: [], // array to display values.
@@ -142,8 +144,18 @@ export default {
       });
       const inserted_components = JSON.stringify(arr);
 
+      const questions = [];
+      state.questions_data.forEach((elem) => {
+        questions.push(_clone(elem));
+      });
+      const JSON_questions = JSON.stringify(questions);
+
       state.txtDisplay.push(
-        new ConstructorElem(JSON.stringify(state.content), inserted_components)
+        new ConstructorElem(
+          JSON.stringify(state.content),
+          inserted_components,
+          JSON_questions
+        )
       ); // takes whatever was entered in the input and adds it too the displayed array.
       state.txtSave.push(state.txtDisplay.slice(-1)[0]); // takes the last value in the displayed array and adds it to the end of the saved array.
     },
@@ -157,6 +169,9 @@ export default {
         state.components_after_request = JSON.parse(
           state.txtDisplay.slice(-1)[0].components
         );
+        state.questions_data = JSON.parse(
+          state.txtDisplay.slice(-1)[0].questions
+        );
       }
     },
     redo_editor(state) {
@@ -167,10 +182,31 @@ export default {
         state.txtDisplay.push(txtGetValue);
         state.content_from_server = JSON.parse(txtGetValue.html);
         state.components_after_request = JSON.parse(txtGetValue.components);
+        state.questions_data = JSON.parse(txtGetValue.questions);
       }
     },
     change_start_render(state, value) {
       state.startRender = value;
+    },
+    change_questions_data(state, value) {
+      state.questions_data = value;
+    },
+    add_questions_data(state, value) {
+      state.questions_data.push(value);
+    },
+
+    set_selected_text_url(state, value) {
+      state.selectedTextURL = value;
+    },
+    set_url_text(state, value) {
+      state.urlText = value;
+    },
+    set_url_value(state, value) {
+      state.urlValue = value;
+    },
+    clear_url(state) {
+      state.urlText = "";
+      state.urlValue = "";
     },
 
     /* ARTICLE BODY */
@@ -274,6 +310,9 @@ export default {
           state.newArticle[key] = "" + result[key];
         } else state.newArticle[key] = result[key];
       }
+      if (state.newArticle.questions && state.newArticle.questions.length) {
+        state.questions_data = state.newArticle.questions;
+      }
       state.nonEditState = Object.assign({}, state.newArticle);
     },
     change_id_newArticle(state, result) {
@@ -354,19 +393,13 @@ export default {
     async setListArticles({ commit, state }) {
       return new Promise((resolve, reject) => {
         state.loadingList = true;
-        axios
-          .get(`${this.state.BASE_URL}/entity/articles`, {
-            headers: {
-              Authorization: "666777",
-            },
-          })
+        Request.get(`${this.state.BASE_URL}/entity/articles`)
           .then((response) => {
-            commit("set_list_articles", response.data.data);
+            commit("set_list_articles", response.data);
             state.loadingList = false;
             resolve();
           })
           .catch((error) => {
-            console.log("test");
             state.loadingList = false;
             reject(error);
           });
@@ -383,18 +416,12 @@ export default {
         filter["filter[updated_at]"] = updated_at;
         filter["filter[name]"] = name;
 
-        axios
-          .get(`${this.state.BASE_URL}/entity/questions`, {
-            headers: {
-              Authorization: "666777",
-            },
-            params: {
-              ...filter,
-            },
-          })
+        Request.get(`${this.state.BASE_URL}/entity/questions`, {
+          ...filter,
+        })
           .then((response) => {
             console.log(response);
-            commit("set_list_questions", response.data.data);
+            commit("set_list_questions", response.data);
             state.loadingList = false;
             resolve();
           })
@@ -413,23 +440,25 @@ export default {
         const { tag, updated_at, name, activity } = data;
 
         const filter = {};
-        filter["filter[tag]"] = tag;
-        filter["filter[updated_at]"] = updated_at;
-        filter["filter[name]"] = name;
-        filter["filter[activity]"] = activity;
+        if (tag.length) {
+          filter["filter[tag]"] = tag;
+        }
+        if (updated_at) {
+          filter["filter[updated_at]"] = updated_at;
+        }
+        if (name) {
+          filter["filter[name]"] = name;
+        }
+        if (activity) {
+          filter["filter[activity]"] = activity;
+        }
 
-        axios
-          .get(`${this.state.BASE_URL}/entity/articles`, {
-            headers: {
-              Authorization: "666777",
-            },
-            params: {
-              ...filter,
-            },
-          })
+        Request.get(`${this.state.BASE_URL}/entity/articles`, {
+          ...filter,
+        })
           .then((response) => {
-            console.log(response);
-            commit("set_list_articles", response.data.data);
+            console.log(response.data);
+            commit("set_list_articles", response.data);
             state.loadingList = false;
             resolve();
           })
@@ -446,15 +475,10 @@ export default {
     async getGeneralTagsArticle({ commit, state }) {
       return new Promise((resolve) => {
         state.tagsLoaded = true;
-        axios
-          .get(`${this.state.BASE_URL}/dictionary/tags`, {
-            headers: {
-              Authorization: "666777",
-            },
-          })
+        Request.get(`${this.state.BASE_URL}/dictionary/tags`)
           .then((response) => {
             state.tagsLoaded = false;
-            commit("set_list_general_tags_article", response.data.data);
+            commit("set_list_general_tags_article", response.data);
             resolve();
           })
           .catch(() => {
@@ -466,14 +490,9 @@ export default {
     async setNewTagToListArticle({ dispatch, state }, newTag) {
       return new Promise((resolve) => {
         state.tagsLoaded = true;
-        let bodyFormData = new FormData();
-        bodyFormData.append("name", newTag);
-        axios
-          .post(`${this.state.BASE_URL}/dictionary/tags`, bodyFormData, {
-            headers: {
-              Authorization: "666777",
-            },
-          })
+        let bodyFormData = {};
+        bodyFormData["name"] = newTag;
+        Request.post(`${this.state.BASE_URL}/dictionary/tags`, bodyFormData)
           .then((response) => {
             //handle success
             console.log(response);
@@ -504,16 +523,10 @@ export default {
               return elem.id_tag === tag.id;
             });
             if (mtmIndex === -1) {
-              let tagsFormData = new FormData();
-              tagsFormData.append("id_tag", tag.id);
-              tagsFormData.append("id_article", finded[0].id);
-              // tagsFormData.append('id_answer', finded[0].id_type_answer)
-              axios
-                .post(`${this.state.BASE_URL}/m-to-m/tags`, tagsFormData, {
-                  headers: {
-                    Authorization: "666777",
-                  },
-                })
+              Request.post(`${this.state.BASE_URL}/m-to-m/tags`, {
+                id_tag: tag.id,
+                id_article: finded[0].id,
+              })
                 .then((response) => {
                   console.log(response);
                   resolve();
@@ -532,15 +545,7 @@ export default {
       return new Promise((resolve, reject) => {
         state.loadingArticle = true;
 
-        const options = {
-          method: "DELETE",
-          url: `${this.state.BASE_URL}/m-to-m/tags/${id}`,
-          headers: {
-            Authorization: "666777",
-          },
-        };
-
-        axios(options)
+        Request.delete(`${this.state.BASE_URL}/m-to-m/tags/${id}`)
           .then((response) => {
             //handle success
             state.loadingArticle = false;
@@ -559,14 +564,9 @@ export default {
     async getDetailArticle({ commit, state }, id) {
       state.loadingArticle = true;
       return new Promise((resolve, reject) => {
-        axios
-          .get(`${this.state.BASE_URL}/entity/articles/${id}`, {
-            headers: {
-              Authorization: "666777",
-            },
-          })
+        Request.get(`${this.state.BASE_URL}/entity/articles/${id}`)
           .then((response) => {
-            commit("set_new_article", response.data.data);
+            commit("set_new_article", response.data);
             state.loadingArticle = false;
             resolve();
           })
@@ -582,29 +582,25 @@ export default {
       return new Promise((resolve, reject) => {
         state.loadingRequest = true;
         // state.loadingArticle = true
-        let bodyFormData = new FormData();
+        let bodyFormData = {};
         for (let key in data) {
           if (typeof data[key] === "object" && data[key] !== null) {
             if (data[key].value) {
-              bodyFormData.append(key, data[key].value);
+              bodyFormData[key] = data[key].value;
             }
-          } else bodyFormData.append(key, data[key]);
+          } else bodyFormData[key] = data[key];
         }
         const arr = [];
         state.list_components.forEach((elem) => {
           arr.push(elem.data);
         });
         const inserted_components = JSON.stringify(arr);
-        bodyFormData.append("code", data.name.value);
-        bodyFormData.append("content", JSON.stringify(state.content));
-        bodyFormData.append("inserted_components", inserted_components);
-        bodyFormData.append("name_param_env", "");
-        axios
-          .post(`${this.state.BASE_URL}/entity/articles`, bodyFormData, {
-            headers: {
-              Authorization: "666777",
-            },
-          })
+        bodyFormData["code"] = data.name.value;
+        bodyFormData["content"] = JSON.stringify(state.content);
+        bodyFormData["inserted_components"] = inserted_components;
+        bodyFormData["name_param_env"] = "";
+
+        Request.post(`${this.state.BASE_URL}/entity/articles`, bodyFormData)
           .then((response) => {
             //handle success
             state.loadingRequest = false;
@@ -614,7 +610,7 @@ export default {
                 resolve();
               });
             });
-            commit("change_id_newArticle", response.data.data.id);
+            commit("change_id_newArticle", response.data.id);
           })
           .catch((response) => {
             //handle error
@@ -652,16 +648,10 @@ export default {
           JSON.stringify(arr)
         );
 
-        const options = {
-          method: "PUT",
-          headers: {
-            "content-type": "application/x-www-form-urlencoded",
-            Authorization: "666777",
-          },
-          data: qs.stringify(requestData),
-          url: `${this.state.BASE_URL}/entity/articles/${data.id}`,
-        };
-        axios(options)
+        Request.put(
+          `${this.state.BASE_URL}/entity/articles/${data.id}`,
+          requestData
+        )
           .then((response) => {
             //handle success
             state.loadingRequest = false;
@@ -685,15 +675,7 @@ export default {
     deleteArticle({ state }, data) {
       state.loadingRequest = true;
       return new Promise((resolve) => {
-        const options = {
-          method: "DELETE",
-          url: `${this.state.BASE_URL}/entity/articles/${data.id}`,
-          headers: {
-            Authorization: "666777",
-          },
-        };
-
-        axios(options)
+        Request.delete(`${this.state.BASE_URL}/entity/articles/${data.id}`)
           .then((response) => {
             //handle success
             state.loadingRequest = false;
@@ -749,17 +731,11 @@ export default {
         const { index, component } = params;
 
         state.loadingModalList = true;
-        axios
-          .get(
-            `${this.state.BASE_URL}/entity/${component.name}/${component.id}`,
-            {
-              headers: {
-                Authorization: "666777",
-              },
-            }
-          )
+        Request.get(
+          `${this.state.BASE_URL}/entity/${component.name}/${component.id}`
+        )
           .then((response) => {
-            const data = response.data.data;
+            const data = response.data;
             console.log("uploaded COMPONENT");
             commit("changeSelectedComponent", { data, index, component });
             state.loadingModalList = false;
@@ -774,14 +750,9 @@ export default {
     getListQuestions({ commit, state }, params) {
       return new Promise((resolve, reject) => {
         state.loadingModalList = true;
-        axios
-          .get(`${this.state.BASE_URL}/entity/${params}`, {
-            headers: {
-              Authorization: "666777",
-            },
-          })
+        Request.get(`${this.state.BASE_URL}/entity/${params}`)
           .then((response) => {
-            commit("change_list_components", response.data.data);
+            commit("change_list_components", response.data);
             state.loadingModalList = false;
             resolve();
           })
@@ -794,15 +765,7 @@ export default {
     deleteFile({ state }, id) {
       state.loadingRequest = true;
       return new Promise((resolve) => {
-        const options = {
-          method: "DELETE",
-          url: `${this.state.BASE_URL}/entity/files/${id}`,
-          headers: {
-            Authorization: "666777",
-          },
-        };
-
-        axios(options)
+        Request.delete(`${this.state.BASE_URL}/entity/files/${id}`)
           .then((response) => {
             //handle success
             state.loadingRequest = false;
@@ -835,6 +798,14 @@ export default {
   getters: {
     getTagsArticle(state) {
       return state.newArticle._all_tags;
+    },
+    getArticleImages(state) {
+      if (!state.list_components.length) {
+        return [];
+      }
+      return state.list_components.filter((component) => {
+        return component.data.component.name === "image";
+      });
     },
   },
 };

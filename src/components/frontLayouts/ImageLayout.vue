@@ -1,24 +1,24 @@
 <template>
   <div
-    class="componentArticle_wrapper image_wrapper component_container"
-    contenteditable="false"
-    :id="`component_wrapper-${index_component}`"
-    data-name="image"
-    :data-src="shortPath"
-    :data-id="getIdImage"
+      :id="`component_wrapper-${index_component}`"
+      :data-id="getIdImage"
+      :data-src="shortPath"
+      class="componentArticle_wrapper image_wrapper component_container"
+      contenteditable="false"
+      data-name="image"
   >
     <div
-      class="componentArticle_wrapper__admin_controls-header"
-      contenteditable="false"
+        class="componentArticle_wrapper__admin_controls-header"
+        contenteditable="false"
     >
       <img
-        class="componentArticle_wrapper__admin_controls-header__img"
-        :src="require(`/src/assets/svg/closeIcon.svg`)"
-        alt="close"
-        @click="deleteImage()"
+          :src="require(`/src/assets/svg/closeIcon.svg`)"
+          alt="close"
+          class="componentArticle_wrapper__admin_controls-header__img"
+          @click="deleteImage()"
       />
     </div>
-    <img class="inserted_image" :src="srcPath" :alt="altName" :title="title" />
+    <img :alt="altName" :src="srcPath" :title="title" class="main_img inserted_image"/>
   </div>
 </template>
 
@@ -58,7 +58,7 @@ export default {
     title() {
       return this.data_image?.title;
     },
-    getIdImage(){
+    getIdImage() {
       return this.data_image?.id
     }
   },
@@ -72,15 +72,7 @@ export default {
       this.getWidthOfControls();
     },
     async deleteImage() {
-      await this.$store.dispatch('deleteFileGeneral', this.data_image.id);
-      // if (response.codeResponse !== 202)
-      //   return false;
-
-
-      const elem = document.getElementById(
-        `component_wrapper-${this.index_component}`
-      );
-      elem.remove();
+      // await this.$store.dispatch('deleteFileGeneral', this.data_image.id);
       await this.$store.dispatch("deleteComponent", this.index_component);
     },
     onResize: function (x, y, width, height) {
@@ -92,7 +84,7 @@ export default {
     getWidthOfControls() {
       this.$nextTick(() => {
         const elem = document.getElementById(
-          `component_wrapper-${this.index_component}`
+            `component_wrapper-${this.index_component}`
         );
         if (elem) {
           this.controls_width = elem.getBoundingClientRect().width + 6;
@@ -104,7 +96,7 @@ export default {
     getHeightOfControls() {
       this.$nextTick(() => {
         const elem = document.getElementById(
-          `component_wrapper-${this.index_component}`
+            `component_wrapper-${this.index_component}`
         );
         if (elem) {
           this.controls_height = elem.getBoundingClientRect().height + 22;
@@ -117,14 +109,15 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 @import "src/assets/styles/componentArticle";
 
 .image_wrapper {
   min-height: 150px;
   min-width: 50px;
   max-width: 600px;
-  max-height: 600px;
+  //height: 600px;
+  //max-height: 600px;
   position: relative;
   padding: 16px 10px 8px 10px;
   border-bottom-left-radius: 5px;
@@ -145,9 +138,11 @@ export default {
     .componentArticle_wrapper__admin_controls-header {
       opacity: 1;
     }
+
     ::v-deep .vdr {
       border: 1px dashed rgba(0, 0, 0, 1);
     }
+
     ::v-deep .handle {
       opacity: 1;
     }
@@ -174,12 +169,13 @@ export default {
     }
   }
 }
+
 .inserted_image {
   width: 100%;
   height: 100%;
   margin: 0 auto;
-  object-fit: cover;
-  -o-object-fit: cover;
+  object-fit: contain;
+  -o-object-fit: contain;
 }
 
 ::v-deep .vdr {

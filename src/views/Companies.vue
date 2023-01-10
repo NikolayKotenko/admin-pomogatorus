@@ -2,20 +2,20 @@
   <div class="table-container">
     <div class="table-container-buttons">
       <v-btn
-        color="green lighten-1"
-        class="text-capitalize"
-        @click="createCompany()"
+          class="text-capitalize"
+          color="green lighten-1"
+          @click="createCompany()"
       >
-        <v-icon small color="white">mdi-plus-circle-outline</v-icon>
+        <v-icon color="white" small>mdi-plus-circle-outline</v-icon>
         <span class="table-container-buttons__text">Добавить</span>
       </v-btn>
       <v-btn
-        color="error"
-        class="text-capitalize"
-        @click="deleteCompany()"
-        :disabled="!selectedItems.length"
+          :disabled="!selectedItems.length"
+          class="text-capitalize"
+          color="error"
+          @click="deleteCompany()"
       >
-        <v-icon small color="white">mdi-trash-can-outline</v-icon>
+        <v-icon color="white" small>mdi-trash-can-outline</v-icon>
         <span class="table-container-buttons__text">Удалить выбранное</span>
       </v-btn>
     </div>
@@ -24,135 +24,136 @@
         <div class="table-container-wrapper-header__views">
           Показать
           <v-select
-            dense
-            solo
-            hide-details
-            height="20"
-            :menu-props="{ bottom: true, offsetY: true }"
-            :items="changeCount"
-            v-model="selectedCount"
+              v-model="selectedCount"
+              :items="changeCount"
+              :menu-props="{ bottom: true, offsetY: true }"
+              dense
+              height="20"
+              hide-details
+              solo
           ></v-select>
           записей
         </div>
         <div class="table-container-wrapper-header__search">
           Поиск:
           <v-text-field
-            hide-details
-            dense
-            solo
-            height="20"
-            label=""
+              dense
+              height="20"
+              hide-details
+              label=""
+              solo
           ></v-text-field>
         </div>
       </div>
       <table class="table-container-wrapper-main ten_columns">
         <thead class="table-container-wrapper-main-header">
-          <tr>
-            <th class="table-container-wrapper-main-header__title">
-              <v-checkbox
+        <tr>
+          <th class="table-container-wrapper-main-header__title">
+            <v-checkbox
                 class="table-container-wrapper-main-header__title__checkbox"
                 dense
                 hide-details
                 @click="selectAll()"
-              ></v-checkbox>
-              <img
-                class="table-container-wrapper-main-header__title__sort"
+            ></v-checkbox>
+            <img
                 :src="require('/src/assets/svg/sort_arrow.svg')"
                 alt=""
+                class="table-container-wrapper-main-header__title__sort"
                 style="position: absolute; top: 5px; right: 5px"
-              />
-              <!--            <span class="resize-handle"></span>-->
-            </th>
-            <th
-              class="table-container-wrapper-main-header__title"
+            />
+            <!--            <span class="resize-handle"></span>-->
+          </th>
+          <th
               v-for="(title, index) in titles"
               :key="index"
+              class="table-container-wrapper-main-header__title"
               data-type="text-short"
-            >
+          >
               <span class="table-container-wrapper-main-header__title__text">{{
-                title.TEXT
-              }}</span>
-              <img
-                class="table-container-wrapper-main-header__title__sort"
+                  title.TEXT
+                }}</span>
+            <img
                 :src="require('/src/assets/svg/sort_arrow.svg')"
                 alt=""
+                class="table-container-wrapper-main-header__title__sort"
                 style="position: absolute; top: 5px; right: 5px"
-              />
-              <!--              <span class="resize-handle"></span>-->
-            </th>
-            <th class="table-container-wrapper-main-header__title actions">
+            />
+            <!--              <span class="resize-handle"></span>-->
+          </th>
+          <th class="table-container-wrapper-main-header__title actions">
               <span class="table-container-wrapper-main-header__title__text"
-                >Доступные действия</span
+              >Доступные действия</span
               >
-            </th>
-          </tr>
+          </th>
+        </tr>
         </thead>
         <tbody class="table-container-wrapper-main-items">
-          <tr v-for="(row, index) in listItems" :key="index">
-            <td>
-              <v-checkbox
+        <tr v-for="(row, index) in listItems" :key="index">
+          <td>
+            <v-checkbox
+                v-model="row.SELECTED"
                 dense
                 hide-details
-                v-model="row.SELECTED"
                 @click="setSelect(row)"
-              ></v-checkbox>
-            </td>
-            <td>
-              {{ row.NAME }}
-            </td>
-            <td>
-              {{ row.ADDRESS }}
-            </td>
-            <td>
-              {{ row.DATE }}
-            </td>
-            <td>
-              {{ row.EMAIL }}
-            </td>
-            <td>
-              {{ row.TELEPHONE }}
-            </td>
-            <td>
-              {{ row.WEB }}
-            </td>
-            <td>
-              {{ row.INSTAGRAM }}
-            </td>
-            <td style="width: 100px">
-              <img
+            ></v-checkbox>
+          </td>
+          <td>
+            {{ row.NAME }}
+          </td>
+          <td>
+            {{ row.ADDRESS }}
+          </td>
+          <td>
+            {{ row.DATE }}
+          </td>
+          <td>
+            {{ row.EMAIL }}
+          </td>
+          <td>
+            {{ row.TELEPHONE }}
+          </td>
+          <td>
+            {{ row.WEB }}
+          </td>
+          <td>
+            {{ row.INSTAGRAM }}
+          </td>
+          <td style="width: 100px">
+            <img
                 :src="row.LOGO"
                 alt=""
+                class="main_img"
                 style="object-fit: contain; width: 100%; height: 100%"
-              />
-            </td>
-            <td class="buttons">
-              <v-btn
-                color="blue lighten-1"
+            />
+          </td>
+          <td class="buttons">
+            <v-btn
                 class="text-capitalize"
+                color="blue lighten-1"
                 style="font-size: 12px"
                 @click="onEditCard(row)"
-              >
-                <v-icon small color="white">mdi-pencil-box-multiple</v-icon>
-                <span class="table-container-buttons__text">Изменить</span>
-              </v-btn>
-              <v-btn
+            >
+              <v-icon color="white" small>mdi-pencil-box-multiple</v-icon>
+              <span class="table-container-buttons__text">Изменить</span>
+            </v-btn>
+            <v-btn
+                class="text-capitalize"
                 color="error"
-                class="text-capitalize"
                 @click="onDelCard(row)"
-              >
-                <v-icon small color="white">mdi-trash-can</v-icon>
-                <span class="table-container-buttons__text">Удалить</span>
-              </v-btn>
-              <v-btn
-                color="orange lighten-1"
+            >
+              <v-icon color="white" small>mdi-trash-can</v-icon>
+              <span class="table-container-buttons__text">Удалить</span>
+            </v-btn>
+            <v-btn
                 class="text-capitalize"
+                color="orange lighten-1"
                 @click="onShowCard(row)"
-              >
-                <v-icon small color="white">mdi-eye</v-icon>
-                <span class="table-container-buttons__text">Просмотр</span>
-              </v-btn>
-            </td>
-          </tr>
+            >
+              <v-icon color="white" small>mdi-eye</v-icon>
+              <span class="table-container-buttons__text">Просмотр</span>
+            </v-btn>
+          </td>
+        </tr>
         </tbody>
       </table>
       <div class="table-container-wrapper-footer">
@@ -160,16 +161,16 @@
           <span>Показано от {{ 1 }} до {{ 5 }} из {{ 5 }} записей</span>
         </div>
         <div class="table-container-wrapper-footer__page">
-          <v-btn elevation="0" class="text-capitalize">
-            <v-icon small> mdi-chevron-left </v-icon>
+          <v-btn class="text-capitalize" elevation="0">
+            <v-icon small> mdi-chevron-left</v-icon>
             <span>Предыдущая</span>
           </v-btn>
-          <v-btn elevation="0" class="text-capitalize">
+          <v-btn class="text-capitalize" elevation="0">
             {{ 1 }}
           </v-btn>
-          <v-btn elevation="0" class="text-capitalize">
+          <v-btn class="text-capitalize" elevation="0">
             <span>Следующая</span>
-            <v-icon small> mdi-chevron-right </v-icon>
+            <v-icon small> mdi-chevron-right</v-icon>
           </v-btn>
         </div>
       </div>
@@ -187,67 +188,67 @@
               <v-row>
                 <v-col cols="12">
                   <v-text-field
-                    hide-details
-                    clearable
-                    label="Имя компании"
-                    v-model="curCompany.NAME"
-                    :rules="nameRules"
-                    :disabled="!editable"
-                    required
+                      v-model="curCompany.NAME"
+                      :disabled="!editable"
+                      :rules="nameRules"
+                      clearable
+                      hide-details
+                      label="Имя компании"
+                      required
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12">
                   <v-text-field
-                    hide-details
-                    clearable
-                    label="Адрес компании"
-                    v-model="curCompany.ADDRESS"
-                    :disabled="!editable"
+                      v-model="curCompany.ADDRESS"
+                      :disabled="!editable"
+                      clearable
+                      hide-details
+                      label="Адрес компании"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12">
                   <v-text-field
-                    hide-details
-                    clearable
-                    label="Email"
-                    v-model="curCompany.EMAIL"
-                    :disabled="!editable"
+                      v-model="curCompany.EMAIL"
+                      :disabled="!editable"
+                      clearable
+                      hide-details
+                      label="Email"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12">
                   <v-text-field
-                    hide-details
-                    clearable
-                    label="Телефон компании"
-                    v-model="curCompany.TELEPHONE"
-                    :disabled="!editable"
+                      v-model="curCompany.TELEPHONE"
+                      :disabled="!editable"
+                      clearable
+                      hide-details
+                      label="Телефон компании"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12">
                   <v-text-field
-                    hide-details
-                    clearable
-                    label="Сайт компании"
-                    v-model="curCompany.WEB"
-                    :disabled="!editable"
+                      v-model="curCompany.WEB"
+                      :disabled="!editable"
+                      clearable
+                      hide-details
+                      label="Сайт компании"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12">
                   <v-text-field
-                    hide-details
-                    clearable
-                    label="Инстаграм компании"
-                    v-model="curCompany.INSTAGRAM"
-                    :disabled="!editable"
+                      v-model="curCompany.INSTAGRAM"
+                      :disabled="!editable"
+                      clearable
+                      hide-details
+                      label="Инстаграм компании"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12">
                   <v-file-input
-                    accept="image/*"
-                    label="Логотип компании"
-                    clearable
-                    v-model="file"
-                    :disabled="!editable"
+                      v-model="file"
+                      :disabled="!editable"
+                      accept="image/*"
+                      clearable
+                      label="Логотип компании"
                   ></v-file-input>
                   <!-- @change="showLog(file)" -->
                 </v-col>
@@ -277,7 +278,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="deleteCard()"> Да </v-btn>
+          <v-btn color="blue darken-1" text @click="deleteCard()"> Да</v-btn>
           <v-btn color="blue darken-1" text @click="delCard = false">
             Нет
           </v-btn>
@@ -448,7 +449,8 @@ export default {
     allSelected: false,
     selectedItems: [],
   }),
-  created() {},
+  created() {
+  },
   computed: {},
   watch: {},
   methods: {

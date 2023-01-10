@@ -1,6 +1,6 @@
 <template>
   <div :class="{ disabled: !check_created_article }" class="textRedactor">
-    <HeaderBlock @callCheckout="callCheckout"/>
+    <HeaderBlock @callCheckout="callCheckout" @add-link="addLink"/>
 
     <div
         ref="content"
@@ -9,8 +9,9 @@
       "
         class="textRedactor__content"
         spellcheck="false"
-        @input="onContentChange"
+        @input="onContentChange; preventStyles"
         @mouseup="onSelectionContent()"
+        @keyup.enter="preventStyles"
     ></div>
 
     <!-- OVERLAYS -->
@@ -122,13 +123,19 @@ export default {
                   /* Set start Render to default and prepare for next rerender */
                   this.$store.commit("change_start_render", false);
                   /* Call save Article on DB when manipulating is done */
-                  this.$emit("saveArticle");
+                  this.saveDB = true;
+                  setTimeout(() => {
+                    this.saveDB = false;
+                  }, 200);
                 });
               });
             } else {
               this.$store.commit("clear_list_components", []);
               this.$store.commit("change_start_render", false);
-              this.$emit("saveArticle");
+              this.saveDB = true;
+              setTimeout(() => {
+                this.saveDB = false;
+              }, 200);
             }
           }, 600);
         }
@@ -160,6 +167,37 @@ export default {
     },
   },
   methods: {
+    preventStyles() {
+      let range = null;
+      if (window.getSelection) {
+        let selection = null;
+        selection = window.getSelection();
+        if (selection.getRangeAt && selection.rangeCount) {
+          range = null;
+          range = selection.getRangeAt(0);
+          range.collapse(false);
+        }
+      } else if (document.selection && document.selection.createRange) {
+        range = null;
+        range = document.selection.createRange();
+        range.collapse(false);
+      }
+
+      if (range) {
+        if (range.commonAncestorContainer.parentElement.nodeName === 'H2') {
+          let value = range.commonAncestorContainer.parentElement.innerText
+          let element = document.createElement('div')
+          element.innerText = value
+
+          range.selectNode(
+              range.commonAncestorContainer.parentElement
+          );
+          range.deleteContents();
+          range.collapse(false);
+          range.insertNode(element);
+        }
+      }
+    },
     escapeText(text) {
       let map = {
         "&": "&amp;",
@@ -208,6 +246,8 @@ export default {
       const componentsNodes = document.getElementsByClassName(
           "component_container"
       );
+
+      console.log(componentsNodes)
 
       /* Check if components length from DB isn't equal components count by DOM */
       if (componentsNodes.length !== _store.list_components.length) {
@@ -277,8 +317,8 @@ export default {
           let sub_url = full_url.split(".com");
           const IdImage = document.getElementById(`component_wrapper-${elem.index}`).dataset.id;
           data = Object.assign({},
-              { full_path: sub_url[1] },
-              { id: IdImage},
+              {full_path: sub_url[1]},
+              {id: IdImage},
           );
         }
         /* Here change global counter of component in article */
@@ -343,13 +383,13 @@ export default {
         this.content = _store.content_from_server;
 
         console.log("start check out of sync");
-        let restoredArr = [];
-        // this.$nextTick(() => {
-        restoredArr = this.checkOutOfSync();
-        console.log("end check out of sync");
-        // });
 
-        console.log(restoredArr)
+        let restoredArr = [];
+        restoredArr = this.checkOutOfSync();
+
+        console.log("end check out of sync");
+
+        console.log('restoredArr', restoredArr)
 
         let componentsForRequest;
 
@@ -361,10 +401,28 @@ export default {
 
         /* Requests for get data of list_components, that lay on Array<Promises> */
         const promises = [];
+        const questions_data = _store.questions_data
+        console.log('Questions from BACKEND', questions_data)
+
         componentsForRequest.forEach((elem) => {
-          promises.push(
-              this.$store.dispatch(`get_${elem.component.name}`, elem)
-          );
+          if (elem.component.name === 'questions') {
+            let question = questions_data.filter(question => {
+              return question.id == elem.component.id
+            })[0]
+            if (question) {
+              this.$store.commit("changeSelectedComponent", {
+                data: question,
+                index: elem.index,
+                component: elem.component
+              });
+            } else {
+              promises.push(this.$store.dispatch(`get_${elem.component.name}`, elem))
+            }
+          } else {
+            promises.push(
+                this.$store.dispatch(`get_${elem.component.name}`, elem)
+            );
+          }
         });
 
         /* As soon as Promises done, we start render */
@@ -477,15 +535,86 @@ export default {
     },
 
     /* MANIPULATING WITH INSERTING COMPONENTS */
+    replaceText(link) {
+      if (_store.range.commonAncestorContainer.parentElement.className !== "textRedactor__content" &&
+          _store.range.commonAncestorContainer.parentElement.className !== "textRedactor" &&
+          _store.range.commonAncestorContainer?.offsetParent?._prevClass !==
+          "textRedactor"
+      ) {
+        _store.range.selectNode(
+            _store.range.commonAncestorContainer.parentElement
+        );
+        _store.range.deleteContents();
+        _store.range.collapse(false);
+        _store.range.insertNode(link);
+      } else {
+        // let re = new RegExp(_store.selectedTextURL, "g");
+        // _store.range.commonAncestorContainer.parentElement.innerText = _store.range.commonAncestorContainer.parentElement.innerText.replace(re, '')
+        // _store.range.collapse(false);
+        // _store.range.insertNode(link);
+      }
+    },
+    addLink() {
+      const link = document.createElement("a")
+      link.href = _store.urlValue
+      link.innerText = _store.urlText
+
+      if (
+          _store.range && (this.checkIfTextEditor(_store.range.commonAncestorContainer) || this.checkIfTextEditor(_store.range.commonAncestorContainer.parentElement))
+      ) {
+        if (window.getSelection) {
+          if (_store.selectedTextURL) {
+            this.replaceText(link)
+          } else {
+            _store.range.insertNode(link);
+          }
+        } else if (document.selection && document.selection.createRange) {
+          if (_store.selectedTextURL) {
+            this.replaceText(link)
+          } else {
+            _store.range.pasteHTML(link);
+          }
+        }
+      } else {
+        if (window.getSelection) {
+          let range = document.createRange();
+          range.setStart(
+              document.getElementsByClassName("textRedactor__content").item(0),
+              0
+          );
+          range.collapse(false);
+          range.insertNode(link);
+        } else if (document.selection && document.selection.createRange) {
+          let range = document.createRange();
+          range.setStart(
+              document.getElementsByClassName("textRedactor__content").item(0),
+              0
+          );
+          range.collapse(false);
+          range.pasteHTML(link);
+        }
+      }
+      this.$store.commit('clear_url')
+      this.saveDB = true;
+      this.clearStateAfterSelect();
+      setTimeout(() => {
+        this.saveDB = false;
+      });
+    },
     callCheckout(elem) {
       let data_component = factory.create(_store.name_component, {
         name: _store.name_component,
-        id: (_store.selectedComponent?.id) ? _store.selectedComponent.id: elem.id,
+        id: (_store.selectedComponent?.id) ? _store.selectedComponent.id : elem.id,
         index_questions: _store.counters.questions,
         index_image: _store.counters.image,
         index_auth: _store.counters.auth,
         src: elem?.full_path ? elem?.full_path : "",
       });
+
+      // QUESTIONS DATA ADD TO ARRAY BECAUSE NEED UNDO/REDO
+      if (_store.name_component === 'questions') {
+        this.$store.commit('add_questions_data', _store.selectedComponent)
+      }
 
       /* Undo/Redo memento manipulation */
       if (!_store.txtDisplay.length)
@@ -529,10 +658,7 @@ export default {
 
         if (
             _store.range &&
-            (_store.range.commonAncestorContainer.parentElement.className ===
-                "textRedactor__content" ||
-                _store.range.commonAncestorContainer?.offsetParent?._prevClass ===
-                "textRedactor")
+            (this.checkIfTextEditor(_store.range.commonAncestorContainer))
         ) {
           if (window.getSelection) {
             _store.range.insertNode(div);
@@ -628,9 +754,6 @@ export default {
         counter_index: 1,
       };
 
-      // let components = [...document.getElementsByClassName('componentArticle_wrapper')]
-      // console.log(components)
-
       array.forEach((elem) => {
         console.log("resets id");
         // console.log(elem.data.index)
@@ -666,7 +789,8 @@ export default {
       if (_store.deletedComponent !== 0) {
         /* Undo/Redo memento manipulation */
         if (!_store.txtDisplay.length)
-          this.$store.commit("change_by_action_editor");
+          console.log('TEST')
+        this.$store.commit("change_by_action_editor");
 
         let index = _store.list_components.findIndex((elem) => {
           return (
@@ -674,16 +798,32 @@ export default {
           );
         });
         if (index !== -1) {
+          if (_store.list_components[index].data.component.name === 'questions') {
+            let question_index = _store.questions_data.findIndex(elem => {
+              return elem.id == _store.list_components[index].instance.$data.question_data.id
+            })
+            if (question_index !== -1) {
+              _store.questions_data.splice(question_index, 1);
+            }
+          }
+
           _store.list_components.splice(index, 1);
-          this.$store.commit("delete_component_by_id", 0);
 
           this.$nextTick(() => {
+            const elem = document.getElementById(
+                `component_wrapper-${_store.deletedComponent}`
+            );
+            console.log(elem)
+            elem.remove();
+            this.$store.commit("delete_component_by_id", 0);
             this.resetCounter(_store.list_components);
             this.changeIndexQuestion();
-          });
-          this.saveDB = true;
-          setTimeout(() => {
-            this.saveDB = false;
+
+            console.log(this.saveDB)
+            this.saveDB = true;
+            setTimeout(() => {
+              this.saveDB = false;
+            }, 200);
           });
         }
       }
@@ -717,14 +857,16 @@ export default {
           }
           html = container.innerHTML.replace(/<br>/g, "");
         }
+        // SET SELECTED TEXT - TO CREATE URL
+        this.$store.commit('set_selected_text_url', window.getSelection().toString())
       } else if (typeof document.selection != "undefined") {
         if (document.selection.type == "Text") {
           html = document.selection.createRange().htmlText.replace(/<br>/g, "");
         }
       }
+
       // html for range select return outerHtml
       // range for single selection return tag/outerHTML
-
       const icons_arr = iconsModels.icons_panel;
       Object.keys(icons_arr).forEach((icon) => {
         if (!_store.range?.commonAncestorContainer?.parentElement) return;
@@ -777,6 +919,14 @@ export default {
         return elem;
       }
     },
+    /* Function for get if we insert component into text-editor area */
+    checkIfTextEditor(elem) {
+      try {
+        return elem.closest('.textRedactor__content') !== null;
+      } catch (e) {
+        return false
+      }
+    },
 
     /* CLEANERS */
     clearStateAfterSelect() {
@@ -795,7 +945,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "src/assets/styles/textEditor";
+//@import "src/assets/styles/textEditor";
 </style>
 
 <style lang="scss">

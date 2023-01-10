@@ -148,6 +148,22 @@
           <span>Вставить заголовок</span>
         </v-tooltip>
       </div>
+      <!-- Вставить ссылку -->
+      <div class="header__elBlock right">
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <v-icon
+                size="28"
+                v-bind="attrs"
+                @click="showLinkSettings"
+                v-on="on"
+            >
+              mdi-link-variant
+            </v-icon>
+          </template>
+          <span>Вставить ссылку</span>
+        </v-tooltip>
+      </div>
       <!-- Отступы -->
       <div class="header__elBlock right">
         <v-tooltip bottom>
@@ -194,6 +210,7 @@
         </v-tooltip>
       </div>
     </div>
+
     <!-- MODALS -->
     <v-dialog
         v-model="$store.state.ArticleModule.selectComponent.questions"
@@ -265,6 +282,59 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog
+        v-if="$store.state.ArticleModule.selectComponent.url"
+        v-model="$store.state.ArticleModule.selectComponent.url"
+        max-width="600"
+    >
+      <v-card>
+        <v-card-title>
+          <span
+              class="text-h6"
+              style="font-size: 0.8em !important; text-align: center; width: 100%"
+          >
+            Ссылка
+          </span>
+        </v-card-title>
+        <v-card-text>
+          <v-form v-model="valid">
+            <InputStyled
+                :data="$store.state.ArticleModule.urlText"
+                :is-clearable="true"
+                :is-solo="true"
+                :placeholder="'Введите текст ссылки'"
+                class="mb-4"
+                @update-input="setUrlText"
+            />
+            <TextAreaStyled
+                :current-rules="emailRules"
+                :data="$store.state.ArticleModule.urlValue"
+                :is-clearable="true"
+                :is-required="true"
+                :is-solo="true"
+                :placeholder="'Введите адрес ссылки'"
+                @update-input="setUrlValue"
+            />
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="blue darken-1" text @click="closeModal('url')">
+            Назад
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+              :disabled="!check_can_create_url"
+              color="green darken-1"
+              text
+              @click="createLink()"
+          >
+            Сохранить
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-dialog
         v-model="$store.state.ArticleModule.selectComponent.image"
         max-width="600"
@@ -323,18 +393,18 @@
               <span class="dialog_dropzone_inputs__label">
                 [{{ index + 1 }}] {{ item.filename }}</span
               >
-              <v-text-field
-                dense
-                hide-details
-                placeholder="alt-наименование изображения"
-                v-model="item.alt_image"
-              ></v-text-field>
-              <v-text-field
-                dense
-                hide-details
-                placeholder="подпись изображения"
-                v-model="item.title_image"
-              ></v-text-field>
+              <InputStyled
+                  :data="item.alt_image"
+                  :index-array="index"
+                  :placeholder="'alt-наименование изображения'"
+                  @update-input="setAlt"
+              ></InputStyled>
+              <InputStyled
+                  :data="item.title_image"
+                  :index-array="index"
+                  :placeholder="'подпись изображения'"
+                  @update-input="setTitle"
+              ></InputStyled>
             </div>
           </template>
         </v-card-text>
@@ -362,12 +432,16 @@ import Vue from "vue";
 
 import titlesStore from "@/store/modules/article/index.js";
 import Request from "@/services/request";
+import InputStyled from "../common/InputStyled";
+import TextAreaStyled from "../common/TextAreaStyled";
 
 const _store = titlesStore.state;
 
 export default {
   name: "HeaderBlock",
   components: {
+    TextAreaStyled,
+    InputStyled,
     vueDropzone: vue2Dropzone,
   },
   data: () => ({
@@ -388,6 +462,14 @@ export default {
     },
     debounceTimeout: null,
     arrIds: [],
+    emailRules: [
+      value => !!value || 'Поле обязательно для заполнения.',
+      value => {
+        const pattern = /^(ftp|http|https):\/\/[^ "]+$/
+        return pattern.test(value) || 'Некорректная ссылка'
+      },
+    ],
+    valid: false,
   }),
   created() {
     const ComponentClass = Vue.extend(PreviewTemplate);
@@ -395,8 +477,6 @@ export default {
     instance.$mount();
     this.previewHtml = instance.$el.outerHTML;
     this.loading_dropzone = false;
-  },
-  mounted() {
   },
   watch: {
     "$store.state.ArticleModule.selectComponent.questions": {
@@ -433,15 +513,16 @@ export default {
     check_selected_component() {
       return !!Object.keys(_store.selectedComponent).length;
     },
+    check_can_create_url() {
+      return this.valid && _store.urlText
+    },
     options() {
       return {
         url: `${this.$store.state.BASE_URL}/entity/files`,
-        // url: 'https://httpbin.org/post',
         previewTemplate: this.previewHtml,
         destroyDropzone: false,
         headers: {
-          "My-Awesome-Header": "header value",
-          Authorization: "666777",
+          Authorization: `666777`,
         },
         duplicateCheck: true,
       };
@@ -449,22 +530,42 @@ export default {
     listQuestions() {
       if (!_store.list_questions.length) return [];
       return _store.list_questions.filter((question) => {
-        return !this.arrIds.includes(question.id);
+        return !this.arrIds.includes(question.id) && question.activity === 1;
       });
     },
   },
   methods: {
+    showLinkSettings() {
+      if (_store.selectedTextURL) {
+        this.$store.commit('set_url_text', _store.selectedTextURL)
+      }
+      this.$store.commit("get_range", true);
+      this.$store.commit("change_select_component", {
+        name: 'url',
+        value: true,
+      });
+    },
+    createLink() {
+      this.$emit("add-link");
+      this.closeModal('url')
+    },
+    setUrlText(value) {
+      this.$store.commit('set_url_text', value)
+    },
+    setUrlValue(value) {
+      this.$store.commit('set_url_value', value)
+    },
+
+    setAlt(data) {
+      this.dropzone_uploaded[data.index].alt_image = data.value
+    },
+    setTitle(data) {
+      this.dropzone_uploaded[data.index].title_image = data.value
+    },
+
     getArrID() {
       this.$nextTick(() => {
-        console.log(_store.list_components);
-        this.arrIds = _store.list_components
-            .filter((component) => {
-              return (
-                  component?.data?.component?.name === "questions" ||
-                  component?.data?.component?.name === "question"
-              );
-            })
-            .map((elem) => elem?.data?.component?.id);
+        this.arrIds = _store.questions_data.map(elem => elem.id)
       });
     },
     disableInput() {
@@ -474,11 +575,12 @@ export default {
         });
       });
     },
+
     /* DROPZONE */
     sendingData(file, xhr, formData) {
-      console.log(file.upload.uuid);
       formData.append("uuid", file.upload.uuid);
       formData.append("id_article", _store.newArticle.id);
+      formData.append("preview_image", 0);
     },
     successData(file, response) {
       const formatObj = Object.assign({}, response.data);
@@ -502,7 +604,6 @@ export default {
       });
     },
     removedFile(id) {
-      console.log(id);
       const index = this.dropzone_uploaded.findIndex((elem) => {
         return elem.index === id;
       });
@@ -512,12 +613,6 @@ export default {
             .then(() => {
               this.dropzone_uploaded.splice(index, 1);
               for (let i = 0; i < this.dropzone_uploaded.length; i++) {
-                console.log(this.dropzone_uploaded[i].index);
-                console.log(
-                    document.getElementById(
-                        `close-${this.dropzone_uploaded[i].index}`
-                    )
-                );
                 const block = document.getElementById(
                     `close-${this.dropzone_uploaded[i].index}`
                 );
@@ -535,7 +630,6 @@ export default {
       for (let i = 1; i < this.dropzone_uploaded.length + 1; i++) {
         this.$nextTick(() => {
           let template = document.getElementById(`close-${i}`);
-          console.log(template);
           template.click();
         });
       }
@@ -543,11 +637,11 @@ export default {
     triggerUpload() {
       document.getElementById("dropzone").click();
     },
-    async updateDropZoneImage(){
-      if (! this.dropzone_uploaded.length) return;
+    async updateDropZoneImage() {
+      if (!this.dropzone_uploaded.length) return;
 
       await Request.put(
-          this.$store.state.BASE_URL+'/entity/files/'+this.dropzone_uploaded[0].id,
+          this.$store.state.BASE_URL + '/entity/files/' + this.dropzone_uploaded[0].id,
           this.dropzone_uploaded[0])
     },
 
@@ -596,6 +690,10 @@ export default {
       }, 500);
     },
     closeModal(name) {
+      if (name === 'url') {
+        this.$store.commit('clear_url')
+      }
+
       this.$store.commit("change_select_component", {
         name: name,
         value: false,

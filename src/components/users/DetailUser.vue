@@ -4,36 +4,36 @@
       <template v-if="$store.getters.stateEditCreate($route.query.action)">
         <v-text-field
             ref="email_user"
-            type="email"
-            :rules="$store.state.emailRules"
-            required
-            class="mb-0 mt-5"
-            outlined
-            dense
-            label="Email пользователя"
             v-model="$store.state.UsersModule.entry.email"
             :disabled="$store.state.UsersModule.loadingList"
+            :rules="$store.state.emailRules"
+            class="mb-0 mt-5"
+            dense
+            label="Email пользователя"
+            outlined
+            required
+            type="email"
         ></v-text-field>
       </template>
       <template v-else>
         <v-autocomplete
-            outlined
-            dense
-            :loading="$store.state.UsersModule.loadingList"
+            v-model="$store.state.UsersModule.entry"
             :disabled="$store.state.UsersModule.loadingList"
-            label="Поиск по пользователю"
+            :filter="customFilter"
             :items="$store.state.UsersModule.listEntries"
+            :loading="$store.state.UsersModule.loadingList"
+            class="mb-5 mt-5"
+            dense
+            hide-details
             item-text="email"
             item-value="id"
+            label="Поиск по пользователю"
+            outlined
             return-object
-            v-model="$store.state.UsersModule.entry"
-            class="mb-5 mt-5"
-            hide-details
-            :filter="customFilter"
         >
           <template v-slot:item="data">
             <v-list-item-content>
-              <v-list-item-title>{{getFioUser(data.item)}}</v-list-item-title>
+              <v-list-item-title>{{ getFioUser(data.item) }}</v-list-item-title>
               <v-list-item-subtitle>{{ data.item.email }}</v-list-item-subtitle>
               <v-divider/>
             </v-list-item-content>
@@ -42,182 +42,182 @@
       </template>
 
       <!--Роли-->
-      <v-list subheader elevation="1">
+      <v-list elevation="1" subheader>
         <v-subheader>Роли пользователя</v-subheader>
         <v-combobox
-            class="role_user pa-2 pt-0 ma-0"
-            hide-details
-            multiple chips
             v-model="$store.state.UsersModule.entry.groups"
-            :items="$store.state.UsersModule.listGroups"
-            item-text="name"
-            :loading="$store.state.UsersModule.loadingList"
             :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+            :items="$store.state.UsersModule.listGroups" :loading="$store.state.UsersModule.loadingList"
+            chips
+            class="role_user pa-2 pt-0 ma-0"
             clearable
+            hide-details
+            item-text="name"
+            multiple
         >
         </v-combobox>
       </v-list>
 
       <!--Основная информация-->
-      <v-list subheader elevation="1">
-          <v-subheader>Основная информация</v-subheader>
-          <v-text-field
-              class="pa-2"
-              outlined
-              dense
-              hide-details
-              label="Фамилия пользователя"
-              v-model="$store.state.UsersModule.entry.last_name"
-              :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
-          ></v-text-field>
-          <v-text-field
-              class="pa-2"
-              outlined
-              dense
-              hide-details
-              label="Имя пользователя"
-              v-model="$store.state.UsersModule.entry.first_name"
-              :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
-          ></v-text-field>
-          <v-text-field
-              class="pa-2"
-              outlined
-              dense
-              hide-details
-              label="Отчество пользователя"
-              v-model="$store.state.UsersModule.entry.middle_name"
-              :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
-          ></v-text-field>
+      <v-list elevation="1" subheader>
+        <v-subheader>Основная информация</v-subheader>
+        <v-text-field
+            v-model="$store.state.UsersModule.entry.last_name"
+            :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+            class="pa-2"
+            dense
+            hide-details
+            label="Фамилия пользователя"
+            outlined
+        ></v-text-field>
+        <v-text-field
+            v-model="$store.state.UsersModule.entry.first_name"
+            :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+            class="pa-2"
+            dense
+            hide-details
+            label="Имя пользователя"
+            outlined
+        ></v-text-field>
+        <v-text-field
+            v-model="$store.state.UsersModule.entry.middle_name"
+            :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+            class="pa-2"
+            dense
+            hide-details
+            label="Отчество пользователя"
+            outlined
+        ></v-text-field>
       </v-list>
 
       <!-- Деятельность пользователей -->
-      <v-list subheader elevation="1">
+      <v-list elevation="1" subheader>
         <v-subheader>Деятельность пользователей</v-subheader>
         <v-checkbox
-            class="pl-2"
-            hide-details
-            dense
-            label="Собственник дома"
             v-model="$store.state.UsersModule.entry.home_owner"
-            :false-value="0"
-            :true-value="1"
-            :loading="$store.state.UsersModule.loadingList"
             :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
-        >
-        </v-checkbox>
-        <v-checkbox
-            class="pl-2 pt-2"
-            hide-details
+            :false-value="0"
+            :loading="$store.state.UsersModule.loadingList"
+            :true-value="1"
+            class="pl-2"
             dense
-            label="Профессионально занимаюсь монтажом инженерных систем"
-            v-model="$store.state.UsersModule.entry.installation_engineering_systems"
-            :false-value="0"
-            :true-value="1"
-            :loading="$store.state.UsersModule.loadingList"
-            :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+            hide-details
+            label="Собственник дома"
         >
         </v-checkbox>
         <v-checkbox
-              class="pl-2 pt-2"
-              hide-details
-              dense
-              label="Занимаюсь продажей инженерного оборудования"
-              v-model="$store.state.UsersModule.entry.selling_engineering_equipment"
-              :false-value="0"
-              :true-value="1"
-              :loading="$store.state.UsersModule.loadingList"
-              :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
-          >
-          </v-checkbox>
+            v-model="$store.state.UsersModule.entry.installation_engineering_systems"
+            :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+            :false-value="0"
+            :loading="$store.state.UsersModule.loadingList"
+            :true-value="1"
+            class="pl-2 pt-2"
+            dense
+            hide-details
+            label="Профессионально занимаюсь монтажом инженерных систем"
+        >
+        </v-checkbox>
         <v-checkbox
-              class="pl-2 pt-2"
-              hide-details
-              dense
-              label="Маркетинг и продажи"
-              v-model="$store.state.UsersModule.entry.marketing_and_sales"
-              :false-value="0"
-              :true-value="1"
-              :loading="$store.state.UsersModule.loadingList"
-              :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
-          >
-          </v-checkbox>
+            v-model="$store.state.UsersModule.entry.selling_engineering_equipment"
+            :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+            :false-value="0"
+            :loading="$store.state.UsersModule.loadingList"
+            :true-value="1"
+            class="pl-2 pt-2"
+            dense
+            hide-details
+            label="Занимаюсь продажей инженерного оборудования"
+        >
+        </v-checkbox>
+        <v-checkbox
+            v-model="$store.state.UsersModule.entry.marketing_and_sales"
+            :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+            :false-value="0"
+            :loading="$store.state.UsersModule.loadingList"
+            :true-value="1"
+            class="pl-2 pt-2"
+            dense
+            hide-details
+            label="Маркетинг и продажи"
+        >
+        </v-checkbox>
       </v-list>
 
       <!--Контакты -->
-      <v-list subheader elevation="1">
+      <v-list elevation="1" subheader>
         <v-subheader>Контакты</v-subheader>
         <v-checkbox
-            class="pl-2"
-            hide-details
-            dense
-            label="Подтвержденный email"
             v-model.number="$store.state.UsersModule.entry.email_state"
-            :loading="$store.state.UsersModule.loadingList"
             :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+            :loading="$store.state.UsersModule.loadingList"
+            class="pl-2"
+            dense
+            hide-details
+            label="Подтвержденный email"
         >
         </v-checkbox>
         <v-text-field
-            type="email"
             ref="email_user"
-            :rules="$store.state.emailRules"
-            required
-            class="pa-2 pt-3"
-            outlined
-            dense
-            label="Email пользователя"
             v-model="$store.state.UsersModule.entry.email"
             :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+            :rules="$store.state.emailRules"
+            class="pa-2 pt-3"
+            dense
+            label="Email пользователя"
+            outlined
+            required
+            type="email"
         ></v-text-field>
         <v-checkbox
-            class="pl-2"
-            hide-details
-            dense
-            label="Подтвержденный телефон"
             v-model.number="$store.state.UsersModule.entry.telephone_state"
-            :loading="$store.state.UsersModule.loadingList"
             :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+            :loading="$store.state.UsersModule.loadingList"
+            class="pl-2"
+            dense
+            hide-details
+            label="Подтвержденный телефон"
         >
         </v-checkbox>
         <v-text-field
-            class="pa-2 pt-3"
-            outlined
-            dense
-            label="Телефон пользователя"
             v-model="$store.state.UsersModule.entry.telephone"
             :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+            class="pa-2 pt-3"
+            dense
+            label="Телефон пользователя"
+            outlined
         ></v-text-field>
       </v-list>
 
       <!-- Соц сети -->
-      <v-list subheader elevation="1">
+      <v-list elevation="1" subheader>
         <v-subheader>Социальные сети</v-subheader>
         <v-text-field
+            v-model="$store.state.UsersModule.entry.vk"
+            :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
             class="pa-2"
-            outlined
             dense
             hide-details
             label="vk"
-            v-model="$store.state.UsersModule.entry.vk"
-            :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+            outlined
         ></v-text-field>
         <v-text-field
+            v-model="$store.state.UsersModule.entry.tiktok"
+            :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
             class="pa-2"
-            outlined
             dense
             hide-details
             label="tiktok"
-            v-model="$store.state.UsersModule.entry.tiktok"
-            :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+            outlined
         ></v-text-field>
         <v-text-field
-              class="pa-2"
-              outlined
-              dense
-              hide-details
-              label="instagram"
-              v-model="$store.state.UsersModule.entry.instagram"
-              :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
-          ></v-text-field>
+            v-model="$store.state.UsersModule.entry.instagram"
+            :disabled="$store.state.UsersModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+            class="pa-2"
+            dense
+            hide-details
+            label="instagram"
+            outlined
+        ></v-text-field>
       </v-list>
 
     </v-container>
@@ -225,8 +225,8 @@
     <footer class="detail_footer">
       <v-container>
         <v-btn
-            color="red darken-1"
             :disabled="$store.state.UsersModule.loadingList || !$store.state.UsersModule.entry.id"
+            color="red darken-1"
             text
             @click="$store.dispatch('UsersModule/stateModalAction', true)"
         >
@@ -254,20 +254,20 @@
         </v-card-title>
         <v-card-actions>
           <v-btn
+              :disabled="$store.state.UsersModule.loadingList"
+              :loading="$store.state.UsersModule.loadingList"
               color="blue darken-1"
               text
               @click="$store.dispatch('UsersModule/stateModalAction', false)"
-              :disabled="$store.state.UsersModule.loadingList"
-              :loading="$store.state.UsersModule.loadingList"
           >
             Нет
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn
-              color="red darken-1"
-              text
               :disabled="$store.state.UsersModule.loadingList"
               :loading="$store.state.UsersModule.loadingList"
+              color="red darken-1"
+              text
               @click="deleteEntryLocal()"
           >
             Да
@@ -287,24 +287,24 @@ export default {
     await this.$store.dispatch('UsersModule/getListGroups')
     await this.$store.dispatch('setTitle', this.$store.state.UsersModule.entry.email)
   },
-  methods:{
-    async deleteEntryLocal(){
+  methods: {
+    async deleteEntryLocal() {
       await this.$store.dispatch('UsersModule/deleteEntry');
-      await this.$router.replace({query: null}).catch(()=>{});
+      await this.$router.replace({query: null}).catch(() => {
+      });
     },
-    async onSubmitLocal(){
+    async onSubmitLocal() {
       if (this.$refs.email_user.validate(true) === false)
         return false
 
-      await this.$store.dispatch('UsersModule/onSubmit', {},{root:true});
-      if (this.$route.query.action === 'create'){
-        await this.$router.replace({path: this.$route.path+'/'+this.$store.state.UsersModule.entry.id});
-      }
-      else{
+      await this.$store.dispatch('UsersModule/onSubmit', {}, {root: true});
+      if (this.$route.query.action === 'create') {
+        await this.$router.replace({path: this.$route.path + '/' + this.$store.state.UsersModule.entry.id});
+      } else {
         await this.$router.replace({path: this.$route.path});
       }
     },
-    customFilter (item, queryText) {
+    customFilter(item, queryText) {
       const first_name = (item.first_name) ? item.first_name.toLowerCase() : null;
       const middle_name = (item.middle_name) ? item.middle_name.toLowerCase() : null;
       const last_name = (item.last_name) ? item.last_name.toLowerCase() : null;
@@ -315,14 +315,14 @@ export default {
 
       return data.indexOf(searchText) > -1
     },
-    getFioUser(entry){
+    getFioUser(entry) {
       const first_name = (entry.first_name) ? entry.first_name : '';
       const middle_name = (entry.middle_name) ? entry.middle_name : '';
       const last_name = (entry.last_name) ? entry.last_name : '';
-      return first_name+' '+ middle_name+' '+last_name
+      return first_name + ' ' + middle_name + ' ' + last_name
     }
   },
-  computed:{},
+  computed: {},
   watch: {
     '$store.state.UsersModule.entry.id': {
       handler(newValue) {
@@ -332,23 +332,24 @@ export default {
         const currentQuery = this.$route.query;
         const idEntry = (newValue) ? newValue : '';
         this.$router.replace({
-          path: '/users/'+idEntry,
+          path: '/users/' + idEntry,
           query: currentQuery,
-        }).catch(()=>{});
+        }).catch(() => {
+        });
 
         this.$store.dispatch('setTitle', this.$store.state.UsersModule.entry.email)
       }
     },
     '$route.query.action': {
       handler(newValue) {
-        if (newValue === 'create'){
+        if (newValue === 'create') {
           this.$store.dispatch('UsersModule/clearEntry');
         }
       }
     },
     '$route.params.id': {
       handler(newValue) {
-        if (!newValue){
+        if (!newValue) {
           this.$store.dispatch('UsersModule/clearEntry');
         }
       }
@@ -358,17 +359,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "src/assets/styles/detail";
+//@import "src/assets/styles/detail";
 
-.wrap_detail_user{
+.wrap_detail_user {
   display: grid;
   grid-row-gap: 1em;
 }
 </style>
 
 <style lang="scss">
-.role_user{
-  .v-input__slot::before{
+.role_user {
+  .v-input__slot::before {
   }
 }
 </style>

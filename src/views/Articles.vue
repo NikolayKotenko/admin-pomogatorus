@@ -2,13 +2,13 @@
   <div class="questions">
     <div class="questions_wrapper universal_list">
       <div
-        class="questions_wrapper__item"
-        v-for="(article, index) in $store.state.ArticleModule.listArticles"
-        :key="index"
+          v-for="(article, index) in $store.state.ArticleModule.listArticles"
+          :key="index"
+          class="questions_wrapper__item"
       >
-        <div class="questions_wrapper__item__top" :class="{filterShow: show_filter}">
-          <div class="questions_wrapper__item__top__title" :class="{filterShow: show_filter}">
-            <v-icon class="activity_icon" v-show="article.activity === 0">mdi-eye-off</v-icon>
+        <div :class="{filterShow: show_filter}" class="questions_wrapper__item__top">
+          <div :class="{filterShow: show_filter}" class="questions_wrapper__item__top__title">
+            <v-icon v-show="article.activity === 0" class="activity_icon">mdi-eye-off</v-icon>
             <span @click="onShowDetailArticle(article)">
               {{ article.name }}
             </span>
@@ -17,12 +17,12 @@
           <div class="questions_wrapper__item__top__icons"></div>
         </div>
         <div class="questions_wrapper__item__bottom universal_date">
-          <div class="questions_wrapper__item__bottom__date" :class="{filterShow: show_filter}">
-            {{article.created_at}}
+          <div :class="{filterShow: show_filter}" class="questions_wrapper__item__bottom__date">
+            {{ article.created_at }}
           </div>
           <div
-            class="questions_wrapper__item__bottom__date"
-            :class="{ filterShow: show_filter }"
+              :class="{ filterShow: show_filter }"
+              class="questions_wrapper__item__bottom__date"
           >
             {{ article.updated_at }}
           </div>
@@ -30,37 +30,36 @@
       </div>
 
       <v-alert
-        v-if="
+          v-if="
           !$store.state.ArticleModule.loadingList &&
           ($store.state.ArticleModule.listArticles === null ||
             !$store.state.ArticleModule.listArticles.length)
         "
-        type="error"
-        text
-        class="err-msg"
+          class="err-msg"
+          text
+          type="error"
       >
         {{ computedErrMsg }}
       </v-alert>
     </div>
     <v-sheet class="footer">
       <div class="footer_input">
-        <v-text-field
-          solo
-          flat
-          dense
-          hide-details
-          placeholder="Поиск в выбранных разделах"
-          v-model="filters.name"
-          :class="{ inputFocused: filterValueFocused }"
-          @focus="onFocus()"
-          @focusout="outFocus()"
-        ></v-text-field>
+        <InputStyled
+            :class="{ inputFocused: filterValueFocused }"
+            :data="filters.name"
+            :is-flat="true"
+            :is-solo="true"
+            :placeholder="'Поиск в выбранных разделах'"
+            @update-input="setName"
+            @on-focus="() => {onFocus()}"
+            @out-focus="() => {outFocus()}"
+        ></InputStyled>
       </div>
       <div class="footer_filter">
         <v-icon
-          x-large
-          :color="!!show_filter ? 'blue' : 'grey'"
-          @click="show_filter = !show_filter"
+            :color="!!show_filter ? 'blue' : 'grey'"
+            x-large
+            @click="show_filter = !show_filter"
         >
           mdi-filter-outline
         </v-icon>
@@ -69,17 +68,17 @@
 
     <!-- LOADER -->
     <v-overlay
-        :z-index="207"
         :absolute="true"
         :value="$store.state.QuestionsModule.loadingList || $store.state.ArticleModule.loadingList"
+        :z-index="207"
     >
       <v-progress-circular
-          style="margin: auto"
-          width="4"
+          v-if="$store.state.QuestionsModule.loadingList || $store.state.ArticleModule.loadingList"
+          :indeterminate="true"
           :size="70"
           color="blue"
-          :indeterminate="true"
-          v-if="$store.state.QuestionsModule.loadingList || $store.state.ArticleModule.loadingList"
+          style="margin: auto"
+          width="4"
       ></v-progress-circular>
     </v-overlay>
 
@@ -94,7 +93,7 @@
         >
           <div class="filter_modal_header">
             <div class="filter_modal_header__close">
-              <v-icon x-large @click="show_filter = !show_filter" color="blue">
+              <v-icon color="blue" x-large @click="show_filter = !show_filter">
                 mdi-close
               </v-icon>
             </div>
@@ -117,8 +116,8 @@
                       value="false"
                   ></v-radio>
                   <v-radio
-                      label="Все"
                       :value="null"
+                      label="Все"
                   ></v-radio>
                 </v-radio-group>
               </div>
@@ -128,21 +127,21 @@
                 Выбор разделов:
               </div>
               <div class="filter_modal_filters__item__chips">
-                <v-chip-group column multiple v-model="filters.tag">
+                <v-chip-group v-model="filters.tag" column multiple>
                   <v-chip
-                    color="#f2f5f7"
-                    v-for="tag in $store.state.ArticleModule.listGeneralTags"
-                    :key="tag.id"
-                    :value="tag.code"
+                      v-for="tag in $store.state.ArticleModule.listGeneralTags"
+                      :key="tag.id"
+                      :value="tag.code"
+                      color="#f2f5f7"
                   >
                     <v-icon
-                      left
-                      color="grey darken-2"
-                      v-if="filters.tag.includes(tag.code)"
+                        v-if="filters.tag.includes(tag.code)"
+                        color="grey darken-2"
+                        left
                     >
                       mdi-check-bold
                     </v-icon>
-                    <v-icon left color="grey darken-2" v-else>
+                    <v-icon v-else color="grey darken-2" left>
                       mdi-close-thick
                     </v-icon>
                     {{ tag.name }}
@@ -157,11 +156,11 @@
               <div class="filter_modal_filters__item__chips">
                 <v-radio-group v-model="filters.updated_at">
                   <v-radio
-                    v-for="(variable, index) in $store.state.QuestionsModule
+                      v-for="(variable, index) in $store.state.QuestionsModule
                       .listConfigDate"
-                    :key="index"
-                    :label="variable.text"
-                    :value="variable.value"
+                      :key="index"
+                      :label="variable.text"
+                      :value="variable.value"
                   ></v-radio>
                 </v-radio-group>
               </div>
@@ -174,8 +173,11 @@
 </template>
 
 <script>
+import InputStyled from "../components/common/InputStyled";
+
 export default {
   name: "Articles.vue",
+  components: {InputStyled},
   data: () => ({
     show_filter: false,
     filterValueFocused: false,
@@ -208,11 +210,15 @@ export default {
   computed: {
     computedErrMsg() {
       return this.$store.state.ArticleModule.questionNotification
-        ? this.$store.state.ArticleModule.questionNotification
-        : "Ничего не найдено";
+          ? this.$store.state.ArticleModule.questionNotification
+          : "Ничего не найдено";
     },
   },
   methods: {
+    setName(value) {
+      this.filters.name = value
+    },
+
     changeQuery() {
       for (let key in this.filters) {
         if (Array.isArray(this.filters[key])) {
@@ -227,14 +233,14 @@ export default {
       }
       this.$router.push({
         path: this.$route.path,
-        query: { ...this.queryObject },
+        query: {...this.queryObject},
       });
     },
     onShowDetailArticle(article) {
       this.$router.push({
         name: "DetailArticles",
-        params: { action: "edit" },
-        query: { article_id: article.id },
+        params: {action: "edit"},
+        query: {article_id: article.id},
       });
     },
     getConfigDate() {
@@ -254,8 +260,8 @@ export default {
       if (Object.keys(this.$route.query).length) {
         for (let key in this.filters) {
           if (
-            Object.keys(this.$route.query).includes(key) &&
-            this.$route.query[key] !== null
+              Object.keys(this.$route.query).includes(key) &&
+              this.$route.query[key] !== null
           ) {
             if (key === "tag") {
               if (Array.isArray(this.$route.query[key])) {
@@ -294,55 +300,65 @@ export default {
 @import "src/assets/styles/main";
 </style>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .questions {
   display: flex;
   flex-direction: column;
   min-height: 100%;
   position: relative;
+
   .questions_wrapper {
     display: flex;
     flex-direction: column;
     flex: 1;
     padding: 10px 10px;
+
     &__item {
       display: flex;
       flex-direction: column;
       width: 100%;
+
       &__top {
         display: flex;
         justify-content: space-between;
         align-items: center;
         border-bottom: 2px solid #539ee0;
         transition: all 0.4s ease-in-out;
+
         &__title {
           color: #539ee0;
           transition: all 0.4s ease-in-out;
+
           &__quantity {
             color: lightcoral;
             transition: all 0.4s ease-in-out;
           }
         }
+
         &__icons {
           padding-bottom: 2px;
           transition: all 0.4s ease-in-out;
         }
       }
+
       &__bottom {
         display: flex;
         justify-content: space-between;
         align-items: center;
         font-size: 12px;
         padding-top: 2px;
+
         &__date {
           color: #7c8c99;
         }
+
         &__code {
           color: #cad5de;
         }
       }
     }
   }
+
   .footer {
     border-top: 3px solid darkgray;
     padding: 10px 20px;
@@ -356,18 +372,21 @@ export default {
     position: sticky;
     bottom: 0;
     min-width: 100%;
+
     .footer_input {
       flex: 1;
       width: 100%;
       margin-left: 10px;
       border: 2px solid lightgray;
       border-radius: 5px;
+
       ::v-deep .v-text-field input {
         font-weight: 500;
         color: darkgray;
         transition: color 0.5s ease-in-out;
       }
     }
+
     .inputFocused {
       ::v-deep input {
         color: #202020 !important;

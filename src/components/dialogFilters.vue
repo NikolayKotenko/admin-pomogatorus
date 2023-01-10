@@ -59,15 +59,14 @@
         </div>
         <div class="filters_wrapper__elem">
           <span class="filters_wrapper__elem__label">Дата создания:</span>
-          <v-text-field
-              v-model="filters.date"
-              :disabled="$store.state.AnswersModule.loadingList"
-              :loading="$store.state.AnswersModule.loadingList"
-              dense
-              hide-details
-              label="2022-07-31"
-              solo
-          ></v-text-field>
+          <InputStyled
+              :data="filters.date"
+              :is-disabled="$store.state.AnswersModule.loadingList"
+              :is-loading="$store.state.AnswersModule.loadingList"
+              :is-solo="true"
+              :placeholder="'2022-07-31'"
+              @update-input="updateDate"
+          />
         </div>
       </div>
     </v-card-text>
@@ -80,8 +79,11 @@
 </template>
 
 <script>
+import InputStyled from "./common/InputStyled";
+
 export default {
   name: "dialogFilters",
+  components: {InputStyled},
   data: () => ({
     filters: {
       question: {},
@@ -96,6 +98,9 @@ export default {
       this.$store.commit("changeShowFilters", true);
       this.$store.dispatch("setListQuestions");
       this.$store.dispatch("setListArticles");
+    },
+    updateDate(value) {
+      this.filters.date = value
     },
   },
 };
