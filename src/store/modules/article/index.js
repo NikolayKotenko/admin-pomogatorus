@@ -19,6 +19,10 @@ const defaultArticle = {
     value: "",
     focused: false,
   },
+  target_button_placeholder: {
+    value: "",
+    focused: false,
+  },
   preview: {
     value: "",
     focused: false,
@@ -60,6 +64,10 @@ export default {
         focused: false,
       },
       purpose_of_article: {
+        value: "",
+        focused: false,
+      },
+      target_button_placeholder: {
         value: "",
         focused: false,
       },
@@ -233,6 +241,7 @@ export default {
           key === "name" ||
           key === "short_header" ||
           key === "purpose_of_article" ||
+          key === "target_button_placeholder" ||
           key === "preview" ||
           key === "seo_description" ||
           key === "seo_keywords"

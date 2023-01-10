@@ -111,6 +111,30 @@
             </div>
             <div class="detail-wrapper__content__title__help">
               <span
+                  class="detail-wrapper__content__title__help__title"
+                  :class="{ focused: newArticle.target_button_placeholder.focused }"
+              >
+                Плейсхолдер целевой кнопки
+              </span>
+              <v-textarea
+                  class="detail-wrapper__content__title__help__description"
+                  :class="{ inputFocused: newArticle.target_button_placeholder.focused }"
+                  placeholder="Введите Плейсхолдер целевой кнопки"
+                  auto-grow
+                  rows="1"
+                  dense
+                  hide-details
+                  flat
+                  solo
+                  v-model="newArticle.target_button_placeholder.value"
+                  @focus="onFocus(newArticle.target_button_placeholder)"
+                  @focusout="outFocus(newArticle.target_button_placeholder)"
+                  :loading="$store.state.ArticleModule.loadingArticle"
+                  @input="saveArticle(newArticle)"
+              ></v-textarea>
+            </div>
+            <div class="detail-wrapper__content__title__help">
+              <span
                 class="detail-wrapper__content__title__help__title"
                 :class="{ focused: newArticle.preview.focused }"
               >
@@ -408,6 +432,10 @@ export default {
         focused: false,
       },
       purpose_of_article: {
+        value: "",
+        focused: false,
+      },
+      target_button_placeholder: {
         value: "",
         focused: false,
       },
