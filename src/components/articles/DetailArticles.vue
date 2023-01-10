@@ -102,6 +102,27 @@
             </div>
             <div class="detail-wrapper__content__title__help">
               <span
+                  :class="{ focused: newArticle.target_button_placeholder.focused }"
+                  class="detail-wrapper__content__title__help__title"
+              >
+                Плейсхолдер целевой кнопки
+              </span>
+              <TextAreaStyled
+                  :class="{ inputFocused: newArticle.target_button_placeholder.focused }"
+                  :data="newArticle.target_button_placeholder.value"
+                  :is-flat="true"
+                  :is-loading="$store.state.ArticleModule.loadingArticle"
+                  :is-solo="true"
+                  :placeholder="'Введите плейсхолдер целевой кнопки'"
+                  :rows-count="'1'"
+                  class="detail-wrapper__content__title__help__description"
+                  @update-input="setPurpose"
+                  @on-focus="() => {onFocus(newArticle.target_button_placeholder)}"
+                  @out-focus="() => {outFocus(newArticle.target_button_placeholder)}"
+              ></TextAreaStyled>
+            </div>
+            <div class="detail-wrapper__content__title__help">
+              <span
                   :class="{ focused: newArticle.preview.focused }"
                   class="detail-wrapper__content__title__help__title"
               >
