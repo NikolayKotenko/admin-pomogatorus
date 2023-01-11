@@ -51,6 +51,7 @@ export default {
     inserted_components: [],
     loadingArticle: false,
     loadingRequest: false,
+    listUsersByFilterExpert: [],
     newArticle: {
       id: 1,
       name: {
@@ -270,6 +271,9 @@ export default {
     },
 
     /* DETAIL ARTICLES */
+    set_some_info_article(state, result){
+      state.listUsersByFilterExpert = result;
+    },
     set_new_article(state, result) {
       state.newArticle = Object.assign({}, defaultArticle);
       for (let key in result) {
@@ -561,6 +565,23 @@ export default {
     },
 
     /* CRUD */
+    async getDetailArticleInfo({ commit, state }) {
+      state.loadingArticle = true;
+      return new Promise((resolve, reject) => {
+        Request.get(`${this.state.BASE_URL}/users/get-list-users?filter[codes_groups][]=experts`)
+          .then((response) => {
+            commit("set_some_info_article", response.data);
+            state.loadingArticle = false;
+            resolve();
+          })
+          .catch((error) => {
+            //handle error
+            state.loadingArticle = false;
+            reject(error);
+            console.log(error.body);
+          });
+      });
+    },
     async getDetailArticle({ commit, state }, id) {
       state.loadingArticle = true;
       return new Promise((resolve, reject) => {

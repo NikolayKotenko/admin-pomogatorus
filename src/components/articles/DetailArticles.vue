@@ -202,6 +202,29 @@
               <v-icon color="grey lighten-1" style="transform: rotate(45deg)">mdi-paperclip</v-icon>
               [{{ dropzone_uploaded.length }}]
             </v-btn>
+
+            <div class="detail-wrapper__content__title__help">
+              <span
+                  class="detail-wrapper__content__title__help__title"
+              >
+                Список приглашенных экспертов
+              </span>
+              <v-autocomplete
+                  class="detail-wrapper__content__title__help__list_experts"
+                  v-model="newArticle.list_experts"
+                  :disabled="$store.state.ArticleModule.loadingModalList"
+                  :items="$store.state.ArticleModule.listUsersByFilterExpert"
+                  :loading="$store.state.ArticleModule.loadingModalList"
+                  small-chips deletable-chips multiple
+                  :menu-props="{ bottom: true, offsetY: true }"
+                  clearable
+                  item-text="email"
+                  label=""
+                  return-object
+                  style="position: sticky; top: 0"
+              >
+              </v-autocomplete>
+            </div>
           </div>
 
           <!-- TEXTAREA -->
@@ -440,7 +463,8 @@ export default {
       activity: "0",
       _all_tags: [],
       mtomtags: [],
-      preview_image: []
+      preview_image: [],
+      list_experts: [],
     },
     deleteModal: false,
     deleteStorage: false,
@@ -571,6 +595,8 @@ export default {
                 }, 2000);
               }
             });
+
+        this.$store.dispatch('getDetailArticleInfo');
       }
     },
     resetFields() {
@@ -915,6 +941,13 @@ export default {
             color: lightgray;
             font-size: 13px;
             transition: color 0.6s ease-in-out;
+          }
+
+          &__list_experts{
+            //max-width: 400px;
+            //input{
+            //  padding-left: 10px;
+            //}
           }
 
           ::v-deep .v-text-field__slot {
