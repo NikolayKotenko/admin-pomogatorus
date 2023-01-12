@@ -116,7 +116,7 @@
                   :placeholder="'Введите плейсхолдер целевой кнопки'"
                   :rows-count="'1'"
                   class="detail-wrapper__content__title__help__description"
-                  @update-input="setPurpose"
+                  @update-input="setTargetButtonPlaceholder"
                   @on-focus="() => {onFocus(newArticle.target_button_placeholder)}"
                   @out-focus="() => {outFocus(newArticle.target_button_placeholder)}"
               ></TextAreaStyled>
@@ -555,6 +555,10 @@ export default {
     },
     setPurpose(value) {
       this.newArticle.purpose_of_article.value = value
+      this.saveArticle(this.newArticle)
+    },
+    setTargetButtonPlaceholder(value) {
+      this.newArticle.target_button_placeholder.value = value
       this.saveArticle(this.newArticle)
     },
     setPreview(value) {
