@@ -49,6 +49,7 @@ export default {
     content: "",
     content_from_server: "",
     inserted_components: [],
+    loadingInfoArticle: false,
     loadingArticle: false,
     loadingRequest: false,
     listUsersByFilterExpert: [],
@@ -271,7 +272,7 @@ export default {
     },
 
     /* DETAIL ARTICLES */
-    set_some_info_article(state, result){
+    set_some_info_article(state, result) {
       state.listUsersByFilterExpert = result;
     },
     set_new_article(state, result) {
@@ -566,17 +567,19 @@ export default {
 
     /* CRUD */
     async getDetailArticleInfo({ commit, state }) {
-      state.loadingArticle = true;
+      state.loadingInfoArticle = true;
       return new Promise((resolve, reject) => {
-        Request.get(`${this.state.BASE_URL}/users/get-list-users?filter[codes_groups][]=experts`)
+        Request.get(
+          `${this.state.BASE_URL}/users/get-list-users?filter[codes_groups][]=experts`
+        )
           .then((response) => {
             commit("set_some_info_article", response.data);
-            state.loadingArticle = false;
+            state.loadingInfoArticle = false;
             resolve();
           })
           .catch((error) => {
             //handle error
-            state.loadingArticle = false;
+            state.loadingInfoArticle = false;
             reject(error);
             console.log(error.body);
           });

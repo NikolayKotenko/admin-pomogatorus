@@ -212,15 +212,15 @@
               <v-autocomplete
                   class="detail-wrapper__content__title__help__list_experts"
                   v-model="newArticle.list_experts"
-                  :disabled="$store.state.ArticleModule.loadingModalList"
+                  :disabled="$store.state.ArticleModule.loadingInfoArticle"
                   :items="$store.state.ArticleModule.listUsersByFilterExpert"
-                  :loading="$store.state.ArticleModule.loadingModalList"
+                  :loading="$store.state.ArticleModule.loadingInfoArticle"
                   small-chips deletable-chips multiple
                   :menu-props="{ bottom: true, offsetY: true }"
                   clearable
                   item-text="email"
+                  item-value="id"
                   label=""
-                  return-object
                   style="position: sticky; top: 0"
               >
               </v-autocomplete>
