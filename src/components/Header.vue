@@ -59,7 +59,7 @@
       </v-icon>
       <v-icon
           v-if="$route.meta.canDelete"
-          :disabled="!this.$route.params.id"
+          :disabled="!this.$route.params.id && !this.$route.params.code"
           :color="'green'"
           large
           style="padding-left: 10px"
@@ -69,7 +69,7 @@
       </v-icon>
       <v-icon
           v-if="$route.meta.canEdit"
-          :disabled="!this.$route.params.id"
+          :disabled="!this.$route.params.id && !this.$route.params.code"
           :color="($route.query.action === 'edit') ? 'red' : 'green'"
           large
           style="padding-left: 10px"
@@ -206,6 +206,13 @@ export default {
         icon: 'mdi-account-arrow-right',
         title: 'Пользователи',
         link: '/users',
+        nameIcon: 'answers.svg'
+      },
+      {
+        id: 7,
+        icon: 'mdi-account-arrow-right',
+        title: 'Параметры объекта',
+        link: '/object-properties',
         nameIcon: 'answers.svg'
       },
     ]

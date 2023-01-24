@@ -19,6 +19,7 @@ import LoginAuth from "../components/auth/LoginAuth";
 import Logging from "@/services/logging";
 import DetailTag from "@/components/tags/DetailTag";
 import DetailUser from "@/components/users/DetailUser";
+import ObjectProperties from "@/components/object-properties/ObjectProperties";
 
 Vue.use(VueRouter);
 
@@ -142,6 +143,38 @@ const routes = [
         name: "Tags",
         path: "/tags",
         actionModalAsk: "stateModalAction",
+      },
+    },
+  },
+  {
+    path: "/object-properties/:code?/",
+    name: "ObjectProperties",
+    component: ObjectProperties,
+    meta: {
+      title: "Создание/редактирование параметров объекта",
+      ru_name: "Создание/редактирование параметров объекта",
+      requiresAuth: true,
+      canCreate: true,
+      canEdit: true,
+      canView: true,
+      canDelete: true,
+      createLink: {
+        name: "ObjectProperties",
+        query: { action: "create" },
+      },
+      editLink: {
+        name: "ObjectProperties",
+        params: { action: "edit" },
+        query: { code: null },
+      },
+      returnLink: {
+        name: "ObjectProperties",
+        path: "/object-properties",
+      },
+      deleteLink: {
+        name: "ObjectProperties",
+        path: "/object-properties",
+        actionModalAsk: "ObjectPropertiesModule/stateModalAction",
       },
     },
   },
