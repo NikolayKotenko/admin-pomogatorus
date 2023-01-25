@@ -11,8 +11,12 @@ export default {
       code: null,
       name: null,
       id_type_property_object: null,
+      _all_tags: [],
+      _all_public_tags: [],
+      mtomtags: [],
     },
     listPropertyObject: [],
+    listTags: [],
   },
   mutations: {
     changeListEntries(state, array) {
@@ -31,6 +35,10 @@ export default {
         state.listPropertyObject = Object.values(array);
       }
     },
+    setListTags(state, array) {
+      state.listTags = [];
+      state.listTags = array;
+    },
     setEntry(state, object) {
       if (object == null) return false;
 
@@ -42,6 +50,9 @@ export default {
         code: null,
         name: null,
         id_type_property_object: null,
+        _all_tags: [],
+        _all_public_tags: [],
+        mtomtags: [],
       };
     },
     changeLoadingList(state, value) {
@@ -149,11 +160,20 @@ export default {
       );
     },
     async getInfoByEntry({ commit }) {
-      const response = await Request.get(
-        this.state.BASE_URL + "/dictionary/property-object"
-      );
-      commit("setListPropertyObject", response.data);
+      const responsePropertyObject = await Request.get(this.state.BASE_URL + "/dictionary/property-object");
+      const responseTags = await Request.get(this.state.BASE_URL + "/dictionary/tags?filter[flag_engineering_system]=true");
+      commit("setListPropertyObject", responsePropertyObject.data);
+      commit("setListTags", responseTags.data);
+    },
+    async setTagObjectProperty({dispatch}, obj){
+      const {selectedTag, code} = obj;
+
+      const response = await Request.post(this.state.BASE_URL + "/m-to-m/tags", selectedTag);
+      if (response.codeResponse < 400){
+        await dispatch("getListEntries", code);
+      }
     },
   },
-  getters: {},
+  getters: {
+  },
 };

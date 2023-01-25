@@ -51,6 +51,14 @@
           :placeholder="'Тип параметра'"
           class="mb-5"
       />
+
+      <!-- Tags Component -->
+      <UniversalTags
+          :attached-tags="$store.state.ObjectPropertiesModule.entry._all_tags"
+          :list-tags="$store.state.ObjectPropertiesModule.listTags"
+          @createNewTag="createNewTag"
+      />
+
     </v-container>
 
     <footer class="detail_footer">
@@ -120,12 +128,14 @@
 <script>
 import InputStyled from "../common/InputStyled";
 import SelectStyled from "@/components/common/SelectStyled";
+import UniversalTags from "../UniversalTags";
 
 export default {
   name: "ObjectProperties",
   components: {
     SelectStyled,
     InputStyled,
+    UniversalTags,
   },
   data: () => ({}),
   async mounted() {
@@ -163,6 +173,13 @@ export default {
         await this.$router.replace({path: this.$route.path}).catch(() => {
         });
       }
+    },
+    async createNewTag(object){
+      const response = await this.$store.dispatch(
+          'ObjectPropertiesModule/setTagObjectProperty',
+          {'selectedTag': object, 'code': this.$route.params.code }
+      )
+      console.log('createNewTag response', response);
     },
   },
   watch: {
