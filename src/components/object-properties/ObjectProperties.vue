@@ -14,6 +14,7 @@
             :placeholder="'Введите имя параметра'"
             class="mb-5"
             @update-input="setData"
+            @change-input="onSubmitLocal"
         />
       </template>
       <template v-else>
@@ -54,11 +55,14 @@
 
       <!-- Tags Component -->
       <UniversalTags
-          :attached-tags="$store.state.ObjectPropertiesModule.entry._all_tags"
+          :attached-tags="$store.state.ObjectPropertiesModule.entry.mtomtags"
           :list-tags="$store.state.ObjectPropertiesModule.listTags"
+          :error-state="$store.state.responseTag.errorState"
+          :error-messages="$store.state.responseTag.errorMessages"
           @createNewTag="createNewTag"
+          @removeAttachedTag="removeAttachedTag"
+          :disabled-new-tag="!$store.getters.stateEditCreate($route.query.action)"
       />
-
     </v-container>
 
     <footer class="detail_footer">
@@ -89,7 +93,7 @@
     >
       <v-card>
         <v-card-title>
-          <span class="text-h6" style="font-size: 0.8em !important;">Вы точно хотите удалить тэг?</span>
+          <span class="text-h6" style="font-size: 0.8em !important;">Вы точно хотите удалить параметр объекта?</span>
         </v-card-title>
         <v-card-actions>
           <v-btn
@@ -129,6 +133,7 @@
 import InputStyled from "../common/InputStyled";
 import SelectStyled from "@/components/common/SelectStyled";
 import UniversalTags from "../UniversalTags";
+import {MToMTags} from "@/helpers/constructors";
 
 export default {
   name: "ObjectProperties",
@@ -146,26 +151,17 @@ export default {
     setData(value) {
       this.$store.state.ObjectPropertiesModule.entry.name = value
     },
-    async onChangeLocal() {
-      if (this.$route.query.action !== 'create')
-        return false;
-
-      await this.$store.dispatch('ObjectPropertiesModule/createEntry');
-      await this.$router.replace({
-        path: this.$route.path + '/' + this.$store.state.ObjectPropertiesModule.entry.code,
-        query: {
-          action: 'edit'
-        }
-      }).catch(() => {
-      });
-    },
     async deleteLocal() {
+      for (const obj of this.$store.state.ObjectPropertiesModule.entry.mtomtags) {
+        await this.$store.dispatch('removeAttachedTagMToMTable', obj.id);
+      }
+
       await this.$store.dispatch('ObjectPropertiesModule/deleteEntry');
       await this.$router.push({path: this.$route.meta.returnLink.path}).catch(() => {
       });
     },
     async onSubmitLocal() {
-      await this.$store.dispatch('ObjectPropertiesModule/onSubmit', {}, {root: true});
+      await this.$store.dispatch('ObjectPropertiesModule/onSubmit');
       if (this.$route.query.action === 'create') {
         await this.$router.replace({path: this.$route.path + '/' + this.$store.state.ObjectPropertiesModule.entry.code}).catch(() => {
         });
@@ -174,12 +170,25 @@ export default {
         });
       }
     },
-    async createNewTag(object){
-      const response = await this.$store.dispatch(
-          'ObjectPropertiesModule/setTagObjectProperty',
-          {'selectedTag': object, 'code': this.$route.params.code }
-      )
-      console.log('createNewTag response', response);
+    async createNewTag(tagData){
+      const objMToMTags = new MToMTags(
+          tagData.id,
+          null,
+          null,
+          null,
+          this.$store.state.ObjectPropertiesModule.entry.id
+      );
+
+      const response = await this.$store.dispatch("addUniversalTagMToMTable", objMToMTags);
+      if (response.codeResponse < 400) {
+        await this.$store.dispatch('ObjectPropertiesModule/getListEntries', this.$route.params.code);
+      }
+    },
+    async removeAttachedTag(MToMTagData){
+      const response = await this.$store.dispatch('removeAttachedTagMToMTable', MToMTagData.id)
+      if (response.codeResponse < 400) {
+        await this.$store.dispatch('ObjectPropertiesModule/getListEntries', this.$route.params.code);
+      }
     },
   },
   watch: {

@@ -40,3 +40,17 @@ export function AnswerRangeMax(id) {
   this.placeholder = "Введите максимальное значение";
   this.dataEnv = null;
 }
+
+export function MToMTags(
+  id_tag = null,
+  id_answer = null,
+  id_question = null,
+  id_article = null,
+  id_object_property = null
+) {
+  this.id_tag = id_tag;
+  this.id_answer = id_answer;
+  this.id_question = id_question;
+  this.id_article = id_article;
+  this.id_object_property = id_object_property;
+}

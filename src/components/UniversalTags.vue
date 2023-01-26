@@ -6,10 +6,11 @@
         <v-chip
             class="question_tags__wrapper__chip"
             v-for="item in attachedTags"
-            :key="item.id"
+            :key="item.dtags.id"
+            :disabled="disabledNewTag"
         >
-          <v-icon left @click="removeTag(item)"> mdi-close </v-icon>
-          {{ item.name }}
+          <v-icon left @click="remove(item)"> mdi-close </v-icon>
+          {{ item.dtags.name }}
         </v-chip>
       </v-chip-group>
     </div>
@@ -18,6 +19,7 @@
           color="green lighten-1"
           text-color="white"
           @click="modal.state = true"
+          :disabled="disabledNewTag"
       >
         <v-icon left color="white"> mdi-plus </v-icon>
         Новый тег
@@ -38,6 +40,7 @@
               item-text="name"
               :loading="loading"
               clearable
+              @click:clear="($store.commit('clearErrorResponseTag'))"
               label="Введите тэг"
               :error="errorState"
               :error-messages="errorMessages"
@@ -46,8 +49,8 @@
           </v-combobox>
         </v-card-text>
         <v-card-actions>
-          <v-btn color="blue darken-1" text @click="modal.state = false">
-            Отмена
+          <v-btn color="blue darken-1" text @click="modal.state = false; $store.commit('clearErrorResponseTag')">
+            Закрыть
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn
@@ -84,6 +87,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    disabledNewTag: {
+      type: Boolean,
+      default: false,
+    },
     errorState: {
       type: Boolean,
       default: false,
@@ -102,11 +109,9 @@ export default {
   computed: {
   },
   methods: {
-    //TODO тут должен быть emit об удалении уже прикрепленного тэга который пришел из родителя
-    removeTag(){
-
+    remove(item){
+      this.$emit('removeAttachedTag', item)
     },
-    //TODO тут должен быть emit в родительский компонент с данными о новом тэге
     create(){
       this.$emit('createNewTag', this.selectedItems)
     }

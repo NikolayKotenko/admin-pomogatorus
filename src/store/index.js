@@ -32,6 +32,10 @@ export default new Vuex.Store({
       (v) => /.+@.+/.test(v) || "E-mail должен быть валидным.",
     ],
     nameRules: [(v) => !!v || "Обязательное для заполнение поле"],
+    responseTag: {
+      errorState: false,
+      errorMessages: "",
+    },
   },
   mutations: {
     change_notification_modal(state, value) {
@@ -50,6 +54,14 @@ export default new Vuex.Store({
     },
     changeLoadingGeneral(state, value) {
       state.loadingRequestGeneral = value;
+    },
+    setErrorResponseTag(state, value) {
+      state.responseTag.errorState = true;
+      state.responseTag.errorMessages = value;
+    },
+    clearErrorResponseTag(state) {
+      state.responseTag.errorState = false;
+      state.responseTag.errorMessages = "";
     },
   },
   actions: {
@@ -84,6 +96,27 @@ export default new Vuex.Store({
 
       const dynamicTitle = title ? " > " + title : "";
       document.title = document.title + dynamicTitle;
+    },
+    async getUniversalListTag(_, stringFilters) {
+      return await Request.get(
+        this.state.BASE_URL + "/dictionary/tags" + stringFilters
+      );
+    },
+    async addUniversalTagMToMTable({ commit }, objMToMTags) {
+      const response = await Request.post(
+        this.state.BASE_URL + "/m-to-m/tags",
+        objMToMTags
+      );
+      if (response.codeResponse >= 400) {
+        commit("setErrorResponseTag", response.message);
+      }
+
+      return response;
+    },
+    async removeAttachedTagMToMTable(_, idEntry) {
+      return await Request.delete(
+        this.state.BASE_URL + "/m-to-m/tags/" + idEntry
+      );
     },
   },
   getters: {

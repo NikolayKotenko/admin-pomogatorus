@@ -137,6 +137,16 @@
           label="Публичный"
       >
       </v-checkbox>
+      <v-checkbox
+          v-model="$store.state.TagsModule.tag.flag_engineering_system"
+          :disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
+          :loading="$store.state.loadingRequestGeneral"
+          class="mb-5 mt-5"
+          dense
+          hide-details
+          label="Используется в инженерной системе ?"
+      >
+      </v-checkbox>
       <InputStyled
           :data="$store.state.TagsModule.tag.seo_title"
           :is-disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"

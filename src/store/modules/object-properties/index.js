@@ -93,10 +93,7 @@ export default {
 
       let response = null;
       if (location.search.match("create")) {
-        response = await dispatch(
-          "createEntry",
-          this.state.ObjectPropertiesModule.entry
-        );
+        response = await dispatch("createEntry");
       } else {
         response = await dispatch(
           "updateEntry",
@@ -108,11 +105,11 @@ export default {
       //END
       commit("changeLoadingList", false);
     },
-    async createEntry({ commit }, objRequest) {
+    async createEntry({ commit }) {
       try {
         return await Request.post(
           this.state.BASE_URL + "/dictionary/object-properties",
-          objRequest
+          this.state.ObjectPropertiesModule.entry
         );
       } catch (e) {
         console.log(e);
@@ -159,21 +156,18 @@ export default {
         this.state.BASE_URL + "/dictionary/object-properties/" + code
       );
     },
-    async getInfoByEntry({ commit }) {
-      const responsePropertyObject = await Request.get(this.state.BASE_URL + "/dictionary/property-object");
-      const responseTags = await Request.get(this.state.BASE_URL + "/dictionary/tags?filter[flag_engineering_system]=true");
+    async getInfoByEntry({ commit, dispatch }) {
+      const responsePropertyObject = await Request.get(
+        this.state.BASE_URL + "/dictionary/property-object"
+      );
+      const responseTags = await dispatch(
+        "getUniversalListTag",
+        "?filter[flag_engineering_system]=true",
+        { root: true }
+      );
       commit("setListPropertyObject", responsePropertyObject.data);
       commit("setListTags", responseTags.data);
     },
-    async setTagObjectProperty({dispatch}, obj){
-      const {selectedTag, code} = obj;
-
-      const response = await Request.post(this.state.BASE_URL + "/m-to-m/tags", selectedTag);
-      if (response.codeResponse < 400){
-        await dispatch("getListEntries", code);
-      }
-    },
   },
-  getters: {
-  },
+  getters: {},
 };
