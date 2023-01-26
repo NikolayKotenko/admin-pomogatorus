@@ -163,11 +163,15 @@ export default {
     async onSubmitLocal() {
       await this.$store.dispatch('ObjectPropertiesModule/onSubmit');
       if (this.$route.query.action === 'create') {
-        await this.$router.replace({path: this.$route.path + '/' + this.$store.state.ObjectPropertiesModule.entry.code}).catch(() => {
-        });
+        await this.$router.replace({
+          path: this.$route.path + '/' + this.$store.state.ObjectPropertiesModule.entry.code,
+          query: {action: 'edit'},
+        }).catch(() => {});
       } else {
-        await this.$router.replace({path: this.$route.path}).catch(() => {
-        });
+        await this.$router.replace({
+          path: this.$route.path,
+          query: this.$route.query,
+        }).catch(() => {});
       }
     },
     async createNewTag(tagData){
