@@ -9,6 +9,7 @@
       :item-value="itemValue"
       :loading='isLoading'
       :outlined="isOutlined"
+      :label="computedPlaceholder"
       :placeholder='computedPlaceholder'
       :prepend-icon="prependIcon"
       :prepend-inner-icon="prependInnerIcon"

@@ -63,4 +63,16 @@ export default class Request {
     }
     return bodyFormData;
   }
+
+  //['id_tag': 1, 'id_prop': 2]
+  static ConstructFilterQuery(arrNameParam = []) {
+    let result = "";
+    for (let [key, value] of Object.entries(arrNameParam)) {
+      result += "filter[" + key + "]=" + value + "&";
+    }
+    result = result.slice(0, -1);
+
+    console.log("res", result);
+    return "?" + result;
+  }
 }

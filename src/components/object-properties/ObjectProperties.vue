@@ -11,7 +11,7 @@
             :is-required="true"
             :item-text="'name'"
             :item-value="'name'"
-            :placeholder="'Введите имя параметра'"
+            :placeholder="'Имя параметра'"
             class="mb-5"
             @update-input="setData"
             @change-input="onSubmitLocal"
@@ -68,7 +68,8 @@
     <footer class="detail_footer">
       <v-container>
         <v-btn
-            :disabled="$store.state.ObjectPropertiesModule.loadingList || !$store.state.ObjectPropertiesModule.entry.code"
+            v-if="$store.state.ObjectPropertiesModule.entry.code"
+            :disabled="$store.state.ObjectPropertiesModule.loadingList"
             color="red darken-1"
             text
             @click="$store.dispatch('ObjectPropertiesModule/stateModalAction', true)"
@@ -76,7 +77,18 @@
           Удалить
         </v-btn>
         <v-btn
+            v-if="$route.query.action"
+            :disabled="$store.state.ObjectPropertiesModule.loadingList"
+            color="white darken-1"
+            text
+            @click="$router.push({path: $route.meta.returnLink.path})"
+        >
+          Отменить
+        </v-btn>
+
+        <v-btn
             :disabled="!$store.getters.stateEditCreate($route.query.action)"
+            class="detail_footer__save_btn"
             color="blue darken-1"
             text
             @click.prevent="onSubmitLocal()"
@@ -157,8 +169,7 @@ export default {
       }
 
       await this.$store.dispatch('ObjectPropertiesModule/deleteEntry');
-      await this.$router.push({path: this.$route.meta.returnLink.path}).catch(() => {
-      });
+      await this.$router.push({path: this.$route.meta.returnLink.path}).catch(() => {});
     },
     async onSubmitLocal() {
       await this.$store.dispatch('ObjectPropertiesModule/onSubmit');

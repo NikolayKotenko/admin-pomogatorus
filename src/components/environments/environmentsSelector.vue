@@ -8,7 +8,7 @@
         :flat="flat"
         dense
         hide-details
-        :placeholder="flat ? 'Введите переменную окружения' : 'Начните ввод'"
+        :placeholder="flat ? 'Переменная окружения' : 'Начните ввод'"
         :loading="loadingList"
         :disabled="loadingList"
         hide-no-data

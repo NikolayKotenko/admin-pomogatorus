@@ -11,7 +11,7 @@
             :is-required="true"
             :item-text="'name'"
             :item-value="'id'"
-            :placeholder="'Введите имя тэга'"
+            :placeholder="'Имя тэга'"
             class="mb-5"
             @update-input="setData"
         />
@@ -152,7 +152,7 @@
           :is-disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
           :is-outlined="true"
           persistent-placeholder
-          :placeholder="'Введите SEO-заголовок для тэга'"
+          :placeholder="'SEO-заголовок для тэга'"
           class="mt-5 mb-5"
           @update-input="setTagTitle"
       />
@@ -161,7 +161,7 @@
           :is-disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
           :is-outlined="true"
           persistent-placeholder
-          :placeholder="'Введите SEO-описание для тэга'"
+          :placeholder="'SEO-описание для тэга'"
           class="mb-5"
           @update-input="setTagDescription"
       />
@@ -178,6 +178,7 @@
     <footer class="detail_footer">
       <v-container>
         <v-btn
+            v-if="$store.state.TagsModule.tag.id"
             :disabled="$store.state.loadingRequestGeneral || !$store.state.TagsModule.tag.id"
             color="red darken-1"
             text
@@ -186,7 +187,18 @@
           Удалить
         </v-btn>
         <v-btn
+            v-if="$route.query.action"
+            :disabled="$store.state.loadingRequestGeneral"
+            color="white darken-1"
+            text
+            @click="$router.push({path: $route.meta.returnLink.path})"
+        >
+          Отменить
+        </v-btn>
+
+        <v-btn
             :disabled="!$store.getters.stateEditCreate($route.query.action)"
+            class="detail_footer__save_btn"
             color="blue darken-1"
             text
             @click.prevent="onSubmitLocal()"

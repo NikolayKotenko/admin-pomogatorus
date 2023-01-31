@@ -225,6 +225,7 @@
     <footer class="detail_footer">
       <v-container>
         <v-btn
+            v-if="$store.state.UsersModule.entry.id"
             :disabled="$store.state.UsersModule.loadingList || !$store.state.UsersModule.entry.id"
             color="red darken-1"
             text
@@ -233,7 +234,18 @@
           Удалить
         </v-btn>
         <v-btn
+            v-if="$route.query.action"
+            :disabled="$store.state.loadingRequestGeneral"
+            color="white darken-1"
+            text
+            @click="$router.push({path: $route.meta.returnLink.path})"
+        >
+          Отменить
+        </v-btn>
+
+        <v-btn
             :disabled="! $store.getters.stateEditCreate($route.query.action) || $store.state.UsersModule.loadingList"
+            class="detail_footer__save_btn"
             color="blue darken-1"
             text
             @click.prevent="onSubmitLocal()"

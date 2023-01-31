@@ -27,7 +27,7 @@ export function AnswerRangeMin(id) {
   this.commentary = "";
   this.showComentary = true;
   this.focused = false;
-  this.placeholder = "Введите минимальное значение";
+  this.placeholder = "Минимальное значение";
   this.dataEnv = null;
 }
 
@@ -37,7 +37,7 @@ export function AnswerRangeMax(id) {
   this.commentary = "";
   this.showComentary = true;
   this.focused = false;
-  this.placeholder = "Введите максимальное значение";
+  this.placeholder = "Максимальное значение";
   this.dataEnv = null;
 }
 

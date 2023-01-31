@@ -33,14 +33,26 @@
       <div v-if="!!Object.keys($route.meta).includes('ru_name')">
         <v-chip color="white" text-color="primary" style="cursor: pointer">
           <div style="overflow: hidden; text-overflow: ellipsis">
+            <!-- Список -->
             <router-link
                 v-if="$route.meta.returnLink && $route.meta.returnLink.ru_name"
-                :to="$route.meta.returnLink.path ">{{ $route.meta.returnLink.ru_name  }}</router-link>
-            <span v-if="$route.meta.returnLink && $route.meta.returnLink.ru_name">&nbsp; > &nbsp;</span>
-            <span>{{ $route.meta.ru_name }}</span>
-            <template v-if="$store.state.cur_num">
-              # {{ $store.state.cur_num }}
-            </template>
+                :to="$route.meta.returnLink.path"
+            >
+              {{ $route.meta.returnLink.ru_name }}
+            </router-link>
+
+            <div style="display: contents" v-if="! $route.meta.singleComponent">
+              <!-- Черточка разделитель -->
+              <span v-if="$route.meta.returnLink && $route.meta.returnLink.ru_name">&nbsp; > &nbsp;</span>
+
+              <!-- Детальная страница-->
+              <span v-if="$route.path && $route.meta.ru_name">{{ $route.meta.ru_name  }}</span>
+
+              <!-- Идшник -->
+              <template v-if="$store.state.cur_num">
+                # {{ $store.state.cur_num }}
+              </template>
+            </div>
           </div>
         </v-chip>
       </div>

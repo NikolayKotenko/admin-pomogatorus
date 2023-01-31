@@ -39,7 +39,7 @@
             :loading="data_instance.tagsLoaded"
             :search-input.sync="data_instance.tagSearch"
             clearable
-            label="Введите тэг"
+            label="Тэг"
             :error="data_instance.tagError.isError"
             :error-messages="
               data_instance.tagError.isError ? 'Такой тэг уже добавлен' : []

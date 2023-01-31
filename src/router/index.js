@@ -108,8 +108,8 @@ const routes = [
       ru_name: "Статья",
       requiresAuth: true,
       returnLink: {
-        name: "Articles",
         ru_name: "Список статей",
+        name: "Articles",
         path: "/articles",
       },
     },
@@ -119,8 +119,9 @@ const routes = [
     name: "DetailTag",
     component: DetailTag,
     meta: {
-      title: "Создание/редактирование тэга",
-      ru_name: "Создание/редактирование тэга",
+      title: "Тэги",
+      ru_name: "Тэги",
+      singleComponent: true,
       requiresAuth: true,
       canCreate: true,
       canEdit: true,
@@ -136,6 +137,7 @@ const routes = [
         query: { id: null },
       },
       returnLink: {
+        ru_name: "Тэги",
         name: "Tags",
         path: "/tags",
       },
@@ -151,8 +153,9 @@ const routes = [
     name: "ObjectProperties",
     component: ObjectProperties,
     meta: {
-      title: "Создание/редактирование параметров объекта",
-      ru_name: "Создание/редактирование параметров объекта",
+      title: "Параметр",
+      ru_name: "Параметр",
+      singleComponent: true,
       requiresAuth: true,
       canCreate: true,
       canEdit: true,
@@ -168,6 +171,7 @@ const routes = [
         query: { code: null },
       },
       returnLink: {
+        ru_name: "Параметры объекта",
         name: "ObjectProperties",
         path: "/object-properties",
       },
@@ -183,8 +187,9 @@ const routes = [
     name: "DetailUser",
     component: DetailUser,
     meta: {
-      title: "Просмотр/назначение пользователя",
-      ru_name: "Просмотр/назначение пользователя",
+      title: "Пользователи",
+      ru_name: "Пользователи",
+      singleComponent: true,
       requiresAuth: true,
       canCreate: true,
       canEdit: true,
@@ -200,6 +205,7 @@ const routes = [
         query: { id: null },
       },
       returnLink: {
+        ru_name: "Пользователи",
         name: "Users",
         path: "/users",
       },

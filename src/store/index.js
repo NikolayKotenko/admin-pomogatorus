@@ -102,6 +102,11 @@ export default new Vuex.Store({
         this.state.BASE_URL + "/dictionary/tags" + stringFilters
       );
     },
+    async getUniversalListMToMTags(_, stringFilters) {
+      return await Request.get(
+        this.state.BASE_URL + "/m-to-m/tags" + stringFilters
+      );
+    },
     async addUniversalTagMToMTable({ commit }, objMToMTags) {
       const response = await Request.post(
         this.state.BASE_URL + "/m-to-m/tags",

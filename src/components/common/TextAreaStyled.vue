@@ -12,6 +12,7 @@
       :loading='isLoading'
       :multi-line="multiLine"
       :outlined="isOutlined"
+      :label="computedPlaceholder"
       :placeholder='computedPlaceholder'
       :prepend-icon="prependIcon"
       :required="isRequired"

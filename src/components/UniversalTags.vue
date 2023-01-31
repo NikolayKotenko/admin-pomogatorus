@@ -41,7 +41,7 @@
               :loading="loading"
               clearable
               @click:clear="($store.commit('clearErrorResponseTag'))"
-              label="Введите тэг"
+              label="Тэг"
               :error="errorState"
               :error-messages="errorMessages"
               :disabled="disabledState"

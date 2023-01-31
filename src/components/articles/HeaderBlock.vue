@@ -303,7 +303,7 @@
                 :data="$store.state.ArticleModule.urlText"
                 :is-clearable="true"
                 :is-solo="true"
-                :placeholder="'Введите текст ссылки'"
+                :placeholder="'Текст ссылки'"
                 class="mb-4"
                 @update-input="setUrlText"
             />
@@ -313,7 +313,7 @@
                 :is-clearable="true"
                 :is-required="true"
                 :is-solo="true"
-                :placeholder="'Введите адрес ссылки'"
+                :placeholder="'Адрес ссылки'"
                 @update-input="setUrlValue"
             />
           </v-form>
