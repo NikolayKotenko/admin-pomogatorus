@@ -180,8 +180,7 @@ export default {
         }).catch(() => {});
       } else {
         await this.$router.replace({
-          path: this.$route.path,
-          query: this.$route.query,
+          path: this.$route.meta.returnLink.path,
         }).catch(() => {});
       }
     },

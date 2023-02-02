@@ -311,9 +311,10 @@ export default {
 
       await this.$store.dispatch('UsersModule/onSubmit', {}, {root: true});
       if (this.$route.query.action === 'create') {
-        await this.$router.replace({path: this.$route.path + '/' + this.$store.state.UsersModule.entry.id});
+        // await this.$router.replace({path: this.$route.path + '/' + this.$store.state.UsersModule.entry.id});
+        await this.$router.replace({ path: this.$route.meta.returnLink.path }).catch(() => {});
       } else {
-        await this.$router.replace({path: this.$route.path});
+        await this.$router.replace({ path: this.$route.meta.returnLink.path }).catch(() => {});
       }
     },
     customFilter(item, queryText) {

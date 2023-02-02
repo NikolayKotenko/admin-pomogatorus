@@ -14,6 +14,7 @@
             :placeholder="'Имя тэга'"
             class="mb-5"
             @update-input="setData"
+            @change-input="onSubmitLocal"
         />
       </template>
       <template v-else>
@@ -338,29 +339,16 @@ export default {
     async onSubmitLocal() {
       await this.$store.dispatch('onSubmit', {}, {root: true});
       if (this.$route.query.action === 'create') {
-        await this.$router.replace({path: this.$route.path + '/' + this.$store.state.TagsModule.tag.id}).catch(() => {
-        });
+        await this.$router.replace({
+          path: this.$route.path + '/' + this.$store.state.TagsModule.tag.id,
+          query: {action: 'edit'},
+        }).catch(() => {});
       } else {
-        await this.$router.replace({path: this.$route.path}).catch(() => {
-        });
+        await this.$router.replace({ path: this.$route.meta.returnLink.path }).catch(() => {});
       }
     },
     setData(value) {
       this.$store.state.TagsModule.tag.name = value
-      this.onChangeLocal()
-    },
-    async onChangeLocal() {
-      if (this.$route.query.action !== 'create')
-        return false;
-
-      await this.$store.dispatch('createTag');
-      await this.$router.replace({
-        path: this.$route.path + '/' + this.$store.state.TagsModule.tag.id,
-        query: {
-          action: 'edit'
-        }
-      }).catch(() => {
-      });
     },
     async deleteLocal() {
       await this.$store.dispatch('deleteTag');
