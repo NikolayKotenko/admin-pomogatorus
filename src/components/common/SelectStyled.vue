@@ -23,6 +23,11 @@
       @focus='onFocus'
       @focusout='outFocus'
       @click:clear="(currentData = '')"
+      :menu-props="{
+            closeOnContentClick: true,
+            bottom: true,
+            offsetY: true,
+          }"
   >
     <template slot="prepend-inner">
       <slot name="prepend-inner"></slot>
@@ -100,7 +105,7 @@ export default {
     },
     isOutlined: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     indexArray: {
       type: Number,

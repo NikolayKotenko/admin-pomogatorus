@@ -48,7 +48,6 @@
           :item-text="'name'"
           :item-value="'id'"
           :is-disabled="true"
-          :is-outlined="true"
           :placeholder="'Тип параметра'"
           class="mb-5"
       />

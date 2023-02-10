@@ -222,9 +222,16 @@ export default {
       },
       {
         id: 7,
-        icon: 'mdi-account-arrow-right',
+        icon: 'mdi-home-edit',
         title: 'Параметры объекта',
         link: '/object-properties',
+        nameIcon: 'answers.svg'
+      },
+      {
+        id: 8,
+        icon: 'mdi-book-alphabet',
+        title: 'Справочники',
+        link: '/dictionaries',
         nameIcon: 'answers.svg'
       },
     ]

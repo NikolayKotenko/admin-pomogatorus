@@ -8,6 +8,7 @@ import AnswersModule from "./modules/answers";
 import TagsModule from "./modules/tags";
 import UsersModule from "./modules/users";
 import ObjectPropertiesModule from "./modules/object-properties";
+import DictionariesModule from "./modules/dictionaries";
 import Request from "../services/request";
 
 Vue.use(Vuex);
@@ -137,5 +138,6 @@ export default new Vuex.Store({
     TagsModule,
     UsersModule,
     ObjectPropertiesModule,
+    DictionariesModule,
   },
 });

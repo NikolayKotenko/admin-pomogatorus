@@ -20,6 +20,7 @@ import Logging from "@/services/logging";
 import DetailTag from "@/components/tags/DetailTag";
 import DetailUser from "@/components/users/DetailUser";
 import ObjectProperties from "@/components/object-properties/ObjectProperties";
+import Dictionaries from "@/components/dictionaries/Dictionaries";
 
 Vue.use(VueRouter);
 
@@ -179,6 +180,40 @@ const routes = [
         name: "ObjectProperties",
         path: "/object-properties",
         actionModalAsk: "ObjectPropertiesModule/stateModalAction",
+      },
+    },
+  },
+  {
+    path: "/dictionaries/:code?/",
+    name: "Dictionaries",
+    component: Dictionaries,
+    meta: {
+      title: "Справочник",
+      ru_name: "Справочник",
+      singleComponent: true,
+      requiresAuth: true,
+      canCreate: true,
+      canEdit: true,
+      canView: true,
+      canDelete: true,
+      createLink: {
+        name: "Dictionaries",
+        query: { action: "create" },
+      },
+      editLink: {
+        name: "Dictionaries",
+        params: { action: "edit" },
+        query: { code: null },
+      },
+      returnLink: {
+        ru_name: "Параметры объекта",
+        name: "Dictionaries",
+        path: "/dictionaries",
+      },
+      deleteLink: {
+        name: "Dictionaries",
+        path: "/dictionaries",
+        actionModalAsk: "DictionariesModule/stateModalAction",
       },
     },
   },
