@@ -101,7 +101,7 @@ export default {
     },
     isOutlined: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     indexArray: {
       type: Number,

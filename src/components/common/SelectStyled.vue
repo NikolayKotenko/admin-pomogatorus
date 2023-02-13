@@ -18,11 +18,14 @@
       :rules="currentRules"
       :solo='isSolo'
       :type="typeData"
+      :return-object="isReturnObject"
+      :value="data"
       dense
       hide-details
       @focus='onFocus'
       @focusout='outFocus'
-      @click:clear="(currentData = '')"
+      @change="$emit('change-select', internalData)"
+      @click:clear="(internalData = null)"
       :menu-props="{
             closeOnContentClick: true,
             bottom: true,
@@ -61,7 +64,7 @@ export default {
     },
     isClearable: {
       type: Boolean,
-      default: false
+      default: true
     },
     itemText: {
       type: String,
@@ -80,7 +83,7 @@ export default {
       default: false
     },
     data: {
-      type: [String, Number, Array],
+      type: [Object, String, Number, Array],
       default: ''
     },
     isDisabled: {
@@ -94,6 +97,10 @@ export default {
     isAutofocus: {
       type: Boolean,
       default: false
+    },
+    isReturnObject: {
+      type: Boolean,
+      default: true
     },
     currentRules: {
       type: Array,
@@ -116,7 +123,7 @@ export default {
     },
   },
   data: () => ({
-    internalData: '',
+    internalData: null,
     isFocused: false
   }),
   computed: {

@@ -1,4 +1,5 @@
 import Request from "../../../services/request";
+import {Dictionary} from "@/helpers/constructors";
 
 export default {
   namespaced: true,
@@ -6,13 +7,8 @@ export default {
     listEntries: [],
     loadingList: false,
     deleteModal: false,
-    entry: {
-      id: null,
-      code: null,
-      name: null,
-    },
-    listPropertyObject: [],
-    listTags: [],
+    entry: new Dictionary(),
+    listAttributesByDictionary: [],
   },
   mutations: {
     changeListEntries(state, array) {
@@ -23,29 +19,18 @@ export default {
         state.listEntries = Object.values(array);
       }
     },
-    setListPropertyObject(state, array) {
-      state.listPropertyObject = [];
-      if (Array.isArray(array)) {
-        state.listPropertyObject = array;
-      } else {
-        state.listPropertyObject = Object.values(array);
-      }
-    },
-    setListTags(state, array) {
-      state.listTags = [];
-      state.listTags = array;
+    setListAttributesByDictionary(state, array) {
+      state.listAttributesByDictionary = [];
+      state.listAttributesByDictionary = array;
     },
     setEntry(state, object) {
-      if (object == null) return false;
-
-      state.entry = object;
+      if (! object)
+        state.entry = new Dictionary()
+      else
+        state.entry = object;
     },
     clearEntry(state) {
-      state.entry = {
-        id: null,
-        code: null,
-        name: null,
-      };
+      state.entry = new Dictionary()
     },
     changeLoadingList(state, value) {
       state.loadingList = value;
@@ -148,17 +133,28 @@ export default {
         this.state.BASE_URL + "/dictionary/dictionaries/" + code
       );
     },
-    async getInfoByEntry({ commit, dispatch }) {
+    async getInfoByEntry({ commit, state }) {
+      commit("changeLoadingList", true);
+
+      const query = '?filter[id_dictionary]='+state.entry.id;
       const responsePropertyObject = await Request.get(
-        this.state.BASE_URL + "/dictionary/property-object"
+        this.state.BASE_URL + "/dictionary/dictionary-attributes"+query
       );
-      const responseTags = await dispatch(
-        "getUniversalListTag",
-        "?filter[flag_engineering_system]=true",
-        { root: true }
+      if (responsePropertyObject.codeResponse < 400) {
+        commit("setListAttributesByDictionary", responsePropertyObject.data);
+      }
+
+      commit("changeLoadingList", false);
+    },
+    async createAttribute({commit}, DictionaryAttribute){
+      commit("changeLoadingList", true);
+
+      const response = await Request.post(
+          this.state.BASE_URL + "/dictionary/dictionary-attributes",
+              DictionaryAttribute
       );
-      commit("setListPropertyObject", responsePropertyObject.data);
-      commit("setListTags", responseTags.data);
+      commit("changeLoadingList", false);
+      return response;
     },
   },
   getters: {},
