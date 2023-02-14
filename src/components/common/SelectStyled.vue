@@ -19,12 +19,10 @@
       :solo='isSolo'
       :type="typeData"
       :return-object="isReturnObject"
-      :value="data"
       dense
       hide-details
       @focus='onFocus'
       @focusout='outFocus'
-      @change="$emit('change-select', internalData)"
       @click:clear="(internalData = null)"
       :menu-props="{
             closeOnContentClick: true,

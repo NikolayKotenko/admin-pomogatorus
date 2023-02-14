@@ -72,7 +72,7 @@ export default class Request {
     }
     result = result.slice(0, -1);
 
-    console.log("res", result);
+    // console.log("res", result);
     return "?" + result;
   }
 }

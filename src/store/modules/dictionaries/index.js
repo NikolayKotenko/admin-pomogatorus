@@ -1,6 +1,7 @@
 import Request from "../../../services/request";
-import {Dictionary} from "@/helpers/constructors";
+import { Dictionary } from "@/helpers/constructors";
 
+//Entry здесь сам справочник, его атрибуты отдельно обрабатываем
 export default {
   namespaced: true,
   state: {
@@ -24,13 +25,11 @@ export default {
       state.listAttributesByDictionary = array;
     },
     setEntry(state, object) {
-      if (! object)
-        state.entry = new Dictionary()
-      else
-        state.entry = object;
+      if (!object) state.entry = new Dictionary();
+      else state.entry = object;
     },
     clearEntry(state) {
-      state.entry = new Dictionary()
+      state.entry = new Dictionary();
     },
     changeLoadingList(state, value) {
       state.loadingList = value;
@@ -96,9 +95,7 @@ export default {
     async updateEntry({ commit }, objRequest) {
       try {
         return await Request.put(
-          this.state.BASE_URL +
-            "/dictionary/dictionaries/" +
-            objRequest.code,
+          this.state.BASE_URL + "/dictionary/dictionaries/" + objRequest.code,
           objRequest
         );
       } catch (e) {
@@ -133,26 +130,61 @@ export default {
         this.state.BASE_URL + "/dictionary/dictionaries/" + code
       );
     },
-    async getInfoByEntry({ commit, state }) {
+    async getListDictionaryAttribute(
+      { commit, state },
+      additionalQuery = null
+    ) {
       commit("changeLoadingList", true);
 
-      const query = '?filter[id_dictionary]='+state.entry.id;
-      const responsePropertyObject = await Request.get(
-        this.state.BASE_URL + "/dictionary/dictionary-attributes"+query
+      const query = Request.ConstructFilterQuery({
+        id_dictionary: state.entry.id,
+        ...additionalQuery,
+      });
+      const response = await Request.get(
+        this.state.BASE_URL + "/dictionary/dictionary-attributes" + query
       );
-      if (responsePropertyObject.codeResponse < 400) {
-        commit("setListAttributesByDictionary", responsePropertyObject.data);
-      }
+      commit("setListAttributesByDictionary", response.data);
 
       commit("changeLoadingList", false);
+
+      return response;
     },
-    async createAttribute({commit}, DictionaryAttribute){
+    async createAttribute({ commit, dispatch }, DictionaryAttribute) {
       commit("changeLoadingList", true);
 
-      const response = await Request.post(
+      const checkExist = await dispatch("getListDictionaryAttribute", {
+        code: DictionaryAttribute.code,
+      });
+      let response;
+      if (checkExist.codeResponse === 200) {
+        response = await Request.put(
+          this.state.BASE_URL +
+            "/dictionary/dictionary-attributes/" +
+            DictionaryAttribute.code,
+          DictionaryAttribute
+        );
+      } else {
+        response = await Request.post(
           this.state.BASE_URL + "/dictionary/dictionary-attributes",
-              DictionaryAttribute
+          DictionaryAttribute
+        );
+      }
+
+      await dispatch("getListDictionaryAttribute");
+
+      commit("changeLoadingList", false);
+      return response;
+    },
+    async deleteAttribute({ commit, dispatch }, codeAttribute) {
+      commit("changeLoadingList", true);
+
+      const response = await Request.delete(
+        this.state.BASE_URL +
+          "/dictionary/dictionary-attributes/" +
+          codeAttribute
       );
+      await dispatch("getListDictionaryAttribute");
+
       commit("changeLoadingList", false);
       return response;
     },

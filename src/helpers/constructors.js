@@ -47,8 +47,7 @@ export function MToMTags(
   id_question = null,
   id_article = null,
   id_object_property = null
-)
-{
+) {
   this.id_tag = id_tag;
   this.id_answer = id_answer;
   this.id_question = id_question;
@@ -56,25 +55,21 @@ export function MToMTags(
   this.id_object_property = id_object_property;
 }
 
-export function Dictionary
-(
-    id = null,
-    name = '',
-    code = '',
-)
-{
+export function Dictionary(id = null, name = "", code = "") {
   this.id = id;
   this.name = name;
   this.code = code;
 }
 
-export function DictionaryAttribute
-(
- name = '',
- value = '',
- id_dictionary = null
-)
-{
+export function DictionaryAttribute(
+  id = null,
+  code = "",
+  name = "",
+  value = "",
+  id_dictionary = null
+) {
+  this.id = id;
+  this.code = code;
   this.name = name;
   this.value = value;
   this.id_dictionary = id_dictionary;

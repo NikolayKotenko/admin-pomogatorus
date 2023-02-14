@@ -8,42 +8,110 @@
           :item-text="'name'"
           :item-value="'code'"
           :placeholder="'Список справочников'"
-          @change-select="setDictionaryAttribute"
+          @update-input="setDictionary"
       ></SelectStyled>
 
       <!-- Атрибуты справочника -->
-      <div v-if="$store.state.DictionariesModule.listAttributesByDictionary.length">
-        <div class="wrapper_attached_attribute"
-             v-for="(obj,key) in $store.state.DictionariesModule.listAttributesByDictionary"
-             :key="key"
-        >
-          <InputStyled
-              :data="obj.name"
-              :item-text="obj.name"
-              :item-value="obj.name"
-              :placeholder="'Наименование атрибута'"
-          ></InputStyled>
-          <InputStyled
-              :data="obj.value"
-              :item-text="obj.value"
-              :item-value="obj.value"
-              :placeholder="'Значение атрибута'"
-          ></InputStyled>
-        </div>
-      </div>
-      <div class="wrapper_new_attribute">
-        <InputStyled
-            :data="newAttribute.name"
-            :placeholder="'Новый атрибут справочника'"
-            @update-input="setNameAttribute"
-        ></InputStyled>
-        <InputStyled
-            :data="newAttribute.value"
-            :placeholder="'Новое значение атрибута справочника'"
-            @update-input="setValueAttribute"
-        ></InputStyled>
-        <v-btn @click="postNewAttribute">Добавить</v-btn>
-      </div>
+      <v-data-table
+          :calculate-widths="true"
+          :headers="headers"
+          :items="$store.state.DictionariesModule.listAttributesByDictionary"
+          :loading="$store.state.DictionariesModule.loadingList"
+          class="elevation-1 table_dictionary_attributes"
+          loading-text="Loading... Please wait"
+          hide-default-footer
+      >
+        <template v-slot:top>
+          <v-toolbar flat>
+            <v-toolbar-title class="table_dictionary_attributes__header">Таблица атрибутов</v-toolbar-title>
+            <v-divider
+                class="mx-4"
+                inset
+                vertical
+            ></v-divider>
+            <v-spacer></v-spacer>
+            <v-dialog v-model="dialog">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                    color="primary"
+                    dark
+                    class="mb-2"
+                    v-bind="attrs"
+                    v-on="on"
+                    @click="addNewAttribute"
+                >
+                  Добавить
+                </v-btn>
+              </template>
+              <v-card>
+                <v-card-title class="text-h6 d-block text-center">{{ formTitle }}</v-card-title>
+                <v-card-text class="table_dictionary_attributes__modal_item">
+                  <v-text-field
+                      v-model="editedItem.name"
+                      label="Наименование"
+                  ></v-text-field>
+                  <v-text-field
+                      v-model="editedItem.value"
+                      label="Значение"
+                  ></v-text-field>
+                </v-card-text>
+
+                <v-card-actions>
+                  <v-btn color="blue darken-1" text class="mr-auto" @click="dialog = false">
+                    Отмена
+                  </v-btn>
+                  <v-btn color="blue darken-1" text @click="postNewAttribute">
+                    Сохранить
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+            <v-dialog v-model="dialogDelete">
+            <v-card>
+              <v-card-title class="text-h6 d-block text-center">Вы действительно хотите удалить атрибут ?</v-card-title>
+              <v-card-text class="table_dictionary_attributes__modal_item">
+                <v-text-field
+                    v-model="editedItem.name"
+                    label="Наименование"
+                    readonly
+                ></v-text-field>
+                <v-text-field
+                    v-model="editedItem.value"
+                    readonly
+                    label="Значение"
+                ></v-text-field>
+              </v-card-text>
+              <v-card-actions>
+                <v-btn color="blue darken-1" text class="mr-auto" @click="dialogDelete = false">
+                  Отмена
+                </v-btn>
+                <v-btn color="blue darken-1" text @click="deleteAttribute">
+                  Удалить
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+          </v-toolbar>
+        </template>
+        <template v-slot:item.actions="{ item }">
+          <v-icon
+              small
+              class="mr-2"
+              @click="editItem(item)"
+          >
+            mdi-pencil
+          </v-icon>
+          <v-icon
+              small
+              @click="deleteItem(item)"
+          >
+            mdi-delete
+          </v-icon>
+        </template>
+        <template v-slot:no-data>
+          Не найдено атрибутов у этого справочника
+        </template>
+      </v-data-table>
 
     </v-container>
 
@@ -79,38 +147,6 @@
       </v-container>
     </footer>
 
-    <!--  MODALS  -->
-    <v-dialog
-        v-model="$store.state.DictionariesModule.deleteModal"
-        max-width="600"
-    >
-      <v-card>
-        <v-card-title>
-          <span class="text-h6" style="font-size: 0.8em !important;">Вы точно хотите удалить параметр объекта?</span>
-        </v-card-title>
-        <v-card-actions>
-          <v-btn
-              :disabled="$store.state.DictionariesModule.loadingList"
-              :loading="$store.state.DictionariesModule.loadingList"
-              color="blue darken-1"
-              text
-              @click="$store.dispatch('DictionariesModule/stateModalAction', false)"
-          >
-            Нет
-          </v-btn>
-          <v-spacer></v-spacer>
-          <v-btn
-              :disabled="$store.state.DictionariesModule.loadingList"
-              :loading="$store.state.DictionariesModule.loadingList"
-              color="red darken-1"
-              text
-          >
-            Да
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
     <v-overlay :value="$store.state.DictionariesModule.loadingList">
       <v-progress-circular
           indeterminate
@@ -122,21 +158,63 @@
 
 <script>
 import SelectStyled from "@/components/common/SelectStyled";
-import InputStyled from "@/components/common/InputStyled";
 import {DictionaryAttribute} from "@/helpers/constructors";
 
 export default {
   name: "Dictionaries",
   components:{
-    InputStyled,
     SelectStyled,
   },
   data: () => ({
-    newAttribute: new DictionaryAttribute()
+    headers: [
+      {
+        id: 0,
+        text: "#",
+        groupable: false,
+        sortable: true,
+        value: "id",
+        width: '10%',
+        groupByName: 'id'
+      },
+      {
+        id: 1,
+        text: "Наименование атрибута",
+        groupable: false,
+        sortable: false,
+        value: "name",
+        width: '40%',
+        groupByName: 'name'
+      },
+      {
+        id: 2,
+        text: "Значение атрибута",
+        groupable: false,
+        sortable: false,
+        value: "value",
+        width: '40%',
+        groupByName: 'value'
+      },
+      {
+        id: 3,
+        text: 'Actions',
+        value: 'actions',
+        sortable: false
+      },
+    ],
+    dialog: false,
+    dialogDelete: false,
+    editedId: -1,
+    editedItem: new DictionaryAttribute(),
+    defaultItem: new DictionaryAttribute(),
   }),
   async mounted() {
     await this.$store.dispatch('DictionariesModule/getListEntries', this.$route.params.code)
-    await this.$store.dispatch('DictionariesModule/getInfoByEntry')
+    await this.$store.dispatch('DictionariesModule/getListDictionaryAttribute')
+  },
+  computed: {
+    formTitle () {
+      return this.editedId === -1 ? 'Создание атрибута' : 'Редактирование атрибута'
+    },
   },
   watch: {
     '$store.state.DictionariesModule.entry.code': {
@@ -157,8 +235,7 @@ export default {
     },
     '$store.state.DictionariesModule.entry.id': {
       handler(id) {
-        console.log('SADAS', id)
-        this.newAttribute.id_dictionary = id;
+        this.editedItem.id_dictionary = id;
       }
     },
     '$route.query.action': {
@@ -168,34 +245,58 @@ export default {
         }
       }
     },
-    '$route.params.code': {
-      handler(newValue) {
-        if (!newValue) {
-          this.$store.dispatch('DictionariesModule/clearEntry');
-        }
-      }
-    },
+    // '$route.params.code': {
+    //   handler(newValue) {
+    //     if (!newValue) {
+    //       this.$store.dispatch('DictionariesModule/clearEntry');
+    //     }
+    //   }
+    // },
   },
   methods:{
-    setNameAttribute(value){
-      this.newAttribute.name = value
-    },
-    setValueAttribute(value){
-      this.newAttribute.value = value;
-    },
-    setDictionaryAttribute(obj){
-      this.$store.commit('DictionariesModule/setEntry', obj)
+    async setDictionary(obj){
+      await this.$store.commit('DictionariesModule/setEntry', obj)
+      await this.$store.dispatch('DictionariesModule/getListDictionaryAttribute')
     },
     async postNewAttribute(){
-      const response = await this.$store.dispatch(
+      await this.$store.dispatch(
           'DictionariesModule/createAttribute',
           new DictionaryAttribute(
-              this.newAttribute.name,
-              this.newAttribute.value,
-              this.newAttribute.id_dictionary
+              this.editedItem.id,
+              this.editedItem.code,
+              this.editedItem.name,
+              this.editedItem.value,
+              this.editedItem.id_dictionary
           )
       );
-      console.log(response)
+      this.dialog = false;
+    },
+    deleteItem(item){
+      this.dialogDelete = true
+      this.editedItem = item
+    },
+    editItem (item) {
+      this.editedId = this.$store.state.DictionariesModule.listAttributesByDictionary
+        .filter((obj) => { return item.id === obj.id })
+        .map((obj) => { return obj.id; })[0]
+      ;
+      this.editedItem = item
+      this.dialog = true
+    },
+    addNewAttribute(){
+      this.editedItem = new DictionaryAttribute(
+          null,
+          '',
+          '',
+          '',
+          this.$store.state.DictionariesModule.entry.id
+      );
+      this.editedId = -1;
+      this.dialog = true;
+    },
+    async deleteAttribute(){
+      await this.$store.dispatch('DictionariesModule/deleteAttribute', this.editedItem.code)
+      this.dialogDelete = false
     }
   }
 }
@@ -206,20 +307,16 @@ export default {
   grid-row-gap: 1em;
   display: grid;
 }
-.wrapper_attached_attribute{
-  margin-top: 1em;
-  display: grid;
-  grid-row-gap: 1em;
-  grid-column-gap: 1em;
-  grid-template-columns: 1fr 1fr;
-}
-.wrapper_new_attribute{
-  position: fixed;
-  bottom: 50px;
-  display: grid;
-  grid-template-columns: 2fr 2fr 1fr;
-  width: 97%;
-  grid-column-gap: 1em;
+.table_dictionary_attributes{
+  &__header{
+    font-size: 1em;
+  }
+  &__modal_item{
+    padding-top: 1em!important;
+    padding-bottom: 1em!important;
+    display: inline-flex;
+    grid-column-gap: 1em;
+  }
 }
 
 </style>
