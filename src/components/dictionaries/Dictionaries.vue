@@ -73,7 +73,7 @@
                       :data="editedItem.value"
                       :is-items="$store.state.DictionariesModule.listOccurrencesAttributes"
                       :is-item-text="'value'"
-                      :is-item-value="'code'"
+                      :is-item-value="'value'"
                       :is-outlined="false"
                       :is-hide-details="false"
                       :is-placeholder="'Значение'"
