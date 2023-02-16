@@ -188,8 +188,8 @@ const routes = [
     name: "Dictionaries",
     component: Dictionaries,
     meta: {
-      title: "Справочник",
-      ru_name: "Справочник",
+      title: "Справочники",
+      ru_name: "Справочники",
       singleComponent: true,
       requiresAuth: true,
       canCreate: true,
@@ -206,7 +206,7 @@ const routes = [
         query: { code: null },
       },
       returnLink: {
-        ru_name: "Параметры объекта",
+        ru_name: "Справочники",
         name: "Dictionaries",
         path: "/dictionaries",
       },
