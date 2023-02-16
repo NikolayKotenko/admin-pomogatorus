@@ -1,6 +1,8 @@
 <template>
   <div>
-    <v-autocomplete
+    <v-combobox
+        v-model="currentData"
+        :rules="$store.state.nameRules"
         :class="isClass"
         :outlined="isOutlined"
         :dense="isDense"
@@ -9,25 +11,47 @@
         :label="isPlaceholder"
         :loading="isLoading"
         :disabled="isDisabled"
-        :hide-no-data="isHideNoData"
         :items="isItems"
         :item-text="isItemText"
         :item-value="isItemValue"
-        :return-object="isReturnObject"
+        :return-object="false"
+        :hide-no-data="false"
+        chips
         :clearable="isClearable"
         :search-input.sync="localSearchInputSync"
-        v-model="localSelected"
         @update:search-input="$emit('update-search-input', localSearchInputSync)"
         @change="$emit('change-search', localSelected)"
     >
-    </v-autocomplete>
+      <template v-slot:no-data>
+        <v-list-item v-if="localSearchInputSync && !isItems.length && !isLoading">
+          <span class="subheading">Enter чтобы создать новый элемент &nbsp;</span>
+          <v-chip label small>
+            {{ localSearchInputSync }}
+          </v-chip>
+        </v-list-item>
+      </template>
+<!--      <template v-slot:selection="{ attrs, item, parent, selected }">-->
+<!--        <v-chip-->
+<!--            v-if="item === Object(item)"-->
+<!--            v-bind="attrs"-->
+<!--            :color="`${item.color} lighten-3`"-->
+<!--            :input-value="selected"-->
+<!--            label-->
+<!--            small-->
+<!--        >-->
+<!--          <span class="pr-2">-->
+<!--            {{ item.value }}-->
+<!--          </span>-->
+<!--        </v-chip>-->
+<!--      </template>-->
+    </v-combobox>
   </div>
 </template>
 
 <script>
 
 export default {
-  name: 'SearchStyled',
+  name: 'ComboboxStyled',
   data: () => ({
     localSearchInputSync: '',
     localSelected: null
@@ -77,16 +101,28 @@ export default {
       type: String,
       default: ''
     },
-    isReturnObject: {
-      type: Boolean,
-      default: true
-    },
     isClearable: {
       type: Boolean,
       default: true
     },
+    data: {
+      type: [String, Number],
+      default: null
+    },
   },
-  computed: {}
+  computed:{
+    currentData: {
+      get() {
+        if (this.data) {
+          return this.data
+        }
+        return this.localSelected
+      },
+      set(value) {
+        this.localSelected = value
+      }
+    }
+  }
 }
 </script>
 

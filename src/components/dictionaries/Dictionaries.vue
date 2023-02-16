@@ -2,14 +2,32 @@
   <div class="detail_container">
     <v-container class="main_wrapper">
       <!-- Сам справочник  -->
-      <SelectStyled
-          :items="$store.state.DictionariesModule.listEntries"
-          :data="$store.state.DictionariesModule.entry"
-          :item-text="'name'"
-          :item-value="'code'"
-          :placeholder="'Список справочников'"
-          @update-input="setDictionary"
-      ></SelectStyled>
+      <template v-if="$store.getters.stateEditCreate($route.query.action)">
+        <InputStyled
+            :current-rules="$store.state.nameRules"
+            :data="$store.state.DictionariesModule.entry.name"
+            :is-clearable="true"
+            :is-disabled="$store.state.DictionariesModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+            :is-outlined="true"
+            :is-required="true"
+            :item-text="'name'"
+            :item-value="'name'"
+            :placeholder="'Имя справочника'"
+            class="mb-5"
+            @update-input="setDictionary"
+            @change-input="onSubmitLocal"
+        />
+      </template>
+      <template v-else>
+        <SelectStyled
+            :items="$store.state.DictionariesModule.listEntries"
+            :data="$store.state.DictionariesModule.entry"
+            :item-text="'name'"
+            :item-value="'code'"
+            :placeholder="'Список справочников'"
+            @update-input="setDictionary"
+        ></SelectStyled>
+      </template>
 
       <!-- Атрибуты справочника -->
       <v-data-table
@@ -47,20 +65,29 @@
                 <v-card-title class="text-h6 d-block text-center">{{ formTitle }}</v-card-title>
                 <v-card-text class="table_dictionary_attributes__modal_item">
                   <v-text-field
-                      v-model="editedItem.name"
-                      label="Наименование"
+                      v-model="editedItem.sort"
+                      label="Сортировка"
                   ></v-text-field>
-                  <v-text-field
-                      v-model="editedItem.value"
-                      label="Значение"
-                  ></v-text-field>
+                  <ComboboxStyled
+                      v-if="dialog"
+                      :data="editedItem.value"
+                      :is-items="$store.state.DictionariesModule.listOccurrencesAttributes"
+                      :is-item-text="'value'"
+                      :is-item-value="'code'"
+                      :is-outlined="false"
+                      :is-hide-details="false"
+                      :is-placeholder="'Значение'"
+                      :is-loading="$store.state.DictionariesModule.loadingOccurrencesAttributes"
+                      @update-search-input="findSearchAttribute"
+                      @change-search="setSearchAttribute"
+                  ></ComboboxStyled>
                 </v-card-text>
 
                 <v-card-actions>
                   <v-btn color="blue darken-1" text class="mr-auto" @click="dialog = false">
                     Отмена
                   </v-btn>
-                  <v-btn color="blue darken-1" text @click="postNewAttribute">
+                  <v-btn color="blue" :disabled="! editedItem.value" text @click="postNewAttribute">
                     Сохранить
                   </v-btn>
                 </v-card-actions>
@@ -71,8 +98,8 @@
               <v-card-title class="text-h6 d-block text-center">Вы действительно хотите удалить атрибут ?</v-card-title>
               <v-card-text class="table_dictionary_attributes__modal_item">
                 <v-text-field
-                    v-model="editedItem.name"
-                    label="Наименование"
+                    v-model="editedItem.sort"
+                    label="Сортировка"
                     readonly
                 ></v-text-field>
                 <v-text-field
@@ -141,12 +168,44 @@
             class="detail_footer__save_btn"
             color="blue darken-1"
             text
+            @click.prevent="onSubmitLocal()"
         >
           Сохранить
         </v-btn>
       </v-container>
     </footer>
 
+    <v-dialog
+        v-model="$store.state.DictionariesModule.deleteModal"
+        max-width="600"
+    >
+      <v-card>
+        <v-card-title>
+          <span class="text-h6" style="font-size: 0.8em !important;">Вы точно хотите удалить справочник со всеми параметрами ?</span>
+        </v-card-title>
+        <v-card-actions>
+          <v-btn
+              :disabled="$store.state.DictionariesModule.loadingList"
+              :loading="$store.state.DictionariesModule.loadingList"
+              color="blue darken-1"
+              text
+              @click="$store.dispatch('DictionariesModule/stateModalAction', false)"
+          >
+            Нет
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+              :disabled="$store.state.DictionariesModule.loadingList"
+              :loading="$store.state.DictionariesModule.loadingList"
+              color="red darken-1"
+              text
+              @click="deleteLocal()"
+          >
+            Да
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-overlay :value="$store.state.DictionariesModule.loadingList">
       <v-progress-circular
           indeterminate
@@ -157,12 +216,16 @@
 </template>
 
 <script>
+import InputStyled from "@/components/common/InputStyled";
 import SelectStyled from "@/components/common/SelectStyled";
 import {DictionaryAttribute} from "@/helpers/constructors";
+import ComboboxStyled from "@/components/common/ComboboxStyled";
 
 export default {
   name: "Dictionaries",
   components:{
+    InputStyled,
+    ComboboxStyled,
     SelectStyled,
   },
   data: () => ({
@@ -178,12 +241,12 @@ export default {
       },
       {
         id: 1,
-        text: "Наименование атрибута",
+        text: "Сортировка",
         groupable: false,
         sortable: false,
-        value: "name",
-        width: '40%',
-        groupByName: 'name'
+        value: "sort",
+        width: '20%',
+        groupByName: 'sort'
       },
       {
         id: 2,
@@ -191,21 +254,21 @@ export default {
         groupable: false,
         sortable: false,
         value: "value",
-        width: '40%',
+        width: '50%',
         groupByName: 'value'
       },
       {
         id: 3,
         text: 'Actions',
         value: 'actions',
-        sortable: false
+        sortable: false,
+        width: '20%',
       },
     ],
     dialog: false,
     dialogDelete: false,
     editedId: -1,
     editedItem: new DictionaryAttribute(),
-    defaultItem: new DictionaryAttribute(),
   }),
   async mounted() {
     await this.$store.dispatch('DictionariesModule/getListEntries', this.$route.params.code)
@@ -233,40 +296,60 @@ export default {
         this.$store.dispatch('setTitle', this.$store.state.DictionariesModule.entry.name)
       }
     },
-    '$store.state.DictionariesModule.entry.id': {
-      handler(id) {
-        this.editedItem.id_dictionary = id;
-      }
-    },
     '$route.query.action': {
       handler(newValue) {
         if (newValue === 'create') {
-          this.$store.dispatch('DictionariesModule/clearEntry');
+          this.$store.commit('DictionariesModule/clearEntry');
         }
       }
     },
-    // '$route.params.code': {
-    //   handler(newValue) {
-    //     if (!newValue) {
-    //       this.$store.dispatch('DictionariesModule/clearEntry');
-    //     }
-    //   }
-    // },
+    '$route.params.code': {
+      handler(newValue) {
+        if (!newValue) {
+          this.$store.commit('DictionariesModule/clearEntry');
+          this.$store.commit('DictionariesModule/clearListAttributesByDictionary')
+        }
+      }
+    },
   },
   methods:{
-    async setDictionary(obj){
-      await this.$store.commit('DictionariesModule/setEntry', obj)
-      await this.$store.dispatch('DictionariesModule/getListDictionaryAttribute')
+    async onSubmitLocal() {
+      await this.$store.dispatch('DictionariesModule/onSubmit');
+      if (this.$route.query.action === 'create') {
+        await this.$router.replace({
+          path: this.$route.path + '/' + this.$store.state.DictionariesModule.entry.code,
+          query: {action: 'edit'},
+        }).catch(() => {});
+      } else {
+        await this.$router.replace({
+          path: this.$route.meta.returnLink.path,
+        }).catch(() => {});
+      }
+    },
+    async setDictionary(value){
+      console.log('setDictionary', value)
+      if (! value) return false;
+
+      if (this.$store.getters.checkValueIsAnObject(value)){
+        console.log('setDictionary OBJ')
+        await this.$store.commit('DictionariesModule/setEntry', value)
+        await this.$store.dispatch('DictionariesModule/getListDictionaryAttribute')
+      }
+
+      if (typeof value === 'string') {
+        console.log('setDictionary STRING')
+        this.$store.state.DictionariesModule.entry.name = value
+      }
     },
     async postNewAttribute(){
       await this.$store.dispatch(
           'DictionariesModule/createAttribute',
           new DictionaryAttribute(
               this.editedItem.id,
+              this.editedItem.sort,
               this.editedItem.code,
-              this.editedItem.name,
               this.editedItem.value,
-              this.editedItem.id_dictionary
+              this.$store.state.DictionariesModule.entry.id
           )
       );
       this.dialog = false;
@@ -280,24 +363,39 @@ export default {
         .filter((obj) => { return item.id === obj.id })
         .map((obj) => { return obj.id; })[0]
       ;
-      this.editedItem = item
+      this.editedItem = Object.assign({}, item);
       this.dialog = true
     },
     addNewAttribute(){
-      this.editedItem = new DictionaryAttribute(
-          null,
-          '',
-          '',
-          '',
-          this.$store.state.DictionariesModule.entry.id
-      );
+      this.editedItem = new DictionaryAttribute();
+      this.$store.commit('DictionariesModule/clearListOccurrencesAttributes');
       this.editedId = -1;
       this.dialog = true;
     },
     async deleteAttribute(){
       await this.$store.dispatch('DictionariesModule/deleteAttribute', this.editedItem.code)
       this.dialogDelete = false
-    }
+    },
+    async findSearchAttribute(string){
+      await this.$store.dispatch('DictionariesModule/searchDictionaryAttributeByValue', string)
+    },
+    setSearchAttribute(value){
+      if (! value) this.editedItem.value = ''
+
+      if (this.$store.getters.checkValueIsAnObject(value))
+        this.editedItem = value;
+
+      if (typeof value === 'string')
+        this.editedItem.value = value
+    },
+    async deleteLocal() {
+      for (const obj of this.$store.state.DictionariesModule.listAttributesByDictionary) {
+        await this.$store.dispatch('DictionariesModule/deleteAttribute', obj.code);
+      }
+
+      await this.$store.dispatch('DictionariesModule/deleteEntry');
+      await this.$router.push({path: this.$route.meta.returnLink.path}).catch(() => {});
+    },
   }
 }
 </script>
@@ -312,9 +410,9 @@ export default {
     font-size: 1em;
   }
   &__modal_item{
+    display: grid;
     padding-top: 1em!important;
     padding-bottom: 1em!important;
-    display: inline-flex;
     grid-column-gap: 1em;
   }
 }

@@ -10,6 +10,9 @@ export default {
     deleteModal: false,
     entry: new Dictionary(),
     listAttributesByDictionary: [],
+    listOccurrencesAttributes: [],
+    loadingOccurrencesAttributes: false,
+    debounceTimeout: null,
   },
   mutations: {
     changeListEntries(state, array) {
@@ -24,6 +27,9 @@ export default {
       state.listAttributesByDictionary = [];
       state.listAttributesByDictionary = array;
     },
+    clearListAttributesByDictionary(state) {
+      state.listAttributesByDictionary = [];
+    },
     setEntry(state, object) {
       if (!object) state.entry = new Dictionary();
       else state.entry = object;
@@ -34,16 +40,23 @@ export default {
     changeLoadingList(state, value) {
       state.loadingList = value;
     },
+    changeLoadingOccurrencesAttributes(state, value) {
+      state.loadingOccurrencesAttributes = value;
+    },
     deleteModalCommit(state, value) {
       state.deleteModal = value;
+    },
+    setListOccurrencesAttributes(state, value) {
+      state.listOccurrencesAttributes = [];
+      state.listOccurrencesAttributes = value;
+    },
+    clearListOccurrencesAttributes(state) {
+      state.listOccurrencesAttributes = [];
     },
   },
   actions: {
     stateModalAction({ commit }, value) {
       commit("deleteModalCommit", value);
-    },
-    clearEntry({ commit }) {
-      commit("clearEntry");
     },
     async deleteEntry({ commit, dispatch }) {
       //START
@@ -187,6 +200,26 @@ export default {
 
       commit("changeLoadingList", false);
       return response;
+    },
+    async searchDictionaryAttributeByValue({ commit, state }, string) {
+      if (!string) return false;
+
+      const checkExist = state.listOccurrencesAttributes.some(
+        (elem) => elem.value === string
+      );
+      if (checkExist) return false;
+
+      if (state.debounceTimeout) clearTimeout(state.debounceTimeout);
+      state.debounceTimeout = setTimeout(async () => {
+        commit("changeLoadingOccurrencesAttributes", true);
+        const response = await Request.get(
+          this.state.BASE_URL +
+            "/dictionary/dictionary-attributes/search/{q}?q=" +
+            string
+        );
+        commit("setListOccurrencesAttributes", response.data);
+        commit("changeLoadingOccurrencesAttributes", false);
+      }, 500);
     },
   },
   getters: {},

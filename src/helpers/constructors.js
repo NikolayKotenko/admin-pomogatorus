@@ -63,14 +63,14 @@ export function Dictionary(id = null, name = "", code = "") {
 
 export function DictionaryAttribute(
   id = null,
+  sort = null,
   code = "",
-  name = "",
   value = "",
   id_dictionary = null
 ) {
   this.id = id;
+  this.sort = sort;
   this.code = code;
-  this.name = name;
   this.value = value;
   this.id_dictionary = id_dictionary;
 }
