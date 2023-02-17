@@ -222,5 +222,9 @@ export default {
       }, 500);
     },
   },
-  getters: {},
+  getters: {
+    getDictionaryByName: (state) => (name) => {
+      return state.listEntries.find((obj) => obj.name === name)
+    }
+  },
 };

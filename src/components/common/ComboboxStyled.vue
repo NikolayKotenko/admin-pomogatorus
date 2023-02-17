@@ -17,6 +17,7 @@
         :return-object="false"
         :hide-no-data="false"
         chips
+        small-chips
         :clearable="isClearable"
         :search-input.sync="localSearchInputSync"
         @update:search-input="$emit('update-search-input', localSearchInputSync)"

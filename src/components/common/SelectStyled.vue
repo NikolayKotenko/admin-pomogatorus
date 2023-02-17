@@ -20,7 +20,7 @@
       :type="typeData"
       :return-object="isReturnObject"
       dense
-      hide-details
+      :hide-details="isHideDetails"
       @focus='onFocus'
       @focusout='outFocus'
       @click:clear="(internalData = null)"
@@ -59,6 +59,10 @@ export default {
     isReadonly: {
       type: Boolean,
       default: false
+    },
+    isHideDetails: {
+      type: Boolean,
+      default: true
     },
     isClearable: {
       type: Boolean,

@@ -1,4 +1,5 @@
 import Request from "../../../services/request";
+import {ObjectProperties} from "@/helpers/constructors";
 
 export default {
   namespaced: true,
@@ -6,15 +7,7 @@ export default {
     listEntries: [],
     loadingList: false,
     deleteModal: false,
-    entry: {
-      id: null,
-      code: null,
-      name: null,
-      id_type_property_object: null,
-      _all_tags: [],
-      _all_public_tags: [],
-      mtomtags: [],
-    },
+    entry: new ObjectProperties(),
     listPropertyObject: [],
     listTags: [],
   },
@@ -45,15 +38,7 @@ export default {
       state.entry = object;
     },
     clearEntry(state) {
-      state.entry = {
-        id: null,
-        code: null,
-        name: null,
-        id_type_property_object: null,
-        _all_tags: [],
-        _all_public_tags: [],
-        mtomtags: [],
-      };
+      state.entry = new ObjectProperties()
     },
     changeLoadingList(state, value) {
       state.loadingList = value;

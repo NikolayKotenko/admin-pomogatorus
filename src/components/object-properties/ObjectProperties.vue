@@ -42,16 +42,34 @@
           :placeholder="'Автоматически заполняемый псевдоним параметра'"
           class="mb-5"
       />
-      <SelectStyled
-          :data="$store.state.ObjectPropertiesModule.entry.id_type_property_object"
-          :items="$store.state.ObjectPropertiesModule.listPropertyObject"
-          :item-text="'name'"
-          :item-value="'id'"
-          :is-disabled="true"
-          :placeholder="'Тип параметра'"
-          class="mb-5"
-      />
-
+      <v-row>
+        <v-col>
+          <SelectStyled
+              :data="$store.state.ObjectPropertiesModule.entry.id_type_property_object"
+              :items="$store.state.ObjectPropertiesModule.listPropertyObject"
+              :item-text="'name'"
+              :item-value="'id'"
+              :placeholder="'Тип параметра'"
+              class="mb-5"
+              :current-rules="$store.state.nameRules"
+              :is-hide-details="false"
+              :is-disabled="!$store.getters.stateEditCreate($route.query.action)"
+              @update-input="setTypePropertyObject"
+          />
+        </v-col>
+        <v-col cols="6"  v-if="$store.state.ObjectPropertiesModule.entry.dpropertyobject.code === 'vybor-iz-spravocnika'">
+          <ComboboxStyled
+              :data="$store.state.DictionariesModule.entry.code"
+              :is-items="$store.state.DictionariesModule.listEntries"
+              :is-item-text="'name'"
+              :is-item-value="'name'"
+              :is-hide-details="false"
+              :is-placeholder="'Справочник'"
+              :is-disabled="!$store.getters.stateEditCreate($route.query.action)"
+              @change-search="setDictionary"
+          ></ComboboxStyled>
+        </v-col>
+      </v-row>
       <!-- Tags Component -->
       <UniversalTags
           :attached-tags="$store.state.ObjectPropertiesModule.entry.mtomtags"
@@ -144,11 +162,13 @@
 import InputStyled from "../common/InputStyled";
 import SelectStyled from "@/components/common/SelectStyled";
 import UniversalTags from "../UniversalTags";
-import {MToMTags} from "@/helpers/constructors";
+import {DPropertyObject, MToMTags} from "@/helpers/constructors";
+import ComboboxStyled from "@/components/common/ComboboxStyled";
 
 export default {
   name: "ObjectProperties",
   components: {
+    ComboboxStyled,
     SelectStyled,
     InputStyled,
     UniversalTags,
@@ -157,8 +177,30 @@ export default {
   async mounted() {
     await this.$store.dispatch('ObjectPropertiesModule/getListEntries', this.$route.params.code)
     await this.$store.dispatch('ObjectPropertiesModule/getInfoByEntry')
+    await this.$store.dispatch('DictionariesModule/getListEntries')
   },
   methods:{
+    setDictionary(value){
+      console.log('setDictionary', value)
+      if (! value){
+        this.$store.state.ObjectPropertiesModule.entry.id_dictionary = null
+      }
+      else{
+        const objDictionary = this.$store.getters['DictionariesModule/getDictionaryByName'](value)
+        this.$store.state.ObjectPropertiesModule.entry.id_dictionary = objDictionary.id
+      }
+    },
+    setTypePropertyObject(value){
+      if (! value){
+        this.$store.state.ObjectPropertiesModule.entry.id_type_property_object = null
+        this.$store.state.ObjectPropertiesModule.entry.dpropertyobject = new DPropertyObject()
+      }
+
+      if (this.$store.getters.checkValueIsAnObject(value)){
+        this.$store.state.ObjectPropertiesModule.entry.id_type_property_object = value.id
+        this.$store.state.ObjectPropertiesModule.entry.dpropertyobject = value
+      }
+    },
     setData(value) {
       this.$store.state.ObjectPropertiesModule.entry.name = value
     },
@@ -235,6 +277,13 @@ export default {
         }
       }
     },
+    '$store.state.ObjectPropertiesModule.entry.dpropertyobject.code':{
+      handler(newValue) {
+        if (newValue !== 'vybor-iz-spravocnika'){
+          this.$store.state.ObjectPropertiesModule.entry.id_dictionary = null;
+        }
+      }
+    }
   }
 }
 </script>
