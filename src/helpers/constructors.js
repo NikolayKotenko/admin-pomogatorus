@@ -58,6 +58,7 @@ export function MToMTags(
 
 export function ObjectProperties(
     id = null,
+    sort = null,
     code = null,
     name = null,
     id_type_property_object = null,
@@ -65,10 +66,12 @@ export function ObjectProperties(
     _all_tags = [],
     _all_public_tags = [],
     mtomtags = [],
-    dpropertyobject = {},
+    d_property_objects = {},
+    d_dictionaries = {},
 )
 {
   this.id = id;
+  this.sort = sort;
   this.code = code;
   this.name = name;
   this.id_type_property_object = id_type_property_object;
@@ -76,7 +79,8 @@ export function ObjectProperties(
   this._all_tags = _all_tags;
   this._all_public_tags = _all_public_tags;
   this.mtomtags = mtomtags;
-  this.dpropertyobject = dpropertyobject;
+  this.d_property_objects = d_property_objects;
+  this.d_dictionaries = d_dictionaries;
 }
 export function DPropertyObject(id = null, name = "", code = "") {
   this.id = id;
