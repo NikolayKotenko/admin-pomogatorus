@@ -13,7 +13,7 @@
             :item-value="'name'"
             :placeholder="'Имя параметра'"
             class="mb-5"
-            @update-input="setData"
+            @update-input="setNameObjectProperty"
             @change-input="onSubmitLocal"
         />
       </template>
@@ -35,6 +35,16 @@
         </v-autocomplete>
       </template>
 
+      <InputStyledSimple
+          :data="$store.state.ObjectPropertiesModule.entry.sort"
+          :is-disabled="$store.state.ObjectPropertiesModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+          :placeholder="'Сортировка'"
+          :item-text="'name'"
+          :item-value="'name'"
+          :is-clearable="true"
+          class="mb-5"
+          @update-input="setSortObjectProperty"
+      />
       <InputStyled
           :data="$store.state.ObjectPropertiesModule.entry.code"
           :is-disabled="true"
@@ -57,9 +67,9 @@
               @update-input="setTypePropertyObject"
           />
         </v-col>
-        <v-col cols="6"  v-if="$store.state.ObjectPropertiesModule.entry.dpropertyobject.code === 'vybor-iz-spravocnika'">
+        <v-col cols="6"  v-if="$store.state.ObjectPropertiesModule.entry.d_property_objects.code === 'vybor-iz-spravocnika'">
           <ComboboxStyled
-              :data="$store.state.DictionariesModule.entry.code"
+              :data="$store.state.ObjectPropertiesModule.entry.d_dictionaries.name"
               :is-items="$store.state.DictionariesModule.listEntries"
               :is-item-text="'name'"
               :is-item-value="'name'"
@@ -160,9 +170,10 @@
 
 <script>
 import InputStyled from "../common/InputStyled";
+import InputStyledSimple from "../common/InputStyledSimple";
 import SelectStyled from "@/components/common/SelectStyled";
 import UniversalTags from "../UniversalTags";
-import {DPropertyObject, MToMTags} from "@/helpers/constructors";
+import {Dictionary, DPropertyObject, MToMTags} from "@/helpers/constructors";
 import ComboboxStyled from "@/components/common/ComboboxStyled";
 
 export default {
@@ -171,6 +182,7 @@ export default {
     ComboboxStyled,
     SelectStyled,
     InputStyled,
+    InputStyledSimple,
     UniversalTags,
   },
   data: () => ({}),
@@ -181,28 +193,32 @@ export default {
   },
   methods:{
     setDictionary(value){
-      console.log('setDictionary', value)
       if (! value){
         this.$store.state.ObjectPropertiesModule.entry.id_dictionary = null
+        this.$store.state.ObjectPropertiesModule.entry.d_dictionaries = new Dictionary()
       }
       else{
         const objDictionary = this.$store.getters['DictionariesModule/getDictionaryByName'](value)
         this.$store.state.ObjectPropertiesModule.entry.id_dictionary = objDictionary.id
+        this.$store.state.ObjectPropertiesModule.entry.d_dictionaries = objDictionary
       }
     },
     setTypePropertyObject(value){
       if (! value){
         this.$store.state.ObjectPropertiesModule.entry.id_type_property_object = null
-        this.$store.state.ObjectPropertiesModule.entry.dpropertyobject = new DPropertyObject()
+        this.$store.state.ObjectPropertiesModule.entry.d_property_objects = new DPropertyObject()
       }
 
       if (this.$store.getters.checkValueIsAnObject(value)){
         this.$store.state.ObjectPropertiesModule.entry.id_type_property_object = value.id
-        this.$store.state.ObjectPropertiesModule.entry.dpropertyobject = value
+        this.$store.state.ObjectPropertiesModule.entry.d_property_objects = value
       }
     },
-    setData(value) {
+    setNameObjectProperty(value) {
       this.$store.state.ObjectPropertiesModule.entry.name = value
+    },
+    setSortObjectProperty(value){
+      this.$store.state.ObjectPropertiesModule.entry.sort = value
     },
     async deleteLocal() {
       for (const obj of this.$store.state.ObjectPropertiesModule.entry.mtomtags) {
@@ -277,7 +293,7 @@ export default {
         }
       }
     },
-    '$store.state.ObjectPropertiesModule.entry.dpropertyobject.code':{
+    '$store.state.ObjectPropertiesModule.entry.d_property_objects.code':{
       handler(newValue) {
         if (newValue !== 'vybor-iz-spravocnika'){
           this.$store.state.ObjectPropertiesModule.entry.id_dictionary = null;
