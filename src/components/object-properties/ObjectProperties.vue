@@ -44,6 +44,7 @@
           :is-clearable="true"
           class="mb-5"
           @update-input="setSortObjectProperty"
+          @change-input="onSubmitLocal"
       />
       <InputStyled
           :data="$store.state.ObjectPropertiesModule.entry.code"
@@ -65,11 +66,17 @@
               :is-hide-details="false"
               :is-disabled="!$store.getters.stateEditCreate($route.query.action)"
               @update-input="setTypePropertyObject"
+              @change-input="onSubmitLocal"
           />
         </v-col>
-        <v-col cols="6"  v-if="$store.state.ObjectPropertiesModule.entry.d_property_objects.code === 'vybor-iz-spravocnika'">
+        <v-col cols="6"
+               v-if="$store.state.ObjectPropertiesModule.entry.d_property_objects &&
+               $store.state.ObjectPropertiesModule.entry.d_property_objects.code === 'vybor-iz-spravocnika'"
+        >
           <ComboboxStyled
-              :data="$store.state.ObjectPropertiesModule.entry.d_dictionaries.name"
+              :data="($store.state.ObjectPropertiesModule.entry.d_dictionaries)
+              ? $store.state.ObjectPropertiesModule.entry.d_dictionaries.name
+              : null"
               :is-items="$store.state.DictionariesModule.listEntries"
               :is-item-text="'name'"
               :is-item-value="'name'"
@@ -89,6 +96,8 @@
           @createNewTag="createNewTag"
           @removeAttachedTag="removeAttachedTag"
           :disabled-new-tag="!$store.getters.stateEditCreate($route.query.action)"
+          :loading="$store.state.loadingRequestGeneral || $store.state.ObjectPropertiesModule.loadingList"
+          ref="universal-tags"
       />
     </v-container>
 
@@ -118,7 +127,7 @@
             class="detail_footer__save_btn"
             color="blue darken-1"
             text
-            @click.prevent="onSubmitLocal()"
+            @click.prevent="onSubmitLocalRefresh()"
         >
           Сохранить
         </v-btn>
@@ -192,7 +201,7 @@ export default {
     await this.$store.dispatch('DictionariesModule/getListEntries')
   },
   methods:{
-    setDictionary(value){
+    async setDictionary(value){
       if (! value){
         this.$store.state.ObjectPropertiesModule.entry.id_dictionary = null
         this.$store.state.ObjectPropertiesModule.entry.d_dictionaries = new Dictionary()
@@ -202,6 +211,7 @@ export default {
         this.$store.state.ObjectPropertiesModule.entry.id_dictionary = objDictionary.id
         this.$store.state.ObjectPropertiesModule.entry.d_dictionaries = objDictionary
       }
+      await this.onSubmitLocal();
     },
     setTypePropertyObject(value){
       if (! value){
@@ -237,9 +247,16 @@ export default {
         }).catch(() => {});
       } else {
         await this.$router.replace({
-          path: this.$route.meta.returnLink.path,
+          path: this.$route.path,
+          query: {action: 'edit'},
         }).catch(() => {});
       }
+    },
+    async onSubmitLocalRefresh() {
+      await this.$store.dispatch('ObjectPropertiesModule/onSubmit');
+      await this.$router.replace({
+        path: this.$route.meta.returnLink.path,
+      }).catch(() => {});
     },
     async createNewTag(tagData){
       const objMToMTags = new MToMTags(
@@ -253,6 +270,7 @@ export default {
       const response = await this.$store.dispatch("addUniversalTagMToMTable", objMToMTags);
       if (response.codeResponse < 400) {
         await this.$store.dispatch('ObjectPropertiesModule/getListEntries', this.$route.params.code);
+        this.$refs["universal-tags"].modal.state = false;
       }
     },
     async removeAttachedTag(MToMTagData){

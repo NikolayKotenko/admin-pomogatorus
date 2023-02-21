@@ -55,21 +55,19 @@ export function MToMTags(
   this.id_object_property = id_object_property;
 }
 
-
 export function ObjectProperties(
-    id = null,
-    sort = null,
-    code = null,
-    name = null,
-    id_type_property_object = null,
-    id_dictionary = null,
-    _all_tags = [],
-    _all_public_tags = [],
-    mtomtags = [],
-    d_property_objects = {},
-    d_dictionaries = {},
-)
-{
+  id = null,
+  sort = null,
+  code = null,
+  name = null,
+  id_type_property_object = null,
+  id_dictionary = null,
+  _all_tags = [],
+  _all_public_tags = [],
+  mtomtags = [],
+  d_property_objects = {},
+  d_dictionaries = {}
+) {
   this.id = id;
   this.sort = sort;
   this.code = code;

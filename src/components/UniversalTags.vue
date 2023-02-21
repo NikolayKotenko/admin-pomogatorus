@@ -49,7 +49,11 @@
           </v-combobox>
         </v-card-text>
         <v-card-actions>
-          <v-btn color="blue darken-1" text @click="modal.state = false; $store.commit('clearErrorResponseTag')">
+          <v-btn color="blue darken-1"
+                 text
+                 @click="modal.state = false; $store.commit('clearErrorResponseTag')"
+                 :loading="loading"
+          >
             Закрыть
           </v-btn>
           <v-spacer></v-spacer>
@@ -58,6 +62,7 @@
               text
               @click="create()"
               :disabled="!selectedItems"
+              :loading="loading"
           >
             Добавить
           </v-btn>

@@ -23,6 +23,7 @@
       :hide-details="isHideDetails"
       @focus='onFocus'
       @focusout='outFocus'
+      @change="$emit('change-input')"
       @click:clear="(internalData = null)"
       :menu-props="{
             closeOnContentClick: true,

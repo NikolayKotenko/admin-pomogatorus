@@ -108,7 +108,9 @@ export default new Vuex.Store({
         this.state.BASE_URL + "/m-to-m/tags" + stringFilters
       );
     },
-    async addUniversalTagMToMTable({ commit }, objMToMTags) {
+    async addUniversalTagMToMTable({ commit, state }, objMToMTags) {
+      state.loadingRequestGeneral = true;
+
       const response = await Request.post(
         this.state.BASE_URL + "/m-to-m/tags",
         objMToMTags
@@ -117,6 +119,7 @@ export default new Vuex.Store({
         commit("setErrorResponseTag", response.message);
       }
 
+      state.loadingRequestGeneral = false;
       return response;
     },
     async removeAttachedTagMToMTable(_, idEntry) {
