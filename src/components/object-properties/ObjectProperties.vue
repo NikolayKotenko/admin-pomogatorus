@@ -196,6 +196,8 @@ export default {
   },
   data: () => ({}),
   async mounted() {
+    await this.$store.dispatch('ObjectPropertiesModule/clearEntry');
+
     await this.$store.dispatch('ObjectPropertiesModule/getListEntries', this.$route.params.code)
     await this.$store.dispatch('ObjectPropertiesModule/getInfoByEntry')
     await this.$store.dispatch('DictionariesModule/getListEntries')

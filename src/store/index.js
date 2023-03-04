@@ -137,6 +137,11 @@ export default new Vuex.Store({
         typeof value === "object" && !Array.isArray(value) && value !== null
       );
     },
+    getToken() {
+      return process.env.NODE_ENV === "development"
+        ? "666777"
+        : `Bearer ${Vue.$cookies.get("accessToken")}`;
+    },
   },
   modules: {
     QuestionsModule,

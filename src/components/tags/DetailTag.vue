@@ -432,8 +432,7 @@ export default {
         destroyDropzone: false,
         duplicateCheck: true,
         headers: {
-          "My-Awesome-Header": "header value",
-          Authorization: '666777',
+          Authorization: this.$store.getters.getToken,
         },
       }
     },

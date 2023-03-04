@@ -20,8 +20,6 @@
       :type="typeData"
       dense
       hide-details
-      @focus='onFocus'
-      @focusout='outFocus'
       @click:clear="(currentData = '')"
       @change="$emit('change-input')"
   >

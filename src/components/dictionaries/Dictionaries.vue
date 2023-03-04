@@ -64,17 +64,19 @@
               <v-card>
                 <v-card-title class="text-h6 d-block text-center">{{ formTitle }}</v-card-title>
                 <v-card-text class="table_dictionary_attributes__modal_item">
-                  <v-text-field
-                      v-model="editedItem.sort"
-                      label="Сортировка"
-                  ></v-text-field>
+                  <InputStyledSimple
+                      class="mb-5"
+                      :data="editedItem.sort"
+                      :placeholder="'Сортировка'"
+                      @update-input="setSortProperty"
+                  ></InputStyledSimple>
                   <ComboboxStyled
+                      class="mb-10"
                       v-if="dialog"
                       :data="editedItem.value"
                       :is-items="$store.state.DictionariesModule.listOccurrencesAttributes"
                       :is-item-text="'value'"
                       :is-item-value="'value'"
-                      :is-outlined="false"
                       :is-hide-details="false"
                       :is-placeholder="'Значение'"
                       :is-loading="$store.state.DictionariesModule.loadingOccurrencesAttributes"
@@ -220,10 +222,12 @@ import InputStyled from "@/components/common/InputStyled";
 import SelectStyled from "@/components/common/SelectStyled";
 import {DictionaryAttribute} from "@/helpers/constructors";
 import ComboboxStyled from "@/components/common/ComboboxStyled";
+import InputStyledSimple from "@/components/common/InputStyledSimple";
 
 export default {
   name: "Dictionaries",
   components:{
+    InputStyledSimple,
     InputStyled,
     ComboboxStyled,
     SelectStyled,
@@ -395,6 +399,9 @@ export default {
 
       await this.$store.dispatch('DictionariesModule/deleteEntry');
       await this.$router.push({path: this.$route.meta.returnLink.path}).catch(() => {});
+    },
+    setSortProperty(value){
+      this.editedItem.sort = value
     },
   }
 }

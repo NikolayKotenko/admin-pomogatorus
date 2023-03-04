@@ -407,7 +407,6 @@ import vue2Dropzone from 'vue2-dropzone'
 import 'vue2-dropzone/dist/vue2Dropzone.min.css'
 import TextAreaStyled from "../common/TextAreaStyled";
 import InputStyled from "../common/InputStyled";
-import Vue from "vue";
 
 /* INDEXEDDB */
 const DB_NAME = "articlesDB";
@@ -539,7 +538,7 @@ export default {
         destroyDropzone: false,
         duplicateCheck: true,
         headers: {
-          Authorization: `Bearer ${Vue.$cookies.get("accessToken")}`,
+          Authorization: this.$store.getters.getToken,
         },
       }
     },
