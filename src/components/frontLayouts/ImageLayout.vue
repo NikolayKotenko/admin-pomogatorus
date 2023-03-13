@@ -116,14 +116,12 @@ export default {
   min-height: 150px;
   min-width: 50px;
   max-width: 600px;
-  //height: 600px;
-  //max-height: 600px;
   position: relative;
   padding: 16px 10px 8px 10px;
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
   border-bottom: 1px solid rgba(83, 158, 224, 0);
   border-right: 1px solid rgba(83, 158, 224, 0);
   border-left: 1px solid rgba(83, 158, 224, 0);

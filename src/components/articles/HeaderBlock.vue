@@ -536,18 +536,19 @@ export default {
   },
   methods: {
     showLinkSettings() {
-      if (_store.selectedTextURL) {
-        this.$store.commit('set_url_text', _store.selectedTextURL)
+      if (window.getSelection().toString()) {
+        this.$store.commit('set_url_text', window.getSelection().toString())
+        this.$store.commit('change_link_selection', window.getSelection().getRangeAt(0))
       }
-      this.$store.commit("get_range", true);
+
       this.$store.commit("change_select_component", {
         name: 'url',
         value: true,
       });
     },
     createLink() {
-      this.$emit("add-link");
       this.closeModal('url')
+      this.$emit("add-link");
     },
     setUrlText(value) {
       this.$store.commit('set_url_text', value)

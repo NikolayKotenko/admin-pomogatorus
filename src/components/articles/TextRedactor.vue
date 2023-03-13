@@ -535,65 +535,15 @@ export default {
     },
 
     /* MANIPULATING WITH INSERTING COMPONENTS */
-    replaceText(link) {
-      if (_store.range.commonAncestorContainer.parentElement.className !== "textRedactor__content" &&
-          _store.range.commonAncestorContainer.parentElement.className !== "textRedactor" &&
-          _store.range.commonAncestorContainer?.offsetParent?._prevClass !==
-          "textRedactor"
-      ) {
-        _store.range.selectNode(
-            _store.range.commonAncestorContainer.parentElement
-        );
-        _store.range.deleteContents();
-        _store.range.collapse(false);
-        _store.range.insertNode(link);
-      } else {
-        // let re = new RegExp(_store.selectedTextURL, "g");
-        // _store.range.commonAncestorContainer.parentElement.innerText = _store.range.commonAncestorContainer.parentElement.innerText.replace(re, '')
-        // _store.range.collapse(false);
-        // _store.range.insertNode(link);
-      }
-    },
     addLink() {
       const link = document.createElement("a")
       link.href = _store.urlValue
-      link.innerText = _store.urlText
+      link.innerText = `${_store.urlText}`
+      link.title = _store.urlText
+      link.target = '_blank'
 
-      if (
-          _store.range && (this.checkIfTextEditor(_store.range.commonAncestorContainer) || this.checkIfTextEditor(_store.range.commonAncestorContainer.parentElement))
-      ) {
-        if (window.getSelection) {
-          if (_store.selectedTextURL) {
-            this.replaceText(link)
-          } else {
-            _store.range.insertNode(link);
-          }
-        } else if (document.selection && document.selection.createRange) {
-          if (_store.selectedTextURL) {
-            this.replaceText(link)
-          } else {
-            _store.range.pasteHTML(link);
-          }
-        }
-      } else {
-        if (window.getSelection) {
-          let range = document.createRange();
-          range.setStart(
-              document.getElementsByClassName("textRedactor__content").item(0),
-              0
-          );
-          range.collapse(false);
-          range.insertNode(link);
-        } else if (document.selection && document.selection.createRange) {
-          let range = document.createRange();
-          range.setStart(
-              document.getElementsByClassName("textRedactor__content").item(0),
-              0
-          );
-          range.collapse(false);
-          range.pasteHTML(link);
-        }
-      }
+      _store.linkSelection.surroundContents(link);
+
       this.$store.commit('clear_url')
       this.saveDB = true;
       this.clearStateAfterSelect();
