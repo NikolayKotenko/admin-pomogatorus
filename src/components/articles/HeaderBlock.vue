@@ -547,8 +547,8 @@ export default {
       });
     },
     createLink() {
-      this.closeModal('url')
       this.$emit("add-link");
+      this.closeModal('url')
     },
     setUrlText(value) {
       this.$store.commit('set_url_text', value)

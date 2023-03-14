@@ -104,6 +104,7 @@ export default {
     /* INSERT COMPONENT */
     selectedTextURL: "",
     urlText: "",
+    urlValue: "",
     selection: null,
     range: null,
     counters: {
@@ -131,13 +132,14 @@ export default {
     /* UNDO/REDO */
     questions_data: [],
     startRender: false,
+    isChangedByAction: false,
     txtSave: [], // array to save values.
     txtDisplay: [], // array to display values.
   },
   mutations: {
     /* LINK */
     change_link_selection(state, payload) {
-      state.linkSelection = payload
+      state.linkSelection = payload;
     },
 
     /* UNDO/REDO */
@@ -195,6 +197,9 @@ export default {
     },
     change_start_render(state, value) {
       state.startRender = value;
+    },
+    change_is_changed_by_action(state, value) {
+      state.isChangedByAction = value;
     },
     change_questions_data(state, value) {
       state.questions_data = value;
@@ -392,11 +397,15 @@ export default {
   actions: {
     /* UNDO/REDO */
     getUndo({commit}) {
+      commit("change_is_changed_by_action", true);
       commit("undo_editor");
+      commit("change_is_changed_by_action", false);
       commit("change_start_render", true);
     },
     getRedo({commit}) {
+      commit("change_is_changed_by_action", true);
       commit("redo_editor");
+      commit("change_is_changed_by_action", false);
       commit("change_start_render", true);
     },
 
@@ -424,8 +433,14 @@ export default {
 
         const filter = {};
         filter["filter[tag]"] = tag;
-        filter["filter[updated_at]"] = updated_at;
-        filter["filter[name]"] = name;
+
+        if (updated_at) {
+          filter["filter[updated_at]"] = updated_at;
+        }
+
+        if (name) {
+          filter["filter[name]"] = name;
+        }
 
         Request.get(`${this.state.BASE_URL}/entity/questions`, {
           ...filter,

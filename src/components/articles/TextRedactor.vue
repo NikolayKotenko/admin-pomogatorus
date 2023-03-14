@@ -63,6 +63,8 @@ export default {
     this.preventInsertingStyles();
     this.onkeydownInEditable();
     setTimeout(() => {
+      this.$refs.content.addEventListener("input", this.onContentChange)
+
       this.initializeContent().then(() => {
         this.checkOnDeletedComponents();
         this.$nextTick(() => {
@@ -76,6 +78,7 @@ export default {
     saveDB: {
       handler(v) {
         if (!this.geting_from_server && v) {
+          console.log('save article')
           this.$store.commit("changeContent", this.content);
           this.$store.commit("change_by_action_editor");
         }
@@ -122,20 +125,11 @@ export default {
                   this.changeIndexQuestion();
                   /* Set start Render to default and prepare for next rerender */
                   this.$store.commit("change_start_render", false);
-                  /* Call save Article on DB when manipulating is done */
-                  this.saveDB = true;
-                  setTimeout(() => {
-                    this.saveDB = false;
-                  }, 200);
                 });
               });
             } else {
               this.$store.commit("clear_list_components", []);
               this.$store.commit("change_start_render", false);
-              this.saveDB = true;
-              setTimeout(() => {
-                this.saveDB = false;
-              }, 200);
             }
           }, 600);
         }
@@ -152,7 +146,10 @@ export default {
     content: {
       cache: false,
       get: function () {
-        return this.$refs.content.innerHTML;
+        if (this.$refs.content) {
+          return this.$refs.content.innerHTML;
+        }
+        return ''
       },
       set: function (val) {
         this.$refs.content.innerHTML = val;
@@ -514,35 +511,80 @@ export default {
     },
 
     onContentChange() {
-      if (!_store.txtDisplay.length)
-        this.$store.commit("change_by_action_editor");
-      if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
-      this.debounceTimeout = setTimeout(() => {
-        _store.content = this.content;
-        /* Undo/Redo memento manipulation */
-        this.$store.commit("change_by_action_editor");
-      });
+      if (!_store.isChangedByAction) {
+        if (!_store.txtDisplay.length)
+          this.$store.commit("change_by_action_editor");
+        if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
+        this.debounceTimeout = setTimeout(() => {
+          _store.content = this.content;
+          /* Undo/Redo memento manipulation */
+          this.$store.commit("change_by_action_editor");
+        }, 600);
 
-      /* IF WE DELETED COMPONENT BY KEYBOARD */
-      _store.list_components.forEach((elem) => {
-        const elem_content = document.getElementById(
-            `component_wrapper-${elem.instance.$data.index_component}`
-        );
-        if (!elem_content) {
-          _store.deletedComponent = elem.instance.$data.index_component;
-        }
-      });
+        /* IF WE DELETED COMPONENT BY KEYBOARD */
+        _store.list_components.forEach((elem) => {
+          const elem_content = document.getElementById(
+              `component_wrapper-${elem.instance.$data.index_component}`
+          );
+          if (!elem_content) {
+            _store.deletedComponent = elem.instance.$data.index_component;
+          }
+        });
+      }
     },
 
     /* MANIPULATING WITH INSERTING COMPONENTS */
     addLink() {
+      console.log(_store.linkSelection)
+
       const link = document.createElement("a")
       link.href = _store.urlValue
       link.innerText = `${_store.urlText}`
       link.title = _store.urlText
       link.target = '_blank'
 
-      _store.linkSelection.surroundContents(link);
+      if (_store.linkSelection) {
+        // If we selected already exist text on editor
+        _store.linkSelection.surroundContents(link);
+      } else {
+        // IF we create link with new text
+        if (
+            _store.range &&
+            (this.checkIfTextEditor(_store.range.commonAncestorContainer))
+        ) {
+          if (window.getSelection) {
+            _store.range.insertNode(link);
+          } else if (document.selection && document.selection.createRange) {
+            if (
+                _store.range &&
+                (_store.range.commonAncestorContainer.parentElement.className ===
+                    "textRedactor__content" ||
+                    _store.range.commonAncestorContainer.offsetParent._prevClass ===
+                    "textRedactor")
+            ) {
+              _store.range.pasteHTML(link.outerHTML);
+            }
+          }
+        } else {
+          if (window.getSelection) {
+            let range = document.createRange();
+            range.setStart(
+                document.getElementsByClassName("textRedactor__content").item(0),
+                0
+            );
+            range.collapse(false);
+            range.insertNode(link);
+          } else if (document.selection && document.selection.createRange) {
+            let range = document.createRange();
+            range.setStart(
+                document.getElementsByClassName("textRedactor__content").item(0),
+                0
+            );
+            range.collapse(false);
+            range.pasteHTML(link.outerHTML);
+          }
+        }
+      }
 
       this.$store.commit('clear_url')
       this.saveDB = true;
@@ -576,6 +618,8 @@ export default {
           this.changeIndexQuestion();
         });
         this.saveDB = true;
+        // this.$store.commit("changeContent", this.content);
+        // this.$store.commit("change_by_action_editor");
         this.clearStateAfterSelect();
         setTimeout(() => {
           this.saveDB = false;
@@ -739,8 +783,7 @@ export default {
       if (_store.deletedComponent !== 0) {
         /* Undo/Redo memento manipulation */
         if (!_store.txtDisplay.length)
-          console.log('TEST')
-        this.$store.commit("change_by_action_editor");
+          this.$store.commit("change_by_action_editor");
 
         let index = _store.list_components.findIndex((elem) => {
           return (
@@ -769,7 +812,6 @@ export default {
             this.resetCounter(_store.list_components);
             this.changeIndexQuestion();
 
-            console.log(this.saveDB)
             this.saveDB = true;
             setTimeout(() => {
               this.saveDB = false;
