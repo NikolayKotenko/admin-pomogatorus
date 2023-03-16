@@ -64,14 +64,7 @@
               <v-card>
                 <v-card-title class="text-h6 d-block text-center">{{ formTitle }}</v-card-title>
                 <v-card-text class="table_dictionary_attributes__modal_item">
-                  <InputStyledSimple
-                      class="mb-5"
-                      :data="editedItem.sort"
-                      :placeholder="'Сортировка'"
-                      @update-input="setSortProperty"
-                  ></InputStyledSimple>
                   <ComboboxStyled
-                      class="mb-10"
                       v-if="dialog"
                       :data="editedItem.value"
                       :is-items="$store.state.DictionariesModule.listOccurrencesAttributes"
@@ -83,6 +76,12 @@
                       @update-search-input="findSearchAttribute"
                       @change-search="setSearchAttribute"
                   ></ComboboxStyled>
+                  <InputStyledSimple
+                      class="mb-5"
+                      :data="editedItem.sort"
+                      :placeholder="'Сортировка'"
+                      @update-input="setSortProperty"
+                  ></InputStyledSimple>
                 </v-card-text>
 
                 <v-card-actions>
@@ -99,16 +98,18 @@
             <v-card>
               <v-card-title class="text-h6 d-block text-center">Вы действительно хотите удалить атрибут ?</v-card-title>
               <v-card-text class="table_dictionary_attributes__modal_item">
-                <v-text-field
-                    v-model="editedItem.sort"
-                    label="Сортировка"
-                    readonly
-                ></v-text-field>
-                <v-text-field
-                    v-model="editedItem.value"
-                    readonly
-                    label="Значение"
-                ></v-text-field>
+                <InputStyledSimple
+                    class="mb-5"
+                    :is-readonly="true"
+                    :data="editedItem.value"
+                    :placeholder="'Значение'"
+                ></InputStyledSimple>
+                <InputStyledSimple
+                    :is-readonly="true"
+                    class="mb-5"
+                    :data="editedItem.sort"
+                    :placeholder="'Сортировка'"
+                ></InputStyledSimple>
               </v-card-text>
               <v-card-actions>
                 <v-btn color="blue darken-1" text class="mr-auto" @click="dialogDelete = false">
