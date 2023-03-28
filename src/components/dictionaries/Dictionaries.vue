@@ -19,14 +19,13 @@
         />
       </template>
       <template v-else>
-        <SelectStyled
-            :items="$store.state.DictionariesModule.listEntries"
-            :data="$store.state.DictionariesModule.entry"
-            :item-text="'name'"
-            :item-value="'code'"
-            :placeholder="'Список справочников'"
-            @update-input="setDictionary"
-        ></SelectStyled>
+        <SearchStyled
+            :is-items="$store.state.DictionariesModule.listEntries"
+            :is-item-text="'name'"
+            :is-item-value="'code'"
+            :is-placeholder="'Список справочников'"
+            @change-search="setDictionary"
+        ></SearchStyled>
       </template>
 
       <!-- Атрибуты справочника -->
@@ -220,18 +219,18 @@
 
 <script>
 import InputStyled from "@/components/common/InputStyled";
-import SelectStyled from "@/components/common/SelectStyled";
 import {DictionaryAttribute} from "@/helpers/constructors";
 import ComboboxStyled from "@/components/common/ComboboxStyled";
 import InputStyledSimple from "@/components/common/InputStyledSimple";
+import SearchStyled from "@/components/common/SearchStyled";
 
 export default {
   name: "Dictionaries",
   components:{
+    SearchStyled,
     InputStyledSimple,
     InputStyled,
     ComboboxStyled,
-    SelectStyled,
   },
   data: () => ({
     headers: [
@@ -332,17 +331,17 @@ export default {
       }
     },
     async setDictionary(value){
-      console.log('setDictionary', value)
-      if (! value) return false;
+      if (! value) {
+        this.$store.commit('DictionariesModule/clearEntry');
+        return false;
+      }
 
       if (this.$store.getters.checkValueIsAnObject(value)){
-        console.log('setDictionary OBJ')
         await this.$store.commit('DictionariesModule/setEntry', value)
         await this.$store.dispatch('DictionariesModule/getListDictionaryAttribute')
       }
 
       if (typeof value === 'string') {
-        console.log('setDictionary STRING')
         this.$store.state.DictionariesModule.entry.name = value
       }
     },

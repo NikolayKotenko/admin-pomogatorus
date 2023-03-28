@@ -149,6 +149,16 @@
       >
       </v-checkbox>
       <InputStyled
+          v-if="$store.state.TagsModule.tag.flag_engineering_system"
+          :data="$store.state.TagsModule.tag.sort_engineering_system"
+          :is-disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
+          :is-outlined="true"
+          persistent-placeholder
+          :placeholder="'Сортировка в инженерной системе'"
+          class="mt-5 mb-10"
+          @update-input="setSortEngineeringSystem"
+      />
+      <InputStyled
           :data="$store.state.TagsModule.tag.seo_title"
           :is-disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
           :is-outlined="true"
@@ -287,6 +297,9 @@ export default {
     },
     setTagTitle(value) {
       this.$store.state.TagsModule.tag.seo_title = value
+    },
+    setSortEngineeringSystem(value) {
+      this.$store.state.TagsModule.tag.sort_engineering_system = value
     },
     setTagDescription(value) {
       this.$store.state.TagsModule.tag.seo_description = value

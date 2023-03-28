@@ -12,6 +12,7 @@ export default {
       name: null,
       public: false,
       flag_engineering_system: false,
+      sort_engineering_system: null,
       description: null,
       seo_title: null,
       seo_keywords: null,
@@ -45,6 +46,7 @@ export default {
         name: null,
         public: false,
         flag_engineering_system: false,
+        sort_engineering_system: null,
         description: null,
         seo_title: null,
         seo_keywords: null,
@@ -126,6 +128,7 @@ export default {
       }
       await dispatch("deleteMtoMTagTethers");
 
+      await dispatch("clearTag");
       await dispatch("getListTags", response.data.id);
       //END
       commit("changeLoadingGeneral", false);
