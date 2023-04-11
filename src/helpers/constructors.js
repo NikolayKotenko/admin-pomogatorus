@@ -66,7 +66,8 @@ export function ObjectProperties(
   _all_public_tags = [],
   mtomtags = [],
   d_property_objects = {},
-  d_dictionaries = {}
+  d_dictionaries = {},
+  broadcast_to_snippet = false
 ) {
   this.id = id;
   this.sort = sort;
@@ -79,6 +80,7 @@ export function ObjectProperties(
   this.mtomtags = mtomtags;
   this.d_property_objects = d_property_objects;
   this.d_dictionaries = d_dictionaries;
+  this.broadcast_to_snippet = broadcast_to_snippet;
 }
 export function DPropertyObject(id = null, name = "", code = "") {
   this.id = id;

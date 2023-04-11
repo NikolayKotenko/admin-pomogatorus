@@ -61,7 +61,6 @@
               :item-text="'name'"
               :item-value="'id'"
               :placeholder="'Тип параметра'"
-              class="mb-5"
               :current-rules="$store.state.nameRules"
               :is-hide-details="false"
               :is-disabled="!$store.getters.stateEditCreate($route.query.action)"
@@ -87,6 +86,13 @@
           ></ComboboxStyled>
         </v-col>
       </v-row>
+      <v-checkbox
+          v-model="$store.state.ObjectPropertiesModule.entry.broadcast_to_snippet"
+          label="Транслировать в сниппет"
+          :disabled="$store.state.ObjectPropertiesModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+          :loading="$store.state.ObjectPropertiesModule.loadingList"
+          @change="onSubmitLocal"
+      ></v-checkbox>
       <!-- Tags Component -->
       <UniversalTags
           :attached-tags="$store.state.ObjectPropertiesModule.entry.mtomtags"
