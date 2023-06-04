@@ -508,7 +508,7 @@ export default {
         this.dropzone_uploaded = [];
         if (this.$route.params.action !== 'create') {
           this.dropzone_uploaded = newValue.filter(elem => {
-            return elem.preview_image === 1
+            return elem.preview_image === true
           });
         }
       }
