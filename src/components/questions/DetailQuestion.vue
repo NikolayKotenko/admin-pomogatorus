@@ -500,7 +500,7 @@ export default {
       value_type_answer: "",
       _all_tags: [],
       mtomtags: [],
-      activity: null,
+      activity: 0,
       name_param_env: "",
     },
     deleteModal: false,

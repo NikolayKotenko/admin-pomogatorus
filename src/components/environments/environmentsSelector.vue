@@ -92,12 +92,18 @@ export default {
     secondEnv: null,
   }),
   mounted() {
-    if (this.dataEnv) {
-      this.firstEnv = this.dataEnv;
-      this.secondEnv = this.firstEnv.data.data;
-      this.firstEnvItemsArray.push(this.firstEnv);
-      this.secondEnvItemsArray.push(this.firstEnv.data.data);
-    }
+    /*
+      TODO костыль: работаем пока только с параметрами объекта если их нет не нужно писать в переменную окружения
+      сломается когда будем работать не только с параметрами объекта
+    */
+    if (! this.dataEnv) return false;
+    if (! this.dataEnv.data) return false;
+    if (! this.dataEnv.data.data) return false;
+
+    this.firstEnv = this.dataEnv;
+    this.secondEnv = this.firstEnv.data.data;
+    this.firstEnvItemsArray.push(this.firstEnv);
+    this.secondEnvItemsArray.push(this.firstEnv.data.data);
   },
   watch: {},
   computed: {
