@@ -227,6 +227,9 @@
             </div>
           </div>
 
+          <!-- Tags Component -->
+          <question-tags class="mb-5"/>
+
           <!-- TEXTAREA -->
           <text-redactor
               :deletedContent="deletedContent"
@@ -234,8 +237,6 @@
               @saveArticle="initialSaveArticle"
           />
 
-          <!-- Tags Component -->
-          <question-tags/>
         </div>
         <!-- LOADER -->
         <v-overlay

@@ -148,6 +148,16 @@
           label="Используется в инженерной системе ?"
       >
       </v-checkbox>
+      <v-checkbox
+          v-model="$store.state.TagsModule.tag.flag_service"
+          :disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
+          :loading="$store.state.loadingRequestGeneral"
+          class="mb-5 mt-5"
+          dense
+          hide-details
+          label="Используется как услуги ?"
+      >
+      </v-checkbox>
       <InputStyled
           v-if="$store.state.TagsModule.tag.flag_engineering_system"
           :data="$store.state.TagsModule.tag.sort_engineering_system"
