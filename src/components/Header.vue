@@ -234,6 +234,13 @@ export default {
         link: '/dictionaries',
         nameIcon: 'answers.svg'
       },
+      {
+        id: 8,
+        icon: 'mdi-book-alphabet',
+        title: 'Номенклатуры',
+        link: '/nomenclatures',
+        nameIcon: 'answers.svg'
+      },
     ]
   }),
   computed: {

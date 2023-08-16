@@ -21,6 +21,7 @@ import DetailTag from "@/components/tags/DetailTag";
 import DetailUser from "@/components/users/DetailUser";
 import ObjectProperties from "@/components/object-properties/ObjectProperties";
 import Dictionaries from "@/components/dictionaries/Dictionaries";
+import NomenclatureForm from "@/components/nomenclatures/NomenclatureForm";
 
 Vue.use(VueRouter);
 
@@ -248,6 +249,39 @@ const routes = [
         name: "Tags",
         path: "/tags",
         actionModalAsk: "UsersModule/stateModalAction",
+      },
+    },
+  },
+  {
+    path: "/nomenclatures/:id?",
+    name: "NomenclatureForm",
+    component: NomenclatureForm,
+    meta: {
+      title: "Номенклатура",
+      ru_name: "Номенклатура",
+      singleComponent: true,
+      requiresAuth: true,
+      canCreate: true,
+      canEdit: true,
+      canView: true,
+      canDelete: true,
+      createLink: {
+        name: "NomenclatureForm",
+        query: {action: "create"},
+      },
+      editLink: {
+        name: "NomenclatureForm",
+        params: {action: "edit"},
+        query: {id: null},
+      },
+      returnLink: {
+        ru_name: "Номенклатура",
+        name: "Nomenclatures",
+        path: "/nomenclatures",
+      },
+      deleteLink: {
+        name: "Tags",
+        path: "/tags",
       },
     },
   },

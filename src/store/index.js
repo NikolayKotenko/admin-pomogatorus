@@ -10,15 +10,13 @@ import UsersModule from "./modules/users";
 import ObjectPropertiesModule from "./modules/object-properties";
 import DictionariesModule from "./modules/dictionaries";
 import Request from "../services/request";
+import NomenclaturesModule from "@/store/modules/nomenclatures";
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    BASE_URL:
-      process.env.NODE_ENV === "development"
-        ? "https://api-test.agregatorus.com"
-        : "https://api.agregatorus.com",
+    BASE_URL:"https://api-test.agregatorus.com",
     notification_modal: {
       show_notification: false,
       error: false,
@@ -138,9 +136,7 @@ export default new Vuex.Store({
       );
     },
     getToken() {
-      return process.env.NODE_ENV === "development"
-        ? "666777"
-        : `Bearer ${Vue.$cookies.get("accessToken")}`;
+      return "666777";
     },
   },
   modules: {
@@ -152,5 +148,6 @@ export default new Vuex.Store({
     UsersModule,
     ObjectPropertiesModule,
     DictionariesModule,
+    NomenclaturesModule,
   },
 });

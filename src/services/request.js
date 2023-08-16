@@ -1,5 +1,4 @@
 import Logging from "@/services/logging";
-import Vue from "vue";
 
 /**
  * TODO я честно пытался подключить сюда store но не получилось
@@ -13,10 +12,7 @@ export default class Request {
       cache: "default", // *default, no-cache, reload, force-cache, only-if-cached
       credentials: "include", // include, *same-origin, omit
       headers: {
-        Authorization:
-          process.env.NODE_ENV === "development"
-            ? "666777"
-            : "Bearer " + Vue.$cookies.get("accessToken"),
+        Authorization: "666777",
         "Content-Type": "application/json",
       },
     };
