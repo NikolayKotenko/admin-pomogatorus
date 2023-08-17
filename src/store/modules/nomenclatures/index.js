@@ -186,14 +186,12 @@ export default {
     //   );
     // },
     async getListFamily ({ commit }) {
-      console.log(13)
       const response = await Request.get(
         this.state.BASE_URL + "/dictionary/nomenclature-family"
       );
       commit("setListFamily", response.data);
     },
     async getListCharacteristic ({ commit }) {
-      console.log(13)
       const response = await Request.get(
           this.state.BASE_URL + "/dictionary/characteristic/nomenclature"
       );

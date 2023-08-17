@@ -53,7 +53,7 @@
                   <v-container>
                     <v-row>
                       <v-col cols="12">
-                        <v-combobox
+                        <v-select
                             v-model="editedItem.characteristic"
                             :disabled="$store.state.NomenclaturesModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
                             :items="$store.state.NomenclaturesModule.listCharacteristic" :loading="$store.state.NomenclaturesModule.loadingList"
@@ -63,7 +63,7 @@
                             hide-details
                             item-text="name"
                         >
-                        </v-combobox>
+                        </v-select>
                       </v-col>
                       <v-col cols="6">
                         <v-text-field v-model="editedItem.value" label="Значение"></v-text-field>
@@ -172,6 +172,7 @@ export default {
     },
     editItem(item) {
       this.formTitle = 'Редактировать характеристику';
+      // console.log(item);
       this.editedItem = {...item};
       this.dialog = true;
     },
@@ -183,16 +184,15 @@ export default {
       this.editedItem = {id:'' ,characteristic: '', value: '', postfix: '' };
     },
     save() {
-     let die = this.$store.state.NomenclaturesModule.entry.characteristics.find(
-          (element) => element.id === this.editedItem.characteristic.id
+     let itemForEdit = this.$store.state.NomenclaturesModule.entry.characteristics.find(
+          (element) => element.id === this.editedItem.id
       );
 
-     console.log(die);
-      if (die !== undefined) {
-        die.id = this.editedItem.characteristic.id;
-        die.characteristic = this.editedItem.characteristic.name || this.editedItem.characteristic;
-        die.value = this.editedItem.value;
-        die.postfix = this.editedItem.postfix;
+      if (itemForEdit !== undefined) {
+        itemForEdit.id = this.editedItem.characteristic.id;
+        itemForEdit.characteristic = this.editedItem.characteristic.name || this.editedItem.characteristic;
+        itemForEdit.value = this.editedItem.value;
+        itemForEdit.postfix = this.editedItem.postfix;
         this.closeDialog();
         return;
       }
@@ -203,7 +203,6 @@ export default {
         value: this.editedItem.value,
         postfix: this.editedItem.postfix
       });
-
 
       // Отправка данных на API для сохранения или обновления
       this.closeDialog();
