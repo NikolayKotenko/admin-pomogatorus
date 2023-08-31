@@ -88,10 +88,18 @@ export function DPropertyObject(id = null, name = "", code = "") {
   this.code = code;
 }
 
-export function Dictionary(id = null, name = "", code = "") {
+export function Dictionary(
+  id = null,
+  name = "",
+  code = "",
+  flag_nomenclature = null,
+  flag_objects = null
+) {
   this.id = id;
   this.name = name;
   this.code = code;
+  this.flag_nomenclature = flag_nomenclature;
+  this.flag_objects = flag_objects;
 }
 
 export function DictionaryAttribute(

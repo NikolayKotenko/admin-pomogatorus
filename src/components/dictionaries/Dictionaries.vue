@@ -1,6 +1,29 @@
 <template>
   <div class="detail_container">
     <v-container class="main_wrapper">
+
+      <div class="wrapper_checkbox">
+        <v-checkbox
+            v-model="$store.state.DictionariesModule.entry.flag_nomenclature"
+            :disabled="$store.state.DictionariesModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+            :loading="$store.state.DictionariesModule.loadingList"
+            class="mb-5 mt-5"
+            dense
+            hide-details
+            label="Номенклатура"
+        >
+        </v-checkbox>
+        <v-checkbox
+            v-model="$store.state.DictionariesModule.entry.flag_objects"
+            :disabled="$store.state.DictionariesModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+            :loading="$store.state.DictionariesModule.loadingList"
+            class="mb-5 mt-5"
+            dense
+            hide-details
+            label="Объекты"
+        >
+        </v-checkbox>
+      </div>
       <!-- Сам справочник  -->
       <template v-if="$store.getters.stateEditCreate($route.query.action)">
         <InputStyled
@@ -411,6 +434,10 @@ export default {
 .container.main_wrapper{
   grid-row-gap: 1em;
   display: grid;
+  .wrapper_checkbox{
+    display: inline-flex;
+    grid-column-gap: 1em;
+  }
 }
 .table_dictionary_attributes{
   &__header{
