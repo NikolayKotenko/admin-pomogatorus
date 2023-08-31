@@ -22,6 +22,7 @@ import DetailUser from "@/components/users/DetailUser";
 import ObjectProperties from "@/components/object-properties/ObjectProperties";
 import Dictionaries from "@/components/dictionaries/Dictionaries";
 import NomenclatureForm from "@/components/nomenclatures/NomenclatureForm";
+import Family from "@/components/nomenclatures/Family";
 
 Vue.use(VueRouter);
 
@@ -282,6 +283,39 @@ const routes = [
       deleteLink: {
         name: "Tags",
         path: "/tags",
+      },
+    },
+  },
+  {
+    path: "/family/:id?",
+    name: "Family",
+    component: Family,
+    meta: {
+      title: "Номенклатура",
+      ru_name: "Номенклатура",
+      singleComponent: true,
+      requiresAuth: true,
+      canCreate: true,
+      canEdit: true,
+      canView: true,
+      canDelete: true,
+      createLink: {
+        name: "Family",
+        query: {action: "create"},
+      },
+      editLink: {
+        name: "Family",
+        params: {action: "edit"},
+        query: {id: null},
+      },
+      returnLink: {
+        ru_name: "Номенклатура",
+        name: "Family",
+        path: "/family",
+      },
+      deleteLink: {
+        name: "Family",
+        path: "/family",
       },
     },
   },

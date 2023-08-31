@@ -5,6 +5,7 @@ export default {
   state: {
     listCharacteristic: [],
     listFamily: [],
+    listEntries: [],
     loadingList: false,
     deleteModal: false,
     entry: {
@@ -103,25 +104,6 @@ export default {
       //END
       commit("changeLoadingList", false);
     },
-    // async deleteSetGroupUser(_, idUser) {
-    //   // Удаляем все группы пользователя
-    //   await Request.delete(
-    //     this.state.BASE_URL + "/m-to-m/delete-all-groups-by-user/" + idUser
-    //   );
-    //
-    //   //В цикле добавляем новые группы пользователя
-    //   for (const item of this.state.UsersModule.entry.groups) {
-    //     const newEntry = new ConstructUserGroups(idUser, item.id);
-    //     const response = await Request.post(
-    //       this.state.BASE_URL + "/m-to-m/users-groups/",
-    //       newEntry
-    //     );
-    //     console.log(response);
-    //     if (response.codeResponse === 409) {
-    //       return response;
-    //     }
-    //   }
-    // },
     async createEntry({ commit }, objRequest) {
       try {
         //
@@ -147,44 +129,44 @@ export default {
         commit("change_notification_modal", e, { root: true });
       }
     },
-    // async updateEntry({ commit }, objRequest) {
-    //   try {
-    //     return await Request.put(
-    //       this.state.BASE_URL + "/users/update-user-data/" + objRequest.id,
-    //       objRequest
-    //     );
-    //   } catch (e) {
-    //     console.log(e);
-    //     commit("change_notification_modal", e, { root: true });
-    //   }
-    // },
-    // async getListEntries({ commit }, id) {
-    //   commit("changeLoadingList", true);
-    //
-    //   try {
-    //     const result = await Request.get(
-    //       this.state.BASE_URL + "/entity/nomenclature"
-    //     );
-    //     commit("changeListEntries", result.data);
-    //     const listEntries = this.state.NomenclaturesModule.listEntries;
-    //
-    //     const getLocalEntry = () => {
-    //       if (id) {
-    //         return listEntries.find((elem) => elem.id == id);
-    //       }
-    //     };
-    //     commit("setEntry", getLocalEntry());
-    //   } catch (e) {
-    //     console.log(e);
-    //     commit("change_notification_modal", e, { root: true });
-    //   }
-    //   commit("changeLoadingList", false);
-    // },
-    // async getEntry(_, id) {
-    //   return await Request.get(
-    //     this.state.BASE_URL + "/entity/nomenclature/" + id
-    //   );
-    // },
+    async updateEntry({ commit }, objRequest) {
+      try {
+        return await Request.put(
+          this.state.BASE_URL + "/entity/nomenclature/" + objRequest.id,
+          objRequest
+        );
+      } catch (e) {
+        console.log(e);
+        commit("change_notification_modal", e, { root: true });
+      }
+    },
+    async getListEntries({ commit }, id) {
+      commit("changeLoadingList", true);
+
+      try {
+        const result = await Request.get(
+          this.state.BASE_URL + "/entity/nomenclature"
+        );
+        commit("changeListEntries", result.data);
+        const listEntries = this.state.NomenclaturesModule.listEntries;
+
+        const getLocalEntry = () => {
+          if (id) {
+            return listEntries.find((elem) => elem.id === id);
+          }
+        };
+        commit("setEntry", getLocalEntry());
+      } catch (e) {
+        console.log(e);
+        commit("change_notification_modal", e, { root: true });
+      }
+      commit("changeLoadingList", false);
+    },
+    async getEntry(_, id) {
+      return await Request.get(
+        this.state.BASE_URL + "/entity/nomenclature/" + id
+      );
+    },
     async getListFamily ({ commit }) {
       const response = await Request.get(
         this.state.BASE_URL + "/dictionary/nomenclature-family"

@@ -11,6 +11,7 @@ import ObjectPropertiesModule from "./modules/object-properties";
 import DictionariesModule from "./modules/dictionaries";
 import Request from "../services/request";
 import NomenclaturesModule from "@/store/modules/nomenclatures";
+import FamiliesModule from "@/store/modules/families";
 
 Vue.use(Vuex);
 
@@ -149,5 +150,6 @@ export default new Vuex.Store({
     ObjectPropertiesModule,
     DictionariesModule,
     NomenclaturesModule,
+    FamiliesModule,
   },
 });

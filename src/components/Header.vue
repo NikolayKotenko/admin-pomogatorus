@@ -39,6 +39,7 @@
                 :to="$route.meta.returnLink.path"
             >
               {{ $route.meta.returnLink.ru_name }}
+
             </router-link>
 
             <div style="display: contents" v-if="! $route.meta.singleComponent">
@@ -126,7 +127,7 @@
             :to="item.link"
           >
             <template v-slot:default="{ active }">
-              <v-list-item-action>
+              <v-list-item-action  v-if="!item.children">
                 <template v-if="item.icon">
                   <v-icon v-if="!active" color="#7b858e">
                     {{ item.icon }}
@@ -137,7 +138,9 @@
                   </v-icon>
                 </template>
                 <template v-else>
+
                   <img
+
                     :src="require(`../assets/svg/${item.nameIcon}`)"
                     :alt="item.title"
                     class="navigation_section_icon"
@@ -145,7 +148,41 @@
                 </template>
               </v-list-item-action>
               <v-list-item-content>
-                <v-list-item-title v-text="item.title"></v-list-item-title>
+                <template v-if="item.children">
+                  <v-card
+                      width="100%"
+                      class="children_list"
+                  >
+                    <v-list>
+                        <v-list-group
+                            no-action
+                            sub-group
+                        >
+                          <template v-slot:activator>
+                            <v-list-item-content>
+                              <v-list-item-title>{{item.title}}</v-list-item-title>
+                            </v-list-item-content>
+                          </template>
+
+                          <v-list-item
+                              v-for="(elem, i) in item.children"
+                              :key="i"
+                              :to="elem.link"
+                              link
+                          >
+                            <v-list-item-title v-text="elem.title"></v-list-item-title>
+
+                            <v-list-item-icon>
+                              <v-icon v-text="elem.icon"></v-icon>
+                            </v-list-item-icon>
+                          </v-list-item>
+                        </v-list-group>
+                    </v-list>
+                  </v-card>
+                </template>
+                <template v-else>
+                <v-list-item-title  v-text="item.title"></v-list-item-title>
+                </template>
               </v-list-item-content>
             </template>
           </v-list-item>
@@ -236,10 +273,26 @@ export default {
       },
       {
         id: 8,
-        icon: 'mdi-book-alphabet',
-        title: 'Номенклатуры',
-        link: '/nomenclatures',
-        nameIcon: 'answers.svg'
+        icon: 'mdi-home-alphabet',
+        title: 'Оборудование',
+        link: '',
+        nameIcon: 'answers.svg',
+        children: [
+          {
+            id: 9,
+            icon: 'mdi-book-alphabet',
+            title: 'Номенклатуры',
+            link: '/nomenclatures',
+            nameIcon: 'answers.svg',
+          },
+          {
+            id: 10,
+            icon: 'mdi-book-alphabet',
+            title: 'Семейства',
+            link: '/family',
+            nameIcon: 'answers.svg',
+          }
+        ],
       },
     ]
   }),
@@ -330,5 +383,9 @@ export default {
   position: fixed;
   bottom: 0;
   width: 100%;
+}
+.children_list {
+  background-color: rgb(53, 62, 71) !important;
+  border-color: rgb(53, 62, 71) !important;
 }
 </style>
