@@ -23,6 +23,7 @@ import ObjectProperties from "@/components/object-properties/ObjectProperties";
 import Dictionaries from "@/components/dictionaries/Dictionaries";
 import NomenclatureForm from "@/components/nomenclatures/NomenclatureForm";
 import Family from "@/components/nomenclatures/Family";
+import FamilyTypes from "@/components/nomenclatures/FamilyTypes";
 
 Vue.use(VueRouter);
 
@@ -291,8 +292,8 @@ const routes = [
     name: "Family",
     component: Family,
     meta: {
-      title: "Номенклатура",
-      ru_name: "Номенклатура",
+      title: "Family",
+      ru_name: "Семейства",
       singleComponent: true,
       requiresAuth: true,
       canCreate: true,
@@ -309,13 +310,46 @@ const routes = [
         query: {id: null},
       },
       returnLink: {
-        ru_name: "Номенклатура",
+        ru_name: "Семейства",
         name: "Family",
         path: "/family",
       },
       deleteLink: {
         name: "Family",
         path: "/family",
+      },
+    },
+  },
+  {
+    path: "/familyTypes/:id?",
+    name: "FamilyTypes",
+    component: FamilyTypes,
+    meta: {
+      title: "FamilyTypes",
+      ru_name: "Типы семейства",
+      singleComponent: true,
+      requiresAuth: true,
+      canCreate: true,
+      canEdit: true,
+      canView: true,
+      canDelete: true,
+      createLink: {
+        name: "FamilyTypes",
+        query: {action: "create"},
+      },
+      editLink: {
+        name: "FamilyTypes",
+        params: {action: "edit"},
+        query: {id: null},
+      },
+      returnLink: {
+        ru_name: "Типы семейства",
+        name: "Family",
+        path: "/familyTypes",
+      },
+      deleteLink: {
+        name: "FamilyTypes",
+        path: "/familyTypes",
       },
     },
   },

@@ -113,15 +113,17 @@ export default {
 
         console.log(objRequest);
 
-        // let nomenclature = {
-        //   name: objRequest.name,
-        //   vendor_code: objRequest.vendor_code
-        // }
-        //
-        // let response = await Request.post(
-        //   this.state.BASE_URL + '/entity/nomenclature',
-        //     nomenclature
-        // );
+        let nomenclature = {
+          name: objRequest.name,
+          vendor_code: objRequest.vendor_code,
+          family: objRequest.family || null,
+        }
+
+        return await Request.post(
+          this.state.BASE_URL + '/entity/nomenclature',
+            nomenclature
+        );
+
         //
         // console.log(response);
       } catch (e) {
@@ -182,12 +184,4 @@ export default {
   },
   getters: {},
 };
-//
-// class ConstructUserGroups {
-//   constructor(id_user, id_group) {
-//     return {
-//       id_user: id_user,
-//       id_group: id_group,
-//     };
-//   }
-// }
+

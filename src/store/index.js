@@ -12,6 +12,7 @@ import DictionariesModule from "./modules/dictionaries";
 import Request from "../services/request";
 import NomenclaturesModule from "@/store/modules/nomenclatures";
 import FamiliesModule from "@/store/modules/families";
+import FamilyTypesModule from "@/store/modules/familyTypes";
 
 Vue.use(Vuex);
 
@@ -151,5 +152,6 @@ export default new Vuex.Store({
     DictionariesModule,
     NomenclaturesModule,
     FamiliesModule,
+    FamilyTypesModule,
   },
 });

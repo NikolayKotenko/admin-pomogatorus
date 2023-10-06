@@ -291,6 +291,13 @@ export default {
             title: 'Семейства',
             link: '/family',
             nameIcon: 'answers.svg',
+          },
+          {
+            id: 11,
+            icon: 'mdi-book-alphabet',
+            title: 'Типы семейства',
+            link: '/familyTypes',
+            nameIcon: 'answers.svg',
           }
         ],
       },

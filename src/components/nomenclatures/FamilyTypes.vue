@@ -4,55 +4,29 @@
       <template v-if="$store.getters.stateEditCreate($route.query.action)">
         <InputStyled
             :current-rules="$store.state.nameRules"
-            :data="$store.state.FamiliesModule.entry.name"
+            :data="$store.state.FamilyTypesModule.entry.name"
             :is-clearable="true"
-            :is-disabled="$store.state.FamiliesModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+            :is-disabled="$store.state.FamilyTypesModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
             :is-outlined="true"
             :is-required="true"
             :item-text="'name'"
             :item-value="'name'"
-            :placeholder="'Имя семейства'"
+            :placeholder="'Название типа'"
             class="mb-5"
-            @update-input="setFamily"
+            @update-input="setType"
             @change-input="onSubmitLocal"
         />
       </template>
       <template v-else>
         <SearchStyled
-            :is-items="$store.state.FamiliesModule.listEntries"
+            :is-items="$store.state.FamilyTypesModule.listEntries"
             :is-item-text="'name'"
             :is-item-value="'code'"
-            :is-placeholder="'Список семейств'"
-            @change-search="setFamily"
+            :is-placeholder="'Список типов'"
+            @change-search="setType"
         ></SearchStyled>
       </template>
 
-      <v-text-field
-          ref="nomenclature-vendor-code"
-          v-model="$store.state.FamiliesModule.entry.description"
-          :disabled="$store.state.FamiliesModule.loadingList"
-          class="mb-0 mt-5"
-          dense
-          label="Описание"
-          outlined
-          required
-          type="text"
-      ></v-text-field>
-
-      <v-list elevation="1" subheader>
-        <v-subheader>Тип</v-subheader>
-        <v-combobox
-            v-model="$store.state.FamiliesModule.entry.type"
-            :disabled="$store.state.FamiliesModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
-            :items="$store.state.FamiliesModule.listTypes" :loading="$store.state.FamiliesModule.loadingList"
-            chips
-            class="role_user pa-2 pt-0 ma-0 "
-            clearable
-            hide-details
-            item-text="name"
-        >
-        </v-combobox>
-      </v-list>
 
       <!-- DROPZONE -->
       <v-btn
@@ -144,135 +118,135 @@
 
 
       <!--      &lt;!&ndash; Атрибуты справочника &ndash;&gt;-->
-<!--      <v-data-table-->
-<!--          :calculate-widths="true"-->
-<!--          :headers="headers"-->
-<!--          :items="$store.state.DictionariesModule.listAttributesByDictionary"-->
-<!--          :loading="$store.state.DictionariesModule.loadingList"-->
-<!--          class="elevation-1 table_dictionary_attributes"-->
-<!--          loading-text="Loading... Please wait"-->
-<!--          hide-default-footer-->
-<!--      >-->
-<!--        <template v-slot:top>-->
-<!--          <v-toolbar flat>-->
-<!--            <v-toolbar-title class="table_dictionary_attributes__header">Таблица атрибутов</v-toolbar-title>-->
-<!--            <v-divider-->
-<!--                class="mx-4"-->
-<!--                inset-->
-<!--                vertical-->
-<!--            ></v-divider>-->
-<!--            <v-spacer></v-spacer>-->
-<!--            <v-dialog v-model="dialog">-->
-<!--              <template v-slot:activator="{ on, attrs }">-->
-<!--                <v-btn-->
-<!--                    color="primary"-->
-<!--                    dark-->
-<!--                    class="mb-2"-->
-<!--                    v-bind="attrs"-->
-<!--                    v-on="on"-->
-<!--                    @click="addNewAttribute"-->
-<!--                >-->
-<!--                  Добавить-->
-<!--                </v-btn>-->
-<!--              </template>-->
-<!--              <v-card>-->
-<!--                <v-card-title class="text-h6 d-block text-center">{{ formTitle }}</v-card-title>-->
-<!--                <v-card-text class="table_dictionary_attributes__modal_item">-->
-<!--                  <ComboboxStyled-->
-<!--                      v-if="dialog"-->
-<!--                      :data="editedItem.value"-->
-<!--                      :is-items="$store.state.DictionariesModule.listOccurrencesAttributes"-->
-<!--                      :is-item-text="'value'"-->
-<!--                      :is-item-value="'value'"-->
-<!--                      :is-hide-details="false"-->
-<!--                      :is-placeholder="'Значение'"-->
-<!--                      :is-loading="$store.state.DictionariesModule.loadingOccurrencesAttributes"-->
-<!--                      @update-search-input="findSearchAttribute"-->
-<!--                      @change-search="setSearchAttribute"-->
-<!--                  ></ComboboxStyled>-->
-<!--                  <InputStyledSimple-->
-<!--                      class="mb-5"-->
-<!--                      :data="editedItem.sort"-->
-<!--                      :placeholder="'Сортировка'"-->
-<!--                      @update-input="setSortProperty"-->
-<!--                  ></InputStyledSimple>-->
-<!--                </v-card-text>-->
+      <!--      <v-data-table-->
+      <!--          :calculate-widths="true"-->
+      <!--          :headers="headers"-->
+      <!--          :items="$store.state.DictionariesModule.listAttributesByDictionary"-->
+      <!--          :loading="$store.state.DictionariesModule.loadingList"-->
+      <!--          class="elevation-1 table_dictionary_attributes"-->
+      <!--          loading-text="Loading... Please wait"-->
+      <!--          hide-default-footer-->
+      <!--      >-->
+      <!--        <template v-slot:top>-->
+      <!--          <v-toolbar flat>-->
+      <!--            <v-toolbar-title class="table_dictionary_attributes__header">Таблица атрибутов</v-toolbar-title>-->
+      <!--            <v-divider-->
+      <!--                class="mx-4"-->
+      <!--                inset-->
+      <!--                vertical-->
+      <!--            ></v-divider>-->
+      <!--            <v-spacer></v-spacer>-->
+      <!--            <v-dialog v-model="dialog">-->
+      <!--              <template v-slot:activator="{ on, attrs }">-->
+      <!--                <v-btn-->
+      <!--                    color="primary"-->
+      <!--                    dark-->
+      <!--                    class="mb-2"-->
+      <!--                    v-bind="attrs"-->
+      <!--                    v-on="on"-->
+      <!--                    @click="addNewAttribute"-->
+      <!--                >-->
+      <!--                  Добавить-->
+      <!--                </v-btn>-->
+      <!--              </template>-->
+      <!--              <v-card>-->
+      <!--                <v-card-title class="text-h6 d-block text-center">{{ formTitle }}</v-card-title>-->
+      <!--                <v-card-text class="table_dictionary_attributes__modal_item">-->
+      <!--                  <ComboboxStyled-->
+      <!--                      v-if="dialog"-->
+      <!--                      :data="editedItem.value"-->
+      <!--                      :is-items="$store.state.DictionariesModule.listOccurrencesAttributes"-->
+      <!--                      :is-item-text="'value'"-->
+      <!--                      :is-item-value="'value'"-->
+      <!--                      :is-hide-details="false"-->
+      <!--                      :is-placeholder="'Значение'"-->
+      <!--                      :is-loading="$store.state.DictionariesModule.loadingOccurrencesAttributes"-->
+      <!--                      @update-search-input="findSearchAttribute"-->
+      <!--                      @change-search="setSearchAttribute"-->
+      <!--                  ></ComboboxStyled>-->
+      <!--                  <InputStyledSimple-->
+      <!--                      class="mb-5"-->
+      <!--                      :data="editedItem.sort"-->
+      <!--                      :placeholder="'Сортировка'"-->
+      <!--                      @update-input="setSortProperty"-->
+      <!--                  ></InputStyledSimple>-->
+      <!--                </v-card-text>-->
 
-<!--                <v-card-actions>-->
-<!--                  <v-btn color="blue darken-1" text class="mr-auto" @click="dialog = false">-->
-<!--                    Отмена-->
-<!--                  </v-btn>-->
-<!--                  <v-btn color="blue" :disabled="! editedItem.value" text @click="postNewAttribute">-->
-<!--                    Сохранить-->
-<!--                  </v-btn>-->
-<!--                </v-card-actions>-->
-<!--              </v-card>-->
-<!--            </v-dialog>-->
-<!--            <v-dialog v-model="dialogDelete">-->
-<!--              <v-card>-->
-<!--                <v-card-title class="text-h6 d-block text-center">Вы действительно хотите удалить атрибут ?</v-card-title>-->
-<!--                <v-card-text class="table_dictionary_attributes__modal_item">-->
-<!--                  <InputStyledSimple-->
-<!--                      class="mb-5"-->
-<!--                      :is-readonly="true"-->
-<!--                      :data="editedItem.value"-->
-<!--                      :placeholder="'Значение'"-->
-<!--                  ></InputStyledSimple>-->
-<!--                  <InputStyledSimple-->
-<!--                      :is-readonly="true"-->
-<!--                      class="mb-5"-->
-<!--                      :data="editedItem.sort"-->
-<!--                      :placeholder="'Сортировка'"-->
-<!--                  ></InputStyledSimple>-->
-<!--                </v-card-text>-->
-<!--                <v-card-actions>-->
-<!--                  <v-btn color="blue darken-1" text class="mr-auto" @click="dialogDelete = false">-->
-<!--                    Отмена-->
-<!--                  </v-btn>-->
-<!--                  <v-btn color="blue darken-1" text @click="deleteAttribute">-->
-<!--                    Удалить-->
-<!--                  </v-btn>-->
-<!--                </v-card-actions>-->
-<!--              </v-card>-->
-<!--            </v-dialog>-->
-<!--          </v-toolbar>-->
-<!--        </template>-->
-<!--        <template v-slot:item.actions="{ item }">-->
-<!--          <v-icon-->
-<!--              small-->
-<!--              class="mr-2"-->
-<!--              @click="editItem(item)"-->
-<!--          >-->
-<!--            mdi-pencil-->
-<!--          </v-icon>-->
-<!--          <v-icon-->
-<!--              small-->
-<!--              @click="deleteItem(item)"-->
-<!--          >-->
-<!--            mdi-delete-->
-<!--          </v-icon>-->
-<!--        </template>-->
-<!--        <template v-slot:no-data>-->
-<!--          Не найдено атрибутов у этого справочника-->
-<!--        </template>-->
-<!--      </v-data-table>-->
+      <!--                <v-card-actions>-->
+      <!--                  <v-btn color="blue darken-1" text class="mr-auto" @click="dialog = false">-->
+      <!--                    Отмена-->
+      <!--                  </v-btn>-->
+      <!--                  <v-btn color="blue" :disabled="! editedItem.value" text @click="postNewAttribute">-->
+      <!--                    Сохранить-->
+      <!--                  </v-btn>-->
+      <!--                </v-card-actions>-->
+      <!--              </v-card>-->
+      <!--            </v-dialog>-->
+      <!--            <v-dialog v-model="dialogDelete">-->
+      <!--              <v-card>-->
+      <!--                <v-card-title class="text-h6 d-block text-center">Вы действительно хотите удалить атрибут ?</v-card-title>-->
+      <!--                <v-card-text class="table_dictionary_attributes__modal_item">-->
+      <!--                  <InputStyledSimple-->
+      <!--                      class="mb-5"-->
+      <!--                      :is-readonly="true"-->
+      <!--                      :data="editedItem.value"-->
+      <!--                      :placeholder="'Значение'"-->
+      <!--                  ></InputStyledSimple>-->
+      <!--                  <InputStyledSimple-->
+      <!--                      :is-readonly="true"-->
+      <!--                      class="mb-5"-->
+      <!--                      :data="editedItem.sort"-->
+      <!--                      :placeholder="'Сортировка'"-->
+      <!--                  ></InputStyledSimple>-->
+      <!--                </v-card-text>-->
+      <!--                <v-card-actions>-->
+      <!--                  <v-btn color="blue darken-1" text class="mr-auto" @click="dialogDelete = false">-->
+      <!--                    Отмена-->
+      <!--                  </v-btn>-->
+      <!--                  <v-btn color="blue darken-1" text @click="deleteAttribute">-->
+      <!--                    Удалить-->
+      <!--                  </v-btn>-->
+      <!--                </v-card-actions>-->
+      <!--              </v-card>-->
+      <!--            </v-dialog>-->
+      <!--          </v-toolbar>-->
+      <!--        </template>-->
+      <!--        <template v-slot:item.actions="{ item }">-->
+      <!--          <v-icon-->
+      <!--              small-->
+      <!--              class="mr-2"-->
+      <!--              @click="editItem(item)"-->
+      <!--          >-->
+      <!--            mdi-pencil-->
+      <!--          </v-icon>-->
+      <!--          <v-icon-->
+      <!--              small-->
+      <!--              @click="deleteItem(item)"-->
+      <!--          >-->
+      <!--            mdi-delete-->
+      <!--          </v-icon>-->
+      <!--        </template>-->
+      <!--        <template v-slot:no-data>-->
+      <!--          Не найдено атрибутов у этого справочника-->
+      <!--        </template>-->
+      <!--      </v-data-table>-->
 
     </v-container>
 
     <footer class="detail_footer">
       <v-container>
         <v-btn
-            v-if="$store.state.FamiliesModule.entry.code"
-            :disabled="$store.state.FamiliesModule.loadingList"
+            v-if="$store.state.FamilyTypesModule.entry.code"
+            :disabled="$store.state.FamilyTypesModule.loadingList"
             color="red darken-1"
             text
-            @click="$store.dispatch('FamiliesModule/stateModalAction', true)"
+            @click="$store.dispatch('FamilyTypesModule/stateModalAction', true)"
         >
           Удалить
         </v-btn>
         <v-btn
             v-if="$route.query.action"
-            :disabled="$store.state.FamiliesModule.loadingList"
+            :disabled="$store.state.FamilyTypesModule.loadingList"
             color="white darken-1"
             text
             @click="$router.push({path: $route.meta.returnLink.path})"
@@ -293,7 +267,7 @@
     </footer>
 
     <v-dialog
-        v-model="$store.state.FamiliesModule.deleteModal"
+        v-model="$store.state.FamilyTypesModule.deleteModal"
         max-width="600"
     >
       <v-card>
@@ -302,18 +276,18 @@
         </v-card-title>
         <v-card-actions>
           <v-btn
-              :disabled="$store.state.FamiliesModule.loadingList"
-              :loading="$store.state.FamiliesModule.loadingList"
+              :disabled="$store.state.FamilyTypesModule.loadingList"
+              :loading="$store.state.FamilyTypesModule.loadingList"
               color="blue darken-1"
               text
-              @click="$store.dispatch('FamiliesModule/stateModalAction', false)"
+              @click="$store.dispatch('FamilyTypesModule/stateModalAction', false)"
           >
             Нет
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn
-              :disabled="$store.state.FamiliesModule.loadingList"
-              :loading="$store.state.FamiliesModule.loadingList"
+              :disabled="$store.state.FamilyTypesModule.loadingList"
+              :loading="$store.state.FamilyTypesModule.loadingList"
               color="red darken-1"
               text
               @click="deleteLocal()"
@@ -323,7 +297,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-overlay :value="$store.state.FamiliesModule.loadingList">
+    <v-overlay :value="$store.state.FamilyTypesModule.loadingList">
       <v-progress-circular
           indeterminate
           size="64"
@@ -363,8 +337,7 @@ export default {
     stateDropzone: false,
   }),
   async mounted() {
-    await this.$store.dispatch('FamiliesModule/getListEntries', this.$route.params.code)
-    await this.$store.dispatch('FamiliesModule/getListTypes', this.$route.params.code)
+    await this.$store.dispatch('FamilyTypesModule/getListEntries', this.$route.params.code)
   },
   computed: {
     options() {
@@ -379,7 +352,7 @@ export default {
     },
   },
   watch: {
-    '$store.state.FamiliesModule.entry.id': {
+    '$store.state.FamilyTypesModule.entry.id': {
       handler(newValue) {
         if (this.$route.query.action === 'create')
           return false;
@@ -392,24 +365,25 @@ export default {
         }).catch(() => {
         });
 
-        this.$store.dispatch('setTitle', this.$store.state.FamiliesModule.entry.name)
+        this.$store.dispatch('setTitle', this.$store.state.FamilyTypesModule.entry.name)
       }
     },
     '$route.query.action': {
       handler(newValue) {
         if (newValue === 'create') {
-          this.$store.commit('FamiliesModule/clearEntry');
+          this.$store.commit('FamilyTypesModule/clearEntry');
         }
       }
     },
     '$route.params.id': {
       handler(newValue) {
         if (!newValue) {
-          this.$store.commit('FamiliesModule/clearEntry');
+          this.$store.commit('FamilyTypesModule/clearEntry');
+          this.$store.commit('FamilyTypesModule/clearListAttributesByDictionary')
         }
       }
     },
-    '$store.state.FamiliesModule.entry.e_client_files': {
+    '$store.state.FamilyTypesModule.entry.e_client_files': {
       handler(newValue) {
         if (!newValue) return false;
         this.dropzone_uploaded = [];
@@ -466,10 +440,10 @@ export default {
           this.dropzone_uploaded[0])
     },
     async onSubmitLocal() {
-      await this.$store.dispatch('FamiliesModule/onSubmit');
+      await this.$store.dispatch('FamilyTypesModule/onSubmit');
       if (this.$route.query.action === 'create') {
         await this.$router.replace({
-          path: this.$route.path + '/' + this.$store.state.FamiliesModule.entry.id,
+          path: this.$route.path + '/' + this.$store.state.FamilyTypesModule.entry.id,
           query: {action: 'edit'},
         }).catch(() => {});
       } else {
@@ -478,19 +452,19 @@ export default {
         }).catch(() => {});
       }
     },
-    async setFamily(value){
+    async setType(value){
       if (! value) {
         this.$store.commit('FamilyModule/clearEntry');
         return false;
       }
 
       if (this.$store.getters.checkValueIsAnObject(value)){
-        await this.$store.commit('FamiliesModule/setEntry', value)
-        // await this.$store.dispatch('FamiliesModule/getListDictionaryAttribute')
+        await this.$store.commit('FamilyTypesModule/setEntry', value)
+        // await this.$store.dispatch('FamilyTypesModule/getListDictionaryAttribute')
       }
 
       if (typeof value === 'string') {
-        this.$store.state.FamiliesModule.entry.name = value
+        this.$store.state.FamilyTypesModule.entry.name = value
       }
     },
     // async postNewAttribute(){
@@ -545,7 +519,7 @@ export default {
       //   await this.$store.dispatch('DictionariesModule/deleteAttribute', obj.code);
       // }
 
-      await this.$store.dispatch('FamiliesModule/deleteEntry');
+      await this.$store.dispatch('FamilyTypesModule/deleteEntry');
       await this.$router.push({path: this.$route.meta.returnLink.path}).catch(() => {});
     },
     setSortProperty(value){
