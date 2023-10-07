@@ -57,7 +57,7 @@
       <!-- DROPZONE -->
       <v-btn
 
-          @click="$refs.NomenclatureDropZone.removeAllFiles(); stateDropzone = true; insertDropzoneData()"
+          @click="$refs.FamilyDropZone.removeAllFiles(); stateDropzone = true; insertDropzoneData()"
       >
         Изображение
         <v-icon color="grey mb-0 mt-5 lighten-1" style="transform: rotate(45deg)">mdi-paperclip</v-icon>
@@ -77,7 +77,7 @@
             <div v-show="! dropzone_uploaded.length" class="dialog_dropzone_wrapper">
               <vue-dropzone
                   id="dropzone"
-                  ref="NomenclatureDropZone"
+                  ref="FamilyDropZone"
                   :options="options"
                   :useCustomSlot=true
                   @vdropzone-success="successData"
@@ -143,117 +143,54 @@
       </v-dialog>
 
 
-      <!--      &lt;!&ndash; Атрибуты справочника &ndash;&gt;-->
-<!--      <v-data-table-->
-<!--          :calculate-widths="true"-->
-<!--          :headers="headers"-->
-<!--          :items="$store.state.DictionariesModule.listAttributesByDictionary"-->
-<!--          :loading="$store.state.DictionariesModule.loadingList"-->
-<!--          class="elevation-1 table_dictionary_attributes"-->
-<!--          loading-text="Loading... Please wait"-->
-<!--          hide-default-footer-->
-<!--      >-->
+<!--      <v-data-table :headers="headers" :items="items" item-key="id" class="elevation-1 mb-0 mt-5">-->
 <!--        <template v-slot:top>-->
 <!--          <v-toolbar flat>-->
-<!--            <v-toolbar-title class="table_dictionary_attributes__header">Таблица атрибутов</v-toolbar-title>-->
-<!--            <v-divider-->
-<!--                class="mx-4"-->
-<!--                inset-->
-<!--                vertical-->
-<!--            ></v-divider>-->
-<!--            <v-spacer></v-spacer>-->
-<!--            <v-dialog v-model="dialog">-->
-<!--              <template v-slot:activator="{ on, attrs }">-->
-<!--                <v-btn-->
-<!--                    color="primary"-->
-<!--                    dark-->
-<!--                    class="mb-2"-->
-<!--                    v-bind="attrs"-->
-<!--                    v-on="on"-->
-<!--                    @click="addNewAttribute"-->
-<!--                >-->
-<!--                  Добавить-->
-<!--                </v-btn>-->
+<!--            <v-dialog v-model="dialog" max-width="500px">-->
+<!--              <template v-slot:activator="{ on }">-->
+<!--                <v-btn color="primary" dark class="mb-2" v-on="on">Добавить характеристику</v-btn>-->
 <!--              </template>-->
 <!--              <v-card>-->
-<!--                <v-card-title class="text-h6 d-block text-center">{{ formTitle }}</v-card-title>-->
-<!--                <v-card-text class="table_dictionary_attributes__modal_item">-->
-<!--                  <ComboboxStyled-->
-<!--                      v-if="dialog"-->
-<!--                      :data="editedItem.value"-->
-<!--                      :is-items="$store.state.DictionariesModule.listOccurrencesAttributes"-->
-<!--                      :is-item-text="'value'"-->
-<!--                      :is-item-value="'value'"-->
-<!--                      :is-hide-details="false"-->
-<!--                      :is-placeholder="'Значение'"-->
-<!--                      :is-loading="$store.state.DictionariesModule.loadingOccurrencesAttributes"-->
-<!--                      @update-search-input="findSearchAttribute"-->
-<!--                      @change-search="setSearchAttribute"-->
-<!--                  ></ComboboxStyled>-->
-<!--                  <InputStyledSimple-->
-<!--                      class="mb-5"-->
-<!--                      :data="editedItem.sort"-->
-<!--                      :placeholder="'Сортировка'"-->
-<!--                      @update-input="setSortProperty"-->
-<!--                  ></InputStyledSimple>-->
-<!--                </v-card-text>-->
-
-<!--                <v-card-actions>-->
-<!--                  <v-btn color="blue darken-1" text class="mr-auto" @click="dialog = false">-->
-<!--                    Отмена-->
-<!--                  </v-btn>-->
-<!--                  <v-btn color="blue" :disabled="! editedItem.value" text @click="postNewAttribute">-->
-<!--                    Сохранить-->
-<!--                  </v-btn>-->
-<!--                </v-card-actions>-->
-<!--              </v-card>-->
-<!--            </v-dialog>-->
-<!--            <v-dialog v-model="dialogDelete">-->
-<!--              <v-card>-->
-<!--                <v-card-title class="text-h6 d-block text-center">Вы действительно хотите удалить атрибут ?</v-card-title>-->
-<!--                <v-card-text class="table_dictionary_attributes__modal_item">-->
-<!--                  <InputStyledSimple-->
-<!--                      class="mb-5"-->
-<!--                      :is-readonly="true"-->
-<!--                      :data="editedItem.value"-->
-<!--                      :placeholder="'Значение'"-->
-<!--                  ></InputStyledSimple>-->
-<!--                  <InputStyledSimple-->
-<!--                      :is-readonly="true"-->
-<!--                      class="mb-5"-->
-<!--                      :data="editedItem.sort"-->
-<!--                      :placeholder="'Сортировка'"-->
-<!--                  ></InputStyledSimple>-->
+<!--                <v-card-title>-->
+<!--                  <span class="headline">{{ formTitle }}</span>-->
+<!--                </v-card-title>-->
+<!--                <v-card-text>-->
+<!--                  <v-container>-->
+<!--                    <v-row>-->
+<!--                      <v-col cols="12">-->
+<!--                        <v-combobox-->
+<!--                            v-model="editedItem.characteristic"-->
+<!--                            :disabled="$store.state.FamiliesModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"-->
+<!--                            :items="$store.state.FamiliesModule.listCharacteristic" :loading="$store.state.NomenclaturesModule.loadingList"-->
+<!--                            chips-->
+<!--                            class="role_user pa-2 pt-0 ma-0"-->
+<!--                            clearable-->
+<!--                            hide-details-->
+<!--                            item-text="name"-->
+<!--                        >-->
+<!--                        </v-combobox>-->
+<!--                      </v-col>-->
+<!--                      <v-col cols="6">-->
+<!--                        <v-text-field v-model.number="editedItem.value"   type="number" label="Значение"></v-text-field>-->
+<!--                      </v-col>-->
+<!--                      <v-col cols="6">-->
+<!--                        <v-text-field v-model="editedItem.postfix" label="Постфикс"></v-text-field>-->
+<!--                      </v-col>-->
+<!--                    </v-row>-->
+<!--                  </v-container>-->
 <!--                </v-card-text>-->
 <!--                <v-card-actions>-->
-<!--                  <v-btn color="blue darken-1" text class="mr-auto" @click="dialogDelete = false">-->
-<!--                    Отмена-->
-<!--                  </v-btn>-->
-<!--                  <v-btn color="blue darken-1" text @click="deleteAttribute">-->
-<!--                    Удалить-->
-<!--                  </v-btn>-->
+<!--                  <v-spacer></v-spacer>-->
+<!--                  <v-btn color="blue darken-1" text @click="closeDialog">Отмена</v-btn>-->
+<!--                  <v-btn color="blue darken-1" text @click="save">Сохранить</v-btn>-->
 <!--                </v-card-actions>-->
 <!--              </v-card>-->
 <!--            </v-dialog>-->
 <!--          </v-toolbar>-->
 <!--        </template>-->
 <!--        <template v-slot:item.actions="{ item }">-->
-<!--          <v-icon-->
-<!--              small-->
-<!--              class="mr-2"-->
-<!--              @click="editItem(item)"-->
-<!--          >-->
-<!--            mdi-pencil-->
-<!--          </v-icon>-->
-<!--          <v-icon-->
-<!--              small-->
-<!--              @click="deleteItem(item)"-->
-<!--          >-->
-<!--            mdi-delete-->
-<!--          </v-icon>-->
-<!--        </template>-->
-<!--        <template v-slot:no-data>-->
-<!--          Не найдено атрибутов у этого справочника-->
+<!--          <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>-->
+<!--          <v-icon small @click="deleteItem(item)">mdi-delete</v-icon>-->
 <!--        </template>-->
 <!--      </v-data-table>-->
 
@@ -427,7 +364,7 @@ export default {
     // /* DROPZONE */
     sendingData(file, xhr, formData) {
       formData.append('uuid', file.upload.uuid)
-      formData.append('id_family', _store.entry.id)
+      formData.append('id_nomenclature_family', _store.entry.id)
     },
     async successData(file, response) {
       console.log('successData')
@@ -448,14 +385,14 @@ export default {
 
       await this.$store.dispatch('deleteFileGeneral', this.dropzone_uploaded[0].id);
       this.dropzone_uploaded = [];
-      this.$refs.NomenclatureDropZone.removeAllFiles();
+      this.$refs.FamilyDropZone.removeAllFiles();
     },
     insertDropzoneData() {
       if (!this.stateDropzone) return;
       if (!this.dropzone_uploaded.length) return;
 
       this.$nextTick(() => {
-        this.$refs.NomenclatureDropZone.manuallyAddFile(this.dropzone_uploaded[0], this.dropzone_uploaded[0].full_path)
+        this.$refs.FamilyDropZone.manuallyAddFile(this.dropzone_uploaded[0], this.dropzone_uploaded[0].full_path)
       })
     },
     async updateDropZoneImage() {

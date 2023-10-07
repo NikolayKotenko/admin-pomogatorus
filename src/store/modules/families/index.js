@@ -54,6 +54,7 @@ export default {
                 id: null,
                 name: null,
                 code: null,
+                type: null,
                 description: null,
                 tag: null,
                 characteristics: [],
@@ -113,10 +114,22 @@ export default {
         },
         async createEntry({commit}) {
             try {
-                return await Request.post(
+
+                let resp = await Request.post(
                     this.state.BASE_URL + "/dictionary/nomenclature-family",
                     this.state.FamiliesModule.entry
                 );
+
+                if (this.state.FamiliesModule.entry.type !== null) {
+                    let response = await Request.post(
+                        this.state.BASE_URL + "/m-to-m/nomenclature-characteristics",
+                        {'id_family':resp.id,'id_type':this.state.FamiliesModule.entry.type.id}
+                    );
+                    console.log(this.state.FamiliesModule.entry.type );
+                    console.log(response);
+                }
+
+                return resp;
             } catch (e) {
                 console.log(e);
                 console.log(e.stack);
