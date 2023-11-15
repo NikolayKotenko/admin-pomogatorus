@@ -158,6 +158,16 @@
           label="Используется как услуги ?"
       >
       </v-checkbox>
+      <v-checkbox
+          v-model="$store.state.TagsModule.tag.flag_brands"
+          :disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
+          :loading="$store.state.loadingRequestGeneral"
+          class="mb-5 mt-5"
+          dense
+          hide-details
+          label="Используется как бренд ?"
+      >
+      </v-checkbox>
       <InputStyled
           v-if="$store.state.TagsModule.tag.flag_engineering_system"
           :data="$store.state.TagsModule.tag.sort_engineering_system"

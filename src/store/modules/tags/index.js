@@ -13,6 +13,7 @@ export default {
       public: false,
       flag_engineering_system: false,
       flag_service: false,
+      flag_brands: false,
       sort_engineering_system: null,
       description: null,
       seo_title: null,
@@ -48,6 +49,7 @@ export default {
         public: false,
         flag_engineering_system: false,
         flag_service: false,
+        flag_brands: false,
         sort_engineering_system: null,
         description: null,
         seo_title: null,
@@ -173,7 +175,7 @@ export default {
         );
         commit("changeListTags", result.data);
         const listTags = this.state.TagsModule.listTags;
-
+        console.log(id);
         const getTag = () => {
           if (id) {
             return listTags.find((elem) => elem.id == id);

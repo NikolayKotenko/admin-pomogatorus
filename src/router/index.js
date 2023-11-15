@@ -255,7 +255,7 @@ const routes = [
     },
   },
   {
-    path: "/nomenclatures/:id?",
+    path: "/nomenclatures/:id?/",
     name: "NomenclatureForm",
     component: NomenclatureForm,
     meta: {
@@ -288,7 +288,7 @@ const routes = [
     },
   },
   {
-    path: "/family/:id?",
+    path: "/family/:id?/",
     name: "Family",
     component: Family,
     meta: {

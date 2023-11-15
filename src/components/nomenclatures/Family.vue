@@ -6,7 +6,7 @@
             :current-rules="$store.state.nameRules"
             :data="$store.state.FamiliesModule.entry.name"
             :is-clearable="true"
-            :is-disabled="$store.state.FamiliesModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+            :is-disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
             :is-outlined="true"
             :is-required="true"
             :item-text="'name'"
@@ -30,7 +30,7 @@
       <v-text-field
           ref="nomenclature-vendor-code"
           v-model="$store.state.FamiliesModule.entry.description"
-          :disabled="$store.state.FamiliesModule.loadingList"
+          :disabled="$store.state.loadingRequestGeneral"
           class="mb-0 mt-5"
           dense
           label="Описание"
@@ -43,7 +43,7 @@
         <v-subheader>Тип</v-subheader>
         <v-combobox
             v-model="$store.state.FamiliesModule.entry.type"
-            :disabled="$store.state.FamiliesModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+            :disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
             :items="$store.state.FamiliesModule.listTypes" :loading="$store.state.FamiliesModule.loadingList"
             chips
             class="role_user pa-2 pt-0 ma-0 "
@@ -70,16 +70,16 @@
       >
         <v-card>
           <v-card-title>
-            <span v-if="! dropzone_uploaded.length" class="text-h7">Загрузите изображение</span>
+            <span v-if="!dropzone_uploaded.length" class="text-h7">Загрузите изображение</span>
             <span v-else class="text-h7">Изображение уже загружено</span>
           </v-card-title>
           <v-card-text class="dialog_dropzone">
-            <div v-show="! dropzone_uploaded.length" class="dialog_dropzone_wrapper">
+            <div class="dialog_dropzone_wrapper">
               <vue-dropzone
                   id="dropzone"
                   ref="FamilyDropZone"
                   :options="options"
-                  :useCustomSlot=true
+                  :useCustomSlot=false
                   @vdropzone-success="successData"
                   @vdropzone-sending="sendingData"
               >
@@ -114,6 +114,16 @@
                     :placeholder="'подпись изображения'"
                     @update-input="setTitle"
                 />
+                <v-btn
+                    v-if="dropzone_uploaded.length"
+                    :disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
+                    :loading="$store.state.loadingRequestGeneral"
+                    color="blue darken-1"
+                    text
+                    @click="removedFile();"
+                >
+                  Удалить файл
+                </v-btn>
               </div>
             </template>
           </v-card-text>
@@ -124,9 +134,9 @@
                 :loading="$store.state.loadingRequestGeneral"
                 color="blue darken-1"
                 text
-                @click="removedFile();"
+                @click="removedFiles();"
             >
-              Очистить
+              Удалить все файлы
             </v-btn>
             <v-spacer></v-spacer>
             <v-btn
@@ -141,59 +151,6 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-
-
-<!--      <v-data-table :headers="headers" :items="items" item-key="id" class="elevation-1 mb-0 mt-5">-->
-<!--        <template v-slot:top>-->
-<!--          <v-toolbar flat>-->
-<!--            <v-dialog v-model="dialog" max-width="500px">-->
-<!--              <template v-slot:activator="{ on }">-->
-<!--                <v-btn color="primary" dark class="mb-2" v-on="on">Добавить характеристику</v-btn>-->
-<!--              </template>-->
-<!--              <v-card>-->
-<!--                <v-card-title>-->
-<!--                  <span class="headline">{{ formTitle }}</span>-->
-<!--                </v-card-title>-->
-<!--                <v-card-text>-->
-<!--                  <v-container>-->
-<!--                    <v-row>-->
-<!--                      <v-col cols="12">-->
-<!--                        <v-combobox-->
-<!--                            v-model="editedItem.characteristic"-->
-<!--                            :disabled="$store.state.FamiliesModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"-->
-<!--                            :items="$store.state.FamiliesModule.listCharacteristic" :loading="$store.state.NomenclaturesModule.loadingList"-->
-<!--                            chips-->
-<!--                            class="role_user pa-2 pt-0 ma-0"-->
-<!--                            clearable-->
-<!--                            hide-details-->
-<!--                            item-text="name"-->
-<!--                        >-->
-<!--                        </v-combobox>-->
-<!--                      </v-col>-->
-<!--                      <v-col cols="6">-->
-<!--                        <v-text-field v-model.number="editedItem.value"   type="number" label="Значение"></v-text-field>-->
-<!--                      </v-col>-->
-<!--                      <v-col cols="6">-->
-<!--                        <v-text-field v-model="editedItem.postfix" label="Постфикс"></v-text-field>-->
-<!--                      </v-col>-->
-<!--                    </v-row>-->
-<!--                  </v-container>-->
-<!--                </v-card-text>-->
-<!--                <v-card-actions>-->
-<!--                  <v-spacer></v-spacer>-->
-<!--                  <v-btn color="blue darken-1" text @click="closeDialog">Отмена</v-btn>-->
-<!--                  <v-btn color="blue darken-1" text @click="save">Сохранить</v-btn>-->
-<!--                </v-card-actions>-->
-<!--              </v-card>-->
-<!--            </v-dialog>-->
-<!--          </v-toolbar>-->
-<!--        </template>-->
-<!--        <template v-slot:item.actions="{ item }">-->
-<!--          <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>-->
-<!--          <v-icon small @click="deleteItem(item)">mdi-delete</v-icon>-->
-<!--        </template>-->
-<!--      </v-data-table>-->
-
     </v-container>
 
     <footer class="detail_footer">
@@ -278,9 +235,6 @@ import InputStyled from "@/components/common/InputStyled";
 import SearchStyled from "@/components/common/SearchStyled";
 import vueDropzone from "vue2-dropzone";
 import Request from "@/services/request";
-import nomenclatureStore from "@/store/modules/nomenclatures";
-
-const _store = nomenclatureStore.state
 
 export default {
   name: "Family",
@@ -294,7 +248,6 @@ export default {
   data: () => ({
     dialog: false,
     dialogDelete: false,
-    editedId: -1,
     dropzone_uploaded: [],
     index_uploaded: 1,
     stateDropzone: false,
@@ -302,6 +255,7 @@ export default {
   async mounted() {
     await this.$store.dispatch('FamiliesModule/getListEntries', this.$route.params.code)
     await this.$store.dispatch('FamiliesModule/getListTypes', this.$route.params.code)
+    await this.$store.dispatch('setTitle', this.$store.state.FamiliesModule.entry.name)
   },
   computed: {
     options() {
@@ -318,17 +272,18 @@ export default {
   watch: {
     '$store.state.FamiliesModule.entry.id': {
       handler(newValue) {
-        if (this.$route.query.action === 'create')
+        if (this.$route.query.action === 'create') {
           return false;
+        }
 
         const currentQuery = this.$route.query;
-        const codeEntry = (newValue) ? newValue : '';
+        const idEntry = (newValue) ? newValue : '';
         this.$router.replace({
-          path: this.$route.meta.returnLink.path +'/'+ codeEntry,
+          path: '/family/'+ idEntry,
           query: currentQuery,
         }).catch(() => {
         });
-
+        console.log(this.$store.state.FamiliesModule.entry);
         this.$store.dispatch('setTitle', this.$store.state.FamiliesModule.entry.name)
       }
     },
@@ -346,7 +301,7 @@ export default {
         }
       }
     },
-    '$store.state.FamiliesModule.entry.e_client_files': {
+    '$store.state.FamiliesModule.entry.photos': {
       handler(newValue) {
         if (!newValue) return false;
         this.dropzone_uploaded = [];
@@ -364,7 +319,7 @@ export default {
     // /* DROPZONE */
     sendingData(file, xhr, formData) {
       formData.append('uuid', file.upload.uuid)
-      formData.append('id_nomenclature_family', _store.entry.id)
+      formData.append('id_nomenclature_family', this.$store.state.FamiliesModule.entry.id)
     },
     async successData(file, response) {
       console.log('successData')
@@ -384,6 +339,17 @@ export default {
         return false;
 
       await this.$store.dispatch('deleteFileGeneral', this.dropzone_uploaded[0].id);
+      this.dropzone_uploaded = [];
+      this.$refs.FamilyDropZone.removeAllFiles();
+    },
+    async removedFiles() {
+      if (!this.dropzone_uploaded.length)
+        return false;
+
+      for await (const file of this.dropzone_uploaded) {
+        await this.$store.dispatch('deleteFileGeneral', file.id);
+      }
+
       this.dropzone_uploaded = [];
       this.$refs.FamilyDropZone.removeAllFiles();
     },
@@ -423,26 +389,13 @@ export default {
 
       if (this.$store.getters.checkValueIsAnObject(value)){
         await this.$store.commit('FamiliesModule/setEntry', value)
-        // await this.$store.dispatch('FamiliesModule/getListDictionaryAttribute')
+        await this.$store.dispatch('FamiliesModule/getListEntries')
       }
 
       if (typeof value === 'string') {
         this.$store.state.FamiliesModule.entry.name = value
       }
     },
-    // async postNewAttribute(){
-    //   await this.$store.dispatch(
-    //       'DictionariesModule/createAttribute',
-    //       new DictionaryAttribute(
-    //           this.editedItem.id,
-    //           this.editedItem.sort,
-    //           this.editedItem.code,
-    //           this.editedItem.value,
-    //           this.$store.state.DictionariesModule.entry.id
-    //       )
-    //   );
-    //   this.dialog = false;
-    // },
     deleteItem(item){
       this.dialogDelete = true
       this.editedItem = item

@@ -17,6 +17,7 @@ export default {
             tag: null,
             characteristics: [],
             e_client_files: [],
+            photos: [],
         },
     },
     mutations: {
@@ -101,14 +102,16 @@ export default {
 
             if (location.search.match("create")) {
                 response = await dispatch("createEntry");
+                commit("change_notification_modal", {error:false, message:'Семейство создано'}, {root: true})
             } else {
                 response = await dispatch(
                     "updateEntry",
                     this.state.FamiliesModule.entry
                 );
+                commit("change_notification_modal",  {error:false, message:'Семейство обновлено'}, {root: true})
             }
 
-            await dispatch("getListEntries", response.data.code);
+            await dispatch("getListEntries", response.data.id);
 
             commit("changeLoadingList", false);
         },
@@ -116,7 +119,7 @@ export default {
             try {
 
                 let resp = await Request.post(
-                    this.state.BASE_URL + "/dictionary/nomenclature-family",
+                    this.state.BASE_URL + "/dictionary/nomenclature-family/",
                     this.state.FamiliesModule.entry
                 );
 
@@ -139,7 +142,7 @@ export default {
         async updateEntry({commit}, objRequest) {
             try {
                 return await Request.put(
-                    this.state.BASE_URL + "/dictionary/nomenclature-family" + objRequest.id,
+                    this.state.BASE_URL + "/dictionary/nomenclature-family/" + objRequest.id,
                     objRequest
                 );
             } catch (e) {
@@ -157,21 +160,20 @@ export default {
                 );
                 commit("changeListEntries", result.data);
                 const listEntries = this.state.FamiliesModule.listEntries;
-
+                console.log(id)
                 const getLocalEntry = () => {
                     if (id) {
-                        return listEntries.find((elem) => elem.id === id);
+                        return listEntries.find((elem) => elem.id == id);
                     }
                 };
                 commit("setEntry", getLocalEntry());
             } catch (e) {
                 console.log(e);
-                console.log(e.stack);
                 commit("change_notification_modal", e, {root: true});
             }
             commit("changeLoadingList", false);
         },
-        async getListTypes({commit}, id) {
+        async getListTypes({commit}) {
             commit("changeLoadingList", true);
 
             try {
@@ -179,17 +181,16 @@ export default {
                     this.state.BASE_URL + "/dictionary/family-types"
                 );
                 commit("changeListTypes", result.data);
-                const listTypes = this.state.FamiliesModule.listTypes;
-
-                const getLocalEntry = () => {
-                    if (id) {
-                        return listTypes.find((elem) => elem.id === id);
-                    }
-                };
-                commit("setEntry", getLocalEntry());
+                // const listTypes = this.state.FamiliesModule.listTypes;
+                // console.log(this.state?.entry?.id);
+                // const getLocalEntry = () => {
+                //     if (id) {
+                //         return listTypes.find((elem) => elem.id == id);
+                //     }
+                // };
+                // commit("setEntry", getLocalEntry());
             } catch (e) {
                 console.log(e);
-                console.log(e.stack);
                 commit("change_notification_modal", e, {root: true});
             }
             commit("changeLoadingList", false);

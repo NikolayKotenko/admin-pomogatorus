@@ -114,7 +114,7 @@ export default {
         async updateEntry({commit}, objRequest) {
             try {
                 return await Request.put(
-                    this.state.BASE_URL + "/dictionary/family-types" + objRequest.id,
+                    this.state.BASE_URL + "/dictionary/family-types/" + objRequest.id,
                     objRequest
                 );
             } catch (e) {

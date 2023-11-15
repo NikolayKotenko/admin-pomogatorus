@@ -467,19 +467,6 @@ export default {
         this.$store.state.FamilyTypesModule.entry.name = value
       }
     },
-    // async postNewAttribute(){
-    //   await this.$store.dispatch(
-    //       'DictionariesModule/createAttribute',
-    //       new DictionaryAttribute(
-    //           this.editedItem.id,
-    //           this.editedItem.sort,
-    //           this.editedItem.code,
-    //           this.editedItem.value,
-    //           this.$store.state.DictionariesModule.entry.id
-    //       )
-    //   );
-    //   this.dialog = false;
-    // },
     deleteItem(item){
       this.dialogDelete = true
       this.editedItem = item
@@ -492,33 +479,7 @@ export default {
       this.editedItem = Object.assign({}, item);
       this.dialog = true
     },
-    // addNewAttribute(){
-    //   this.editedItem = new DictionaryAttribute();
-    //   this.$store.commit('DictionariesModule/clearListOccurrencesAttributes');
-    //   this.editedId = -1;
-    //   this.dialog = true;
-    // },
-    // async deleteAttribute(){
-    //   await this.$store.dispatch('DictionariesModule/deleteAttribute', this.editedItem.code)
-    //   this.dialogDelete = false
-    // },
-    // async findSearchAttribute(string){
-    //   await this.$store.dispatch('DictionariesModule/searchDictionaryAttributeByValue', string)
-    // },
-    // setSearchAttribute(value){
-    //   if (! value) this.editedItem.value = ''
-    //
-    //   if (this.$store.getters.checkValueIsAnObject(value))
-    //     this.editedItem = value;
-    //
-    //   if (typeof value === 'string')
-    //     this.editedItem.value = value
-    // },
     async deleteLocal() {
-      // for (const obj of this.$store.state.DictionariesModule.listAttributesByDictionary) {
-      //   await this.$store.dispatch('DictionariesModule/deleteAttribute', obj.code);
-      // }
-
       await this.$store.dispatch('FamilyTypesModule/deleteEntry');
       await this.$router.push({path: this.$route.meta.returnLink.path}).catch(() => {});
     },
