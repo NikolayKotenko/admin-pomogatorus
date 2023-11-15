@@ -1,7 +1,7 @@
 <template>
   <div class="detail_container">
     <v-container class="main_wrapper">
-      <template v-if="$store.getters.stateEditCreate($route.query.action)">
+      <template v-if="$store.getters.stateEditCreate($route.query.action) ">
         <InputStyled
             :current-rules="$store.state.nameRules"
             :data="$store.state.FamiliesModule.entry.name"
@@ -253,8 +253,8 @@ export default {
     stateDropzone: false,
   }),
   async mounted() {
-    await this.$store.dispatch('FamiliesModule/getListEntries', this.$route.params.code)
-    await this.$store.dispatch('FamiliesModule/getListTypes', this.$route.params.code)
+    await this.$store.dispatch('FamiliesModule/getListEntries', this.$route.params.id)
+    await this.$store.dispatch('FamiliesModule/getListTypes')
     await this.$store.dispatch('setTitle', this.$store.state.FamiliesModule.entry.name)
   },
   computed: {
@@ -382,7 +382,7 @@ export default {
       }
     },
     async setFamily(value){
-      if (! value) {
+      if (!value) {
         this.$store.commit('FamilyModule/clearEntry');
         return false;
       }

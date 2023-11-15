@@ -160,12 +160,13 @@ export default {
                 );
                 commit("changeListEntries", result.data);
                 const listEntries = this.state.FamiliesModule.listEntries;
-                console.log(id)
+
                 const getLocalEntry = () => {
                     if (id) {
                         return listEntries.find((elem) => elem.id == id);
                     }
                 };
+                console.log(getLocalEntry())
                 commit("setEntry", getLocalEntry());
             } catch (e) {
                 console.log(e);
