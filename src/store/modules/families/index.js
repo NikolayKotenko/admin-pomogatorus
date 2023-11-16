@@ -6,6 +6,7 @@ export default {
         listEntries: [],
         listCharacteristic: [],
         listTypes: [],
+        listBrands:[],
         loadingList: false,
         deleteModal: false,
         entry: {
@@ -14,6 +15,7 @@ export default {
             code: null,
             description: null,
             type: null,
+            brand: null,
             tag: null,
             characteristics: [],
             e_client_files: [],
@@ -35,6 +37,14 @@ export default {
                 state.listTypes = array;
             } else {
                 state.listTypes = Object.values(array);
+            }
+        },
+        changeListBrands(state, array) {
+            state.listBrands = [];
+            if (Array.isArray(array)) {
+                state.listBrands = array;
+            } else {
+                state.listBrands = Object.values(array);
             }
         },
         setListCharacteristics(state, array) {
@@ -123,15 +133,6 @@ export default {
                     this.state.FamiliesModule.entry
                 );
 
-                if (this.state.FamiliesModule.entry.type !== null) {
-                    let response = await Request.post(
-                        this.state.BASE_URL + "/m-to-m/nomenclature-characteristics",
-                        {'id_family':resp.id,'id_type':this.state.FamiliesModule.entry.type.id}
-                    );
-                    console.log(this.state.FamiliesModule.entry.type );
-                    console.log(response);
-                }
-
                 return resp;
             } catch (e) {
                 console.log(e);
@@ -141,10 +142,13 @@ export default {
         },
         async updateEntry({commit}, objRequest) {
             try {
-                return await Request.put(
+                let resp = await Request.put(
                     this.state.BASE_URL + "/dictionary/nomenclature-family/" + objRequest.id,
                     objRequest
                 );
+                console.log(objRequest);
+
+                return resp;
             } catch (e) {
                 console.log(e);
                 console.log(e.stack);
@@ -158,6 +162,7 @@ export default {
                 const result = await Request.get(
                     this.state.BASE_URL + "/dictionary/nomenclature-family"
                 );
+
                 commit("changeListEntries", result.data);
                 const listEntries = this.state.FamiliesModule.listEntries;
 
@@ -166,7 +171,6 @@ export default {
                         return listEntries.find((elem) => elem.id == id);
                     }
                 };
-                console.log(getLocalEntry())
                 commit("setEntry", getLocalEntry());
             } catch (e) {
                 console.log(e);
@@ -182,20 +186,32 @@ export default {
                     this.state.BASE_URL + "/dictionary/family-types"
                 );
                 commit("changeListTypes", result.data);
-                // const listTypes = this.state.FamiliesModule.listTypes;
-                // console.log(this.state?.entry?.id);
-                // const getLocalEntry = () => {
-                //     if (id) {
-                //         return listTypes.find((elem) => elem.id == id);
-                //     }
-                // };
-                // commit("setEntry", getLocalEntry());
             } catch (e) {
                 console.log(e);
                 commit("change_notification_modal", e, {root: true});
             }
             commit("changeLoadingList", false);
         },
+        // async getListBrands({commit}) {
+        //     commit("changeLoadingList", true);
+        //     let filter = {
+        //         flag_brands: true,
+        //             flag_service: false,
+        //             public_field_filter: true,
+        //             flag_engineering_system: false
+        //     }
+        //     try {
+        //         const result = await Request.get(
+        //             this.state.BASE_URL + "/dictionary/tags",
+        //             filter
+        //         );
+        //         commit("changeListBrands", result.data);
+        //     } catch (e) {
+        //         console.log(e);
+        //         commit("change_notification_modal", e, {root: true});
+        //     }
+        //     commit("changeLoadingList", false);
+        // },
     },
     getters: {
         getFamilyByName: (state) => (name) => {

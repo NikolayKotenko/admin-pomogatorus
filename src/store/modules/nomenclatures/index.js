@@ -13,7 +13,7 @@ export default {
       name: null,
       code: null,
       vendor_code: null,
-      family: null,
+      _family: null,
       characteristics: [],
       e_client_files: [],
     },
@@ -95,8 +95,10 @@ export default {
       let response = null;
       if (location.search.match("create")) {
         response = await dispatch("createEntry", this.state.NomenclaturesModule.entry);
+        commit("change_notification_modal", {error:false, message:'Номенклатура создана'}, {root: true});
       } else {
         response = await dispatch("updateEntry", this.state.NomenclaturesModule.entry);
+        commit("change_notification_modal", {error:false, message:'Номенклатура обновлена'}, {root: true});
       }
       await dispatch("getListEntries", response.data.id);
       await dispatch("clearEntry");
@@ -106,26 +108,12 @@ export default {
     },
     async createEntry({ commit }, objRequest) {
       try {
-        //
-        // objRequest.characteristics.forEach((item) => {
-        //         console.log(item.characteristic)
-        // });
-
-        console.log(objRequest);
-
-        let nomenclature = {
-          name: objRequest.name,
-          vendor_code: objRequest.vendor_code,
-          family: objRequest.family || null,
-        }
-
-        return await Request.post(
+        let resp = await Request.post(
           this.state.BASE_URL + '/entity/nomenclature',
-            nomenclature
+            objRequest
         );
 
-        //
-        // console.log(response);
+        return resp;
       } catch (e) {
         console.log(e);
         commit("change_notification_modal", e, { root: true });
@@ -133,10 +121,12 @@ export default {
     },
     async updateEntry({ commit }, objRequest) {
       try {
-        return await Request.put(
+        let resp = await Request.put(
           this.state.BASE_URL + "/entity/nomenclature/" + objRequest.id,
           objRequest
         );
+
+        return resp;
       } catch (e) {
         console.log(e);
         commit("change_notification_modal", e, { root: true });

@@ -12,6 +12,7 @@ export default {
             name: null,
             code: null,
             tag: null,
+            icon: null,
             characteristics: [],
             e_client_files: [],
         },
@@ -44,6 +45,7 @@ export default {
                 name: null,
                 code: null,
                 tag: null,
+                icon: null,
                 characteristics: [],
                 e_client_files: [],
             };

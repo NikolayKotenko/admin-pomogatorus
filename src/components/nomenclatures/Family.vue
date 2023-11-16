@@ -54,6 +54,22 @@
         </v-combobox>
       </v-list>
 
+<!--      <v-list elevation="1" subheader>-->
+<!--        <v-subheader>Брэнд</v-subheader>-->
+<!--        <v-combobox-->
+<!--            v-model="$store.state.FamiliesModule.entry.brand"-->
+<!--            :disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"-->
+<!--            :items="$store.state.FamiliesModule.listBrands" :loading="$store.state.FamiliesModule.loadingList"-->
+<!--            chips-->
+<!--            class="role_user pa-2 pt-0 ma-0 "-->
+<!--            clearable-->
+<!--            hide-details-->
+<!--            item-text="name"-->
+<!--        >-->
+<!--        </v-combobox>-->
+<!--      </v-list>-->
+
+
       <!-- DROPZONE -->
       <v-btn
 
@@ -255,6 +271,7 @@ export default {
   async mounted() {
     await this.$store.dispatch('FamiliesModule/getListEntries', this.$route.params.id)
     await this.$store.dispatch('FamiliesModule/getListTypes')
+    await this.$store.dispatch('FamiliesModule/getListBrands')
     await this.$store.dispatch('setTitle', this.$store.state.FamiliesModule.entry.name)
   },
   computed: {
@@ -283,7 +300,7 @@ export default {
           query: currentQuery,
         }).catch(() => {
         });
-        console.log(this.$store.state.FamiliesModule.entry);
+
         this.$store.dispatch('setTitle', this.$store.state.FamiliesModule.entry.name)
       }
     },
@@ -322,8 +339,6 @@ export default {
       formData.append('id_nomenclature_family', this.$store.state.FamiliesModule.entry.id)
     },
     async successData(file, response) {
-      console.log('successData')
-      console.log(response)
       const formatObj = Object.assign({}, response.data)
       this.dropzone_uploaded.push(formatObj)
 
@@ -408,33 +423,8 @@ export default {
       this.editedItem = Object.assign({}, item);
       this.dialog = true
     },
-    // addNewAttribute(){
-    //   this.editedItem = new DictionaryAttribute();
-    //   this.$store.commit('DictionariesModule/clearListOccurrencesAttributes');
-    //   this.editedId = -1;
-    //   this.dialog = true;
-    // },
-    // async deleteAttribute(){
-    //   await this.$store.dispatch('DictionariesModule/deleteAttribute', this.editedItem.code)
-    //   this.dialogDelete = false
-    // },
-    // async findSearchAttribute(string){
-    //   await this.$store.dispatch('DictionariesModule/searchDictionaryAttributeByValue', string)
-    // },
-    // setSearchAttribute(value){
-    //   if (! value) this.editedItem.value = ''
-    //
-    //   if (this.$store.getters.checkValueIsAnObject(value))
-    //     this.editedItem = value;
-    //
-    //   if (typeof value === 'string')
-    //     this.editedItem.value = value
-    // },
-    async deleteLocal() {
-      // for (const obj of this.$store.state.DictionariesModule.listAttributesByDictionary) {
-      //   await this.$store.dispatch('DictionariesModule/deleteAttribute', obj.code);
-      // }
 
+    async deleteLocal() {
       await this.$store.dispatch('FamiliesModule/deleteEntry');
       await this.$router.push({path: this.$route.meta.returnLink.path}).catch(() => {});
     },

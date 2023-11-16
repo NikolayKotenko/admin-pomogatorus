@@ -116,121 +116,6 @@
         </v-card>
       </v-dialog>
 
-
-      <!--      &lt;!&ndash; Атрибуты справочника &ndash;&gt;-->
-      <!--      <v-data-table-->
-      <!--          :calculate-widths="true"-->
-      <!--          :headers="headers"-->
-      <!--          :items="$store.state.DictionariesModule.listAttributesByDictionary"-->
-      <!--          :loading="$store.state.DictionariesModule.loadingList"-->
-      <!--          class="elevation-1 table_dictionary_attributes"-->
-      <!--          loading-text="Loading... Please wait"-->
-      <!--          hide-default-footer-->
-      <!--      >-->
-      <!--        <template v-slot:top>-->
-      <!--          <v-toolbar flat>-->
-      <!--            <v-toolbar-title class="table_dictionary_attributes__header">Таблица атрибутов</v-toolbar-title>-->
-      <!--            <v-divider-->
-      <!--                class="mx-4"-->
-      <!--                inset-->
-      <!--                vertical-->
-      <!--            ></v-divider>-->
-      <!--            <v-spacer></v-spacer>-->
-      <!--            <v-dialog v-model="dialog">-->
-      <!--              <template v-slot:activator="{ on, attrs }">-->
-      <!--                <v-btn-->
-      <!--                    color="primary"-->
-      <!--                    dark-->
-      <!--                    class="mb-2"-->
-      <!--                    v-bind="attrs"-->
-      <!--                    v-on="on"-->
-      <!--                    @click="addNewAttribute"-->
-      <!--                >-->
-      <!--                  Добавить-->
-      <!--                </v-btn>-->
-      <!--              </template>-->
-      <!--              <v-card>-->
-      <!--                <v-card-title class="text-h6 d-block text-center">{{ formTitle }}</v-card-title>-->
-      <!--                <v-card-text class="table_dictionary_attributes__modal_item">-->
-      <!--                  <ComboboxStyled-->
-      <!--                      v-if="dialog"-->
-      <!--                      :data="editedItem.value"-->
-      <!--                      :is-items="$store.state.DictionariesModule.listOccurrencesAttributes"-->
-      <!--                      :is-item-text="'value'"-->
-      <!--                      :is-item-value="'value'"-->
-      <!--                      :is-hide-details="false"-->
-      <!--                      :is-placeholder="'Значение'"-->
-      <!--                      :is-loading="$store.state.DictionariesModule.loadingOccurrencesAttributes"-->
-      <!--                      @update-search-input="findSearchAttribute"-->
-      <!--                      @change-search="setSearchAttribute"-->
-      <!--                  ></ComboboxStyled>-->
-      <!--                  <InputStyledSimple-->
-      <!--                      class="mb-5"-->
-      <!--                      :data="editedItem.sort"-->
-      <!--                      :placeholder="'Сортировка'"-->
-      <!--                      @update-input="setSortProperty"-->
-      <!--                  ></InputStyledSimple>-->
-      <!--                </v-card-text>-->
-
-      <!--                <v-card-actions>-->
-      <!--                  <v-btn color="blue darken-1" text class="mr-auto" @click="dialog = false">-->
-      <!--                    Отмена-->
-      <!--                  </v-btn>-->
-      <!--                  <v-btn color="blue" :disabled="! editedItem.value" text @click="postNewAttribute">-->
-      <!--                    Сохранить-->
-      <!--                  </v-btn>-->
-      <!--                </v-card-actions>-->
-      <!--              </v-card>-->
-      <!--            </v-dialog>-->
-      <!--            <v-dialog v-model="dialogDelete">-->
-      <!--              <v-card>-->
-      <!--                <v-card-title class="text-h6 d-block text-center">Вы действительно хотите удалить атрибут ?</v-card-title>-->
-      <!--                <v-card-text class="table_dictionary_attributes__modal_item">-->
-      <!--                  <InputStyledSimple-->
-      <!--                      class="mb-5"-->
-      <!--                      :is-readonly="true"-->
-      <!--                      :data="editedItem.value"-->
-      <!--                      :placeholder="'Значение'"-->
-      <!--                  ></InputStyledSimple>-->
-      <!--                  <InputStyledSimple-->
-      <!--                      :is-readonly="true"-->
-      <!--                      class="mb-5"-->
-      <!--                      :data="editedItem.sort"-->
-      <!--                      :placeholder="'Сортировка'"-->
-      <!--                  ></InputStyledSimple>-->
-      <!--                </v-card-text>-->
-      <!--                <v-card-actions>-->
-      <!--                  <v-btn color="blue darken-1" text class="mr-auto" @click="dialogDelete = false">-->
-      <!--                    Отмена-->
-      <!--                  </v-btn>-->
-      <!--                  <v-btn color="blue darken-1" text @click="deleteAttribute">-->
-      <!--                    Удалить-->
-      <!--                  </v-btn>-->
-      <!--                </v-card-actions>-->
-      <!--              </v-card>-->
-      <!--            </v-dialog>-->
-      <!--          </v-toolbar>-->
-      <!--        </template>-->
-      <!--        <template v-slot:item.actions="{ item }">-->
-      <!--          <v-icon-->
-      <!--              small-->
-      <!--              class="mr-2"-->
-      <!--              @click="editItem(item)"-->
-      <!--          >-->
-      <!--            mdi-pencil-->
-      <!--          </v-icon>-->
-      <!--          <v-icon-->
-      <!--              small-->
-      <!--              @click="deleteItem(item)"-->
-      <!--          >-->
-      <!--            mdi-delete-->
-      <!--          </v-icon>-->
-      <!--        </template>-->
-      <!--        <template v-slot:no-data>-->
-      <!--          Не найдено атрибутов у этого справочника-->
-      <!--        </template>-->
-      <!--      </v-data-table>-->
-
     </v-container>
 
     <footer class="detail_footer">
@@ -309,35 +194,28 @@
 
 <script>
 import InputStyled from "@/components/common/InputStyled";
-// import {DictionaryAttribute} from "@/helpers/constructors";
-// import ComboboxStyled from "@/components/common/ComboboxStyled";
-// import InputStyledSimple from "@/components/common/InputStyledSimple";
 import SearchStyled from "@/components/common/SearchStyled";
 import vueDropzone from "vue2-dropzone";
 import Request from "@/services/request";
-import nomenclatureStore from "@/store/modules/nomenclatures";
 
-const _store = nomenclatureStore.state
 
 export default {
-  name: "Family",
+  name: "FamilyTypes",
   components:{
     vueDropzone,
     SearchStyled,
-    // InputStyledSimple,
     InputStyled,
-    // ComboboxStyled,
   },
   data: () => ({
     dialog: false,
     dialogDelete: false,
-    editedId: -1,
     dropzone_uploaded: [],
     index_uploaded: 1,
     stateDropzone: false,
   }),
   async mounted() {
-    await this.$store.dispatch('FamilyTypesModule/getListEntries', this.$route.params.code)
+    await this.$store.dispatch('FamilyTypesModule/getListEntries', this.$route.params.id)
+    await this.$store.dispatch('setTitle', this.$store.state.FamilyTypesModule.entry.name)
   },
   computed: {
     options() {
@@ -383,7 +261,7 @@ export default {
         }
       }
     },
-    '$store.state.FamilyTypesModule.entry.e_client_files': {
+    '$store.state.FamilyTypesModule.entry.icon': {
       handler(newValue) {
         if (!newValue) return false;
         this.dropzone_uploaded = [];
@@ -401,7 +279,7 @@ export default {
     // /* DROPZONE */
     sendingData(file, xhr, formData) {
       formData.append('uuid', file.upload.uuid)
-      formData.append('id_family', _store.entry.id)
+      formData.append('id_family_type', this.$store.state.FamilyTypesModule.entry.id)
     },
     async successData(file, response) {
       console.log('successData')
@@ -460,24 +338,11 @@ export default {
 
       if (this.$store.getters.checkValueIsAnObject(value)){
         await this.$store.commit('FamilyTypesModule/setEntry', value)
-        // await this.$store.dispatch('FamilyTypesModule/getListDictionaryAttribute')
       }
 
       if (typeof value === 'string') {
         this.$store.state.FamilyTypesModule.entry.name = value
       }
-    },
-    deleteItem(item){
-      this.dialogDelete = true
-      this.editedItem = item
-    },
-    editItem (item) {
-      this.editedId = this.$store.state.DictionariesModule.listAttributesByDictionary
-          .filter((obj) => { return item.id === obj.id })
-          .map((obj) => { return obj.id; })[0]
-      ;
-      this.editedItem = Object.assign({}, item);
-      this.dialog = true
     },
     async deleteLocal() {
       await this.$store.dispatch('FamilyTypesModule/deleteEntry');

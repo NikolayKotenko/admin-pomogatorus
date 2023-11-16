@@ -175,7 +175,7 @@ export default {
         );
         commit("changeListTags", result.data);
         const listTags = this.state.TagsModule.listTags;
-        console.log(id);
+
         const getTag = () => {
           if (id) {
             return listTags.find((elem) => elem.id == id);
