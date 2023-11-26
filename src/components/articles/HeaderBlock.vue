@@ -36,6 +36,21 @@
           </template>
           <span>Вставить вопрос</span>
         </v-tooltip>
+        <!-- Nomenclature -->
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <v-icon
+                size="28"
+                style="padding-top: 2px"
+                v-bind="attrs"
+                @click="initializeSelection('nomenclature')"
+                v-on="on"
+            >
+              mdi-hammer-wrench
+            </v-icon>
+          </template>
+          <span>Вставить номенклатуру</span>
+        </v-tooltip>
         <!-- Image -->
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
@@ -211,7 +226,8 @@
       </div>
     </div>
 
-    <!-- MODALS -->
+    <!-------- MODALS -------->
+    <!--  Question  -->
     <v-dialog
         v-model="$store.state.ArticleModule.selectComponent.questions"
         max-width="600"
@@ -283,6 +299,65 @@
       </v-card>
     </v-dialog>
 
+    <!--  Nomenclature  -->
+    <v-dialog
+        v-if="$store.state.ArticleModule.selectComponent.nomenclature"
+        v-model="$store.state.ArticleModule.selectComponent.nomenclature"
+        max-width="600"
+    >
+      <v-card>
+        <v-card-title>
+          <span
+              class="text-h6"
+              style="font-size: 0.8em !important; text-align: center; width: 100%"
+          >
+            Номенклатура
+          </span>
+        </v-card-title>
+        <v-card-text id="nomenclatureSelector">
+          <v-autocomplete
+              ref="nomenclature"
+              v-model="$store.state.ArticleModule.selectedComponent"
+              :disabled="$store.state.ArticleModule.loadingModalList"
+              :items="listNomenclature"
+              :loading="$store.state.ArticleModule.loadingModalList"
+              :menu-props="{ bottom: true, offsetY: true }"
+              clearable
+              item-text="name"
+              placeholder="Наименование"
+              return-object
+              style="position: sticky; top: 0"
+              @click:clear="
+              $nextTick(() => {
+                $store.state.ArticleModule.selectedComponent = {};
+              })
+            "
+          >
+            <template v-slot:item="{ item }">
+              <div><span>{{ item?.name }}</span> <span v-if="item?.family?.name">-</span> <span>{{
+                  item?.family?.name
+                }}</span></div>
+            </template>
+          </v-autocomplete>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="blue darken-1" text @click="closeModal('nomenclature')">
+            Назад
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+              :disabled="!check_selected_component"
+              color="green darken-1"
+              text
+              @click="onSelectComponent()"
+          >
+            Выбрать
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!--  Url  -->
     <v-dialog
         v-if="$store.state.ArticleModule.selectComponent.url"
         v-model="$store.state.ArticleModule.selectComponent.url"
@@ -335,6 +410,7 @@
       </v-card>
     </v-dialog>
 
+    <!--  Image  -->
     <v-dialog
         v-model="$store.state.ArticleModule.selectComponent.image"
         max-width="600"
@@ -462,6 +538,7 @@ export default {
     },
     debounceTimeout: null,
     arrIds: [],
+    selectedNomenclature: [],
     emailRules: [
       value => !!value || 'Поле обязательно для заполнения.',
       value => {
@@ -487,6 +564,21 @@ export default {
           });
           this.$store
               .dispatch("getListQuestions", _store.name_component)
+              .then(() => {
+                this.getArrID();
+              });
+          this.$store.dispatch("getGeneralTagsArticle");
+        }
+      },
+    },
+    "$store.state.ArticleModule.selectComponent.nomenclature": {
+      handler(v) {
+        if (v) {
+          this.$nextTick(() => {
+            window.addEventListener("scroll", this.disableInput, true);
+          });
+          this.$store
+              .dispatch("getListNomenclature", _store.name_component)
               .then(() => {
                 this.getArrID();
               });
@@ -533,6 +625,12 @@ export default {
         return !this.arrIds.includes(question.id) && question.activity === 1;
       });
     },
+    listNomenclature() {
+      if (!_store.list_nomenclature.length) return [];
+      return _store.list_nomenclature.filter((nomenclature) => {
+        return !this.selectedNomenclature.includes(nomenclature.id);
+      });
+    },
   },
   methods: {
     showLinkSettings() {
@@ -564,6 +662,11 @@ export default {
       this.dropzone_uploaded[data.index].title_image = data.value
     },
 
+    getSelectedNomenclature() {
+      this.$nextTick(() => {
+        this.selectedNomenclature = _store.nomenclature_data.map(elem => elem.id)
+      });
+    },
     getArrID() {
       this.$nextTick(() => {
         this.arrIds = _store.questions_data.map(elem => elem.id)
@@ -572,7 +675,12 @@ export default {
     disableInput() {
       this.$nextTick(() => {
         setTimeout(() => {
-          this.$refs.selector.$refs.input.blur();
+          if (this.$refs.selector) {
+            this.$refs.selector.$refs.input.blur();
+          }
+          if (this.$refs.selector) {
+            this.$refs.nomenclature.$refs.input.blur();
+          }
         });
       });
     },

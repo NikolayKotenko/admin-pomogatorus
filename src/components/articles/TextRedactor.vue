@@ -30,6 +30,7 @@ import vuetify from "@/plugins/vuetify";
 import HeaderBlock from "./HeaderBlock";
 import Question from "../frontLayouts/Question";
 import ImageLayout from "../frontLayouts/ImageLayout";
+import NomenclatureArticle from "../frontLayouts/NomenclatureArticle";
 import LoginAuth from "../auth/LoginAuth";
 
 import titlesStore from "@/store/modules/article/index.js";
@@ -156,11 +157,19 @@ export default {
       },
     },
     componentLayout() {
-      return _store.name_component === "questions"
-          ? Vue.extend(Question)
-          : _store.name_component === "image"
-              ? Vue.extend(ImageLayout)
-              : Vue.extend(LoginAuth);
+      if (_store.name_component === "questions") {
+        return Vue.extend(Question)
+      }
+
+      if (_store.name_component === "image") {
+        return Vue.extend(ImageLayout)
+      }
+
+      if (_store.name_component === "nomenclature") {
+        return Vue.extend(NomenclatureArticle)
+      }
+
+      return Vue.extend(LoginAuth);
     },
   },
   methods: {
@@ -600,6 +609,7 @@ export default {
         index_questions: _store.counters.questions,
         index_image: _store.counters.image,
         index_auth: _store.counters.auth,
+        index_nomenclature: _store.counters.nomenclature,
         src: elem?.full_path ? elem?.full_path : "",
       });
 
