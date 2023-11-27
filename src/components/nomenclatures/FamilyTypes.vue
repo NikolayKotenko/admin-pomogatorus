@@ -238,7 +238,7 @@ export default {
         const currentQuery = this.$route.query;
         const codeEntry = (newValue) ? newValue : '';
         this.$router.replace({
-          path: this.$route.meta.returnLink.path +'/'+ codeEntry,
+          path: '/familyTypes/'+ codeEntry,
           query: currentQuery,
         }).catch(() => {
         });
@@ -338,6 +338,7 @@ export default {
 
       if (this.$store.getters.checkValueIsAnObject(value)){
         await this.$store.commit('FamilyTypesModule/setEntry', value)
+        await this.$store.dispatch('FamiliesModule/getListEntries')
       }
 
       if (typeof value === 'string') {
