@@ -97,7 +97,7 @@ export default {
                 );
             }
 
-            await dispatch("getListEntries", response.data.code);
+            await dispatch("getListEntries", response.data.id);
 
             commit("changeLoadingList", false);
         },
