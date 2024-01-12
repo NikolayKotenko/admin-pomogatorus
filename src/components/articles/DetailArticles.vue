@@ -191,6 +191,11 @@
                   label="Активность"
                   true-value="1"
               ></v-checkbox>
+              <v-checkbox
+                  v-model="newArticle.use_in_equipment_widget"
+                  :false-value="false"
+                  label="Использовать виджет оборудования"
+              ></v-checkbox>
             </div>
             <!-- DROPZONE -->
             <v-btn
@@ -461,6 +466,7 @@ export default {
         focused: false,
       },
       activity: "0",
+      use_in_equipment_widget: false,
       _all_tags: [],
       mtomtags: [],
       preview_image: [],
