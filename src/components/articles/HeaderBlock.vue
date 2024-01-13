@@ -317,28 +317,53 @@
         <v-card-text id="nomenclatureSelector">
           <v-autocomplete
               ref="nomenclature"
-              v-model="$store.state.ArticleModule.selectedComponent"
+              v-model="currentNomenclature"
               :disabled="$store.state.ArticleModule.loadingModalList"
               :items="listNomenclature"
               :loading="$store.state.ArticleModule.loadingModalList"
               :menu-props="{ bottom: true, offsetY: true }"
               clearable
               item-text="name"
-              placeholder="Наименование"
               return-object
+              placeholder="Наименование"
               style="position: sticky; top: 0"
-              @click:clear="
-              $nextTick(() => {
-                $store.state.ArticleModule.selectedComponent = {};
-              })
-            "
+              @change="setNomenclatureList($event)"
           >
             <template v-slot:item="{ item }">
-              <div><span>{{ item?.name }}</span> <span v-if="item?.family?.name">-</span> <span>{{
-                  item?.family?.name
-                }}</span></div>
+              <div>
+                <span>{{ item?.name }}</span>
+                <span v-if="item?._family?.name">
+                  -
+                  {{
+                    item?._family?.name
+                  }}
+                </span>
+              </div>
             </template>
           </v-autocomplete>
+
+          <div class="mt-1">
+            <v-chip-group
+                column
+            >
+              <v-chip
+                  v-for="(item, index) in selectedNomenclature"
+                  :key="index"
+                  close
+                  @click:close="removeNomenclature(item.id)"
+              >
+                <div class="nomenclature-chip">
+                  <span>{{ item?.name }}</span>
+                  <span v-if="item?._family?.name">
+                  -
+                  {{
+                      item?._family?.name
+                    }}
+                </span>
+                </div>
+              </v-chip>
+            </v-chip-group>
+          </div>
         </v-card-text>
         <v-card-actions>
           <v-btn color="blue darken-1" text @click="closeModal('nomenclature')">
@@ -511,6 +536,8 @@ import Request from "@/services/request";
 import InputStyled from "../common/InputStyled";
 import TextAreaStyled from "../common/TextAreaStyled";
 
+import _clone from "@/helpers/deepClone";
+
 const _store = titlesStore.state;
 
 export default {
@@ -539,6 +566,7 @@ export default {
     debounceTimeout: null,
     arrIds: [],
     selectedNomenclature: [],
+    currentNomenclature: {},
     emailRules: [
       value => !!value || 'Поле обязательно для заполнения.',
       value => {
@@ -577,12 +605,9 @@ export default {
           this.$nextTick(() => {
             window.addEventListener("scroll", this.disableInput, true);
           });
-          this.$store
-              .dispatch("getListNomenclature", _store.name_component)
-              .then(() => {
-                this.getArrID();
-              });
-          this.$store.dispatch("getGeneralTagsArticle");
+          this.$store.dispatch("getListNomenclature", _store.name_component)
+          // TODO: Тэги у номенклатуры
+          // this.$store.dispatch("getGeneralTagsArticle");
         }
       },
     },
@@ -628,11 +653,22 @@ export default {
     listNomenclature() {
       if (!_store.list_nomenclature.length) return [];
       return _store.list_nomenclature.filter((nomenclature) => {
-        return !this.selectedNomenclature.includes(nomenclature.id);
+        return !this.selectedNomenclature.map(elem => elem.id).includes(nomenclature.id);
       });
     },
   },
   methods: {
+    setNomenclatureList(data) {
+      this.selectedNomenclature.push(_clone(data))
+      this.currentNomenclature = {}
+    },
+    removeNomenclature(id) {
+      const index = this.selectedNomenclature.findIndex(elem => elem.id === id)
+      if (index !== -1) {
+        this.selectedNomenclature.splice(index, 1)
+      }
+    },
+
     showLinkSettings() {
       if (window.getSelection().toString()) {
         this.$store.commit('set_url_text', window.getSelection().toString())
@@ -662,11 +698,6 @@ export default {
       this.dropzone_uploaded[data.index].title_image = data.value
     },
 
-    getSelectedNomenclature() {
-      this.$nextTick(() => {
-        this.selectedNomenclature = _store.nomenclature_data.map(elem => elem.id)
-      });
-    },
     getArrID() {
       this.$nextTick(() => {
         this.arrIds = _store.questions_data.map(elem => elem.id)
@@ -786,6 +817,7 @@ export default {
       }
       this.$store.commit('get_range')
     },
+
     /* MODALS */
     getFilteredQuestions() {
       if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
@@ -828,9 +860,11 @@ export default {
         value: true,
       });
     },
+
     onSelectComponent() {
       let elem = {};
       if (_store.name_component === "image") {
+        /** IMAGE **/
         if (this.dropzone_uploaded.length) {
           this.dropzone_uploaded.forEach((elem) => {
             this.$store.commit("change_counter", {
@@ -848,7 +882,21 @@ export default {
           this.dropzone_uploaded = [];
           this.index_uploaded = 1;
         }
+      } else if (_store.name_component === "nomenclature") {
+        /** NOMENCLATURE **/
+        this.$store.commit("change_counter", {
+          name: "layout",
+          count: _store.counters.layout + 1,
+        });
+        this.$store.commit("change_counter", {
+          name: _store.name_component,
+          count: _store.counters[_store.name_component] + 1,
+        });
+        this.$store.commit("changeSelectedObject", this.selectedNomenclature)
+        elem.id = new Date().valueOf();
+        this.$emit("callCheckout", elem);
       } else {
+        /** ALL **/
         this.$store.commit("change_counter", {
           name: "layout",
           count: _store.counters.layout + 1,

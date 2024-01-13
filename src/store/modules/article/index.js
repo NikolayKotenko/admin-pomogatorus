@@ -801,6 +801,28 @@ export default {
           });
       });
     },
+    get_nomenclature({ commit, state }, params) {
+      // TODO: запросы на получении номенклатуры
+      return new Promise((resolve, reject) => {
+        const { index, component } = params;
+
+        state.loadingModalList = true;
+        Request.get(
+            `${this.state.BASE_URL}/entity/${component.name}/${component.id}`
+        )
+            .then((response) => {
+              const data = response.data;
+              console.log("uploaded COMPONENT");
+              commit("changeSelectedComponent", { data, index, component });
+              state.loadingModalList = false;
+              resolve();
+            })
+            .catch((error) => {
+              state.loadingModalList = false;
+              reject(error);
+            });
+      });
+    },
     getListQuestions({ commit, state }, params) {
       return new Promise((resolve, reject) => {
         state.loadingModalList = true;

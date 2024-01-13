@@ -603,6 +603,8 @@ export default {
       });
     },
     callCheckout(elem) {
+      // TODO: номенклатуры
+
       let data_component = factory.create(_store.name_component, {
         name: _store.name_component,
         id: (_store.selectedComponent?.id) ? _store.selectedComponent.id : elem.id,
