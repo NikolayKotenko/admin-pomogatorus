@@ -26,6 +26,7 @@
 import Vue from "vue";
 import store from "@/store/index.js";
 import vuetify from "@/plugins/vuetify";
+import vueCarousel from "@/plugins/vue-carousel";
 
 import HeaderBlock from "./HeaderBlock";
 import Question from "../frontLayouts/Question";
@@ -603,8 +604,6 @@ export default {
       });
     },
     callCheckout(elem) {
-      // TODO: номенклатуры
-
       let data_component = factory.create(_store.name_component, {
         name: _store.name_component,
         id: (_store.selectedComponent?.id) ? _store.selectedComponent.id : elem.id,
@@ -613,7 +612,10 @@ export default {
         index_auth: _store.counters.auth,
         index_nomenclature: _store.counters.nomenclature,
         src: elem?.full_path ? elem?.full_path : "",
+        nomenclatures_id: elem?.nomenclatures_id ?? []
       });
+
+      console.log("data_component",data_component)
 
       // QUESTIONS DATA ADD TO ARRAY BECAUSE NEED UNDO/REDO
       if (_store.name_component === 'questions') {
@@ -642,6 +644,7 @@ export default {
       const instance = new this.componentLayout({
         store,
         vuetify,
+        vueCarousel
       });
       const data = new Imported_component({
         index: _store.counters.layout,
@@ -758,6 +761,7 @@ export default {
         index_image: 1,
         index_auth: 1,
         counter_index: 1,
+        index_nomenclature: 1,
       };
 
       array.forEach((elem) => {

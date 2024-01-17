@@ -20,7 +20,7 @@ class Element_nomenclature {
 
     this.name = name;
     this.id = id;
-    this.nomenclatures_id = nomenclatures_id
+    this.nomenclatures_id = nomenclatures_id;
     this.index_nomenclature = index_nomenclature;
   }
 }

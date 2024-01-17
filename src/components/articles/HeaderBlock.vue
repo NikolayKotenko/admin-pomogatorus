@@ -371,7 +371,7 @@
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn
-              :disabled="!check_selected_component"
+              :disabled="!selectedNomenclature.length"
               color="green darken-1"
               text
               @click="onSelectComponent()"
@@ -892,8 +892,11 @@ export default {
           name: _store.name_component,
           count: _store.counters[_store.name_component] + 1,
         });
-        this.$store.commit("changeSelectedObject", this.selectedNomenclature)
+        elem.nomenclatures_id = this.selectedNomenclature.slice().map(elem => elem.id)
         elem.id = new Date().valueOf();
+        this.$store.commit("changeSelectedObject", elem)
+        this.selectedNomenclature = []
+
         this.$emit("callCheckout", elem);
       } else {
         /** ALL **/

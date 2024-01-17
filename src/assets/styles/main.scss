@@ -100,3 +100,8 @@
     }
   }
 }
+
+.v-chip.v-size--default {
+  height: unset;
+  min-height: 32px;
+}
