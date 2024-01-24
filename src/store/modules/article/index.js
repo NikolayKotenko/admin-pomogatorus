@@ -695,6 +695,9 @@ export default {
         }
         requestData["content"] = JSON.stringify(state.content);
         const arr = [];
+
+        console.log("list_components", state.list_components)
+
         state.list_components.forEach((elem) => {
           arr.push(elem.data);
         });
@@ -802,25 +805,21 @@ export default {
       });
     },
     get_nomenclature({ commit, state }, params) {
-      // TODO: запросы на получении номенклатуры
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         const { index, component } = params;
 
         state.loadingModalList = true;
-        Request.get(
-            `${this.state.BASE_URL}/entity/${component.name}/${component.id}`
-        )
-            .then((response) => {
-              const data = response.data;
-              console.log("uploaded COMPONENT");
-              commit("changeSelectedComponent", { data, index, component });
-              state.loadingModalList = false;
-              resolve();
-            })
-            .catch((error) => {
-              state.loadingModalList = false;
-              reject(error);
-            });
+
+        const data = {
+          name: "nomenclature",
+          id: component.id,
+          nomenclatures_id: component.nomenclatures_id,
+          index_nomenclature: component.index_nomenclature
+        };
+
+        commit("changeSelectedComponent", { data, index, component });
+        state.loadingModalList = false;
+        resolve();
       });
     },
     getListQuestions({ commit, state }, params) {

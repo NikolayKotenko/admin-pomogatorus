@@ -3,7 +3,7 @@
        :data-id="dataId"
        contenteditable="false"
        data-name="nomenclature"
-       class="componentArticle_wrapper c-slider-wrapper"
+       class="componentArticle_wrapper c-slider-wrapper component_container"
   >
     <div
         class="componentArticle_wrapper__admin_controls-header"
@@ -18,7 +18,7 @@
     </div>
 
     <carousel>
-      <slide v-for="(slide, index) in nomenclatureList" :key="index" :paginationEnabled="false" :scrollPerPage="true" :perPageCustom="[[480, 1], [768, 3]]">
+      <slide class="c-slide" v-for="(slide, index) in nomenclatureList" :key="index" :data-id="slide.id" :paginationEnabled="false" :scrollPerPage="true" :perPageCustom="[[480, 1], [768, 3]]">
         <div class="c-slider">
           <template v-if="slide.isLoading">
               <v-progress-circular
