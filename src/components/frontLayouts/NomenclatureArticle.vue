@@ -9,24 +9,26 @@
         class="componentArticle_wrapper__admin_controls-header"
         contenteditable="false"
     >
-      <img
-          :src="require(`/src/assets/svg/closeIcon.svg`)"
+
+      <CloseSVG
           alt="close"
           class="componentArticle_wrapper__admin_controls-header__img"
           @click="deleteNomenclature()"
       />
     </div>
 
-    <carousel>
-      <slide class="c-slide" v-for="(slide, index) in nomenclatureList" :key="index" :data-id="slide.id" :paginationEnabled="false" :scrollPerPage="true" :perPageCustom="[[480, 1], [768, 3]]">
+    <VueSlickCarousel v-if="nomenclatureList.length" v-bind="sliderOptions" @click.stop.prevent>
+      <div class="c-slide" v-for="(slide, index) in nomenclatureList" :key="index" :data-id="slide.id">
         <div class="c-slider">
           <template v-if="slide.isLoading">
+            <div class="c-slider__loader">
               <v-progress-circular
                   v-if="slide.isLoading"
                   :size="24"
-                  color="grey"
+                  color="#539ee0"
                   indeterminate
               ></v-progress-circular>
+            </div>
           </template>
 
           <template v-else-if="!slide.data">
@@ -47,24 +49,113 @@
             </div>
 
             <div class="c-slider__info">
-              <h5>{{ slide.data.name }}</h5>
+              <h4 class="c-slider__info__label">{{ slide.data.name }}</h4>
+
+              <div class="c-slider__info__wrapper">
+                <div class="c-slider__info__wrapper__left">
+                  <div v-for="(option, index) in cardFields" :key="index" class="c-slider__info__wrapper__left__options">
+                    <span class="c-slider-option">
+                      <span class="c-slider-option__label">{{ option.label }}: </span>
+                      <span class="c-slider-option__value">{{ slide.data[option.value] ? slide.data[option.value] : mockData[option.value]}}</span>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="c-slider__info__wrapper__right">
+                  <FavoriteSVG/>
+                  <CartSVG/>
+                  <ToolSVG/>
+                </div>
+              </div>
             </div>
           </template>
         </div>
-      </slide>
-    </carousel>
+      </div>
+    </VueSlickCarousel>
   </div>
 </template>
 
 <script>
 import Request from "@/services/request";
+
+import VueSlickCarousel from 'vue-slick-carousel'
+import 'vue-slick-carousel/dist/vue-slick-carousel.css'
+// optional style for arrows & dots
+import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css'
+
+import FavoriteSVG from "@/assets/svg/favorite.svg"
+import CartSVG from "@/assets/svg/cart.svg"
+import ToolSVG from "@/assets/svg/tool.svg"
+import CloseSVG from "@/assets/svg/closeIcon.svg"
+
 export default {
   name: "NomenclatureArticle",
+  components: {
+    VueSlickCarousel,
+    FavoriteSVG,
+    CartSVG,
+    ToolSVG,
+    CloseSVG
+  },
   data: () => ({
     index_component: null,
     index_nomenclature: null,
     nomenclature_data: {},
-    nomenclatureList: []
+    nomenclatureList: [],
+
+    mockData: {
+      montage: "настенный",
+      fuel: "газ",
+      power: "10 кВт"
+    },
+    cardFields: [
+      {
+        label: "Монтаж",
+        value: "montage"
+      },
+      {
+        label: "Вид топлива",
+        value: "fuel"
+      },
+      {
+        label: "Мощность",
+        value: "power"
+      },
+    ],
+    sliderOptions: {
+      "dots": false,
+      "infinite": true,
+      "speed": 500,
+      "slidesToShow": 4,
+      "slidesToScroll": 4,
+      "initialSlide": 0,
+      "responsive": [
+        {
+          "breakpoint": 1024,
+          "settings": {
+            "slidesToShow": 3,
+            "slidesToScroll": 3,
+            "infinite": true,
+            "dots": true
+          }
+        },
+        {
+          "breakpoint": 600,
+          "settings": {
+            "slidesToShow": 2,
+            "slidesToScroll": 2,
+            "initialSlide": 2
+          }
+        },
+        {
+          "breakpoint": 480,
+          "settings": {
+            "slidesToShow": 1,
+            "slidesToScroll": 1
+          }
+        }
+      ]
+    }
   }),
   computed: {
     dataId() {

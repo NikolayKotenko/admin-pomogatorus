@@ -11,8 +11,7 @@
         class="componentArticle_wrapper__admin_controls-header"
         contenteditable="false"
     >
-      <img
-          :src="require(`/src/assets/svg/closeIcon.svg`)"
+      <CloseSVG
           alt="close"
           class="componentArticle_wrapper__admin_controls-header__img"
           @click="deleteImage()"
@@ -25,10 +24,12 @@
 <script>
 // import VueDraggableResizable from 'vue-draggable-resizable'
 import "vue-draggable-resizable/dist/VueDraggableResizable.css";
+import CloseSVG from "@/assets/svg/closeIcon.svg"
 
 export default {
   name: "ImageLayout",
   components: {
+    CloseSVG
     // VueDraggableResizable,
   },
   data: () => ({

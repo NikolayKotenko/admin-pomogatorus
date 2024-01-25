@@ -26,7 +26,8 @@
 import Vue from "vue";
 import store from "@/store/index.js";
 import vuetify from "@/plugins/vuetify";
-import vueCarousel from "@/plugins/vue-carousel";
+
+// import vueCarousel from "@/plugins/vue-carousel";
 
 import HeaderBlock from "./HeaderBlock";
 import Question from "../frontLayouts/Question";
@@ -668,7 +669,6 @@ export default {
       const instance = new this.componentLayout({
         store,
         vuetify,
-        vueCarousel
       });
       const data = new Imported_component({
         index: _store.counters.layout,
