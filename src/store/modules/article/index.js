@@ -112,12 +112,14 @@ export default {
       image: 0,
       auth: 0,
       questions: 0,
+      nomenclature: 0,
     },
     selectComponent: {
       questions: false,
       image: false,
       auth: false,
       url: false,
+      nomenclature: false,
     },
     list_components: [],
     name_component: "",
@@ -135,6 +137,10 @@ export default {
     isChangedByAction: false,
     txtSave: [], // array to save values.
     txtDisplay: [], // array to display values.
+
+    /* NOMENCLATURE */
+    list_nomenclature: [],
+    nomenclature_data: [],
   },
   mutations: {
     /* LINK */
@@ -161,11 +167,11 @@ export default {
       const JSON_questions = JSON.stringify(questions);
 
       state.txtDisplay.push(
-          new ConstructorElem(
-              JSON.stringify(state.content),
-              inserted_components,
-              JSON_questions
-          )
+        new ConstructorElem(
+          JSON.stringify(state.content),
+          inserted_components,
+          JSON_questions
+        )
       ); // takes whatever was entered in the input and adds it too the displayed array.
       state.txtSave.push(state.txtDisplay.slice(-1)[0]); // takes the last value in the displayed array and adds it to the end of the saved array.
     },
@@ -174,13 +180,13 @@ export default {
 
       if (state.txtDisplay.length) {
         state.content_from_server = JSON.parse(
-            state.txtDisplay.slice(-1)[0].html
+          state.txtDisplay.slice(-1)[0].html
         );
         state.components_after_request = JSON.parse(
-            state.txtDisplay.slice(-1)[0].components
+          state.txtDisplay.slice(-1)[0].components
         );
         state.questions_data = JSON.parse(
-            state.txtDisplay.slice(-1)[0].questions
+          state.txtDisplay.slice(-1)[0].questions
         );
       }
     },
@@ -253,14 +259,14 @@ export default {
       }
     },
     change_counter(state, object) {
-      const {name, count} = object;
+      const { name, count } = object;
       state.counters[name] = count;
     },
     change_name_component(state, value) {
       state.name_component = value;
     },
     change_select_component(state, object) {
-      const {name, value} = object;
+      const { name, value } = object;
       state.selectComponent[name] = value;
     },
 
@@ -290,13 +296,13 @@ export default {
       state.newArticle = Object.assign({}, defaultArticle);
       for (let key in result) {
         if (
-            key === "name" ||
-            key === "short_header" ||
-            key === "purpose_of_article" ||
-            key === "target_button_placeholder" ||
-            key === "preview" ||
-            key === "seo_description" ||
-            key === "seo_keywords"
+          key === "name" ||
+          key === "short_header" ||
+          key === "purpose_of_article" ||
+          key === "target_button_placeholder" ||
+          key === "preview" ||
+          key === "seo_description" ||
+          key === "seo_keywords"
         ) {
           state.newArticle[key] = {
             value: result[key] ? result[key] : "",
@@ -348,11 +354,14 @@ export default {
     change_list_components(state, result) {
       state.list_questions = result;
     },
+    change_list_nomenclature(state, result) {
+      state.list_nomenclature = result;
+    },
     delete_component_by_id(state, id) {
       state.deletedComponent = id;
     },
-    changeSelectedComponent(state, {data, index, component}) {
-      const obj = Object.assign({}, {data, index: index, component});
+    changeSelectedComponent(state, { data, index, component }) {
+      const obj = Object.assign({}, { data, index: index, component });
       state.list_components.push(obj);
     },
     changeContent(state, result) {
@@ -379,7 +388,7 @@ export default {
 
     /* LOCAL_STORAGE */
     // eslint-disable-next-line no-unused-vars
-    set_local_storage({state}, object) {
+    set_local_storage({ state }, object) {
       localStorage.setItem("article", JSON.stringify(object));
     },
     remove_local_storage() {
@@ -389,20 +398,20 @@ export default {
       if (localStorage.getItem("article") !== null) {
         this.state.ArticleModule.newArticle = Object.assign({}, defaultArticle);
         this.state.ArticleModule.newArticle = JSON.parse(
-            localStorage.getItem("article")
+          localStorage.getItem("article")
         );
       }
     },
   },
   actions: {
     /* UNDO/REDO */
-    getUndo({commit}) {
+    getUndo({ commit }) {
       commit("change_is_changed_by_action", true);
       commit("undo_editor");
       commit("change_is_changed_by_action", false);
       commit("change_start_render", true);
     },
-    getRedo({commit}) {
+    getRedo({ commit }) {
       commit("change_is_changed_by_action", true);
       commit("redo_editor");
       commit("change_is_changed_by_action", false);
@@ -410,26 +419,26 @@ export default {
     },
 
     /* MAIN ARTICLES */
-    async setListArticles({commit, state}) {
+    async setListArticles({ commit, state }) {
       return new Promise((resolve, reject) => {
         state.loadingList = true;
         Request.get(`${this.state.BASE_URL}/entity/articles`)
-            .then((response) => {
-              commit("set_list_articles", response.data);
-              state.loadingList = false;
-              resolve();
-            })
-            .catch((error) => {
-              state.loadingList = false;
-              reject(error);
-            });
+          .then((response) => {
+            commit("set_list_articles", response.data);
+            state.loadingList = false;
+            resolve();
+          })
+          .catch((error) => {
+            state.loadingList = false;
+            reject(error);
+          });
       });
     },
-    async setFilteredListQuestionsModal({state, commit}, data) {
+    async setFilteredListQuestionsModal({ state, commit }, data) {
       return new Promise((resolve, reject) => {
         state.loadingList = true;
 
-        const {tag, updated_at, name} = data;
+        const { tag, updated_at, name } = data;
 
         const filter = {};
         filter["filter[tag]"] = tag;
@@ -445,25 +454,25 @@ export default {
         Request.get(`${this.state.BASE_URL}/entity/questions`, {
           ...filter,
         })
-            .then((response) => {
-              console.log(response);
-              commit("set_list_questions", response.data);
-              state.loadingList = false;
-              resolve();
-            })
-            .catch((error) => {
-              state.loadingList = false;
-              commit("set_list_questions", []);
-              state.questionNotification = error.response.data.message;
-              reject(error);
-            });
+          .then((response) => {
+            console.log(response);
+            commit("set_list_questions", response.data);
+            state.loadingList = false;
+            resolve();
+          })
+          .catch((error) => {
+            state.loadingList = false;
+            commit("set_list_questions", []);
+            state.questionNotification = error.response.data.message;
+            reject(error);
+          });
       });
     },
-    async setFilteredListArticles({state, commit}, data) {
+    async setFilteredListArticles({ state, commit }, data) {
       return new Promise((resolve, reject) => {
         state.loadingList = true;
 
-        const {tag, updated_at, name, activity} = data;
+        const { tag, updated_at, name, activity } = data;
 
         const filter = {};
         if (tag.length) {
@@ -482,63 +491,63 @@ export default {
         Request.get(`${this.state.BASE_URL}/entity/articles`, {
           ...filter,
         })
-            .then((response) => {
-              console.log(response.data);
-              commit("set_list_articles", response.data);
-              state.loadingList = false;
-              resolve();
-            })
-            .catch((error) => {
-              state.loadingList = false;
-              commit("set_list_articles", []);
-              state.articleNotification = error.response.data.message;
-              reject(error);
-            });
+          .then((response) => {
+            console.log(response.data);
+            commit("set_list_articles", response.data);
+            state.loadingList = false;
+            resolve();
+          })
+          .catch((error) => {
+            state.loadingList = false;
+            commit("set_list_articles", []);
+            state.articleNotification = error.response.data.message;
+            reject(error);
+          });
       });
     },
 
     /* TAGS */
-    async getGeneralTagsArticle({commit, state}) {
+    async getGeneralTagsArticle({ commit, state }) {
       return new Promise((resolve) => {
         state.tagsLoaded = true;
         Request.get(`${this.state.BASE_URL}/dictionary/tags`)
-            .then((response) => {
-              state.tagsLoaded = false;
-              commit("set_list_general_tags_article", response.data);
-              resolve();
-            })
-            .catch(() => {
-              state.tagsLoaded = false;
-              resolve();
-            });
+          .then((response) => {
+            state.tagsLoaded = false;
+            commit("set_list_general_tags_article", response.data);
+            resolve();
+          })
+          .catch(() => {
+            state.tagsLoaded = false;
+            resolve();
+          });
       });
     },
-    async setNewTagToListArticle({dispatch, state}, newTag) {
+    async setNewTagToListArticle({ dispatch, state }, newTag) {
       return new Promise((resolve) => {
         state.tagsLoaded = true;
         let bodyFormData = {};
         bodyFormData["name"] = newTag;
         Request.post(`${this.state.BASE_URL}/dictionary/tags`, bodyFormData)
-            .then((response) => {
-              //handle success
-              console.log(response);
-              dispatch("getGeneralTagsArticle").then(() => {
-                state.createdTag = state.listGeneralTags.find((elem) => {
-                  return elem.name === newTag;
-                });
-                state.tagsLoaded = false;
-                resolve();
+          .then((response) => {
+            //handle success
+            console.log(response);
+            dispatch("getGeneralTagsArticle").then(() => {
+              state.createdTag = state.listGeneralTags.find((elem) => {
+                return elem.name === newTag;
               });
-            })
-            .catch((response) => {
-              //handle error
               state.tagsLoaded = false;
               resolve();
-              console.log(response.body);
             });
+          })
+          .catch((response) => {
+            //handle error
+            state.tagsLoaded = false;
+            resolve();
+            console.log(response.body);
+          });
       });
     },
-    createRelationTagArticle({state}, name) {
+    createRelationTagArticle({ state }, name) {
       return new Promise((resolve, reject) => {
         if (state.newArticle._all_tags.length) {
           let finded = state.listArticles.filter((elem) => {
@@ -553,77 +562,77 @@ export default {
                 id_tag: tag.id,
                 id_article: finded[0].id,
               })
-                  .then((response) => {
-                    console.log(response);
-                    resolve();
-                  })
-                  .catch((error) => {
-                    console.log(error);
-                    reject(error);
-                  });
+                .then((response) => {
+                  console.log(response);
+                  resolve();
+                })
+                .catch((error) => {
+                  console.log(error);
+                  reject(error);
+                });
             }
           });
         }
         resolve();
       });
     },
-    deleteRelationTagArticle({state}, id) {
+    deleteRelationTagArticle({ state }, id) {
       return new Promise((resolve, reject) => {
         state.loadingArticle = true;
 
         Request.delete(`${this.state.BASE_URL}/m-to-m/tags/${id}`)
-            .then((response) => {
-              //handle success
-              state.loadingArticle = false;
-              resolve();
-              console.log(response);
-            })
-            .catch((error) => {
-              //handle error
-              state.loadingArticle = false;
-              reject(error);
-            });
+          .then((response) => {
+            //handle success
+            state.loadingArticle = false;
+            resolve();
+            console.log(response);
+          })
+          .catch((error) => {
+            //handle error
+            state.loadingArticle = false;
+            reject(error);
+          });
       });
     },
 
     /* CRUD */
-    async getDetailArticleInfo({commit, state}) {
+    async getDetailArticleInfo({ commit, state }) {
       state.loadingInfoArticle = true;
       return new Promise((resolve, reject) => {
         Request.get(
-            `${this.state.BASE_URL}/users/get-list-users?filter[codes_groups][]=experts`
+          `${this.state.BASE_URL}/users/get-list-users?filter[codes_groups][]=experts`
         )
-            .then((response) => {
-              commit("set_some_info_article", response.data);
-              state.loadingInfoArticle = false;
-              resolve();
-            })
-            .catch((error) => {
-              //handle error
-              state.loadingInfoArticle = false;
-              reject(error);
-              console.log(error.body);
-            });
+          .then((response) => {
+            commit("set_some_info_article", response.data);
+            state.loadingInfoArticle = false;
+            resolve();
+          })
+          .catch((error) => {
+            //handle error
+            state.loadingInfoArticle = false;
+            reject(error);
+            console.log(error.body);
+          });
       });
     },
-    async getDetailArticle({commit, state}, id) {
+    async getDetailArticle({ commit, state }, id) {
       state.loadingArticle = true;
       return new Promise((resolve, reject) => {
         Request.get(`${this.state.BASE_URL}/entity/articles/${id}`)
-            .then((response) => {
-              commit("set_new_article", response.data);
-              state.loadingArticle = false;
-              resolve();
-            })
-            .catch((error) => {
-              //handle error
-              state.loadingArticle = false;
-              reject(error);
-              console.log(error.body);
-            });
+          .then((response) => {
+            commit("set_new_article", response.data);
+            state.loadingArticle = false;
+            resolve();
+          })
+          .catch((error) => {
+            //handle error
+            state.loadingArticle = false;
+            reject(error);
+            console.log(error.body);
+          });
       });
     },
-    async createArticle({dispatch, state, commit}, data) {
+    async createArticle({ dispatch, state, commit }, data) {
       return new Promise((resolve, reject) => {
         state.loadingRequest = true;
         // state.loadingArticle = true
@@ -646,33 +655,33 @@ export default {
         bodyFormData["name_param_env"] = "";
 
         Request.post(`${this.state.BASE_URL}/entity/articles`, bodyFormData)
-            .then((response) => {
-              //handle success
-              state.loadingRequest = false;
-              dispatch("setListArticles").then(() => {
-                dispatch("createRelationTagArticle", data.name.value).then(() => {
-                  // state.loadingArticle = false
-                  resolve();
-                });
+          .then((response) => {
+            //handle success
+            state.loadingRequest = false;
+            dispatch("setListArticles").then(() => {
+              dispatch("createRelationTagArticle", data.name.value).then(() => {
+                // state.loadingArticle = false
+                resolve();
               });
-              commit("change_id_newArticle", response.data.id);
-            })
-            .catch((response) => {
-              //handle error
-              state.loadingRequest = false;
-              // state.loadingArticle = false
-              const data = Object.assign(
-                  {},
-                  {message: response.response.data.message},
-                  {error: true}
-              );
-              commit("change_notification_modal", data, {root: true});
-              reject();
-              console.log(response.response.data.message);
             });
+            commit("change_id_newArticle", response.data.id);
+          })
+          .catch((response) => {
+            //handle error
+            state.loadingRequest = false;
+            // state.loadingArticle = false
+            const data = Object.assign(
+              {},
+              { message: response.response.data.message },
+              { error: true }
+            );
+            commit("change_notification_modal", data, { root: true });
+            reject();
+            console.log(response.response.data.message);
+          });
       });
     },
-    updateArticle({dispatch, state}, data) {
+    updateArticle({ dispatch, state }, data) {
       return new Promise((resolve) => {
         state.loadingRequest = true;
         // state.loadingArticle = true
@@ -686,64 +695,67 @@ export default {
         }
         requestData["content"] = JSON.stringify(state.content);
         const arr = [];
+
+        console.log("list_components", state.list_components)
+
         state.list_components.forEach((elem) => {
           arr.push(elem.data);
         });
         requestData["inserted_components"] = JSON.stringify(
-            JSON.stringify(arr)
+          JSON.stringify(arr)
         );
 
         Request.put(
-            `${this.state.BASE_URL}/entity/articles/${data.id}`,
-            requestData
+          `${this.state.BASE_URL}/entity/articles/${data.id}`,
+          requestData
         )
-            .then((response) => {
-              //handle success
-              state.loadingRequest = false;
-              // state.loadingArticle = false
-              dispatch("setListArticles").then(() => {
-                dispatch("createRelationTagArticle", data.name.value).then(() => {
-                  resolve();
-                });
+          .then((response) => {
+            //handle success
+            state.loadingRequest = false;
+            // state.loadingArticle = false
+            dispatch("setListArticles").then(() => {
+              dispatch("createRelationTagArticle", data.name.value).then(() => {
+                resolve();
               });
-              console.log(response);
-            })
-            .catch((response) => {
-              //handle error
-              state.loadingRequest = false;
-              // state.loadingArticle = false
-              resolve();
-              console.log(response.body);
             });
+            console.log(response);
+          })
+          .catch((response) => {
+            //handle error
+            state.loadingRequest = false;
+            // state.loadingArticle = false
+            resolve();
+            console.log(response.body);
+          });
       });
     },
-    deleteArticle({state}, data) {
+    deleteArticle({ state }, data) {
       state.loadingRequest = true;
       return new Promise((resolve) => {
         Request.delete(`${this.state.BASE_URL}/entity/articles/${data.id}`)
-            .then((response) => {
-              //handle success
-              state.loadingRequest = false;
-              resolve();
-              console.log(response);
-            })
-            .catch((response) => {
-              //handle error
-              state.loadingRequest = false;
-              resolve();
-              console.log(response.body);
-            });
+          .then((response) => {
+            //handle success
+            state.loadingRequest = false;
+            resolve();
+            console.log(response);
+          })
+          .catch((response) => {
+            //handle error
+            state.loadingRequest = false;
+            resolve();
+            console.log(response.body);
+          });
       });
     },
 
     /* INSERT COMPONENT */
-    deleteComponent({commit}, id) {
+    deleteComponent({ commit }, id) {
       commit("delete_component_by_id", id);
     },
-    get_auth({commit, state, rootState}, params) {
+    get_auth({ commit, state, rootState }, params) {
       rootState.AuthModule.inserting_component = true;
       return new Promise((resolve) => {
-        const {index, component} = params;
+        const { index, component } = params;
 
         state.loadingModalList = true;
 
@@ -751,14 +763,14 @@ export default {
           name: "auth",
         };
 
-        commit("changeSelectedComponent", {data, index, component});
+        commit("changeSelectedComponent", { data, index, component });
         state.loadingModalList = false;
         resolve();
       });
     },
-    get_image({commit, state}, params) {
+    get_image({ commit, state }, params) {
       return new Promise((resolve) => {
-        const {index, component} = params;
+        const { index, component } = params;
 
         state.loadingModalList = true;
 
@@ -766,74 +778,107 @@ export default {
           name: "image",
         };
 
-        commit("changeSelectedComponent", {data, index, component});
+        commit("changeSelectedComponent", { data, index, component });
         state.loadingModalList = false;
         resolve();
       });
     },
-    get_questions({commit, state}, params) {
+    get_questions({ commit, state }, params) {
       return new Promise((resolve, reject) => {
-        const {index, component} = params;
+        const { index, component } = params;
 
         state.loadingModalList = true;
         Request.get(
-            `${this.state.BASE_URL}/entity/${component.name}/${component.id}`
+          `${this.state.BASE_URL}/entity/${component.name}/${component.id}`
         )
-            .then((response) => {
-              const data = response.data;
-              console.log("uploaded COMPONENT");
-              commit("changeSelectedComponent", {data, index, component});
-              state.loadingModalList = false;
-              resolve();
-            })
-            .catch((error) => {
-              state.loadingModalList = false;
-              reject(error);
-            });
+          .then((response) => {
+            const data = response.data;
+            console.log("uploaded COMPONENT");
+            commit("changeSelectedComponent", { data, index, component });
+            state.loadingModalList = false;
+            resolve();
+          })
+          .catch((error) => {
+            state.loadingModalList = false;
+            reject(error);
+          });
       });
     },
-    getListQuestions({commit, state}, params) {
+    get_nomenclature({ commit, state }, params) {
+      return new Promise((resolve) => {
+        const { index, component } = params;
+
+        state.loadingModalList = true;
+
+        const data = {
+          name: "nomenclature",
+          id: component.id,
+          nomenclatures_id: component.nomenclatures_id,
+          index_nomenclature: component.index_nomenclature
+        };
+
+        commit("changeSelectedComponent", { data, index, component });
+        state.loadingModalList = false;
+        resolve();
+      });
+    },
+    getListQuestions({ commit, state }, params) {
       return new Promise((resolve, reject) => {
         state.loadingModalList = true;
         Request.get(`${this.state.BASE_URL}/entity/${params}`)
-            .then((response) => {
-              commit("change_list_components", response.data);
-              state.loadingModalList = false;
-              resolve();
-            })
-            .catch((error) => {
-              state.loadingModalList = false;
-              reject(error);
-            });
+          .then((response) => {
+            commit("change_list_components", response.data);
+            state.loadingModalList = false;
+            resolve();
+          })
+          .catch((error) => {
+            state.loadingModalList = false;
+            reject(error);
+          });
       });
     },
-    deleteFile({state}, id) {
+    getListNomenclature({ commit, state }, params) {
+      return new Promise((resolve, reject) => {
+        state.loadingModalList = true;
+        Request.get(`${this.state.BASE_URL}/entity/${params}`)
+          .then((response) => {
+            commit("change_list_nomenclature", response.data);
+            state.loadingModalList = false;
+            resolve();
+          })
+          .catch((error) => {
+            state.loadingModalList = false;
+            reject(error);
+          });
+      });
+    },
+    deleteFile({ state }, id) {
       state.loadingRequest = true;
       return new Promise((resolve) => {
         Request.delete(`${this.state.BASE_URL}/entity/files/${id}`)
-            .then((response) => {
-              //handle success
-              state.loadingRequest = false;
-              resolve();
-              console.log(response);
-            })
-            .catch((response) => {
-              //handle error
-              state.loadingRequest = false;
-              resolve();
-              console.log(response.body);
-            });
+          .then((response) => {
+            //handle success
+            state.loadingRequest = false;
+            resolve();
+            console.log(response);
+          })
+          .catch((response) => {
+            //handle error
+            state.loadingRequest = false;
+            resolve();
+            console.log(response.body);
+          });
       });
     },
 
     /* LOCAL_STORAGE */
-    setLocalStorageArticle({commit}, object) {
+    setLocalStorageArticle({ commit }, object) {
       commit("set_local_storage", object);
     },
-    removeLocalStorageArticle({commit}) {
+    removeLocalStorageArticle({ commit }) {
       commit("remove_local_storage");
     },
-    getFromLocalStorageArticle({commit}) {
+    getFromLocalStorageArticle({ commit }) {
       return new Promise((resolve) => {
         commit("get_from_local_storage");
         resolve();

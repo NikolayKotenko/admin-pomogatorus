@@ -10,8 +10,7 @@
         class="componentArticle_wrapper__admin_controls-header"
         contenteditable="false"
     >
-      <img
-          :src="require(`/src/assets/svg/closeIcon.svg`)"
+      <CloseSVG
           alt="close"
           class="componentArticle_wrapper__admin_controls-header__img"
           @click="deleteQuestion()"
@@ -25,8 +24,7 @@
       <div v-if="question_data.title" class="helper_wrapper">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
-            <img
-                :src="require(`/src/assets/svg/help-circle.svg`)"
+            <HelpSVG
                 alt="help"
                 class="help_img"
                 v-bind="attrs"
@@ -84,8 +82,7 @@
                 <div v-if="item.commentary">
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on, attrs }">
-                      <img
-                          :src="require(`/src/assets/svg/help-circle.svg`)"
+                      <HelpSVG
                           alt="help"
                           class="help_img"
                           v-bind="attrs"
@@ -120,8 +117,7 @@
               <div v-if="item.commentary">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
-                    <img
-                        :src="require(`/src/assets/svg/help-circle.svg`)"
+                    <HelpSVG
                         alt="help"
                         class="help_img"
                         v-bind="attrs"
@@ -167,8 +163,7 @@
                     <div v-if="item.commentary">
                       <v-tooltip bottom>
                         <template v-slot:activator="{ on, attrs }">
-                          <img
-                              :src="require(`/src/assets/svg/help-circle.svg`)"
+                          <HelpSVG
                               alt="help"
                               class="help_img"
                               v-bind="attrs"
@@ -295,10 +290,15 @@
 
 <script>
 import AnswerController from "../../services/article/AnswerController";
+import CloseSVG from "@/assets/svg/closeIcon.svg"
+import HelpSVG from "@/assets/svg/help-circle.svg"
 
 export default {
   name: "Question",
-  components: {},
+  components: {
+    CloseSVG,
+    HelpSVG
+  },
   data: () => ({
     question_data: {},
     index_component: null,

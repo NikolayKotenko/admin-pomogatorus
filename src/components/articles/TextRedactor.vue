@@ -27,9 +27,12 @@ import Vue from "vue";
 import store from "@/store/index.js";
 import vuetify from "@/plugins/vuetify";
 
+// import vueCarousel from "@/plugins/vue-carousel";
+
 import HeaderBlock from "./HeaderBlock";
 import Question from "../frontLayouts/Question";
 import ImageLayout from "../frontLayouts/ImageLayout";
+import NomenclatureArticle from "../frontLayouts/NomenclatureArticle";
 import LoginAuth from "../auth/LoginAuth";
 
 import titlesStore from "@/store/modules/article/index.js";
@@ -108,11 +111,14 @@ export default {
         if (v) {
           console.log("start rerender");
           /* Only way to get time for procedure render DOM */
-          setTimeout(() => {
+          // setTimeout(() => {
             /* Change content on article by static HTML */
             this.$nextTick(() => {
               this.content = _store.content_from_server;
             });
+
+            console.log("components_after_request", _store.components_after_request)
+
             /* Start render */
             if (_store.components_after_request.length) {
               /* Initialise render func */
@@ -128,10 +134,14 @@ export default {
                 });
               });
             } else {
+              console.log("EMPTY COMPONENTS")
+
               this.$store.commit("clear_list_components", []);
               this.$store.commit("change_start_render", false);
+
+              console.log("AFTER CLEAR", _store.list_components)
             }
-          }, 600);
+          // }, 600);
         }
       },
     },
@@ -156,11 +166,19 @@ export default {
       },
     },
     componentLayout() {
-      return _store.name_component === "questions"
-          ? Vue.extend(Question)
-          : _store.name_component === "image"
-              ? Vue.extend(ImageLayout)
-              : Vue.extend(LoginAuth);
+      if (_store.name_component === "questions") {
+        return Vue.extend(Question)
+      }
+
+      if (_store.name_component === "image") {
+        return Vue.extend(ImageLayout)
+      }
+
+      if (_store.name_component === "nomenclature") {
+        return Vue.extend(NomenclatureArticle)
+      }
+
+      return Vue.extend(LoginAuth);
     },
   },
   methods: {
@@ -254,6 +272,7 @@ export default {
           index_image: 1,
           index_questions: 1,
           index_auth: 1,
+          index_nomenclature: 1,
         };
 
         let dataComponent = {};
@@ -273,6 +292,18 @@ export default {
               dataComponent.id = htmlCollection.dataset.id;
             } else if (htmlCollection.dataset.name === "image") {
               dataComponent.src = htmlCollection.dataset.src;
+            } else if (htmlCollection.dataset.name === "nomenclature") {
+              dataComponent.id = htmlCollection.dataset.id;
+
+              if (htmlCollection.getElementsByClassName("c-slide").length) {
+                const slideArr = [...htmlCollection.getElementsByClassName("c-slide")]
+
+                dataComponent.nomenclatures_id = []
+
+                slideArr.forEach(slide => {
+                  dataComponent.nomenclatures_id.push(slide.dataset.id)
+                })
+              }
             }
             /* Push to arr result */
             arrComponentsData.push(
@@ -300,6 +331,8 @@ export default {
       let deletedIndexes = []
 
       _store.list_components.forEach((elem, index) => {
+        // console.log("elemRender", elem)
+
         console.log('countInserted', index)
         /** Function that change counter by @elem, and call prepare layout that we need **/
         this.checkTypeComponent(elem);
@@ -425,6 +458,8 @@ export default {
         /* As soon as Promises done, we start render */
         Promise.allSettled(promises).finally(() => {
           console.log("all promises done");
+
+          console.log("_store.list_components", _store.list_components)
 
           /* Sorting list_components for index, to get right structure on article */
           _store.list_components.sort((a, b) => {
@@ -600,8 +635,12 @@ export default {
         index_questions: _store.counters.questions,
         index_image: _store.counters.image,
         index_auth: _store.counters.auth,
+        index_nomenclature: _store.counters.nomenclature,
         src: elem?.full_path ? elem?.full_path : "",
+        nomenclatures_id: elem?.nomenclatures_id ?? []
       });
+
+      console.log("data_component",data_component)
 
       // QUESTIONS DATA ADD TO ARRAY BECAUSE NEED UNDO/REDO
       if (_store.name_component === 'questions') {
@@ -746,6 +785,7 @@ export default {
         index_image: 1,
         index_auth: 1,
         counter_index: 1,
+        index_nomenclature: 1,
       };
 
       array.forEach((elem) => {

@@ -19,6 +19,7 @@
     "vue-cookies": "^1.8.1",
     "vue-draggable-resizable": "^2.3.0",
     "vue-router": "^3.2.0",
+    "vue-slick-carousel": "^1.0.6",
     "vue2-dropzone": "^3.6.0",
     "vue2-editor": "^2.10.3",
     "vuelidate": "^0.7.7",
@@ -42,7 +43,8 @@
     "sass-loader": "^10.0.0",
     "vue-cli-plugin-vuetify": "~2.4.5",
     "vue-cli-plugin-webfontloader": "~0.1.1",
-    "vue-template-compiler": "^2.6.11",
+    "vue-svg-loader": "^0.16.0",
+    "vue-template-compiler": "^2.7.15",
     "vuetify-loader": "^1.7.0"
   },
   "eslintConfig": {

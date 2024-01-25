@@ -7,8 +7,21 @@ export default class DataComponent {
       data_component = new Element_image(data);
     } else if (type === "auth") {
       data_component = new Element_auth(data);
+    } else if (type === "nomenclature") {
+      data_component = new Element_nomenclature(data);
     }
     return data_component;
+  }
+}
+
+class Element_nomenclature {
+  constructor(data) {
+    const { name, id, index_nomenclature, nomenclatures_id} = data;
+
+    this.name = name;
+    this.id = id;
+    this.nomenclatures_id = nomenclatures_id;
+    this.index_nomenclature = index_nomenclature;
   }
 }
 

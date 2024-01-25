@@ -11,11 +11,10 @@
       contenteditable="false"
       v-if="isComponent"
     >
-      <img
-        class="componentArticle_wrapper__admin_controls-header__img"
-        :src="require(`/src/assets/svg/closeIcon.svg`)"
-        alt="close"
-        @click="deleteQuestion()"
+      <CloseSVG
+          class="componentArticle_wrapper__admin_controls-header__img"
+          alt="close"
+          @click="deleteQuestion()"
       />
     </div>
     <v-container>
@@ -158,9 +157,13 @@
 
 <script>
 import Logging from "@/services/logging";
+import CloseSVG from "@/assets/svg/closeIcon.svg"
 
 export default {
   name: "LoginAuth",
+  components: {
+    CloseSVG
+  },
   data() {
     return {
       tab: 0,

@@ -4,8 +4,7 @@
       <img alt="" class="main_img image" data-dz-thumbnail/>
     </div>
     <div class="menu">
-      <img
-          :src="require('/src/assets/svg/close.svg')"
+      <CloseSVG
           alt="close"
           class="dz_close"
           data-dz-remove
@@ -17,8 +16,13 @@
 </template>
 
 <script>
+import CloseSVG from "@/assets/svg/closeIcon.svg"
+
 export default {
   name: "PreviewTemplate",
+  components: {
+    CloseSVG
+  }
 };
 </script>
 
