@@ -18,7 +18,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    BASE_URL: "https://api-test.agregatorus.com",
+    BASE_URL: "https://api.agregatorus.com",
     notification_modal: {
       show_notification: false,
       error: false,
