@@ -43,7 +43,7 @@
                 <img :src="getPhoto(slide.data)" :alt="slide.data.name">
               </template>
 
-              <template>
+              <template v-else>
                 <img :src="require('/src/assets/img/noImage.webp')" :alt="slide.data.name">
               </template>
             </div>
@@ -204,7 +204,7 @@ export default {
       const url = (slide?._family?.photos && slide?._family?.photos[0]) ?? null
 
       if (url) {
-        return this.$store.state.BASE_URL + url;
+        return this.$store.state.BASE_URL + url?.full_path;
       } else {
         return null
       }
