@@ -10,7 +10,6 @@
         hide-details
         :placeholder="flat ? 'Переменная окружения' : 'Начните ввод'"
         :loading="loadingList"
-        :disabled="loadingList"
         hide-no-data
         :label="flat ? '' : 'Поиск...'"
         :search-input.sync="search"
@@ -117,7 +116,7 @@ export default {
     async getValues() {
       if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
       this.debounceTimeout = setTimeout(async () => {
-        if (!this.search) return;
+        // if (!this.search) return;
 
         this.loadingList = true;
 
@@ -132,7 +131,7 @@ export default {
         }
 
         this.loadingList = false;
-      }, 500);
+      }, 1000);
     },
     async selectFirstEnv() {
       if (this.checkFirst) {
