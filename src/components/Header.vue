@@ -272,6 +272,12 @@ export default {
         nameIcon: 'answers.svg'
       },
       {
+        id: 12,
+        icon: 'mdi-format-list-text',
+        title: 'Бренды',
+        link: '/brands',
+      },
+      {
         id: 8,
         icon: 'mdi-home-alphabet',
         title: 'Оборудование',
@@ -298,9 +304,10 @@ export default {
             title: 'Типы семейства',
             link: '/familyTypes',
             nameIcon: 'answers.svg',
-          }
+          },
         ],
       },
+
     ]
   }),
   computed: {

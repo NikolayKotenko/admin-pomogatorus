@@ -370,6 +370,7 @@ export default {
           this.dropzone_uploaded[0])
     },
     async onSubmitLocal() {
+
       await this.$store.dispatch('onSubmit', {}, {root: true});
       if (this.$route.query.action === 'create') {
         await this.$router.replace({
