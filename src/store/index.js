@@ -13,12 +13,13 @@ import Request from "../services/request";
 import NomenclaturesModule from "@/store/modules/nomenclatures";
 import FamiliesModule from "@/store/modules/families";
 import FamilyTypesModule from "@/store/modules/familyTypes";
+import Brands from "@/store/modules/brands";
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    BASE_URL: "https://api.agregatorus.com",
+    BASE_URL: "https://api-test.agregatorus.com",
     notification_modal: {
       show_notification: false,
       error: false,
@@ -153,5 +154,6 @@ export default new Vuex.Store({
     NomenclaturesModule,
     FamiliesModule,
     FamilyTypesModule,
+    Brands
   },
 });

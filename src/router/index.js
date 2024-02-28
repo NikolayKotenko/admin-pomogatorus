@@ -24,6 +24,7 @@ import Dictionaries from "@/components/dictionaries/Dictionaries";
 import NomenclatureForm from "@/components/nomenclatures/NomenclatureForm";
 import Family from "@/components/nomenclatures/Family";
 import FamilyTypes from "@/components/nomenclatures/FamilyTypes";
+import Brands from  "@/components/brands/Brands.vue";
 
 Vue.use(VueRouter);
 
@@ -57,6 +58,40 @@ const routes = [
       ru_name: "Вопрос",
       requiresAuth: true,
     },
+  },
+  {
+    path: '/brands/:id?/',
+    name: 'Brands',
+    component: Brands,
+    meta: {
+      title: 'Бренды',
+      ru_name: 'Бренды',
+      singleComponent: true,
+      requiresAuth: true,
+      canCreate: true,
+      canEdit: true,
+      canView: true,
+      canDelete: true,
+      createLink: {
+        name: "Brands",
+        query: { action: "create" },
+      },
+      editLink: {
+        name: "Brands",
+        params: { action: "edit" },
+        query: { id: null },
+      },
+      returnLink: {
+        ru_name: "Бренды",
+        name: "Brands",
+        path: "/brands",
+      },
+      deleteLink: {
+        name: "Brands",
+        path: "/brands",
+        actionModalAsk: "stateModalAction",
+      },
+    }
   },
   {
     path: "/questions",
