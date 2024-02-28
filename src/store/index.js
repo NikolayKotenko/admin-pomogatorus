@@ -19,7 +19,10 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    BASE_URL: "https://api-test.agregatorus.com",
+    BASE_URL:
+      process.env.NODE_ENV === "development"
+        ? "https://api-test.agregatorus.com"
+        : "https://api.agregatorus.com",
     notification_modal: {
       show_notification: false,
       error: false,
@@ -154,6 +157,6 @@ export default new Vuex.Store({
     NomenclaturesModule,
     FamiliesModule,
     FamilyTypesModule,
-    Brands
+    Brands,
   },
 });
