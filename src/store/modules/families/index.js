@@ -204,7 +204,6 @@ export default {
     // async getListBrands({commit}) {
     //     commit("changeLoadingList", true);
     //     let filter = {
-    //         flag_brands: true,
     //             flag_service: false,
     //             public_field_filter: true,
     //             flag_engineering_system: false
