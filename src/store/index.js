@@ -142,7 +142,9 @@ export default new Vuex.Store({
       );
     },
     getToken() {
-      return "666777";
+        return process.env.NODE_ENV === "development"
+            ? "666777"
+            : `Bearer ${Vue.$cookies.get("accessToken")}`;
     },
   },
   modules: {
