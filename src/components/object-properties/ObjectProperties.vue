@@ -206,7 +206,7 @@ export default {
 
     await this.$store.dispatch('ObjectPropertiesModule/getListEntries', this.$route.params.code)
     await this.$store.dispatch('ObjectPropertiesModule/getInfoByEntry')
-    await this.$store.dispatch('DictionariesModule/getListEntries')
+    await this.$store.dispatch('DictionariesModule/getListDictionaries')
   },
   methods:{
     async setDictionary(value){

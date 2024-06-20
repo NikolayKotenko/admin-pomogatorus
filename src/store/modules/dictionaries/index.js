@@ -68,7 +68,7 @@ export default {
           "/dictionary/dictionaries/" +
           this.state.DictionariesModule.entry.code
       );
-      await dispatch("getListEntries");
+      await dispatch("getListDictionaries");
       commit("clearEntry");
 
       //END
@@ -89,7 +89,7 @@ export default {
           this.state.DictionariesModule.entry
         );
       }
-      await dispatch("getListEntries", response.data.code);
+      await dispatch("getListDictionaries", { code: response.data.code });
 
       //END
       commit("changeLoadingList", false);
@@ -116,12 +116,14 @@ export default {
         commit("change_notification_modal", e, { root: true });
       }
     },
-    async getListEntries({ commit }, code) {
+    async getListDictionaries({ commit }, { code, query }) {
       commit("changeLoadingList", true);
 
       try {
         const result = await Request.get(
-          this.state.BASE_URL + "/dictionary/dictionaries"
+          this.state.BASE_URL +
+            "/dictionary/dictionaries" +
+            Request.ConstructFilterQuery(query)
         );
         commit("changeListEntries", result.data);
         const listEntries = this.state.DictionariesModule.listEntries;
@@ -203,6 +205,7 @@ export default {
     },
     async searchDictionaryAttributeByValue({ commit, state }, string) {
       if (!string) return false;
+      if (string.length <= 2) return false;
 
       const checkExist = state.listOccurrencesAttributes.some(
         (elem) => elem.value === string
@@ -224,7 +227,7 @@ export default {
   },
   getters: {
     getDictionaryByName: (state) => (name) => {
-      return state.listEntries.find((obj) => obj.name === name)
-    }
+      return state.listEntries.find((obj) => obj.name === name);
+    },
   },
 };

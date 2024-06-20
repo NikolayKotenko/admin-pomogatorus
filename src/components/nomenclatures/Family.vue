@@ -270,7 +270,6 @@ export default {
   }),
   async mounted() {
     await this.$store.dispatch('FamiliesModule/getListEntries', this.$route.params.id)
-    await this.$store.dispatch('FamiliesModule/getListTypes')
     await this.$store.dispatch('FamiliesModule/getListBrands')
     await this.$store.dispatch('setTitle', this.$store.state.FamiliesModule.entry.name)
   },

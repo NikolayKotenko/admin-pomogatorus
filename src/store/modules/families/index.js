@@ -187,20 +187,6 @@ export default {
       }
       commit("changeLoadingList", false);
     },
-    async getListTypes({ commit }) {
-      commit("changeLoadingList", true);
-
-      try {
-        const result = await Request.get(
-          this.state.BASE_URL + "/dictionary/family-types"
-        );
-        commit("changeListTypes", result.data);
-      } catch (e) {
-        console.log(e);
-        commit("change_notification_modal", e, { root: true });
-      }
-      commit("changeLoadingList", false);
-    },
     // async getListBrands({commit}) {
     //     commit("changeLoadingList", true);
     //     let filter = {

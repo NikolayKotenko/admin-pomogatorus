@@ -1,6 +1,8 @@
 export default class Logging {
   //Если удобно пользоваться конструктором
   constructor(request) {
+    if (!request) return false;
+
     const { message, data, meta, links, codeResponse, systemErrors } = request;
 
     this.message = message;
@@ -9,6 +11,7 @@ export default class Logging {
     this.links = links;
     this.codeResponse = codeResponse;
     this.systemErrors = systemErrors;
+    this.isError = codeResponse >= 400;
   }
 
   /**

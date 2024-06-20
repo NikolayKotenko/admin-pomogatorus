@@ -24,7 +24,8 @@ import Dictionaries from "@/components/dictionaries/Dictionaries";
 import NomenclatureForm from "@/components/nomenclatures/NomenclatureForm";
 import Family from "@/components/nomenclatures/Family";
 import FamilyTypes from "@/components/nomenclatures/FamilyTypes";
-import Brands from  "@/components/brands/Brands.vue";
+import NomenclaturesTree from "@/components/nomenclatures/NomenclaturesTree";
+import Brands from "@/components/brands/Brands.vue";
 
 Vue.use(VueRouter);
 
@@ -60,12 +61,12 @@ const routes = [
     },
   },
   {
-    path: '/brands/:id?/',
-    name: 'Brands',
+    path: "/brands/:id?/",
+    name: "Brands",
     component: Brands,
     meta: {
-      title: 'Бренды',
-      ru_name: 'Бренды',
+      title: "Бренды",
+      ru_name: "Бренды",
       singleComponent: true,
       requiresAuth: true,
       canCreate: true,
@@ -91,7 +92,7 @@ const routes = [
         path: "/brands",
         actionModalAsk: "stateModalAction",
       },
-    }
+    },
   },
   {
     path: "/questions",
@@ -304,12 +305,12 @@ const routes = [
       canDelete: true,
       createLink: {
         name: "NomenclatureForm",
-        query: {action: "create"},
+        query: { action: "create" },
       },
       editLink: {
         name: "NomenclatureForm",
-        params: {action: "edit"},
-        query: {id: null},
+        params: { action: "edit" },
+        query: { id: null },
       },
       returnLink: {
         ru_name: "Номенклатура",
@@ -337,12 +338,12 @@ const routes = [
       canDelete: true,
       createLink: {
         name: "Family",
-        query: {action: "create"},
+        query: { action: "create" },
       },
       editLink: {
         name: "Family",
-        params: {action: "edit"},
-        query: {id: null},
+        params: { action: "edit" },
+        query: { id: null },
       },
       returnLink: {
         ru_name: "Семейства",
@@ -370,12 +371,12 @@ const routes = [
       canDelete: true,
       createLink: {
         name: "FamilyTypes",
-        query: {action: "create"},
+        query: { action: "create" },
       },
       editLink: {
         name: "FamilyTypes",
-        params: {action: "edit"},
-        query: {id: null},
+        params: { action: "edit" },
+        query: { id: null },
       },
       returnLink: {
         ru_name: "Типы семейства",
@@ -385,6 +386,21 @@ const routes = [
       deleteLink: {
         name: "FamilyTypes",
         path: "/familyTypes",
+      },
+    },
+  },
+  {
+    path: "/nomenclaturesTree",
+    name: "Дерево номенклатуры",
+    component: NomenclaturesTree,
+    meta: {
+      title: "Дерево номенклатуры",
+      ru_name: "Дерево номенклатуры",
+      requiresAuth: true,
+      canCreate: true,
+      createLink: {
+        name: "DetailNomenclaturesTree",
+        params: { action: "create" },
       },
     },
   },

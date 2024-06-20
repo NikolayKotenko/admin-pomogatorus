@@ -95,12 +95,15 @@
                       :is-hide-details="false"
                       :is-placeholder="'Значение'"
                       :is-loading="$store.state.DictionariesModule.loadingOccurrencesAttributes"
+                      :is-disabled="$store.state.DictionariesModule.loadingList || $store.state.DictionariesModule.loadingOccurrencesAttributes"
                       @update-search-input="findSearchAttribute"
                       @change-search="setSearchAttribute"
                   ></ComboboxStyled>
                   <InputStyledSimple
                       class="mb-5"
                       :data="editedItem.sort"
+                      :is-loading="$store.state.DictionariesModule.loadingList || $store.state.DictionariesModule.loadingOccurrencesAttributes"
+                      :is-disabled="$store.state.DictionariesModule.loadingList || $store.state.DictionariesModule.loadingOccurrencesAttributes"
                       :placeholder="'Сортировка'"
                       @update-input="setSortProperty"
                   ></InputStyledSimple>
@@ -110,7 +113,10 @@
                   <v-btn color="blue darken-1" text class="mr-auto" @click="dialog = false">
                     Отмена
                   </v-btn>
-                  <v-btn color="blue" :disabled="! editedItem.value" text @click="postNewAttribute">
+                  <v-btn color="blue"
+                         :loading="$store.state.DictionariesModule.loadingList || $store.state.DictionariesModule.loadingOccurrencesAttributes"
+                         :disabled="! editedItem.value || $store.state.DictionariesModule.loadingList || $store.state.DictionariesModule.loadingOccurrencesAttributes"
+                         text @click="postNewAttribute">
                     Сохранить
                   </v-btn>
                 </v-card-actions>
@@ -189,7 +195,8 @@
         </v-btn>
 
         <v-btn
-            :disabled="!$store.getters.stateEditCreate($route.query.action)"
+            :disabled="!$store.getters.stateEditCreate($route.query.action) || $store.state.DictionariesModule.loadingList || $store.state.DictionariesModule.loadingOccurrencesAttributes"
+            :loading="$store.state.DictionariesModule.loadingList || $store.state.DictionariesModule.loadingOccurrencesAttributes"
             class="detail_footer__save_btn"
             color="blue darken-1"
             text
@@ -298,7 +305,7 @@ export default {
     editedItem: new DictionaryAttribute(),
   }),
   async mounted() {
-    await this.$store.dispatch('DictionariesModule/getListEntries', this.$route.params.code)
+    await this.$store.dispatch('DictionariesModule/getListDictionaries', { code: this.$route.params.code })
     await this.$store.dispatch('DictionariesModule/getListDictionaryAttribute')
   },
   computed: {

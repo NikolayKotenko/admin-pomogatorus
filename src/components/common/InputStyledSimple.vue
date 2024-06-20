@@ -21,7 +21,7 @@
       dense
       hide-details
       @click:clear="(currentData = '')"
-      @change="$emit('change-input')"
+      @change="$emit('change-input', $event)"
   >
     <template slot="prepend-inner">
       <slot name="prepend-inner"></slot>

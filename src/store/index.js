@@ -12,8 +12,8 @@ import DictionariesModule from "./modules/dictionaries";
 import Request from "../services/request";
 import NomenclaturesModule from "@/store/modules/nomenclatures";
 import FamiliesModule from "@/store/modules/families";
-import FamilyTypesModule from "@/store/modules/familyTypes";
 import Brands from "@/store/modules/brands";
+import NomenclaturesTreeModule from "@/store/modules/nomenclatures-tree";
 
 Vue.use(Vuex);
 
@@ -21,7 +21,7 @@ export default new Vuex.Store({
   state: {
     BASE_URL:
       process.env.NODE_ENV === "development"
-        ? "https://api-test.agregatorus.com"
+        ? "http://127.0.0.1:8000"
         : "https://api.agregatorus.com",
     notification_modal: {
       show_notification: false,
@@ -142,7 +142,9 @@ export default new Vuex.Store({
       );
     },
     getToken() {
-      return "666777";
+      return process.env.NODE_ENV === "development"
+        ? "666777"
+        : `Bearer ${Vue.$cookies.get("accessToken")}`;
     },
   },
   modules: {
@@ -156,7 +158,7 @@ export default new Vuex.Store({
     DictionariesModule,
     NomenclaturesModule,
     FamiliesModule,
-    FamilyTypesModule,
     Brands,
+    NomenclaturesTreeModule,
   },
 });

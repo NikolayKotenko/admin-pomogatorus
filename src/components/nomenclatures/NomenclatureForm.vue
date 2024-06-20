@@ -46,6 +46,7 @@
       <v-list elevation="1" subheader>
         <v-subheader>Семейство</v-subheader>
         <v-combobox
+            @change="$store.state.NomenclaturesModule.entry.id_family = ($event) ? $event.id : null"
             v-model="$store.state.NomenclaturesModule.entry._family"
             :disabled="$store.state.NomenclaturesModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
             :items="$store.state.NomenclaturesModule.listFamily" :loading="$store.state.NomenclaturesModule.loadingList"
@@ -54,9 +55,17 @@
             clearable
             hide-details
             item-text="name"
+            item-value="id"
         >
         </v-combobox>
       </v-list>
+
+    <!-- TODO
+          Нужен компонент табличного вида на 2 колонки "ключ характеристики" - "значение"
+          плюс снизу кнопка отрисовки новой характеристики
+     -->
+    <Characteristics/>
+
     </v-container>
     <footer class="detail_footer">
       <v-container>
@@ -99,8 +108,10 @@
 
 // const _store = nomenclatureStore.state
 
+import Characteristics from "@/components/nomenclatures/Characteristics";
 export default {
   name: "NomenclatureForm",
+  components: {Characteristics},
   data() {
     return {
       headers: [

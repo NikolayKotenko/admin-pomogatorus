@@ -7,6 +7,8 @@
         :outlined="isOutlined"
         :dense="isDense"
         :hide-details="isHideDetails"
+        :error="isError"
+        :error-messages="isErrorMessages"
         :placeholder="isPlaceholder"
         :label="isPlaceholder"
         :loading="isLoading"
@@ -14,7 +16,7 @@
         :items="isItems"
         :item-text="isItemText"
         :item-value="isItemValue"
-        :return-object="false"
+        :return-object="isReturnObject"
         :hide-no-data="false"
         chips
         small-chips
@@ -22,9 +24,12 @@
         :search-input.sync="localSearchInputSync"
         @update:search-input="$emit('update-search-input', localSearchInputSync)"
         @change="$emit('change-search', localSelected)"
+        @click:clear="$emit('click-clear')"
     >
       <template v-slot:no-data>
-        <v-list-item v-if="localSearchInputSync && !isItems.length && !isLoading">
+        <v-list-item v-if="localSearchInputSync && !isItems.length && !isLoading"
+                     @click="$emit('change-search', localSelected)"
+        >
           <span class="subheading">Enter чтобы создать новый элемент &nbsp;</span>
           <v-chip label small>
             {{ localSearchInputSync }}
@@ -74,6 +79,14 @@ export default {
       type: Boolean,
       default: true
     },
+    isError: {
+      type: Boolean,
+      default: false
+    },
+    isErrorMessages: {
+      type: String,
+      default: ''
+    },
     isPlaceholder: {
       type: String,
       default: ''
@@ -105,6 +118,10 @@ export default {
     isClearable: {
       type: Boolean,
       default: true
+    },
+    isReturnObject: {
+      type: Boolean,
+      default: false
     },
     data: {
       type: [String, Number],

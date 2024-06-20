@@ -305,6 +305,13 @@ export default {
             link: '/familyTypes',
             nameIcon: 'answers.svg',
           },
+          {
+            id: 12,
+            icon: 'mdi-book-alphabet',
+            title: 'Дерево номенклатуры',
+            link: '/nomenclaturesTree',
+            nameIcon: 'answers.svg',
+          },
         ],
       },
 

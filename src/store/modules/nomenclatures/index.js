@@ -14,6 +14,7 @@ export default {
       code: null,
       vendor_code: null,
       _family: null,
+      id_family: null,
       characteristics: [],
       e_client_files: [],
     },
@@ -55,6 +56,7 @@ export default {
         code: null,
         vendor_code: null,
         family: null,
+        id_family: null,
         characteristics: [],
         e_client_files: [],
       };
@@ -94,11 +96,25 @@ export default {
       commit("changeLoadingList", true);
       let response = null;
       if (location.search.match("create")) {
-        response = await dispatch("createEntry", this.state.NomenclaturesModule.entry);
-        commit("change_notification_modal", {error:false, message:'Номенклатура создана'}, {root: true});
+        response = await dispatch(
+          "createEntry",
+          this.state.NomenclaturesModule.entry
+        );
+        commit(
+          "change_notification_modal",
+          { error: false, message: "Номенклатура создана" },
+          { root: true }
+        );
       } else {
-        response = await dispatch("updateEntry", this.state.NomenclaturesModule.entry);
-        commit("change_notification_modal", {error:false, message:'Номенклатура обновлена'}, {root: true});
+        response = await dispatch(
+          "updateEntry",
+          this.state.NomenclaturesModule.entry
+        );
+        commit(
+          "change_notification_modal",
+          { error: false, message: "Номенклатура обновлена" },
+          { root: true }
+        );
       }
       await dispatch("getListEntries", response.data.id);
       await dispatch("clearEntry");
@@ -109,8 +125,8 @@ export default {
     async createEntry({ commit }, objRequest) {
       try {
         let resp = await Request.post(
-          this.state.BASE_URL + '/entity/nomenclature',
-            objRequest
+          this.state.BASE_URL + "/entity/nomenclature",
+          objRequest
         );
 
         return resp;
@@ -159,19 +175,18 @@ export default {
         this.state.BASE_URL + "/entity/nomenclature/" + id
       );
     },
-    async getListFamily ({ commit }) {
+    async getListFamily({ commit }) {
       const response = await Request.get(
         this.state.BASE_URL + "/dictionary/nomenclature-family"
       );
       commit("setListFamily", response.data);
     },
-    async getListCharacteristic ({ commit }) {
+    async getListCharacteristic({ commit }) {
       const response = await Request.get(
-          this.state.BASE_URL + "/dictionary/characteristic/nomenclature"
+        this.state.BASE_URL + "/dictionary/characteristic/nomenclature"
       );
       commit("setListCharacteristics", response.data);
     },
   },
   getters: {},
 };
-
