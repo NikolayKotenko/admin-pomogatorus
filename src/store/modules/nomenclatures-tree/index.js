@@ -305,9 +305,7 @@ export default {
         commit("changeLoading", true);
 
         const response = await Request.get(
-          rootState.BASE_URL +
-            "/dictionary/nomenclature-family/search/?q=" +
-            string
+          `${rootState.BASE_URL}/dictionary/nomenclature-family/search/{q}?q=${string}`
         );
         commit("setListFamiliesBySearch", response.data);
         commit("changeLoading", false);
@@ -437,9 +435,7 @@ export default {
         commit("changeLoading", true);
 
         const { data } = await Request.get(
-          rootState.BASE_URL +
-            "/dictionary/characteristic/nomenclature/search/?q=" +
-            string
+          `${rootState.BASE_URL}/dictionary/characteristic/nomenclature/search/{q}?q=${string}`
         );
         commit("setListCharacteristicsBySearch", data);
         commit("changeLoading", false);
@@ -601,7 +597,7 @@ export default {
         commit("changeLoading", true);
 
         const { data } = await Request.get(
-          rootState.BASE_URL + "/entity/nomenclature/search/?q=" + string
+          `${rootState.BASE_URL}/entity/nomenclature/search/{q}?q=${string}`
         );
         commit("setListNomenclaturesBySearch", data);
         commit("changeLoading", false);
