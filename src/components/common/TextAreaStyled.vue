@@ -26,6 +26,7 @@
       @focus='onFocus'
       @focusout='outFocus'
       @click:clear="(currentData = '')"
+      @change="$emit('change-input', $event)"
   >
     <template slot="prepend-inner">
       <slot name="prepend-inner"></slot>

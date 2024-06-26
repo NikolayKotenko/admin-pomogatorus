@@ -267,9 +267,9 @@
                   :is-outlined="false"
                   :is-placeholder="'Поиск. Введите имя нового семейства'"
                   :is-loading="loading"
-                  :is-disabled="loading"
-                  @update-search-input="getFamilyBySearch($event)"
+                  @update-search-input="getFamilyBySearch($event);"
                   @change-search="localSetSearchFamily"
+                  @click-clear="clearNewFamily"
               ></ComboboxStyled>
             </v-col>
           </v-card-text>
@@ -279,7 +279,7 @@
                    @click="addChildAction"
                    :disabled="!newFamily.id_family || loading"
                    :loading="loading"
-            > Добавить </v-btn>
+            > Добавить в дерево</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -308,7 +308,6 @@
                   :is-outlined="false"
                   :is-placeholder="'Введите имя номенклатуры'"
                   :is-loading="loading"
-                  :is-disabled="loading"
                   @update-search-input="getNomenclaturesBySearch($event)"
                   @change-search="localSetSearchNomenclature"
                   @click-clear="clearListNomenclaturesBySearch"
@@ -371,7 +370,6 @@
                   :is-outlined="false"
                   :is-placeholder="'Поиск. Введите имя характеристики'"
                   :is-loading="loading"
-                  :is-disabled="loading"
                   @update-search-input="getCharacteristicsBySearch($event)"
                   @change-search="localSetSearchCharacteristics"
                   @click-clear="clearResponseAddCharacteristics(); clearNewCharacteristics()"
@@ -388,13 +386,14 @@
                     :current-rules="$store.state.nameRules"
                     :is-hide-details="false"
                     :is-loading="loading"
-                    :is-disabled="loading"
+                    :is-disabled="loading || Boolean(newCharacteristics.id_type_characteristic)"
+                    :is-error="Boolean(newCharacteristics.id_type_characteristic)"
+                    :is-error-messages="'Уже выбран тип параметра для этой характеристики, изменить нельзя'"
                     @update-input="localSetTypeCharacteristic"
                 />
               </v-col>
               <v-col cols="6" v-if="newCharacteristics.type_characteristic.code === 'vybor-iz-spravocnika'">
                 <ComboboxStyled
-                    autofocus
                     :data="newCharacteristics.dictionary.name"
                     :is-items="$store.state.DictionariesModule.listEntries"
                     :is-item-text="'name'"
@@ -403,10 +402,32 @@
                     :is-hide-details="false"
                     :is-placeholder="'Справочник'"
                     :is-loading="loading"
-                    :is-disabled="loading"
+                    :is-disabled="loading || Boolean(newCharacteristics.id_dictionary)"
+                    :is-error="Boolean(newCharacteristics.id_dictionary)"
+                    :is-error-messages="'Уже выбран справочник для этой характеристики, изменить нельзя'"
                     @change-search="localSetDictionaryCharacteristic"
+                    @click-clear="clearNewCharacteristics"
                 ></ComboboxStyled>
               </v-col>
+              <v-col cols="12">
+                <TextAreaStyled
+                    :data="newCharacteristics.description"
+                    :multi-line="true"
+                    :is-solo="true"
+                    :placeholder="'Описание'"
+                    :rows-count="'2'"
+                    :is-loading="loading"
+                    @change-input="localSetDescriptionCharacteristic"
+                ></TextAreaStyled>
+              </v-col>
+<!--              <v-col cols="12">-->
+<!--                <SelectStyled-->
+<!--                    :data="newCharacteristics.postfix"-->
+<!--                    :placeholder="'Постфикс'"-->
+<!--                    :is-loading="loading"-->
+<!--                    @change-input="localSetPostfixCharacteristic"-->
+<!--                ></SelectStyled>-->
+<!--              </v-col>-->
             </v-row>
           </v-card-text>
           <v-card-actions>
@@ -467,10 +488,11 @@ import {mapState, mapGetters, mapMutations, mapActions} from "vuex";
 import InputStyledSimple from "@/components/common/InputStyledSimple";
 import CheckboxStyled from "@/components/common/CheckboxStyled";
 import SelectStyled from "@/components/common/SelectStyled";
+import TextAreaStyled from "@/components/common/TextAreaStyled";
 
 export default {
   name: "NomenclaturesTree",
-  components: {InputStyledSimple, TooltipStyled, ComboboxStyled, DropDownMenuStyled, IconTooltip, CheckboxStyled, SelectStyled },
+  components: {InputStyledSimple, TooltipStyled, ComboboxStyled, DropDownMenuStyled, IconTooltip, CheckboxStyled, SelectStyled, TextAreaStyled },
   data: () => ({
     open: ['Котлы'],
     icons: {
@@ -563,15 +585,17 @@ export default {
         'clearListNomenclaturesBySearch',
         'clearResponseAddCharacteristics',
         'clearNewCharacteristics',
+        'clearNewFamily',
         'openDialogDeleteNomenclature',
         'closeDialogDeleteNomenclature',
         'setSelectedByDeleteNomenclature',
         'setDictionaryCharacteristic',
+        'setDescriptionCharacteristic',
         'setResponseAddCharacteristic',
         'setTypeCharacteristic',
         'closeDialogDeleteCharacteristic',
         'setSelectedByDeleteCharacteristic',
-        'openDialogDeleteCharacteristic'
+        'openDialogDeleteCharacteristic',
     ]),
     getIconRow(open, item){
       if (!item.children) return this.icons.circle
@@ -649,7 +673,15 @@ export default {
     async localSetDictionaryCharacteristic(Dictionary){
       this.setDictionaryCharacteristic(Dictionary)
       await this.updateCharacteristicAction()
-    }
+    },
+    async localSetDescriptionCharacteristic(string){
+      this.setDescriptionCharacteristic(string)
+      await this.updateCharacteristicAction()
+    },
+    async localSetPostfixCharacteristic(string){
+      this.setPostfixCharacteristic(string)
+      await this.updateCharacteristicAction()
+    },
   },
   beforeRouteLeave: function(to, from, next) {
     this.closeDialogDeleteCharacteristic()
@@ -670,6 +702,7 @@ export default {
   display: grid;
   grid-template-columns: 35% 1fr;
   grid-column-gap: 10px;
+  overflow: auto;
   #tree{
     max-height: 88vh;
     overflow: auto;

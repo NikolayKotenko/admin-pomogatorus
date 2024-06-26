@@ -79,6 +79,9 @@ export default {
     setNewFamily(state, payload = NomenclaturesTreeLeaf) {
       state.newFamily = payload;
     },
+    clearNewFamily(state) {
+      state.newFamily = new NomenclaturesTreeLeaf();
+    },
 
     // Характеристики
     setListTypeCharacteristics(state, payload) {
@@ -186,6 +189,20 @@ export default {
         payload.flag_objects,
         payload.d_dictionary_attributes
       );
+    },
+    setDescriptionCharacteristic(state, string) {
+      if (!string) {
+        state.newCharacteristics.description = "";
+        return false;
+      }
+      state.newCharacteristics.description = string;
+    },
+    setPostfixCharacteristic(state, string) {
+      if (!string) {
+        state.newCharacteristics.postfix = "";
+        return false;
+      }
+      state.newCharacteristics.postfix = string;
     },
     openDialogDeleteCharacteristic(state) {
       state.dialogDeleteCharacteristic = true;
@@ -309,6 +326,8 @@ export default {
         );
         commit("setListFamiliesBySearch", response.data);
         commit("changeLoading", false);
+
+        return response;
       }, 500);
     },
     async setFamilyByName({ state, rootState, commit }, name) {
@@ -360,10 +379,6 @@ export default {
         state.newFamily
       );
       console.log("Response data", data);
-
-      // const curEntry = getters.findItem(state.idParentFamily);
-      // console.log("curEntry", curEntry);
-      // commit("addChild", curEntry);
 
       await dispatch("getTreeOnMount");
       commit("closeDialogFamily");

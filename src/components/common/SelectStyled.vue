@@ -5,6 +5,8 @@
       :autofocus='isAutofocus'
       :clearable="isClearable"
       :disabled='isDisabled'
+      :error="isError"
+      :error-messages="(isError) ? isErrorMessages : ''"
       :flat="isFlat"
       :item-text="itemText"
       :item-value="itemValue"
@@ -123,6 +125,14 @@ export default {
     isFlat: {
       type: Boolean,
       default: false
+    },
+    isError: {
+      type: Boolean,
+      default: false
+    },
+    isErrorMessages: {
+      type: String,
+      default: ''
     },
   },
   data: () => ({

@@ -23,18 +23,26 @@
         :clearable="isClearable"
         :search-input.sync="localSearchInputSync"
         @update:search-input="$emit('update-search-input', localSearchInputSync)"
-        @change="$emit('change-search', localSelected)"
-        @click:clear="$emit('click-clear')"
+        @keyup.enter="$emit('change-search', localSelected)"
+        @change="setChangeSelected(localSelected)"
+        @click:clear="$emit('click-clear'); clearSelected()"
+        ref="comboboxStyled"
     >
       <template v-slot:no-data>
         <v-list-item v-if="localSearchInputSync && !isItems.length && !isLoading"
-                     @click="$emit('change-search', localSelected)"
+          @click="$refs.comboboxStyled.focus()"
         >
-          <span class="subheading">Enter чтобы создать новый элемент &nbsp;</span>
+          <span class="subheading">Не найдено совпадений, нажмите "Enter" чтобы создать новый элемент &nbsp;</span>
           <v-chip label small>
             {{ localSearchInputSync }}
           </v-chip>
         </v-list-item>
+      </template>
+      <template v-slot:item="{ item }">
+        <v-list-item-content class="template_item">
+          <section>{{ item.name }}</section>
+          <section>Выбрать</section>
+        </v-list-item-content>
       </template>
 <!--      <template v-slot:selection="{ attrs, item, parent, selected }">-->
 <!--        <v-chip-->
@@ -140,12 +148,33 @@ export default {
         this.localSelected = value
       }
     }
+  },
+  methods:{
+    clearSelected(){
+      console.log('check')
+      this.localSearchInputSync = '';
+      this.localSelected = null;
+    },
+    setChangeSelected(){
+      if (typeof this.localSelected !== 'object')  return false;
+
+      this.$emit('change-search', this.localSelected)
+    }
   }
 }
 </script>
 
-<style lang='scss' scoped>
-
+<style lang='scss'>
+.template_item{
+  display: grid;
+  grid-template-columns: auto 1fr;
+  :first-child{
+    font-weight: bold;
+  }
+  :last-child{
+    margin-left: auto;
+  }
+}
 
 
 </style>
