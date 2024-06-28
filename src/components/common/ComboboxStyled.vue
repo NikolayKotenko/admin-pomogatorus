@@ -32,7 +32,7 @@
         <v-list-item v-if="localSearchInputSync && !isItems.length && !isLoading"
           @click="$refs.comboboxStyled.focus()"
         >
-          <span class="subheading">Не найдено совпадений, нажмите "Enter" чтобы создать новый элемент &nbsp;</span>
+          <span class="subheading">Не найдено совпадений, нажмите "Enter" для создания &nbsp;</span>
           <v-chip label small>
             {{ localSearchInputSync }}
           </v-chip>

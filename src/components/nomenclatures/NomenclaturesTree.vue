@@ -420,14 +420,21 @@
                     @change-input="localSetDescriptionCharacteristic"
                 ></TextAreaStyled>
               </v-col>
-<!--              <v-col cols="12">-->
-<!--                <SelectStyled-->
-<!--                    :data="newCharacteristics.postfix"-->
-<!--                    :placeholder="'Постфикс'"-->
-<!--                    :is-loading="loading"-->
-<!--                    @change-input="localSetPostfixCharacteristic"-->
-<!--                ></SelectStyled>-->
-<!--              </v-col>-->
+              <v-col cols="12">
+                <SelectStyled
+                    :items="dictionaryUnits.d_dictionary_attributes"
+                    :item-text="'value'"
+                    :item-value="'value'"
+                    :data="newCharacteristics.postfix"
+                    :placeholder="dictionaryUnits.name"
+                    :is-loading="loading"
+                    :is-disabled="loading || Boolean(newCharacteristics.postfix)"
+                    :is-error="Boolean(newCharacteristics.postfix)"
+                    :is-return-object="false"
+                    :is-error-messages="'Уже выбрана еденица измерения для этой характеристики, изменить нельзя'"
+                    @change-input="localSetPostfixCharacteristic"
+                ></SelectStyled>
+              </v-col>
             </v-row>
           </v-card-text>
           <v-card-actions>
@@ -515,6 +522,7 @@ export default {
   }),
   mounted() {
     this.getTreeOnMount();
+    this.getDictionaryUnits()
   },
   watch: {},
   computed:{
@@ -540,7 +548,8 @@ export default {
         'selectedByDeleteNomenclature',
         'listTypeCharacteristics',
         'dialogDeleteCharacteristic',
-        'selectedByDeleteCharacteristic'
+        'selectedByDeleteCharacteristic',
+        'dictionaryUnits'
     ]),
     ...mapGetters('NomenclaturesTreeModule',[
         'getMessageTitleFamilyTable',
@@ -569,7 +578,8 @@ export default {
           'deleteNomenclatureByFamily',
           'getListTypeCharacteristics',
           'updateCharacteristicAction',
-          'deleteCharacteristicByMtoM'
+          'deleteCharacteristicByMtoM',
+          'getDictionaryUnits'
         ],
     ),
     ...mapActions('DictionariesModule', [
@@ -596,6 +606,7 @@ export default {
         'closeDialogDeleteCharacteristic',
         'setSelectedByDeleteCharacteristic',
         'openDialogDeleteCharacteristic',
+        'setPostfixCharacteristic'
     ]),
     getIconRow(open, item){
       if (!item.children) return this.icons.circle

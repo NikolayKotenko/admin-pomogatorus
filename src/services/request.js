@@ -63,12 +63,18 @@ export default class Request {
   //['id_tag': 1, 'id_prop': 2]
   static ConstructFilterQuery(arrNameParam = []) {
     let result = "";
-    for (let [key, value] of Object.entries(arrNameParam)) {
-      result += "filter[" + key + "]=" + value + "&";
+    for (const [key, value] of Object.entries(arrNameParam)) {
+      if (Array.isArray(value)) {
+        value.forEach((item) => {
+          result += "filter[" + key + "][]=" + item + "&";
+        });
+      } else {
+        result += "filter[" + key + "]=" + value + "&";
+      }
     }
     result = result.slice(0, -1);
 
-    // console.log("res", result);
+    // console.log("ConstructFilterQuery", result);
     return "?" + result;
   }
 }

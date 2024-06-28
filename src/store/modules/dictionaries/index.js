@@ -134,6 +134,8 @@ export default {
           }
         };
         commit("setEntry", getLocalEntry());
+
+        return getLocalEntry();
       } catch (e) {
         console.log(e);
         commit("change_notification_modal", e, { root: true });

@@ -50,12 +50,25 @@ export default {
       //   depth_level: null,
       // },
     ],
+    dictionaryUnits: new Dictionary(),
   },
   mutations: {
     changeLoading(state, value) {
       state.loading = value;
     },
-
+    setDictionaryUnits(state, payload = Dictionary) {
+      if (!payload) {
+        state.dictionaryUnits = new Dictionary();
+      }
+      state.dictionaryUnits = new Dictionary(
+        payload.id,
+        payload.name,
+        payload.code,
+        payload.flag_nomenclature,
+        payload.flag_objects,
+        payload.d_dictionary_attributes
+      );
+    },
     // Семейства
     openDialogFamily(state, idCurObj) {
       state.idParentFamily = idCurObj;
@@ -198,6 +211,7 @@ export default {
       state.newCharacteristics.description = string;
     },
     setPostfixCharacteristic(state, string) {
+      console.log("setPostfixCharacteristic", string);
       if (!string) {
         state.newCharacteristics.postfix = "";
         return false;
@@ -296,6 +310,19 @@ export default {
     },
   },
   actions: {
+    async getDictionaryUnits({ commit, dispatch }) {
+      const response = await dispatch(
+        "DictionariesModule/getListDictionaries",
+        {
+          query: { codes: ["edenicy-izmereniya"] },
+          code: "edenicy-izmereniya",
+        },
+        { root: true }
+      );
+      console.log("response", response);
+      commit("setDictionaryUnits", response);
+    },
+
     async deleteEntry({ commit, dispatch }, id_family) {
       //START
       commit("changeLoading", true);
