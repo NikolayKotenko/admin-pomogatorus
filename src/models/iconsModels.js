@@ -54,6 +54,18 @@ export default {
       parentElem: "h2",
       styleName: "krkozybtra",
     },
+    insertUnorderedList: {
+      active: false,
+      tag: "<ul",
+      parentElem: "ul",
+      styleName: "bullet",
+    },
+    insertOrderedList: {
+      active: false,
+      tag: "<ol",
+      parentElem: "ol",
+      styleName: "numeric",
+    },
   },
   array_align_content: [
     {
