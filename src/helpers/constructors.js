@@ -146,6 +146,7 @@ export function CharacteristicNomenclature(
   this.id = id;
   this.name = name;
   this.code = code;
+  this.descriptionEditor = description;
   this.description = description;
   this.postfix = postfix;
   this.id_type_characteristic = id_type_characteristic;
@@ -199,13 +200,20 @@ export function Nomenclature(
   name = "",
   code = "",
   vendor_code = "",
-  id_family = null
+  id_family = null,
+  seo_title = "",
+  seo_description = "",
+  seo_keywords = ""
 ) {
   this.id = id;
   this.name = name;
   this.code = code;
   this.vendor_code = vendor_code;
   this.id_family = id_family;
+  this.seo_title = seo_title;
+  this.seo_description = seo_description;
+  this.seo_descriptionEditor = seo_description;
+  this.seo_keywords = seo_keywords;
 }
 
 export function ModifiedMtoMNomenclatureCharacteristics(

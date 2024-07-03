@@ -27,7 +27,7 @@ export default {
     dialogCharacteristics: false,
     listTypeCharacteristics: [],
     dialogDeleteCharacteristic: false,
-    selectedByDeleteCharacteristic: new MtoMNomenclatureCharacteristics(),
+    selectedCharacteristic: new MtoMNomenclatureCharacteristics(),
 
     //Номенклатура
     newNomenclature: new Nomenclature(),
@@ -37,7 +37,7 @@ export default {
     responseAddCharacteristics: new Logging(),
     responseAddNomenclature: new Logging(),
     dialogDeleteNomenclature: false,
-    selectedByDeleteNomenclature: new Nomenclature(),
+    selectedNomenclature: new Nomenclature(),
 
     //Общие
     loading: false,
@@ -223,8 +223,27 @@ export default {
     },
     closeDialogDeleteCharacteristic(state) {
       state.dialogDeleteCharacteristic = false;
-      state.selectedByDeleteCharacteristic =
-        new MtoMNomenclatureCharacteristics();
+      state.selectedCharacteristic = new MtoMNomenclatureCharacteristics();
+    },
+    clearResponseAddCharacteristics(state) {
+      state.responseAddCharacteristics = new Logging();
+    },
+    clearListCharacteristicsBySearch(state) {
+      state.listCharacteristicsBySearch = [];
+    },
+    clearNewCharacteristics(state) {
+      state.newCharacteristics = new CharacteristicNomenclature();
+    },
+    setSelectedCharacteristic(
+      state,
+      payload = MtoMNomenclatureCharacteristics
+    ) {
+      state.selectedCharacteristic = payload;
+    },
+
+    setResponseAddCharacteristic(state, payload = Logging) {
+      state.responseAddCharacteristics = new Logging();
+      state.responseAddCharacteristics = new Logging(payload);
     },
 
     // Дерево
@@ -239,7 +258,7 @@ export default {
     },
     closeDialogDeleteNomenclature(state) {
       state.dialogDeleteNomenclature = false;
-      state.selectedByDeleteNomenclature = new Nomenclature();
+      state.selectedNomenclature = new Nomenclature();
     },
     closeDialogNomenclature(state) {
       state.dialogNomenclature = false;
@@ -251,6 +270,9 @@ export default {
       state.dialogNomenclature = true;
     },
 
+    clearNewNomenclature(state) {
+      state.newNomenclature = new Nomenclature();
+    },
     clearListNomenclaturesBySearch(state) {
       state.listNomenclaturesBySearch = [];
     },
@@ -259,8 +281,10 @@ export default {
 
       // Изменяем приходящий с бэка масив
       payload.map((item) => {
-        item.name_modified =
-          item.name + " существует в семействе - '" + item._family.name + "'";
+        if (item.id_family) {
+          item.name =
+            item.name + " существует в семействе - '" + item._family.name + "'";
+        }
       });
       state.listNomenclaturesBySearch = payload;
     },
@@ -268,45 +292,36 @@ export default {
       state.listNomenclatureByFamily = [];
       state.listNomenclatureByFamily = payload;
     },
-
     setNewNomenclature(state, payload = Nomenclature) {
       state.newNomenclature = new Nomenclature(
         payload.id,
         payload.name,
         payload.code,
         payload.vendor_code,
-        payload.id_family
+        payload.id_family,
+        payload.seo_title,
+        payload.seo_description,
+        payload.seo_keywords
       );
     },
-    setSelectedByDeleteNomenclature(state, payload = Nomenclature) {
-      state.selectedByDeleteNomenclature = new Nomenclature(
+    setSelectedNomenclature(state, payload = Nomenclature) {
+      state.selectedNomenclature = new Nomenclature(
         payload.id,
         payload.name,
         payload.code,
         payload.vendor_code,
-        payload.id_family
+        payload.id_family,
+        payload.seo_title,
+        payload.seo_description,
+        payload.seo_keywords
       );
-    },
-    setSelectedByDeleteCharacteristic(
-      state,
-      payload = MtoMNomenclatureCharacteristics
-    ) {
-      state.selectedByDeleteCharacteristic = payload;
-    },
-
-    setResponseAddCharacteristic(state, payload = Logging) {
-      state.responseAddCharacteristics = new Logging();
-      state.responseAddCharacteristics = new Logging(payload);
     },
     setResponseAddNomenclature(state, payload = Logging) {
       state.responseAddNomenclature = new Logging();
       state.responseAddNomenclature = new Logging(payload);
     },
-    clearResponseAddCharacteristics(state) {
-      state.responseAddCharacteristics = new Logging();
-    },
-    clearNewCharacteristics(state) {
-      state.newCharacteristics = new CharacteristicNomenclature();
+    clearResponseAddNomenclature(state) {
+      state.responseAddNomenclature = new Logging();
     },
   },
   actions: {
@@ -604,7 +619,6 @@ export default {
       commit("changeLoading", false);
     },
 
-    //TODO
     async deleteCharacteristicByMtoM(
       { state, rootState, commit, dispatch },
       idCharacteristic
@@ -661,6 +675,14 @@ export default {
     async setNomenclaturesByName({ state, rootState, commit }, name) {
       if (!name) return false;
 
+      const entry = state.listNomenclaturesBySearch.find(
+        (item) => item.name === name
+      );
+      if (entry) {
+        commit("setNewNomenclature", entry);
+        return entry;
+      }
+
       commit("changeLoading", true);
       const response = await Request.post(
         rootState.BASE_URL + "/entity/nomenclature",
@@ -674,6 +696,19 @@ export default {
       }
 
       commit("setNewNomenclature", response.data);
+      commit("changeLoading", false);
+
+      return response.data;
+    },
+    async updateNomenclature({ state, rootState, commit }) {
+      if (!state.newNomenclature.id) return false;
+
+      commit("changeLoading", true);
+      const { data } = await Request.put(
+        `${rootState.BASE_URL}/entity/nomenclature/${state.newNomenclature.id}`,
+        state.newNomenclature
+      );
+      commit("setNewNomenclature", data);
       commit("changeLoading", false);
     },
     async deleteNomenclatureByFamily(
@@ -774,5 +809,10 @@ export default {
           (item) => item.id_characteristic === id_characteristic
         );
       },
+    getStateExistAddedNomenclatureInFamily: (state) => (id_nomenclature) => {
+      return state.listNomenclatureByFamily.some(
+        (item) => item.id === id_nomenclature
+      );
+    },
   },
 };
