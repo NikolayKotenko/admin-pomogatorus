@@ -3,7 +3,7 @@
     <v-container class="main_wrapper">
       <template v-if="$store.getters.stateEditCreate($route.query.action)">
         <InputStyled
-            :current-rules="$store.state.nameRules"
+            :current-rules="$store.state.requiredFieldRules"
             :data="$store.state.FamilyTypesModule.entry.name"
             :is-clearable="true"
             :is-disabled="$store.state.FamilyTypesModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"

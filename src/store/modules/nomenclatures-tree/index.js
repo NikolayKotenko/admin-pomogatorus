@@ -6,6 +6,7 @@ import {
   MtoMNomenclatureCharacteristics,
   DTypeCharacteristics,
   Dictionary,
+  PropertyEntity,
 } from "@/helpers/constructors";
 import Logging from "@/services/logging";
 
@@ -13,31 +14,29 @@ export default {
   namespaced: true,
   state: {
     //Семейство
-    newFamily: new NomenclaturesTreeLeaf(),
+    family: new NomenclaturesTreeLeaf(),
     selectedFamily: new NomenclaturesTreeLeaf(),
     idParentFamily: null,
     dialogFamily: false,
     listFamiliesBySearch: [],
 
     //Характеристики
+    characteristic: new CharacteristicNomenclature(),
     listCharacteristicsBySearch: [],
     listMtoMNomenclaturesCharacteristics: [],
     listCharacteristicsByFamily: [],
-    newCharacteristics: new CharacteristicNomenclature(),
     dialogCharacteristics: false,
     listTypeCharacteristics: [],
     dialogDeleteCharacteristic: false,
-    selectedCharacteristic: new MtoMNomenclatureCharacteristics(),
 
     //Номенклатура
-    newNomenclature: new Nomenclature(),
+    nomenclature: new Nomenclature(),
     listNomenclaturesBySearch: [],
     listNomenclatureByFamily: [],
     dialogNomenclature: false,
     responseAddCharacteristics: new Logging(),
     responseAddNomenclature: new Logging(),
     dialogDeleteNomenclature: false,
-    selectedNomenclature: new Nomenclature(),
 
     //Общие
     loading: false,
@@ -53,10 +52,10 @@ export default {
     dictionaryUnits: new Dictionary(),
   },
   mutations: {
-    changeLoading(state, value) {
+    change_loading(state, value) {
       state.loading = value;
     },
-    setDictionaryUnits(state, payload = Dictionary) {
+    set_dictionary_units(state, payload = Dictionary) {
       if (!payload) {
         state.dictionaryUnits = new Dictionary();
       }
@@ -70,46 +69,46 @@ export default {
       );
     },
     // Семейства
-    openDialogFamily(state, idCurObj) {
+    open_dialog_family(state, idCurObj) {
       state.idParentFamily = idCurObj;
       state.dialogFamily = true;
     },
-    closeDialogFamily(state) {
+    close_dialog_family(state) {
       state.dialogFamily = false;
 
       setTimeout(() => {
-        state.newFamily = new NomenclaturesTreeLeaf();
+        state.family = new NomenclaturesTreeLeaf();
         state.idParentFamily = null;
       }, 300);
     },
-    clearListFamiliesBySearch(state) {
+    clear_list_families_by_search(state) {
       state.listFamiliesBySearch = [];
     },
-    setListFamiliesBySearch(state, payload) {
+    set_list_families_by_search(state, payload) {
       state.listFamiliesBySearch = [];
       state.listFamiliesBySearch = payload;
     },
-    setNewFamily(state, payload = NomenclaturesTreeLeaf) {
-      state.newFamily = payload;
+    set_family(state, payload = NomenclaturesTreeLeaf) {
+      state.family = payload;
     },
-    clearNewFamily(state) {
-      state.newFamily = new NomenclaturesTreeLeaf();
+    clear_family(state) {
+      state.family = new NomenclaturesTreeLeaf();
     },
 
     // Характеристики
-    setListTypeCharacteristics(state, payload) {
+    set_list_type_characteristics(state, payload) {
       state.listTypeCharacteristics = [];
       state.listTypeCharacteristics = payload;
     },
-    closeDialogCharacteristics(state) {
+    close_dialog_characteristics(state) {
       state.dialogCharacteristics = false;
-      state.newCharacteristics = new CharacteristicNomenclature();
+      state.characteristic = new CharacteristicNomenclature();
       state.responseAddCharacteristics = new Logging();
     },
-    openDialogCharacteristics(state) {
+    open_dialog_characteristics(state) {
       state.dialogCharacteristics = true;
     },
-    setListCharacteristicsBySearch(state, payload) {
+    set_list_characteristics_by_search(state, payload) {
       state.listCharacteristicsBySearch = [];
 
       state.listCharacteristicsBySearch = payload.map((itemChar) => {
@@ -128,16 +127,16 @@ export default {
         return itemChar;
       });
     },
-    setListCharacteristicsByFamily(state, payload) {
+    set_list_characteristics_by_family(state, payload) {
       state.listCharacteristicsByFamily = [];
       state.listCharacteristicsByFamily = payload;
     },
-    setListMtoMNomenclaturesCharacteristics(state, payload) {
+    set_list_mtom_nomenclatures_characteristics(state, payload) {
       state.listMtoMNomenclaturesCharacteristics = [];
       state.listMtoMNomenclaturesCharacteristics = payload;
     },
-    setNewCharacteristics(state, payload = CharacteristicNomenclature) {
-      state.newCharacteristics = new CharacteristicNomenclature(
+    set_characteristic(state, payload = new CharacteristicNomenclature()) {
+      state.characteristic = new CharacteristicNomenclature(
         payload.id,
         payload.name,
         payload.code,
@@ -149,7 +148,13 @@ export default {
         payload.dictionary
       );
     },
-    setSelectedFamily(state, payload = NomenclaturesTreeLeaf) {
+    set_property_characteristic(state, obj = PropertyEntity) {
+      // console.log("set_property_characteristic", { key: key, payload: payload });
+      if (!obj.key) return false;
+
+      state.characteristic[obj.key] = obj.payload;
+    },
+    set_selected_family(state, payload = NomenclaturesTreeLeaf) {
       state.selectedFamily = new NomenclaturesTreeLeaf(
         payload.id_family,
         payload.id_parent,
@@ -158,43 +163,33 @@ export default {
         payload.children
       );
     },
-    addChild(state, curEntry) {
-      if (!curEntry.children) {
-        this._vm.$set(curEntry, "children", []);
-      }
-
-      curEntry.children.push(state.newFamily);
-
-      state.dialogFamily = false;
-    },
-    setTypeCharacteristic(state, payload = DTypeCharacteristics) {
+    set_type_characteristic(state, payload = DTypeCharacteristics) {
       if (!payload) {
-        state.newCharacteristics.type_characteristic =
-          new DTypeCharacteristics();
-        state.newCharacteristics.id_type_characteristic = null;
+        state.characteristic.type_characteristic = new DTypeCharacteristics();
+        state.characteristic.id_type_characteristic = null;
 
         //Также очищаем справочники
-        state.newCharacteristics.dictionary = new Dictionary();
-        state.newCharacteristics.id_dictionary = null;
+        state.characteristic.dictionary = new Dictionary();
+        state.characteristic.id_dictionary = null;
         return false;
       }
 
-      state.newCharacteristics.id_type_characteristic = payload.id;
-      state.newCharacteristics.type_characteristic = new DTypeCharacteristics(
+      state.characteristic.id_type_characteristic = payload.id;
+      state.characteristic.type_characteristic = new DTypeCharacteristics(
         payload.id,
         payload.name,
         payload.code
       );
     },
-    setDictionaryCharacteristic(state, payload = Dictionary) {
+    set_dictionary_characteristic(state, payload = Dictionary) {
       if (!payload) {
-        state.newCharacteristics.dictionary = new Dictionary();
-        state.newCharacteristics.id_dictionary = null;
+        state.characteristic.dictionary = new Dictionary();
+        state.characteristic.id_dictionary = null;
         return false;
       }
 
-      state.newCharacteristics.id_dictionary = payload.id;
-      state.newCharacteristics.dictionary = new Dictionary(
+      state.characteristic.id_dictionary = payload.id;
+      state.characteristic.dictionary = new Dictionary(
         payload.id,
         payload.name,
         payload.code,
@@ -203,80 +198,68 @@ export default {
         payload.d_dictionary_attributes
       );
     },
-    setDescriptionCharacteristic(state, string) {
-      if (!string) {
-        state.newCharacteristics.description = "";
-        return false;
-      }
-      state.newCharacteristics.description = string;
-    },
-    setPostfixCharacteristic(state, string) {
-      console.log("setPostfixCharacteristic", string);
-      if (!string) {
-        state.newCharacteristics.postfix = "";
-        return false;
-      }
-      state.newCharacteristics.postfix = string;
-    },
-    openDialogDeleteCharacteristic(state) {
+    open_dialog_delete_characteristic(state) {
       state.dialogDeleteCharacteristic = true;
     },
-    closeDialogDeleteCharacteristic(state) {
+    close_dialog_delete_characteristic(state) {
       state.dialogDeleteCharacteristic = false;
-      state.selectedCharacteristic = new MtoMNomenclatureCharacteristics();
+      state.characteristic = new MtoMNomenclatureCharacteristics();
     },
-    clearResponseAddCharacteristics(state) {
+    clear_response_add_characteristic(state) {
       state.responseAddCharacteristics = new Logging();
     },
-    clearListCharacteristicsBySearch(state) {
+    clear_list_characteristics_by_search(state) {
       state.listCharacteristicsBySearch = [];
     },
-    clearNewCharacteristics(state) {
-      state.newCharacteristics = new CharacteristicNomenclature();
+    clear_characteristic(state) {
+      state.characteristic = new CharacteristicNomenclature();
     },
-    setSelectedCharacteristic(
-      state,
-      payload = MtoMNomenclatureCharacteristics
-    ) {
-      state.selectedCharacteristic = payload;
-    },
-
-    setResponseAddCharacteristic(state, payload = Logging) {
+    set_response_add_characteristic(state, payload = Logging) {
       state.responseAddCharacteristics = new Logging();
       state.responseAddCharacteristics = new Logging(payload);
     },
 
     // Дерево
-    setTree(state, payload) {
+    set_tree(state, payload) {
       state.tree = [];
       state.tree = payload;
     },
+    //старая реализация без бэкенда
+    add_child(state, curEntry) {
+      if (!curEntry.children) {
+        this._vm.$set(curEntry, "children", []);
+      }
+
+      curEntry.children.push(state.family);
+
+      state.dialogFamily = false;
+    },
 
     // Номенклатура
-    openDialogDeleteNomenclature(state) {
+    open_dialog_delete_nomenclature(state) {
       state.dialogDeleteNomenclature = true;
     },
-    closeDialogDeleteNomenclature(state) {
+    close_dialog_delete_nomenclature(state) {
       state.dialogDeleteNomenclature = false;
-      state.selectedNomenclature = new Nomenclature();
+      state.nomenclature = new Nomenclature();
     },
-    closeDialogNomenclature(state) {
+    close_dialog_nomenclature(state) {
       state.dialogNomenclature = false;
-      state.newNomenclature = new Nomenclature();
+      state.nomenclature = new Nomenclature();
       state.responseAddNomenclature = new Logging();
       state.listNomenclaturesBySearch = [];
     },
-    openDialogNomenclature(state) {
+    open_dialog_nomenclature(state) {
       state.dialogNomenclature = true;
     },
 
-    clearNewNomenclature(state) {
-      state.newNomenclature = new Nomenclature();
+    clear_nomenclature(state) {
+      state.nomenclature = new Nomenclature();
     },
-    clearListNomenclaturesBySearch(state) {
+    clear_list_nomenclatures_by_search(state) {
       state.listNomenclaturesBySearch = [];
     },
-    setListNomenclaturesBySearch(state, payload) {
+    set_list_nomenclatures_by_search(state, payload) {
       state.listNomenclaturesBySearch = [];
 
       // Изменяем приходящий с бэка масив
@@ -288,12 +271,12 @@ export default {
       });
       state.listNomenclaturesBySearch = payload;
     },
-    setListNomenclatureByFamily(state, payload) {
+    set_list_nomenclature_by_family(state, payload) {
       state.listNomenclatureByFamily = [];
       state.listNomenclatureByFamily = payload;
     },
-    setNewNomenclature(state, payload = Nomenclature) {
-      state.newNomenclature = new Nomenclature(
+    set_nomenclature(state, payload = Nomenclature) {
+      state.nomenclature = new Nomenclature(
         payload.id,
         payload.name,
         payload.code,
@@ -304,23 +287,17 @@ export default {
         payload.seo_keywords
       );
     },
-    setSelectedNomenclature(state, payload = Nomenclature) {
-      state.selectedNomenclature = new Nomenclature(
-        payload.id,
-        payload.name,
-        payload.code,
-        payload.vendor_code,
-        payload.id_family,
-        payload.seo_title,
-        payload.seo_description,
-        payload.seo_keywords
-      );
+    set_property_nomenclature(state, obj = PropertyEntity) {
+      // console.log("set_property_nomenclature", obj);
+      if (!obj.key) return false;
+
+      state.nomenclature[obj.key] = obj.payload;
     },
-    setResponseAddNomenclature(state, payload = Logging) {
+    set_response_add_nomenclature(state, payload = Logging) {
       state.responseAddNomenclature = new Logging();
       state.responseAddNomenclature = new Logging(payload);
     },
-    clearResponseAddNomenclature(state) {
+    clear_response_add_nomenclature(state) {
       state.responseAddNomenclature = new Logging();
     },
   },
@@ -335,12 +312,12 @@ export default {
         { root: true }
       );
       console.log("response", response);
-      commit("setDictionaryUnits", response);
+      commit("set_dictionary_units", response);
     },
 
     async deleteEntry({ commit, dispatch }, id_family) {
       //START
-      commit("changeLoading", true);
+      commit("change_loading", true);
 
       await Request.delete(
         this.state.BASE_URL + "/entity/nomenclatures-tree/" + id_family
@@ -348,7 +325,7 @@ export default {
       await dispatch("getTreeOnMount");
 
       //END
-      commit("changeLoading", false);
+      commit("change_loading", false);
     },
     async getFamilyBySearch({ state, rootState, commit }, string) {
       if (!string) return false;
@@ -361,13 +338,13 @@ export default {
 
       if (state.debounceTimeout) clearTimeout(state.debounceTimeout);
       state.debounceTimeout = setTimeout(async () => {
-        commit("changeLoading", true);
+        commit("change_loading", true);
 
         const response = await Request.get(
           `${rootState.BASE_URL}/dictionary/nomenclature-family/search/{q}?q=${string}`
         );
-        commit("setListFamiliesBySearch", response.data);
-        commit("changeLoading", false);
+        commit("set_list_families_by_search", response.data);
+        commit("change_loading", false);
 
         return response;
       }, 500);
@@ -380,18 +357,18 @@ export default {
       );
       if (existFamily) {
         commit(
-          "setNewFamily",
+          "set_family",
           new NomenclaturesTreeLeaf(
             existFamily.id,
             state.idParentFamily,
             existFamily.name,
-            state.newFamily.depth_level
+            state.family.depth_level
           )
         );
         return false;
       }
 
-      commit("changeLoading", true);
+      commit("change_loading", true);
 
       const { data } = await Request.post(
         rootState.BASE_URL + "/dictionary/nomenclature-family",
@@ -400,47 +377,47 @@ export default {
         }
       );
       commit(
-        "setNewFamily",
+        "set_family",
         new NomenclaturesTreeLeaf(
           data.id,
           state.idParentFamily,
           data.name,
-          state.newFamily.depth_level
+          state.family.depth_level
         )
       );
-      commit("changeLoading", false);
+      commit("change_loading", false);
     },
     async clearListFamiliesBySearchAction({ commit }) {
-      commit("clearListFamiliesBySearch");
+      commit("clear_list_families_by_search");
     },
     async addChildAction({ state, rootState, commit, dispatch }) {
-      commit("changeLoading", true);
+      commit("change_loading", true);
 
       const { data } = await Request.post(
         rootState.BASE_URL + "/entity/nomenclatures-tree",
-        state.newFamily
+        state.family
       );
       console.log("Response data", data);
 
       await dispatch("getTreeOnMount");
-      commit("closeDialogFamily");
-      commit("changeLoading", false);
+      commit("close_dialog_family");
+      commit("change_loading", false);
     },
     async getTreeOnMount({ rootState, commit }) {
-      commit("changeLoading", true);
+      commit("change_loading", true);
 
       const { data } = await Request.get(
         rootState.BASE_URL +
           "/entity/nomenclatures-tree/get-tree-by-first-level-leaf"
       );
-      commit("setTree", data);
-      commit("changeLoading", false);
+      commit("set_tree", data);
+      commit("change_loading", false);
     },
     async setSelectedFamilyAction(
       { state, commit, dispatch, getters },
       NomenclaturesTreeLeaf
     ) {
-      commit("setSelectedFamily", NomenclaturesTreeLeaf);
+      commit("set_selected_family", NomenclaturesTreeLeaf);
 
       //Запрашиваем MToM используется на любом уровне лепестка дерева
       await dispatch(
@@ -458,6 +435,25 @@ export default {
     },
 
     // Характеристики
+    setPropertyCharacteristic(
+      { state, commit, dispatch },
+      obj = new PropertyEntity()
+    ) {
+      commit(
+        "set_property_characteristic",
+        new PropertyEntity(obj.key, obj.payload)
+      );
+
+      if (state.debounceTimeout) clearTimeout(state.debounceTimeout);
+      state.debounceTimeout = setTimeout(async () => {
+        await dispatch("updateCharacteristic");
+      }, 1000);
+    },
+    async openDialogCharacteristics({ commit, dispatch }) {
+      commit("open_dialog_characteristics");
+      //Запрашиваем список типов характеристик для выбора типа характеристики
+      await dispatch("getListTypeCharacteristics");
+    },
     async setCharacteristicOnFamily({ state, rootState, commit }, name) {
       if (!name) return false;
 
@@ -465,17 +461,17 @@ export default {
         (item) => item.name === name
       );
       if (entry) {
-        commit("setNewCharacteristics", entry);
+        commit("set_characteristic", entry);
         return entry;
       }
 
-      commit("changeLoading", true);
+      commit("change_loading", true);
       const { data } = await Request.post(
         rootState.BASE_URL + "/dictionary/characteristic/nomenclature",
         { name: name }
       );
-      commit("setNewCharacteristics", data);
-      commit("changeLoading", false);
+      commit("set_characteristic", data);
+      commit("change_loading", false);
       return data;
     },
     async getCharacteristicsBySearch({ state, rootState, commit }, string) {
@@ -489,17 +485,17 @@ export default {
 
       if (state.debounceTimeout) clearTimeout(state.debounceTimeout);
       state.debounceTimeout = setTimeout(async () => {
-        commit("changeLoading", true);
+        commit("change_loading", true);
 
         const { data } = await Request.get(
           `${rootState.BASE_URL}/dictionary/characteristic/nomenclature/search/{q}?q=${string}`
         );
-        commit("setListCharacteristicsBySearch", data);
-        commit("changeLoading", false);
+        commit("set_list_characteristics_by_search", data);
+        commit("change_loading", false);
       }, 1000);
     },
     async getCharacteristics({ rootState, commit }, idFamily) {
-      commit("changeLoading", true);
+      commit("change_loading", true);
 
       const { data } = await Request.get(
         rootState.BASE_URL +
@@ -508,20 +504,20 @@ export default {
             id_family: idFamily,
           })
       );
-      commit("setListCharacteristicsByFamily", data);
-      commit("changeLoading", false);
+      commit("set_list_characteristics_by_family", data);
+      commit("change_loading", false);
     },
 
     async getMToMNomenclatureCharacteristics({ rootState, commit }, idFamily) {
-      commit("changeLoading", true);
+      commit("change_loading", true);
 
       const { data } = await Request.get(
         rootState.BASE_URL +
           "/m-to-m/nomenclature-characteristics" +
           Request.ConstructFilterQuery({ id_family: idFamily })
       );
-      commit("setListMtoMNomenclaturesCharacteristics", data);
-      commit("changeLoading", false);
+      commit("set_list_mtom_nomenclatures_characteristics", data);
+      commit("change_loading", false);
     },
     async setMToMCharacteristicsNomenclature(
       { state, rootState, commit, dispatch },
@@ -534,7 +530,7 @@ export default {
         required_fill_in_nomenclature,
       }
     ) {
-      commit("changeLoading", true);
+      commit("change_loading", true);
 
       let response = new Logging();
       // Если есть ИД записи, то обновляем
@@ -567,8 +563,8 @@ export default {
       }
 
       if (response.codeResponse >= 400) {
-        commit("setResponseAddCharacteristic", response);
-        commit("changeLoading", false);
+        commit("set_response_add_characteristic", response);
+        commit("change_loading", false);
         return response;
       }
 
@@ -576,54 +572,59 @@ export default {
         "getMToMNomenclatureCharacteristics",
         state.selectedFamily.id_family
       );
-      commit("changeLoading", false);
+      commit("change_loading", false);
       return response;
     },
     async addCharacteristicToFamily({ state, rootState, commit, dispatch }) {
-      commit("changeLoading", true);
+      commit("change_loading", true);
 
       const { data } = await Request.post(
         rootState.BASE_URL + "/entity/nomenclatures-tree",
-        state.newFamily
+        state.family
       );
       console.log("Response data", data);
 
       // const curEntry = getters.findItem(state.idParentFamily);
       // console.log("curEntry", curEntry);
-      // commit("addChild", curEntry);
+      // commit("add_child", curEntry);
 
       await dispatch("getTreeOnMount");
-      commit("closeDialogFamily");
-      commit("changeLoading", false);
+      commit("close_dialog_family");
+      commit("change_loading", false);
     },
-    async getListTypeCharacteristics({ rootState, commit }) {
-      commit("changeLoading", true);
+    async getListTypeCharacteristics({ state, rootState, commit }) {
+      // Если не пустой, то и не запрашиваем
+      if (state.listTypeCharacteristics.length) return false;
+
+      commit("change_loading", true);
 
       const { data } = await Request.get(
         rootState.BASE_URL + "/dictionary/characteristic/type"
       );
-      commit("setListTypeCharacteristics", data);
-      commit("changeLoading", false);
+      commit("set_list_type_characteristics", data);
+      commit("change_loading", false);
     },
-    async updateCharacteristicAction({ state, rootState, commit }) {
-      commit("changeLoading", true);
+    async updateCharacteristic({ state, rootState, commit }) {
+      commit("change_loading", true);
 
-      console.log("updateCharacteristicAction");
       const { data } = await Request.put(
         rootState.BASE_URL +
           "/dictionary/characteristic/nomenclature/" +
-          state.newCharacteristics.id,
-        state.newCharacteristics
+          state.characteristic.id,
+        state.characteristic
       );
-      commit("setNewCharacteristics", data);
-      commit("changeLoading", false);
+      commit("set_characteristic", data);
+      commit("change_loading", false);
     },
 
     async deleteCharacteristicByMtoM(
-      { state, rootState, commit, dispatch },
+      { state, rootState, commit, dispatch, getters },
       idCharacteristic
     ) {
-      commit("changeLoading", true);
+      if (getters.deniedAccessByDeleteCharacteristic(idCharacteristic))
+        return false;
+
+      commit("change_loading", true);
       await Request.delete(
         rootState.BASE_URL +
           "/m-to-m/delete-entries-by-characteristic/" +
@@ -634,11 +635,25 @@ export default {
         state.selectedFamily.id_family
       );
 
-      commit("closeDialogDeleteCharacteristic");
-      commit("changeLoading", false);
+      commit("close_dialog_delete_characteristic");
+      commit("change_loading", false);
     },
 
     //Номенклатура
+    setPropertyNomenclature(
+      { state, commit, dispatch },
+      obj = new PropertyEntity()
+    ) {
+      commit(
+        "set_property_nomenclature",
+        new PropertyEntity(obj.key, obj.payload)
+      );
+
+      if (state.debounceTimeout) clearTimeout(state.debounceTimeout);
+      state.debounceTimeout = setTimeout(async () => {
+        await dispatch("updateNomenclature");
+      }, 1000);
+    },
     async getNomenclaturesBySearch({ state, rootState, commit }, string) {
       if (!string) return false;
       if (string.length <= 2) return false;
@@ -650,17 +665,17 @@ export default {
 
       if (state.debounceTimeout) clearTimeout(state.debounceTimeout);
       state.debounceTimeout = setTimeout(async () => {
-        commit("changeLoading", true);
+        commit("change_loading", true);
 
         const { data } = await Request.get(
           `${rootState.BASE_URL}/entity/nomenclature/search/{q}?q=${string}`
         );
-        commit("setListNomenclaturesBySearch", data);
-        commit("changeLoading", false);
+        commit("set_list_nomenclatures_by_search", data);
+        commit("change_loading", false);
       }, 1000);
     },
     async getNomenclatureByFamily({ rootState, commit }, idFamily) {
-      commit("changeLoading", true);
+      commit("change_loading", true);
 
       const { data } = await Request.get(
         rootState.BASE_URL +
@@ -669,8 +684,8 @@ export default {
             id_family: idFamily,
           })
       );
-      commit("setListNomenclatureByFamily", data);
-      commit("changeLoading", false);
+      commit("set_list_nomenclature_by_family", data);
+      commit("change_loading", false);
     },
     async setNomenclaturesByName({ state, rootState, commit }, name) {
       if (!name) return false;
@@ -679,11 +694,11 @@ export default {
         (item) => item.name === name
       );
       if (entry) {
-        commit("setNewNomenclature", entry);
+        commit("set_nomenclature", entry);
         return entry;
       }
 
-      commit("changeLoading", true);
+      commit("change_loading", true);
       const response = await Request.post(
         rootState.BASE_URL + "/entity/nomenclature",
         {
@@ -692,37 +707,37 @@ export default {
         }
       );
       if (response.codeResponse >= 400) {
-        commit("setResponseAddNomenclature", response);
+        commit("set_response_add_nomenclature", response);
       }
 
-      commit("setNewNomenclature", response.data);
-      commit("changeLoading", false);
+      commit("set_nomenclature", response.data);
+      commit("change_loading", false);
 
       return response.data;
     },
     async updateNomenclature({ state, rootState, commit }) {
-      if (!state.newNomenclature.id) return false;
+      if (!state.nomenclature.id) return false;
 
-      commit("changeLoading", true);
+      commit("change_loading", true);
       const { data } = await Request.put(
-        `${rootState.BASE_URL}/entity/nomenclature/${state.newNomenclature.id}`,
-        state.newNomenclature
+        `${rootState.BASE_URL}/entity/nomenclature/${state.nomenclature.id}`,
+        state.nomenclature
       );
-      commit("setNewNomenclature", data);
-      commit("changeLoading", false);
+      commit("set_nomenclature", data);
+      commit("change_loading", false);
     },
     async deleteNomenclatureByFamily(
       { state, rootState, commit, dispatch },
       idNomenclature
     ) {
-      commit("changeLoading", true);
+      commit("change_loading", true);
       await Request.delete(
         rootState.BASE_URL + "/entity/nomenclature/" + idNomenclature
       );
       await dispatch("getNomenclatureByFamily", state.selectedFamily.id_family);
 
-      commit("closeDialogDeleteNomenclature");
-      commit("changeLoading", false);
+      commit("close_dialog_delete_nomenclature");
+      commit("change_loading", false);
     },
   },
   getters: {
@@ -812,6 +827,14 @@ export default {
     getStateExistAddedNomenclatureInFamily: (state) => (id_nomenclature) => {
       return state.listNomenclatureByFamily.some(
         (item) => item.id === id_nomenclature
+      );
+    },
+    deniedAccessByDeleteCharacteristic: (state) => (id_characteristic) => {
+      return (
+        state.listMtoMNomenclaturesCharacteristics
+          .filter((item) => item.id_characteristic === id_characteristic)
+          //Если хотябы одна запись из характеристики имеет другое семейство (задано в родителе) - то нельзя
+          .some((item) => item.id_family !== state.selectedFamily.id_family)
       );
     },
   },

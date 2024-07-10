@@ -36,7 +36,7 @@ export default new Vuex.Store({
       (v) => !!v || "Обязательное для заполнение поле",
       (v) => /.+@.+/.test(v) || "E-mail должен быть валидным.",
     ],
-    nameRules: [(v) => !!v || "Обязательное для заполнение поле"],
+    requiredFieldRules: [(v) => !!v || "Обязательное для заполнение поле"],
     responseTag: {
       errorState: false,
       errorMessages: "",

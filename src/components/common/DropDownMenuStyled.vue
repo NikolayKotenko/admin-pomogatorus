@@ -14,7 +14,6 @@
     :content-class="isClass"
     :absolute="isAbsolute"
     bottom
-    dark
   >
     <template #activator="{ on, attrs }">
       <div
@@ -102,7 +101,7 @@ export default {
 
 <style lang="scss" scoped>
 .reverseIconContent{
-  //min-width: unset!important;
+  min-width: unset!important;
 }
 .v-menu__content{
   padding: 10px;

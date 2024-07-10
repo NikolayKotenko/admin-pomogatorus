@@ -264,3 +264,8 @@ export function MtoMNomenclatureCharacteristics(
   );
   this.name_char = _characteristic_nomenclature.name;
 }
+
+export function PropertyEntity(key = "", payload) {
+  this.key = key;
+  this.payload = payload;
+}

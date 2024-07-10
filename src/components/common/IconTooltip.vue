@@ -1,7 +1,7 @@
 <template>
   <TooltipStyled
     :is-top="isTopTooltip"
-    :title="! isDisabled ? textTooltip : ''"
+    :title="textTooltip"
   >
     <v-icon
       :color="colorIcon"

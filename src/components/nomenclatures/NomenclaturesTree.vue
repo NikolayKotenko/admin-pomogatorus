@@ -23,7 +23,7 @@
               <TooltipStyled :title="'Добавить подсемейство в '+`'${item.name_leaf}'`">
                 <v-icon
                     color="primary" class="ma-2"
-                    @click="openDialogFamily(item.id_family)"
+                    @click="open_dialog_family(item.id_family)"
                 >mdi-plus-thick
                 </v-icon>
               </TooltipStyled>
@@ -58,16 +58,38 @@
           <template v-slot:item="{ item }">
             <tr v-if="item.id_family === selectedFamily.id_family">
               <td>
-                <DropDownMenuStyled :is-class="'reverseIconContent'" :is-top="true" :open-on-hover="true">
+                <DropDownMenuStyled :is-class="'reverseIconContent'" :is-top="true" >
                   <template #icon>
                     <section>{{ item.name_char }}</section>
                   </template>
                   <template #content>
-                    <IconTooltip
-                        :icon-text="'mdi-delete-outline'"
-                        :text-tooltip="'Удалить Характеристику'"
-                        @click-icon="setSelectedCharacteristic(item); openDialogDeleteCharacteristic();"
-                    />
+                    <section class="d-inline-flex">
+                      <IconTooltip
+                          :icon-text="'mdi-delete-outline'"
+                          :text-tooltip="'Удалить Характеристику'"
+                          :is-disabled="loading"
+                          @click-icon="set_characteristic(item); open_dialog_delete_characteristic();"
+                      />
+                      <IconTooltip
+                          :icon-text="'mdi-pencil'"
+                          :text-tooltip="'Редактировать Характеристику'"
+                          :is-disabled="loading"
+                          @click-icon="
+                          set_action_query('edit');
+                          set_characteristic({
+                                'id': item._characteristic_nomenclature.id,
+                                'name': item._characteristic_nomenclature.name,
+                                'code': item._characteristic_nomenclature.code,
+                                'description': item._characteristic_nomenclature.description,
+                                'postfix': item._characteristic_nomenclature.postfix,
+                                'id_type_characteristic': item._characteristic_nomenclature.id_type_characteristic,
+                                'id_dictionary': item._characteristic_nomenclature.id_dictionary,
+                                'type_characteristic': item._characteristic_nomenclature.type_characteristic,
+                                'dictionary': item._characteristic_nomenclature.dictionary
+                              });
+                          openDialogCharacteristics();"
+                      />
+                    </section>
                   </template>
                 </DropDownMenuStyled>
               </td>
@@ -80,7 +102,7 @@
                     :item-text="'value'"
                     :item-value="'value'"
                     :placeholder="item._characteristic_nomenclature.dictionary.name"
-                    :current-rules="$store.state.nameRules"
+                    :current-rules="$store.state.requiredFieldRules"
                     :is-hide-details="true"
                     :is-loading="loading"
                     :is-disabled="loading || item.id_family !== selectedFamily.id_family"
@@ -115,7 +137,7 @@
                       :color-icon="'green'"
                       :class="'justify-start'"
                       :text-tooltip="'Добавить Характеристику'"
-                      @click-icon="openDialogCharacteristics"
+                      @click-icon="set_action_query('add'); openDialogCharacteristics()"
                   />
                 </td>
               </tr>
@@ -147,11 +169,23 @@
                       <section >{{ item.name }}</section>
                     </template>
                     <template #content>
-                      <IconTooltip
-                          :icon-text="'mdi-delete-outline'"
-                          :text-tooltip="'Удалить номенклатуру'"
-                          @click-icon="setSelectedNomenclature(item); openDialogDeleteNomenclature();"
-                      />
+                      <section class="d-inline-flex">
+                        <IconTooltip
+                            :icon-text="'mdi-delete-outline'"
+                            :text-tooltip="'Удалить номенклатуру'"
+                            :is-disabled="loading"
+                            @click-icon="set_nomenclature(item); open_dialog_delete_nomenclature();"
+                        />
+                        <IconTooltip
+                            :icon-text="'mdi-pencil'"
+                            :text-tooltip="'Редактировать номенклатуру'"
+                            :is-disabled="loading"
+                            @click-icon="
+                              set_action_query('edit');
+                              set_nomenclature(item);
+                              open_dialog_nomenclature();"
+                        />
+                      </section>
                     </template>
                   </DropDownMenuStyled>
                 </th>
@@ -159,7 +193,7 @@
                 <th>
                   <TooltipStyled :title="'Добавить Номенклатуру'">
                     <v-btn text block class="justify-center align-center"
-                           @click="openDialogNomenclature"
+                           @click="set_action_query('add'); open_dialog_nomenclature();"
                     >
                       <v-icon color="green">mdi-plus-thick</v-icon>
                     </v-btn>
@@ -184,13 +218,33 @@
                     <section class="d-inline-flex">
                         <IconTooltip
                             :icon-text="'mdi-delete-outline'"
-                            :text-tooltip="'Удалить Характеристику'"
-                            @click-icon="setSelectedCharacteristic(item); openDialogDeleteCharacteristic();"
+                            :text-tooltip="deniedAccessByDeleteCharacteristic(item.id_characteristic)
+                            ? 'Нельзя удалить характеристику, она задана в родителе'
+                            : 'Удалить Характеристику'"
+                            :is-disabled="deniedAccessByDeleteCharacteristic(item.id_characteristic) || loading"
+                            @click-icon="set_characteristic({
+                              'id': item.id_characteristic,
+                              'name': item.name_char
+                            }); open_dialog_delete_characteristic();"
                         />
                         <IconTooltip
                             :icon-text="'mdi-pencil'"
                             :text-tooltip="'Редактировать Характеристику'"
-                            @click-icon="setSelectedCharacteristic(item); openDialogDeleteCharacteristic();"
+                            :is-disabled="loading"
+                            @click-icon="
+                            set_action_query('edit');
+                            set_characteristic({
+                              'id': item._characteristic_nomenclature.id,
+                              'name': item._characteristic_nomenclature.name,
+                              'code': item._characteristic_nomenclature.code,
+                              'description': item._characteristic_nomenclature.description,
+                              'postfix': item._characteristic_nomenclature.postfix,
+                              'id_type_characteristic': item._characteristic_nomenclature.id_type_characteristic,
+                              'id_dictionary': item._characteristic_nomenclature.id_dictionary,
+                              'type_characteristic': item._characteristic_nomenclature.type_characteristic,
+                              'dictionary': item._characteristic_nomenclature.dictionary
+                            });
+                            openDialogCharacteristics();"
                         />
                     </section>
                   </template>
@@ -206,7 +260,7 @@
                     :item-text="'value'"
                     :item-value="'value'"
                     :placeholder="item._characteristic_nomenclature.dictionary.name"
-                    :current-rules="$store.state.nameRules"
+                    :current-rules="$store.state.requiredFieldRules"
                     :is-hide-details="true"
                     :is-loading="loading"
                     :is-disabled="loading || !item.required_fill_in_nomenclature"
@@ -257,7 +311,7 @@
               <td :colspan="lengthListNomenclatureByFamily + 2" >
                 <TooltipStyled :title="'Добавить Характеристику'">
                   <v-btn text block class="justify-start"
-                         @click="openDialogCharacteristics"
+                         @click="set_action_query('add'); openDialogCharacteristics()"
                   >
                     <v-icon color="green">mdi-plus-thick</v-icon>
                   </v-btn>
@@ -270,8 +324,8 @@
       </v-card>
 
       <v-dialog :value="dialogFamily"
-          @click:outside="closeDialogFamily()"
-          @keydown.esc="closeDialogFamily()"
+          @click:outside="close_dialog_family()"
+          @keydown.esc="close_dialog_family()"
       >
         <v-card>
           <v-card-title>
@@ -291,15 +345,15 @@
                   :is-loading="loading"
                   @update-search-input="getFamilyBySearch($event);"
                   @change-search="localSetSearchFamily"
-                  @click-clear="clearNewFamily"
+                  @click-clear="clear_family"
               ></ComboboxStyled>
             </v-col>
           </v-card-text>
           <v-card-actions>
-            <v-btn color="primary" text @click="closeDialogFamily()" > Закрыть </v-btn>
+            <v-btn color="primary" text @click="close_dialog_family()" > Закрыть </v-btn>
             <v-btn color="primary" text
                    @click="addChildAction"
-                   :disabled="!newFamily.id_family || loading"
+                   :disabled="!family.id_family || loading"
                    :loading="loading"
             > Добавить в дерево</v-btn>
           </v-card-actions>
@@ -308,20 +362,21 @@
 
       <!-- Диалог добавления номенклатуры  -->
       <v-dialog :value="dialogNomenclature"
-                @click:outside="closeDialogNomenclature()"
-                @keydown.esc="closeDialogNomenclature()"
+                @click:outside="close_dialog_nomenclature(); clear_action_query();"
+                @keydown.esc="close_dialog_nomenclature(); clear_action_query();"
       >
         <v-card>
           <v-card-title>
-           {{ 'Создание новой номенклатуры в семействе - ' + selectedFamily.name_leaf}}
+            <section>Создание/редактирование номенклатуры в семействе</section>
+            <section>"{{selectedFamily.name_leaf}}"</section>
           </v-card-title>
           <v-card-text>
             <v-col>
               <p class="text-subtitle-1"></p>
               <ComboboxStyled
                   :is-items="listNomenclaturesBySearch"
-                  :data="newNomenclature.name"
-                  :key="newNomenclature.id"
+                  :data="nomenclature.name"
+                  :key="nomenclature.id"
                   :is-return-object="true"
                   :is-item-text="'name'"
                   :is-item-value="'name'"
@@ -333,79 +388,86 @@
                   :is-loading="loading"
                   @update-search-input="getNomenclaturesBySearch($event)"
                   @change-search="localSetSearchNomenclature"
-                  @click-clear="clearNewNomenclature(); clearListNomenclaturesBySearch(); clearResponseAddNomenclature()"
+                  @click-clear="clear_nomenclature(); clear_list_nomenclatures_by_search(); clear_response_add_nomenclature()"
               ></ComboboxStyled>
             </v-col>
-            <v-col v-if="newNomenclature.id && !responseAddNomenclature.isError">
+            <v-col v-if="nomenclature.id && !responseAddNomenclature.isError">
               <InputStyledSimple
                   class="mb-5"
-                  :data="newNomenclature.seo_title"
+                  :data="nomenclature.seo_title"
                   :placeholder="'Seo title'"
-                  @change-input="newNomenclature.seo_title = $event; updateNomenclature()"
+                  @update-input="setPropertyNomenclature({ key: 'seo_title', payload: $event });"
               />
               <InputStyledSimple
                   class="mb-5"
-                  :data="newNomenclature.seo_keywords"
+                  :data="nomenclature.seo_keywords"
                   :placeholder="'Seo keywords'"
-                  @change-input="newNomenclature.seo_keywords = $event; updateNomenclature()"
+                  @update-input="setPropertyNomenclature({ key: 'seo_keywords', payload: $event });"
               />
               <VueEditor
-                  v-model="newNomenclature.seo_descriptionEditor"
+                  v-model="nomenclature.seo_descriptionEditor"
                   placeholder="Seo description"
                   class="mt-3"
                   :editorToolbar="customToolbar"
                   ref="characteristicEditor"
-                  @selection-change="localSetDescriptionNomenclature"
+                  @text-change="localSetDescriptionNomenclature"
               />
             </v-col>
           </v-card-text>
           <v-card-actions>
-            <v-btn color="primary" text @click="closeDialogNomenclature()" > Закрыть </v-btn>
+            <v-btn color="primary" text @click="close_dialog_nomenclature(); clear_action_query();" > Закрыть </v-btn>
             <v-btn color="primary" text
-                   @click="closeDialogNomenclature()"
-                   :disabled="!newNomenclature.id || loading || responseAddNomenclature.isError"
+                   v-if="$route.query.action === 'add'"
+                   @click="close_dialog_nomenclature()"
+                   :disabled="!nomenclature.id || loading || responseAddNomenclature.isError"
                    :loading="loading"
             > Добавить </v-btn>
+            <v-btn color="primary" text
+                   v-if="$route.query.action === 'edit'"
+                   @click="getNomenclatureByFamily(selectedFamily.id_family); close_dialog_nomenclature(); clear_action_query()"
+                   :disabled="!nomenclature.id || loading || responseAddNomenclature.isError"
+                   :loading="loading"
+            > Сохранить </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
 
       <!-- Диалог удаления номенклатуры  -->
       <v-dialog :value="dialogDeleteNomenclature"
-                @click:outside="closeDialogDeleteNomenclature()"
-                @keydown.esc="closeDialogDeleteNomenclature()"
+                @click:outside="close_dialog_delete_nomenclature()"
+                @keydown.esc="close_dialog_delete_nomenclature()"
       >
         <v-card>
           <v-card-title>
-            {{ `Вы точно хотите удалить ${selectedNomenclature.name} из семейства - ${selectedFamily.name_leaf}` }}
+            {{ `Вы точно хотите удалить ${nomenclature.name} из семейства - ${selectedFamily.name_leaf}` }}
           </v-card-title>
           <v-card-actions>
-            <v-btn color="primary" text @click="closeDialogDeleteNomenclature" > Закрыть </v-btn>
+            <v-btn color="primary" text @click="close_dialog_delete_nomenclature" > Закрыть </v-btn>
             <v-btn color="primary" text
-                   @click="deleteNomenclatureByFamily(selectedNomenclature.id)"
-                   :disabled="!selectedNomenclature.id || loading"
+                   @click="deleteNomenclatureByFamily(nomenclature.id)"
+                   :disabled="!nomenclature.id || loading"
                    :loading="loading"
             > Удалить </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
 
-      <!-- Диалог добавления характеристики  -->
+      <!-- Диалог добавления / редактирования характеристики  -->
       <v-dialog :value="dialogCharacteristics"
-                @click:outside="closeDialogCharacteristics()"
-                @keydown.esc="closeDialogCharacteristics()"
+                @click:outside="close_dialog_characteristics(); clear_action_query();"
+                @keydown.esc="close_dialog_characteristics(); clear_action_query();"
       >
         <v-card>
           <v-card-title>
-            <section>Создание новой характеристики в семействе</section>
+            <section>Создание/редактирование характеристики в семействе</section>
             <section>"{{selectedFamily.name_leaf}}"</section>
           </v-card-title>
           <v-card-text>
             <v-col cols="12" sm="12" md="12">
               <ComboboxStyled
                   :is-items="listCharacteristicsBySearch"
-                  :data="newCharacteristics.name"
-                  :key="newCharacteristics.id"
+                  :data="characteristic.name"
+                  :key="characteristic.id"
                   :is-return-object="true"
                   :is-item-text="'name'"
                   :is-item-value="'name'"
@@ -417,29 +479,32 @@
                   :is-loading="loading"
                   @update-search-input="getCharacteristicsBySearch($event)"
                   @change-search="localSetSearchCharacteristics"
-                  @click-clear="clearResponseAddCharacteristics(); clearNewCharacteristics()"
+                  @click-clear="clear_response_add_characteristic(); clear_characteristic()"
               ></ComboboxStyled>
             </v-col>
-            <v-row v-if="newCharacteristics.id && !responseAddCharacteristics.isError">
+            <v-row v-if="characteristic.id && !responseAddCharacteristics.isError">
               <v-col>
                 <SelectStyled
-                    :data="newCharacteristics.id_type_characteristic"
+                    :data="characteristic.id_type_characteristic"
                     :items="listTypeCharacteristics"
                     :item-text="'name'"
                     :item-value="'id'"
                     :placeholder="'Тип параметра'"
-                    :current-rules="$store.state.nameRules"
+                    :current-rules="$store.state.requiredFieldRules"
                     :is-hide-details="false"
                     :is-loading="loading"
-                    :is-disabled="loading || Boolean(newCharacteristics.id_type_characteristic)"
-                    :is-error="Boolean(newCharacteristics.id_type_characteristic)"
+                    :is-disabled="loading || Boolean(characteristic.id_type_characteristic)"
+                    :is-error="Boolean(characteristic.id_type_characteristic)"
                     :is-error-messages="'Уже выбран тип параметра для этой характеристики, изменить нельзя'"
-                    @update-input="localSetTypeCharacteristic"
+                    @update-input="
+                      set_type_characteristic($event)
+                      updateCharacteristic()
+                    "
                 />
               </v-col>
-              <v-col cols="6" v-if="newCharacteristics.type_characteristic.code === 'vybor-iz-spravocnika'">
+              <v-col cols="6" v-if="characteristic.type_characteristic.code === 'vybor-iz-spravocnika'">
                 <ComboboxStyled
-                    :data="newCharacteristics.dictionary.name"
+                    :data="characteristic.dictionary.name"
                     :is-items="$store.state.DictionariesModule.listEntries"
                     :is-item-text="'name'"
                     :is-item-value="'id'"
@@ -447,21 +512,24 @@
                     :is-hide-details="false"
                     :is-placeholder="'Справочник'"
                     :is-loading="loading"
-                    :is-disabled="loading || Boolean(newCharacteristics.id_dictionary)"
-                    :is-error="Boolean(newCharacteristics.id_dictionary)"
+                    :is-disabled="loading || Boolean(characteristic.id_dictionary)"
+                    :is-error="Boolean(characteristic.id_dictionary)"
                     :is-error-messages="'Уже выбран справочник для этой характеристики, изменить нельзя'"
-                    @change-search="localSetDictionaryCharacteristic"
-                    @click-clear="clearNewCharacteristics"
+                    @change-search="
+                      set_dictionary_characteristic($event);
+                      updateCharacteristic();
+                    "
+                    @click-clear="clear_characteristic"
                 ></ComboboxStyled>
               </v-col>
               <v-col cols="12">
                 <VueEditor
-                    v-model="newCharacteristics.descriptionEditor"
+                    v-model="characteristic.descriptionEditor"
                     placeholder="Описание"
                     class="mt-5"
                     :editorToolbar="customToolbar"
                     ref="characteristicEditor"
-                    @selection-change="localSetDescriptionCharacteristic"
+                    @text-change="localSetDescriptionCharacteristic"
                 />
               </v-col>
               <v-col cols="12">
@@ -469,64 +537,71 @@
                     :items="dictionaryUnits.d_dictionary_attributes"
                     :item-text="'value'"
                     :item-value="'value'"
-                    :data="newCharacteristics.postfix"
+                    :data="characteristic.postfix"
                     :placeholder="dictionaryUnits.name"
                     :is-loading="loading"
-                    :is-disabled="loading || Boolean(newCharacteristics.postfix)"
-                    :is-error="Boolean(newCharacteristics.postfix)"
+                    :is-disabled="loading || Boolean(characteristic.postfix)"
+                    :is-error="Boolean(characteristic.postfix)"
                     :is-return-object="false"
-                    :is-error-messages="'Уже выбрана еденица измерения для этой характеристики, изменить нельзя'"
-                    @change-input="localSetPostfixCharacteristic"
+                    :is-error-messages="'Уже выбрана единица измерения для этой характеристики, изменить нельзя'"
+                    @change-input="setPropertyCharacteristic({ key: 'postfix',payload: $event });"
                 ></SelectStyled>
               </v-col>
             </v-row>
           </v-card-text>
           <v-card-actions>
-            <v-btn color="primary" text @click="closeDialogCharacteristics()" > Закрыть </v-btn>
+            <v-btn color="primary" text @click="close_dialog_characteristics(); clear_action_query()" > Закрыть </v-btn>
             <v-btn color="primary" text
+                   v-if="$route.query.action === 'add'"
                    @click="localSetMtoMCharacteristicsNomenclature()"
-                   :disabled="!newCharacteristics.id || loading || responseAddCharacteristics.isError"
+                   :disabled="!characteristic.id || !characteristic.id_type_characteristic || loading || responseAddCharacteristics.isError"
                    :loading="loading"
             > Добавить </v-btn>
+            <v-btn color="primary" text
+                   v-if="$route.query.action === 'edit'"
+                   @click="getMToMNomenclatureCharacteristics(selectedFamily.id_family); close_dialog_characteristics(); clear_action_query()"
+                   :disabled="!characteristic.id || !characteristic.id_type_characteristic || loading || responseAddCharacteristics.isError"
+                   :loading="loading"
+            > Сохранить </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
 
       <!-- Диалог удаления характеристики  -->
       <v-dialog :value="dialogDeleteCharacteristic"
-                @click:outside="closeDialogDeleteCharacteristic()"
-                @keydown.esc="closeDialogDeleteCharacteristic()"
+                @click:outside="close_dialog_delete_characteristic()"
+                @keydown.esc="close_dialog_delete_characteristic()"
       >
         <v-card>
           <v-card-title class="d-block">
             <section>Вы точно хотите удалить характеристику</section>
-            <section>"{{ selectedCharacteristic._characteristic_nomenclature.name }}"</section>
+            <section>"{{ characteristic.name }}"</section>
             <section>{{ `из семейства - ${selectedFamily.name_leaf}` }}</section>
           </v-card-title>
           <v-card-actions>
-            <v-btn color="primary" text @click="closeDialogDeleteCharacteristic" > Закрыть </v-btn>
+            <v-btn color="primary" text @click="close_dialog_delete_characteristic" > Закрыть </v-btn>
             <v-btn color="primary" text
-                   @click="deleteCharacteristicByMtoM(selectedCharacteristic.id_characteristic)"
-                   :disabled="!selectedCharacteristic.id || loading"
+                   @click="deleteCharacteristicByMtoM(characteristic.id)"
+                   :disabled="!characteristic.id || loading"
                    :loading="loading"
             > Удалить </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
 
-      <v-overlay
-          :absolute="true"
-          :value="loading"
-      >
-        <v-progress-circular
-            v-if="loading"
-            :indeterminate="true"
-            :size="70"
-            color="green"
-            style="margin: auto"
-            width="4"
-        ></v-progress-circular>
-      </v-overlay>
+<!--      <v-overlay-->
+<!--          :absolute="true"-->
+<!--          :value="loading"-->
+<!--      >-->
+<!--        <v-progress-circular-->
+<!--            v-if="loading"-->
+<!--            :indeterminate="true"-->
+<!--            :size="70"-->
+<!--            color="green"-->
+<!--            style="margin: auto"-->
+<!--            width="4"-->
+<!--        ></v-progress-circular>-->
+<!--      </v-overlay>-->
     </v-container>
 </template>
 
@@ -597,7 +672,8 @@ export default {
       ["link",  "formula"],
       [{ direction: "rtl" }],
       ["clean"]
-    ]
+    ],
+    debounceTimeout: null
   }),
   mounted() {
     this.getTreeOnMount();
@@ -609,9 +685,9 @@ export default {
         'dialogFamily',
         'dialogCharacteristics',
         'dialogNomenclature',
-        'newFamily',
-        'newNomenclature',
-        'newCharacteristics',
+        'family',
+        'nomenclature',
+        'characteristic',
         'listFamiliesBySearch',
         'listCharacteristicsBySearch',
         'listNomenclaturesBySearch',
@@ -624,14 +700,12 @@ export default {
         'responseAddCharacteristics',
         'responseAddNomenclature',
         'dialogDeleteNomenclature',
-        'selectedNomenclature',
         'listTypeCharacteristics',
         'dialogDeleteCharacteristic',
-        'selectedCharacteristic',
+        'characteristic',
         'dictionaryUnits'
     ]),
     ...mapGetters('NomenclaturesTreeModule',[
-        'getMessageTitleFamilyTable',
         'getStateSelectedFamily',
         'getStateExistChildren',
         'lengthListNomenclatureByFamily',
@@ -639,7 +713,9 @@ export default {
         'getValueCharacteristicNomenclature',
         'getStateExistAddedCharacteristicInFamily',
         'getStateExistAddedNomenclatureInFamily',
+        'deniedAccessByDeleteCharacteristic',
     ]),
+    ...mapGetters(['stateEditCreate'])
   },
   methods: {
     ...mapActions('NomenclaturesTreeModule', [
@@ -656,42 +732,41 @@ export default {
           'setMToMCharacteristicsNomenclature',
           'getNomenclatureByFamily',
           'deleteNomenclatureByFamily',
-          'getListTypeCharacteristics',
-          'updateCharacteristicAction',
+          'updateCharacteristic',
           'deleteCharacteristicByMtoM',
           'getDictionaryUnits',
-          'updateNomenclature'
+          'getMToMNomenclatureCharacteristics',
+          'openDialogCharacteristics',
+          'setPropertyNomenclature',
+          'setPropertyCharacteristic'
         ],
     ),
     ...mapActions('DictionariesModule', [
       'getListDictionaries'
     ]),
     ...mapMutations('NomenclaturesTreeModule', [
-        'closeDialogCharacteristics',
-        'closeDialogFamily',
-        'closeDialogNomenclature',
-        'openDialogFamily',
-        'openDialogCharacteristics',
-        'openDialogNomenclature',
-        'clearListNomenclaturesBySearch',
-        'clearResponseAddCharacteristics',
-        'clearResponseAddNomenclature',
-        'clearNewNomenclature',
-        'clearNewCharacteristics',
-        'clearListCharacteristicsBySearch',
-        'clearNewFamily',
-        'openDialogDeleteNomenclature',
-        'closeDialogDeleteNomenclature',
-        'setSelectedNomenclature',
-        'setDictionaryCharacteristic',
-        'setDescriptionCharacteristic',
-        'setResponseAddCharacteristic',
-        'setResponseAddNomenclature',
-        'setTypeCharacteristic',
-        'closeDialogDeleteCharacteristic',
-        'setSelectedCharacteristic',
-        'openDialogDeleteCharacteristic',
-        'setPostfixCharacteristic'
+        'close_dialog_characteristics',
+        'close_dialog_family',
+        'close_dialog_nomenclature',
+        'open_dialog_family',
+        'open_dialog_nomenclature',
+        'clear_list_nomenclatures_by_search',
+        'clear_response_add_characteristic',
+        'clear_response_add_nomenclature',
+        'clear_nomenclature',
+        'clear_characteristic',
+        'clear_list_characteristics_by_search',
+        'clear_family',
+        'open_dialog_delete_nomenclature',
+        'close_dialog_delete_nomenclature',
+        'set_dictionary_characteristic',
+        'set_response_add_characteristic',
+        'set_response_add_nomenclature',
+        'set_type_characteristic',
+        'close_dialog_delete_characteristic',
+        'set_characteristic',
+        'open_dialog_delete_characteristic',
+        'set_nomenclature',
     ]),
     getIconRow(open, item){
       if (!item.children) return this.icons.circle
@@ -711,9 +786,9 @@ export default {
       const entry = await this.setCharacteristicOnFamily(nameFamily);
       const existEntry = this.getStateExistAddedCharacteristicInFamily(entry.id)
 
-      this.clearResponseAddCharacteristics();
+      this.clear_response_add_characteristic();
       if (existEntry){
-        this.setResponseAddCharacteristic({
+        this.set_response_add_characteristic({
           message: entry.name + ' уже добавлена в текущее семейство',
           codeResponse: 409
         });
@@ -721,22 +796,19 @@ export default {
       }
 
       //Очищаем поиск для валидных данных с бэка
-      this.clearListCharacteristicsBySearch();
+      this.clear_list_characteristics_by_search();
 
-      //Запрашиваем список типов характеристик для выбора типа характеристики
-      await this.getListTypeCharacteristics();
       await this.getListDictionaries({query: {flag_nomenclature: true}})
     },
     async localSetMtoMCharacteristicsNomenclature(){
       const response = await this.setMToMCharacteristicsNomenclature({
-        id_characteristic: this.newCharacteristics.id,
+        id_characteristic: this.characteristic.id,
         required_fill_in_nomenclature: 1
       });
       if (response.codeResponse >= 400) return false;
 
-      this.closeDialogCharacteristics()
+      this.close_dialog_characteristics()
     },
-
     async localSetSearchNomenclature(obj){
       if (! obj) return false;
 
@@ -744,9 +816,9 @@ export default {
       const entry = await this.setNomenclaturesByName(name);
       const existEntry = this.getStateExistAddedNomenclatureInFamily(entry.id)
 
-      this.clearResponseAddNomenclature();
+      this.clear_response_add_nomenclature();
       if (existEntry){
-        this.setResponseAddNomenclature({
+        this.set_response_add_nomenclature({
           message: entry.name + ' уже добавлена в текущее семейство',
           codeResponse: 409
         });
@@ -766,42 +838,45 @@ export default {
 
      return 'Удалить семейство'+`'${item.name_leaf}'`;
     },
-    async localSetTypeCharacteristic(DTypeCharacteristics){
-      this.setTypeCharacteristic(DTypeCharacteristics)
-      await this.updateCharacteristicAction()
-    },
-    async localSetDictionaryCharacteristic(Dictionary){
-      this.setDictionaryCharacteristic(Dictionary)
-      await this.updateCharacteristicAction()
-    },
     async localSetDescriptionCharacteristic(){
-      if (this.newCharacteristics.descriptionEditor === this.newCharacteristics.description) return false;
+      if (this.characteristic.descriptionEditor === this.characteristic.description) return false;
 
-      this.setDescriptionCharacteristic(this.newCharacteristics.descriptionEditor)
-      await this.updateCharacteristicAction()
+      this.setPropertyCharacteristic({
+        key: 'description',
+        payload: this.characteristic.descriptionEditor
+      })
     },
     async localSetDescriptionNomenclature(){
-      if (this.newNomenclature.seo_descriptionEditor === this.newNomenclature.seo_description)
-        return false;
-      else
-        this.newNomenclature.seo_description = this.newNomenclature.seo_descriptionEditor;
-        await this.updateNomenclature()
+      if (this.nomenclature.seo_descriptionEditor === this.nomenclature.seo_description)  return false;
+
+      this.setPropertyNomenclature({
+        key: 'seo_description',
+        payload: this.nomenclature.seo_descriptionEditor
+      })
     },
-    async localSetPostfixCharacteristic(string){
-      this.setPostfixCharacteristic(string)
-      await this.updateCharacteristicAction()
+
+    // Работаем с кверями
+    clear_action_query(){
+      this.$router.replace({
+        query: null,
+      }).catch(() => {});
+    },
+    set_action_query(action) {
+      this.$router.replace({
+        query: { action: action },
+      }).catch(() => {});
     },
   },
   beforeRouteLeave: function(to, from, next) {
-    this.closeDialogDeleteCharacteristic()
-    this.closeDialogCharacteristics()
-    this.closeDialogDeleteNomenclature()
-    this.closeDialogNomenclature()
-    this.closeDialogFamily()
-    this.clearResponseAddCharacteristics()
-    this.clearListNomenclaturesBySearch()
-    this.clearNewCharacteristics()
-    this.clearListCharacteristicsBySearch()
+    this.close_dialog_delete_characteristic()
+    this.close_dialog_characteristics()
+    this.close_dialog_delete_nomenclature()
+    this.close_dialog_nomenclature()
+    this.close_dialog_family()
+    this.clear_response_add_characteristic()
+    this.clear_list_nomenclatures_by_search()
+    this.clear_characteristic()
+    this.clear_list_characteristics_by_search()
     next();
   },
 }

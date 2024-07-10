@@ -2,7 +2,7 @@
   <div>
     <v-combobox
         v-model="currentData"
-        :rules="$store.state.nameRules"
+        :rules="$store.state.requiredFieldRules"
         :class="isClass"
         :outlined="isOutlined"
         :dense="isDense"

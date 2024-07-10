@@ -27,7 +27,7 @@
       <!-- Сам справочник  -->
       <template v-if="$store.getters.stateEditCreate($route.query.action)">
         <InputStyled
-            :current-rules="$store.state.nameRules"
+            :current-rules="$store.state.requiredFieldRules"
             :data="$store.state.DictionariesModule.entry.name"
             :is-clearable="true"
             :is-disabled="$store.state.DictionariesModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
