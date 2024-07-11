@@ -7,6 +7,7 @@ import {
   DTypeCharacteristics,
   Dictionary,
   PropertyEntity,
+  Family,
 } from "@/helpers/constructors";
 import Logging from "@/services/logging";
 
@@ -14,8 +15,8 @@ export default {
   namespaced: true,
   state: {
     //Семейство
-    family: new NomenclaturesTreeLeaf(),
-    selectedFamily: new NomenclaturesTreeLeaf(),
+    family: new Family(),
+    selectedLeafTree: new NomenclaturesTreeLeaf(),
     idParentFamily: null,
     dialogFamily: false,
     listFamiliesBySearch: [],
@@ -76,23 +77,38 @@ export default {
     close_dialog_family(state) {
       state.dialogFamily = false;
 
-      setTimeout(() => {
-        state.family = new NomenclaturesTreeLeaf();
-        state.idParentFamily = null;
-      }, 300);
+      state.family = new Family();
+      state.idParentFamily = null;
     },
     clear_list_families_by_search(state) {
       state.listFamiliesBySearch = [];
     },
     set_list_families_by_search(state, payload) {
-      state.listFamiliesBySearch = [];
       state.listFamiliesBySearch = payload;
     },
-    set_family(state, payload = NomenclaturesTreeLeaf) {
-      state.family = payload;
+    set_family(state, payload = Family) {
+      state.family = new Family(
+        payload.id,
+        payload.code,
+        payload.name,
+        payload.brand,
+        payload.id_brand,
+        payload.photos,
+        payload.files,
+        payload.seo_title,
+        payload.seo_description,
+        payload.seo_keywords
+      );
+    },
+    set_property_family(state, obj = PropertyEntity) {
+      // console.log("set_property_family", obj);
+      if (!obj.key) return false;
+
+      state.family[obj.key] = obj.payload;
     },
     clear_family(state) {
-      state.family = new NomenclaturesTreeLeaf();
+      state.family = new Family();
+      state.listFamiliesBySearch = [];
     },
 
     // Характеристики
@@ -155,12 +171,13 @@ export default {
       state.characteristic[obj.key] = obj.payload;
     },
     set_selected_family(state, payload = NomenclaturesTreeLeaf) {
-      state.selectedFamily = new NomenclaturesTreeLeaf(
+      state.selectedLeafTree = new NomenclaturesTreeLeaf(
         payload.id_family,
         payload.id_parent,
         payload.name_leaf,
         payload.depth_level,
-        payload.children
+        payload.children,
+        payload._family
       );
     },
     set_type_characteristic(state, payload = DTypeCharacteristics) {
@@ -311,10 +328,10 @@ export default {
         },
         { root: true }
       );
-      console.log("response", response);
       commit("set_dictionary_units", response);
     },
 
+    // Семейства
     async deleteEntry({ commit, dispatch }, id_family) {
       //START
       commit("change_loading", true);
@@ -349,27 +366,10 @@ export default {
         return response;
       }, 500);
     },
-    async setFamilyByName({ state, rootState, commit }, name) {
+    async setFamilyByName({ rootState, commit }, name) {
       if (!name) return false;
 
-      const existFamily = state.listFamiliesBySearch.find(
-        (item) => item.name === name
-      );
-      if (existFamily) {
-        commit(
-          "set_family",
-          new NomenclaturesTreeLeaf(
-            existFamily.id,
-            state.idParentFamily,
-            existFamily.name,
-            state.family.depth_level
-          )
-        );
-        return false;
-      }
-
       commit("change_loading", true);
-
       const { data } = await Request.post(
         rootState.BASE_URL + "/dictionary/nomenclature-family",
         {
@@ -378,27 +378,39 @@ export default {
       );
       commit(
         "set_family",
-        new NomenclaturesTreeLeaf(
+        new Family(
           data.id,
-          state.idParentFamily,
+          data.code,
           data.name,
-          state.family.depth_level
+          data.brand,
+          data.id_brand,
+          data.photos,
+          data.files,
+          data.seo_title,
+          data.seo_description,
+          data.seo_keywords
         )
       );
       commit("change_loading", false);
     },
-    async clearListFamiliesBySearchAction({ commit }) {
-      commit("clear_list_families_by_search");
-    },
     async addChildAction({ state, rootState, commit, dispatch }) {
       commit("change_loading", true);
 
-      const { data } = await Request.post(
+      await Request.post(
         rootState.BASE_URL + "/entity/nomenclatures-tree",
-        state.family
+        new NomenclaturesTreeLeaf(
+          state.family.id,
+          state.idParentFamily,
+          state.family.name
+        )
       );
-      console.log("Response data", data);
 
+      await dispatch("getTreeOnMount");
+      commit("close_dialog_family");
+      commit("change_loading", false);
+    },
+    async saveFamilyAction({ commit, dispatch }) {
+      commit("change_loading", true);
       await dispatch("getTreeOnMount");
       commit("close_dialog_family");
       commit("change_loading", false);
@@ -422,16 +434,35 @@ export default {
       //Запрашиваем MToM используется на любом уровне лепестка дерева
       await dispatch(
         "getMToMNomenclatureCharacteristics",
-        state.selectedFamily.id_family
+        state.selectedLeafTree.id_family
       );
 
       if (getters.getStateExistChildren) return false;
 
-      //TODO Здесь нужно еще
-      // определить характеристики по умолчанию в бд
-
       //Запрашиваем список номенклатуры у последней сущности
-      await dispatch("getNomenclatureByFamily", state.selectedFamily.id_family);
+      await dispatch(
+        "getNomenclatureByFamily",
+        state.selectedLeafTree.id_family
+      );
+    },
+
+    setPropertyFamily({ state, commit, dispatch }, obj = new PropertyEntity()) {
+      commit("set_property_family", new PropertyEntity(obj.key, obj.payload));
+
+      if (state.debounceTimeout) clearTimeout(state.debounceTimeout);
+      state.debounceTimeout = setTimeout(async () => {
+        await dispatch("updateFamily");
+      }, 1000);
+    },
+    async updateFamily({ state, rootState, commit }) {
+      commit("change_loading", true);
+
+      const { data } = await Request.put(
+        `${rootState.BASE_URL}/dictionary/nomenclature-family/${state.family.id}`,
+        state.family
+      );
+      commit("set_family", data);
+      commit("change_loading", false);
     },
 
     // Характеристики
@@ -539,7 +570,7 @@ export default {
           rootState.BASE_URL + "/m-to-m/nomenclature-characteristics/" + id,
           new MtoMNomenclatureCharacteristics(
             id,
-            state.selectedFamily.id_family,
+            state.selectedLeafTree.id_family,
             id_characteristic,
             id_nomenclature,
             value,
@@ -552,7 +583,7 @@ export default {
           rootState.BASE_URL + "/m-to-m/nomenclature-characteristics",
           new MtoMNomenclatureCharacteristics(
             null,
-            state.selectedFamily.id_family,
+            state.selectedLeafTree.id_family,
             id_characteristic,
             id_nomenclature,
             value,
@@ -570,28 +601,29 @@ export default {
 
       await dispatch(
         "getMToMNomenclatureCharacteristics",
-        state.selectedFamily.id_family
+        state.selectedLeafTree.id_family
       );
       commit("change_loading", false);
       return response;
     },
-    async addCharacteristicToFamily({ state, rootState, commit, dispatch }) {
-      commit("change_loading", true);
 
-      const { data } = await Request.post(
-        rootState.BASE_URL + "/entity/nomenclatures-tree",
-        state.family
-      );
-      console.log("Response data", data);
+    // async addCharacteristicToFamily({ state, rootState, commit, dispatch }) {
+    //   commit("change_loading", true);
+    //
+    //   const { data } = await Request.post(
+    //     rootState.BASE_URL + "/entity/nomenclatures-tree",
+    //     state.family
+    //   );
+    //
+    //   // const curEntry = getters.findItem(state.idParentFamily);
+    //   // console.log("curEntry", curEntry);
+    //   // commit("add_child", curEntry);
+    //
+    //   await dispatch("getTreeOnMount");
+    //   commit("close_dialog_family");
+    //   commit("change_loading", false);
+    // },
 
-      // const curEntry = getters.findItem(state.idParentFamily);
-      // console.log("curEntry", curEntry);
-      // commit("add_child", curEntry);
-
-      await dispatch("getTreeOnMount");
-      commit("close_dialog_family");
-      commit("change_loading", false);
-    },
     async getListTypeCharacteristics({ state, rootState, commit }) {
       // Если не пустой, то и не запрашиваем
       if (state.listTypeCharacteristics.length) return false;
@@ -632,7 +664,7 @@ export default {
       );
       await dispatch(
         "getMToMNomenclatureCharacteristics",
-        state.selectedFamily.id_family
+        state.selectedLeafTree.id_family
       );
 
       commit("close_dialog_delete_characteristic");
@@ -703,7 +735,7 @@ export default {
         rootState.BASE_URL + "/entity/nomenclature",
         {
           name: name,
-          id_family: state.selectedFamily.id_family,
+          id_family: state.selectedLeafTree.id_family,
         }
       );
       if (response.codeResponse >= 400) {
@@ -734,7 +766,10 @@ export default {
       await Request.delete(
         rootState.BASE_URL + "/entity/nomenclature/" + idNomenclature
       );
-      await dispatch("getNomenclatureByFamily", state.selectedFamily.id_family);
+      await dispatch(
+        "getNomenclatureByFamily",
+        state.selectedLeafTree.id_family
+      );
 
       commit("close_dialog_delete_nomenclature");
       commit("change_loading", false);
@@ -764,11 +799,11 @@ export default {
       }, null);
     },
     getStateSelectedFamily(state) {
-      return !!state.selectedFamily.id_family;
+      return !!state.selectedLeafTree.id_family;
     },
     getStateExistChildren(state) {
-      if (!state.selectedFamily.children) return false;
-      if (!state.selectedFamily.children.length) return false;
+      if (!state.selectedLeafTree.children) return false;
+      if (!state.selectedLeafTree.children.length) return false;
 
       return true;
     },
@@ -834,7 +869,7 @@ export default {
         state.listMtoMNomenclaturesCharacteristics
           .filter((item) => item.id_characteristic === id_characteristic)
           //Если хотябы одна запись из характеристики имеет другое семейство (задано в родителе) - то нельзя
-          .some((item) => item.id_family !== state.selectedFamily.id_family)
+          .some((item) => item.id_family !== state.selectedLeafTree.id_family)
       );
     },
   },

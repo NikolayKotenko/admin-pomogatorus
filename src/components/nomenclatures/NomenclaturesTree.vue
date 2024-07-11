@@ -19,14 +19,23 @@
             <hr>
           </template>
           <template v-slot:append="{item}">
-            <div class="d-flex">
+            <div class="d-flex align-center">
               <TooltipStyled :title="'Добавить подсемейство в '+`'${item.name_leaf}'`">
                 <v-icon
                     color="primary" class="ma-2"
-                    @click="open_dialog_family(item.id_family)"
+                    @click="set_action_query('add'); open_dialog_family(item.id_family)"
                 >mdi-plus-thick
                 </v-icon>
               </TooltipStyled>
+              <IconTooltip
+                  :icon-text="'mdi-pencil'"
+                  :text-tooltip="'Редактировать семейство'"
+                  :is-disabled="loading"
+                  @click-icon="
+                  set_action_query('edit');
+                  set_family(item._family);
+                  open_dialog_family(item.id_family);"
+              />
               <TooltipStyled :title="getDeleteMessage(item)">
                 <v-icon
                     :disabled="stateExistChildren(item)"
@@ -42,21 +51,21 @@
 
 
       <v-card class="table_container">
-        <v-card-title v-if="!selectedFamily.id_family">Не выбрано семейство</v-card-title>
+        <v-card-title v-if="!selectedLeafTree.id_family">Не выбрано семейство</v-card-title>
 
         <!-- Таблица характеристик для семейств  -->
         <v-data-table
             v-if="getStateSelectedFamily && getStateExistChildren"
-            :key="selectedFamily.id_family"
+            :key="selectedLeafTree.id_family"
             ref=familyTable
             :headers="headersFamilyTable"
             :items="listCharacteristicsFilteredByMToM"
         >
           <template v-slot:top>
-              <v-card-title>{{ 'Характеристики семейства - "' + selectedFamily.name_leaf }}</v-card-title>
+              <v-card-title>{{ 'Характеристики семейства - "' + selectedLeafTree.name_leaf }}</v-card-title>
           </template>
           <template v-slot:item="{ item }">
-            <tr v-if="item.id_family === selectedFamily.id_family">
+            <tr v-if="item.id_family === selectedLeafTree.id_family">
               <td>
                 <DropDownMenuStyled :is-class="'reverseIconContent'" :is-top="true" >
                   <template #icon>
@@ -105,7 +114,7 @@
                     :current-rules="$store.state.requiredFieldRules"
                     :is-hide-details="true"
                     :is-loading="loading"
-                    :is-disabled="loading || item.id_family !== selectedFamily.id_family"
+                    :is-disabled="loading || item.id_family !== selectedLeafTree.id_family"
                     :is-return-object="false"
                     @update-input="item.value = $event; setMToMCharacteristicsNomenclature(item)"
                 />
@@ -113,7 +122,7 @@
                     v-if="['stroka', 'cislo'].includes(item._characteristic_nomenclature.type_characteristic.code)"
                     :id="item.id_characteristic"
                     :data="item.value"
-                    :is-disabled="loading || item.id_family !== selectedFamily.id_family"
+                    :is-disabled="loading || item.id_family !== selectedLeafTree.id_family"
                     @change-input="item.value = $event; setMToMCharacteristicsNomenclature(item)"
                 />
               </td>
@@ -122,7 +131,7 @@
                 <CheckboxStyled
                   :is-hide-details="true"
                   :state="item.required_fill_in_nomenclature"
-                  :is-disabled="loading || item.id_family !== selectedFamily.id_family"
+                  :is-disabled="loading || item.id_family !== selectedLeafTree.id_family"
                   @change-event="item.required_fill_in_nomenclature = $event; setMToMCharacteristicsNomenclature(item)"
                 />
               </td>
@@ -137,6 +146,7 @@
                       :color-icon="'green'"
                       :class="'justify-start'"
                       :text-tooltip="'Добавить Характеристику'"
+                      :is-disabled="loading"
                       @click-icon="set_action_query('add'); openDialogCharacteristics()"
                   />
                 </td>
@@ -148,7 +158,7 @@
         <!-- Таблица номенклатуры для последних записей семейств -->
         <v-data-table
             v-if="getStateSelectedFamily && !getStateExistChildren"
-            :key="selectedFamily.id_family"
+            :key="selectedLeafTree.id_family"
             ref=nomenclatureTable
             :headers="listNomenclatureByFamily"
             hide-default-header
@@ -160,7 +170,7 @@
           <template v-slot:header="{ props: { headers } }">
             <thead class="v-data-table-header">
               <tr>
-                <th class="black--text">{{selectedFamily.name_leaf}}</th>
+                <th class="black--text">{{ selectedLeafTree.name_leaf }}</th>
 
                 <th v-for="item in headers" :key="item.id" class="text-center">
 
@@ -194,6 +204,7 @@
                   <TooltipStyled :title="'Добавить Номенклатуру'">
                     <v-btn text block class="justify-center align-center"
                            @click="set_action_query('add'); open_dialog_nomenclature();"
+                           :disabled="loading"
                     >
                       <v-icon color="green">mdi-plus-thick</v-icon>
                     </v-btn>
@@ -312,6 +323,7 @@
                 <TooltipStyled :title="'Добавить Характеристику'">
                   <v-btn text block class="justify-start"
                          @click="set_action_query('add'); openDialogCharacteristics()"
+                         :disabled="loading"
                   >
                     <v-icon color="green">mdi-plus-thick</v-icon>
                   </v-btn>
@@ -323,18 +335,20 @@
         </v-data-table>
       </v-card>
 
+      <!-- Диалог для добавления/редактирования семейств -->
       <v-dialog :value="dialogFamily"
-          @click:outside="close_dialog_family()"
-          @keydown.esc="close_dialog_family()"
+          @click:outside="close_dialog_family(); clear_action_query();"
+          @keydown.esc="close_dialog_family(); clear_action_query();"
       >
         <v-card>
           <v-card-title>
-            Новый элемент
+            Создание/редактирование семейства
           </v-card-title>
-          <v-card-text>
+          <div class="container">
             <v-col cols="12" sm="12" md="12">
               <ComboboxStyled
                   :is-items="listFamiliesBySearch"
+                  :data="family.name"
                   :key="idParentFamily"
                   :is-return-object="true"
                   :is-item-text="'name'"
@@ -348,15 +362,47 @@
                   @click-clear="clear_family"
               ></ComboboxStyled>
             </v-col>
-          </v-card-text>
-          <v-card-actions>
-            <v-btn color="primary" text @click="close_dialog_family()" > Закрыть </v-btn>
+            <v-col v-if="family.id">
+              <InputStyledSimple
+                  class="mb-5"
+                  :data="family.seo_title"
+                  :placeholder="'Seo title'"
+                  :is-loading="loading"
+                  @update-input="setPropertyFamily({ key: 'seo_title', payload: $event });"
+              />
+              <InputStyledSimple
+                  class="mb-5"
+                  :data="family.seo_keywords"
+                  :placeholder="'Seo keywords'"
+                  :is-loading="loading"
+                  @update-input="setPropertyFamily({ key: 'seo_keywords', payload: $event });"
+              />
+              <VueEditor
+                  v-model="family.seo_descriptionEditor"
+                  placeholder="Seo description"
+                  class="mt-3"
+                  :editorToolbar="customToolbar"
+                  ref="characteristicEditor"
+                  @text-change="localSetDescriptionFamily"
+              />
+            </v-col>
+
+            <v-btn color="primary" text @click="close_dialog_family(); clear_action_query();" > Закрыть </v-btn>
             <v-btn color="primary" text
+                   v-if="$route.query.action === 'add'"
                    @click="addChildAction"
-                   :disabled="!family.id_family || loading"
+                   :disabled="!family.id || loading"
                    :loading="loading"
-            > Добавить в дерево</v-btn>
-          </v-card-actions>
+            > Добавить в дерево
+            </v-btn>
+            <v-btn color="primary" text
+                   v-if="$route.query.action === 'edit'"
+                   @click="saveFamilyAction(); clear_action_query();"
+                   :disabled="!family.id || loading"
+                   :loading="loading"
+            > Сохранить
+            </v-btn>
+          </div>
         </v-card>
       </v-dialog>
 
@@ -368,11 +414,10 @@
         <v-card>
           <v-card-title>
             <section>Создание/редактирование номенклатуры в семействе</section>
-            <section>"{{selectedFamily.name_leaf}}"</section>
+            <section>"{{ selectedLeafTree.name_leaf }}"</section>
           </v-card-title>
-          <v-card-text>
+          <div class="container">
             <v-col>
-              <p class="text-subtitle-1"></p>
               <ComboboxStyled
                   :is-items="listNomenclaturesBySearch"
                   :data="nomenclature.name"
@@ -413,8 +458,6 @@
                   @text-change="localSetDescriptionNomenclature"
               />
             </v-col>
-          </v-card-text>
-          <v-card-actions>
             <v-btn color="primary" text @click="close_dialog_nomenclature(); clear_action_query();" > Закрыть </v-btn>
             <v-btn color="primary" text
                    v-if="$route.query.action === 'add'"
@@ -424,11 +467,11 @@
             > Добавить </v-btn>
             <v-btn color="primary" text
                    v-if="$route.query.action === 'edit'"
-                   @click="getNomenclatureByFamily(selectedFamily.id_family); close_dialog_nomenclature(); clear_action_query()"
+                   @click="getNomenclatureByFamily(selectedLeafTree.id_family); close_dialog_nomenclature(); clear_action_query()"
                    :disabled="!nomenclature.id || loading || responseAddNomenclature.isError"
                    :loading="loading"
             > Сохранить </v-btn>
-          </v-card-actions>
+          </div>
         </v-card>
       </v-dialog>
 
@@ -439,7 +482,7 @@
       >
         <v-card>
           <v-card-title>
-            {{ `Вы точно хотите удалить ${nomenclature.name} из семейства - ${selectedFamily.name_leaf}` }}
+            {{ `Вы точно хотите удалить ${nomenclature.name} из семейства - ${selectedLeafTree.name_leaf}` }}
           </v-card-title>
           <v-card-actions>
             <v-btn color="primary" text @click="close_dialog_delete_nomenclature" > Закрыть </v-btn>
@@ -460,110 +503,108 @@
         <v-card>
           <v-card-title>
             <section>Создание/редактирование характеристики в семействе</section>
-            <section>"{{selectedFamily.name_leaf}}"</section>
+            <section>"{{ selectedLeafTree.name_leaf }}"</section>
           </v-card-title>
-          <v-card-text>
-            <v-col cols="12" sm="12" md="12">
-              <ComboboxStyled
-                  :is-items="listCharacteristicsBySearch"
-                  :data="characteristic.name"
-                  :key="characteristic.id"
-                  :is-return-object="true"
-                  :is-item-text="'name'"
-                  :is-item-value="'name'"
-                  :is-error-messages="responseAddCharacteristics.message"
-                  :is-error="responseAddCharacteristics.isError"
-                  :is-hide-details="false"
-                  :is-outlined="false"
-                  :is-placeholder="'Поиск. Введите имя характеристики'"
-                  :is-loading="loading"
-                  @update-search-input="getCharacteristicsBySearch($event)"
-                  @change-search="localSetSearchCharacteristics"
-                  @click-clear="clear_response_add_characteristic(); clear_characteristic()"
-              ></ComboboxStyled>
-            </v-col>
-            <v-row v-if="characteristic.id && !responseAddCharacteristics.isError">
-              <v-col>
-                <SelectStyled
-                    :data="characteristic.id_type_characteristic"
-                    :items="listTypeCharacteristics"
-                    :item-text="'name'"
-                    :item-value="'id'"
-                    :placeholder="'Тип параметра'"
-                    :current-rules="$store.state.requiredFieldRules"
-                    :is-hide-details="false"
-                    :is-loading="loading"
-                    :is-disabled="loading || Boolean(characteristic.id_type_characteristic)"
-                    :is-error="Boolean(characteristic.id_type_characteristic)"
-                    :is-error-messages="'Уже выбран тип параметра для этой характеристики, изменить нельзя'"
-                    @update-input="
-                      set_type_characteristic($event)
-                      updateCharacteristic()
-                    "
-                />
-              </v-col>
-              <v-col cols="6" v-if="characteristic.type_characteristic.code === 'vybor-iz-spravocnika'">
+          <v-form ref="formCharacteristic" class="container" v-model="valid" lazy-validation>
+              <v-col cols="12" sm="12" md="12">
                 <ComboboxStyled
-                    :data="characteristic.dictionary.name"
-                    :is-items="$store.state.DictionariesModule.listEntries"
-                    :is-item-text="'name'"
-                    :is-item-value="'id'"
+                    :is-items="listCharacteristicsBySearch"
+                    :data="characteristic.name"
+                    :key="characteristic.id"
                     :is-return-object="true"
+                    :is-item-text="'name'"
+                    :is-item-value="'name'"
+                    :is-error-messages="responseAddCharacteristics.message"
+                    :is-error="responseAddCharacteristics.isError"
                     :is-hide-details="false"
-                    :is-placeholder="'Справочник'"
+                    :is-outlined="false"
+                    :is-placeholder="'Поиск. Введите имя характеристики'"
                     :is-loading="loading"
-                    :is-disabled="loading || Boolean(characteristic.id_dictionary)"
-                    :is-error="Boolean(characteristic.id_dictionary)"
-                    :is-error-messages="'Уже выбран справочник для этой характеристики, изменить нельзя'"
-                    @change-search="
-                      set_dictionary_characteristic($event);
-                      updateCharacteristic();
-                    "
-                    @click-clear="clear_characteristic"
+                    @update-search-input="getCharacteristicsBySearch($event)"
+                    @change-search="localSetSearchCharacteristics"
+                    @click-clear="clear_response_add_characteristic(); clear_characteristic()"
                 ></ComboboxStyled>
               </v-col>
-              <v-col cols="12">
-                <VueEditor
-                    v-model="characteristic.descriptionEditor"
-                    placeholder="Описание"
-                    class="mt-5"
-                    :editorToolbar="customToolbar"
-                    ref="characteristicEditor"
-                    @text-change="localSetDescriptionCharacteristic"
-                />
-              </v-col>
-              <v-col cols="12">
-                <SelectStyled
-                    :items="dictionaryUnits.d_dictionary_attributes"
-                    :item-text="'value'"
-                    :item-value="'value'"
-                    :data="characteristic.postfix"
-                    :placeholder="dictionaryUnits.name"
-                    :is-loading="loading"
-                    :is-disabled="loading || Boolean(characteristic.postfix)"
-                    :is-error="Boolean(characteristic.postfix)"
-                    :is-return-object="false"
-                    :is-error-messages="'Уже выбрана единица измерения для этой характеристики, изменить нельзя'"
-                    @change-input="setPropertyCharacteristic({ key: 'postfix',payload: $event });"
-                ></SelectStyled>
-              </v-col>
-            </v-row>
-          </v-card-text>
-          <v-card-actions>
-            <v-btn color="primary" text @click="close_dialog_characteristics(); clear_action_query()" > Закрыть </v-btn>
-            <v-btn color="primary" text
-                   v-if="$route.query.action === 'add'"
-                   @click="localSetMtoMCharacteristicsNomenclature()"
-                   :disabled="!characteristic.id || !characteristic.id_type_characteristic || loading || responseAddCharacteristics.isError"
-                   :loading="loading"
-            > Добавить </v-btn>
-            <v-btn color="primary" text
-                   v-if="$route.query.action === 'edit'"
-                   @click="getMToMNomenclatureCharacteristics(selectedFamily.id_family); close_dialog_characteristics(); clear_action_query()"
-                   :disabled="!characteristic.id || !characteristic.id_type_characteristic || loading || responseAddCharacteristics.isError"
-                   :loading="loading"
-            > Сохранить </v-btn>
-          </v-card-actions>
+              <div v-if="characteristic.id && !responseAddCharacteristics.isError">
+                <v-col>
+                  <SelectStyled
+                      :data="characteristic.id_type_characteristic"
+                      :items="listTypeCharacteristics"
+                      :item-text="'name'"
+                      :item-value="'id'"
+                      :placeholder="'Тип параметра'"
+                      :current-rules="$store.state.requiredFieldRules"
+                      :is-hide-details="false"
+                      :is-loading="loading"
+                      :is-disabled="loading || Boolean(characteristic.id_type_characteristic)"
+                      :is-error="Boolean(characteristic.id_type_characteristic)"
+                      :is-error-messages="'Уже выбран тип параметра для этой характеристики, изменить нельзя'"
+                      @update-input="
+                        set_type_characteristic($event)
+                        updateCharacteristic()
+                      "
+                  />
+                </v-col>
+                <v-col cols="6" v-if="characteristic.type_characteristic.code === 'vybor-iz-spravocnika'">
+                  <ComboboxStyled
+                      :data="characteristic.dictionary.name"
+                      :is-items="$store.state.DictionariesModule.listEntries"
+                      :is-item-text="'name'"
+                      :is-item-value="'id'"
+                      :is-return-object="true"
+                      :is-hide-details="false"
+                      :is-placeholder="'Справочник'"
+                      :is-loading="loading"
+                      :is-disabled="loading || Boolean(characteristic.id_dictionary)"
+                      :is-error="Boolean(characteristic.id_dictionary)"
+                      :is-error-messages="'Уже выбран справочник для этой характеристики, изменить нельзя'"
+                      @change-search="
+                        set_dictionary_characteristic($event);
+                        updateCharacteristic();
+                      "
+                      @click-clear="clear_characteristic"
+                  ></ComboboxStyled>
+                </v-col>
+                <v-col cols="12">
+                  <VueEditor
+                      v-model="characteristic.descriptionEditor"
+                      placeholder="Описание"
+                      class="mt-5"
+                      :editorToolbar="customToolbar"
+                      ref="characteristicEditor"
+                      @text-change="localSetDescriptionCharacteristic"
+                  />
+                </v-col>
+                <v-col cols="12">
+                  <SelectStyled
+                      :items="dictionaryUnits.d_dictionary_attributes"
+                      :item-text="'value'"
+                      :item-value="'value'"
+                      :data="characteristic.postfix"
+                      :placeholder="dictionaryUnits.name"
+                      :is-loading="loading"
+                      :is-disabled="loading || Boolean(characteristic.postfix)"
+                      :is-error="Boolean(characteristic.postfix)"
+                      :is-return-object="false"
+                      :is-error-messages="'Уже выбрана единица измерения для этой характеристики, изменить нельзя'"
+                      @change-input="setPropertyCharacteristic({ key: 'postfix',payload: $event });"
+                  ></SelectStyled>
+                </v-col>
+              </div>
+              <v-btn color="primary" text @click="close_dialog_characteristics(); clear_action_query()" > Закрыть </v-btn>
+              <v-btn color="primary" text
+                     v-if="$route.query.action === 'add'"
+                     @click="addCharacteristicToForm()"
+                     :disabled="!characteristic.id || loading || responseAddCharacteristics.isError"
+                     :loading="loading"
+              > Добавить </v-btn>
+              <v-btn color="primary" text
+                     v-if="$route.query.action === 'edit'"
+                     @click="updateCharacteristicInForm()"
+                     :disabled="!characteristic.id || loading || responseAddCharacteristics.isError"
+                     :loading="loading"
+              > Сохранить </v-btn>
+          </v-form>
         </v-card>
       </v-dialog>
 
@@ -576,7 +617,7 @@
           <v-card-title class="d-block">
             <section>Вы точно хотите удалить характеристику</section>
             <section>"{{ characteristic.name }}"</section>
-            <section>{{ `из семейства - ${selectedFamily.name_leaf}` }}</section>
+            <section>{{ `из семейства - ${selectedLeafTree.name_leaf}` }}</section>
           </v-card-title>
           <v-card-actions>
             <v-btn color="primary" text @click="close_dialog_delete_characteristic" > Закрыть </v-btn>
@@ -673,7 +714,7 @@ export default {
       [{ direction: "rtl" }],
       ["clean"]
     ],
-    debounceTimeout: null
+    valid: true,
   }),
   mounted() {
     this.getTreeOnMount();
@@ -696,7 +737,7 @@ export default {
         'loading',
         'tree',
         'idParentFamily',
-        'selectedFamily',
+        'selectedLeafTree',
         'responseAddCharacteristics',
         'responseAddNomenclature',
         'dialogDeleteNomenclature',
@@ -738,7 +779,9 @@ export default {
           'getMToMNomenclatureCharacteristics',
           'openDialogCharacteristics',
           'setPropertyNomenclature',
-          'setPropertyCharacteristic'
+          'setPropertyCharacteristic',
+          'setPropertyFamily',
+          'saveFamilyAction'
         ],
     ),
     ...mapActions('DictionariesModule', [
@@ -767,6 +810,8 @@ export default {
         'set_characteristic',
         'open_dialog_delete_characteristic',
         'set_nomenclature',
+        'set_family',
+        'clear_list_families_by_search'
     ]),
     getIconRow(open, item){
       if (!item.children) return this.icons.circle
@@ -800,15 +845,6 @@ export default {
 
       await this.getListDictionaries({query: {flag_nomenclature: true}})
     },
-    async localSetMtoMCharacteristicsNomenclature(){
-      const response = await this.setMToMCharacteristicsNomenclature({
-        id_characteristic: this.characteristic.id,
-        required_fill_in_nomenclature: 1
-      });
-      if (response.codeResponse >= 400) return false;
-
-      this.close_dialog_characteristics()
-    },
     async localSetSearchNomenclature(obj){
       if (! obj) return false;
 
@@ -824,7 +860,7 @@ export default {
         });
         return false;
       }
-      await this.getNomenclatureByFamily(this.selectedFamily.id_family);
+      await this.getNomenclatureByFamily(this.selectedLeafTree.id_family);
     },
     stateExistChildren(item){
       if (!item.children) return false
@@ -854,6 +890,14 @@ export default {
         payload: this.nomenclature.seo_descriptionEditor
       })
     },
+    async localSetDescriptionFamily(){
+      if (this.family.seo_descriptionEditor === this.family.seo_description)  return false;
+
+      this.setPropertyFamily({
+        key: 'seo_description',
+        payload: this.family.seo_descriptionEditor
+      })
+    },
 
     // Работаем с кверями
     clear_action_query(){
@@ -865,6 +909,30 @@ export default {
       this.$router.replace({
         query: { action: action },
       }).catch(() => {});
+    },
+
+    //Валидация
+    async addCharacteristicToForm(){
+      const stateValidation = this.$refs.formCharacteristic.validate();
+      console.log('stateValidation', stateValidation);
+      if (!stateValidation) return false;
+
+      const response = await this.setMToMCharacteristicsNomenclature({
+        id_characteristic: this.characteristic.id,
+        required_fill_in_nomenclature: 1
+      });
+      if (response.codeResponse >= 400) return false;
+
+      this.close_dialog_characteristics()
+    },
+    updateCharacteristicInForm() {
+      const stateValidation = this.$refs.formCharacteristic.validate();
+      console.log('stateValidation', stateValidation);
+      if (!stateValidation) return false;
+
+      this.getMToMNomenclatureCharacteristics(this.selectedLeafTree.id_family);
+      this.close_dialog_characteristics();
+      this.clear_action_query()
     },
   },
   beforeRouteLeave: function(to, from, next) {

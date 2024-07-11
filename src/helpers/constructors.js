@@ -123,13 +123,26 @@ export function NomenclaturesTreeLeaf(
   id_parent = null,
   name_leaf = "",
   depth_level = null,
-  children = []
+  children = [],
+  _family = new Family()
 ) {
   this.id_family = id_family;
   this.id_parent = id_parent;
   this.name_leaf = name_leaf;
   this.depth_level = depth_level;
   this.children = children;
+  this._family = new Family(
+    _family.id,
+    _family.code,
+    _family.name,
+    _family.brand,
+    _family.id_brand,
+    _family.photos,
+    _family.files,
+    _family.seo_title,
+    _family.seo_description,
+    _family.seo_keywords
+  );
 }
 
 export function CharacteristicNomenclature(
@@ -184,7 +197,10 @@ export function Family(
   brand = "",
   id_brand = null,
   photos = null,
-  files = null
+  files = null,
+  seo_title = "",
+  seo_description = "",
+  seo_keywords = ""
 ) {
   this.id = id;
   this.code = code;
@@ -193,6 +209,10 @@ export function Family(
   this.id_brand = id_brand;
   this.photos = photos;
   this.files = files;
+  this.seo_title = seo_title;
+  this.seo_description = seo_description;
+  this.seo_descriptionEditor = seo_description;
+  this.seo_keywords = seo_keywords;
 }
 
 export function Nomenclature(
@@ -260,7 +280,10 @@ export function MtoMNomenclatureCharacteristics(
     _family.brand,
     _family.id_brand,
     _family.photos,
-    _family.files
+    _family.files,
+    _family.seo_title,
+    _family.seo_description,
+    _family.seo_keywords
   );
   this.name_char = _characteristic_nomenclature.name;
 }
