@@ -8,6 +8,7 @@ import {
   Dictionary,
   PropertyEntity,
   Family,
+  Breadcrumb,
 } from "@/helpers/constructors";
 import Logging from "@/services/logging";
 
@@ -50,7 +51,10 @@ export default {
       //   depth_level: null,
       // },
     ],
+    flat_tree: [],
     dictionaryUnits: new Dictionary(),
+    arrBreadcrumbsToCurrentLeaf: [new Breadcrumb("Номенклатура")],
+    openBreadcrumbsLeaf: [],
   },
   mutations: {
     change_loading(state, value) {
@@ -69,6 +73,26 @@ export default {
         payload.d_dictionary_attributes
       );
     },
+    clear_arr_breadcrumbs_to_current_leaf(state) {
+      state.arrBreadcrumbsToCurrentLeaf = [];
+    },
+    set_open_leaf_tree(state, value) {
+      state.openBreadcrumbsLeaf = value;
+    },
+    set_open_leaf_tree_in_breadcrumb(state, nameBreadcrumb) {
+      const listNameByArr = state.arrBreadcrumbsToCurrentLeaf.map(
+        (item) => item.text
+      );
+
+      state.openBreadcrumbsLeaf = [];
+      state.arrBreadcrumbsToCurrentLeaf = [];
+      listNameByArr.some((item) => {
+        state.openBreadcrumbsLeaf.push(item);
+        state.arrBreadcrumbsToCurrentLeaf.push(new Breadcrumb(item));
+        if (item === nameBreadcrumb) return true;
+      });
+    },
+
     // Семейства
     open_dialog_family(state, idCurObj) {
       state.idParentFamily = idCurObj;
@@ -150,6 +174,9 @@ export default {
     set_list_mtom_nomenclatures_characteristics(state, payload) {
       state.listMtoMNomenclaturesCharacteristics = [];
       state.listMtoMNomenclaturesCharacteristics = payload;
+    },
+    clear_list_mtom_nomenclatures_characteristics(state) {
+      state.listMtoMNomenclaturesCharacteristics = [];
     },
     set_characteristic(state, payload = new CharacteristicNomenclature()) {
       state.characteristic = new CharacteristicNomenclature(
@@ -238,8 +265,11 @@ export default {
 
     // Дерево
     set_tree(state, payload) {
+      const { tree, flat_tree } = payload;
       state.tree = [];
-      state.tree = payload;
+      state.flat_tree = [];
+      state.tree = tree;
+      state.flat_tree = flat_tree;
     },
     //старая реализация без бэкенда
     add_child(state, curEntry) {
@@ -431,6 +461,11 @@ export default {
     ) {
       commit("set_selected_family", NomenclaturesTreeLeaf);
 
+      commit("clear_arr_breadcrumbs_to_current_leaf");
+      getters.setBreadcrumbsToCurrentLeaf(state.selectedLeafTree.id_family);
+
+      // Очищаем перед следующей загрузкой
+      commit("clear_list_mtom_nomenclatures_characteristics");
       //Запрашиваем MToM используется на любом уровне лепестка дерева
       await dispatch(
         "getMToMNomenclatureCharacteristics",
@@ -776,6 +811,33 @@ export default {
     },
   },
   getters: {
+    setBreadcrumbsToCurrentLeaf: (state, getters) => (idFamily) => {
+      getters.setRecursiveBreadcrumbs(idFamily);
+
+      const reverseArr = state.arrBreadcrumbsToCurrentLeaf.reverse();
+      state.arrBreadcrumbsToCurrentLeaf = reverseArr.map(
+        (item) => new Breadcrumb(item)
+      );
+    },
+    // Снизу - вверх
+    setRecursiveBreadcrumbs: (state, getters) => (idFamily) => {
+      // ... условие выхода ...
+      if (!idFamily) return;
+
+      // ...обработка данных узла...
+      const curLeaf = state.flat_tree.find(
+        (item) => item.id_family === idFamily
+      );
+      state.arrBreadcrumbsToCurrentLeaf.push(curLeaf.name_leaf);
+
+      // снизу вверх обходим ветви, ведущие из текущего узла
+      getters.setRecursiveBreadcrumbs(curLeaf.id_parent);
+    },
+    getStateCheckedLeafByBreadcrumbs: (state) => (nameLeaf) => {
+      return state.arrBreadcrumbsToCurrentLeaf.some(
+        (item) => item.text === nameLeaf
+      );
+    },
     // Рекурсивно ищем по id_family нужный объект
     findItem: (state, getters) => (id, items) => {
       if (!items) {

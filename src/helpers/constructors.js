@@ -292,3 +292,9 @@ export function PropertyEntity(key = "", payload) {
   this.key = key;
   this.payload = payload;
 }
+
+export function Breadcrumb(text = "", disabled = false) {
+  this.text = text;
+  this.href = "#" + text;
+  this.disabled = disabled;
+}

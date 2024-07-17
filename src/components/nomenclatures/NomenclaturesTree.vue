@@ -1,20 +1,42 @@
 <template>
+  <div>
+    <v-container>
+      <v-breadcrumbs :items="arrBreadcrumbsToCurrentLeaf" large class="breadcrumbs-tree">
+      <template v-slot:item="{ item }">
+        <v-breadcrumbs-item
+            :href="item.href"
+            :disabled="item.disabled"
+            @click="set_open_leaf_tree_in_breadcrumb(item.text); scrollToLeaf(item.text)"
+        >
+          {{ item.text }}
+        </v-breadcrumbs-item>
+      </template>
+    </v-breadcrumbs>
+    </v-container>
+
     <v-container class="nomenclatures-tree">
 
+      <!-- Дерево -->
       <v-card id="tree" class="pb-10">
         <v-card-title>
             Дерево
         </v-card-title>
-        <v-treeview v-model="localTree"
-                    :open="open"
+        <v-treeview v-if="tree.length"
+                    v-model="localTree"
+                    :open.sync="localOpenLeafTree"
                     :items="tree"
                     item-key="name_leaf"
+                    ref="treeView"
         >
           <template v-slot:prepend="{open, item}">
             <v-icon>{{ getIconRow(open, item) }}</v-icon>
           </template>
           <template v-slot:label="{item}">
-            <v-btn class="rollback-vuetify-text-style justify-start" block text
+            <v-btn
+                  :ref="item.name_leaf"
+                   class="rollback-vuetify-text-style justify-start"
+                   :class="{selectedLeaf: getStateCheckedLeafByBreadcrumbs(item.name_leaf)}"
+                   block text
                    @click="setSelectedFamilyAction(item)">{{ item.name_leaf }}</v-btn>
             <hr>
           </template>
@@ -48,8 +70,7 @@
           </template>
         </v-treeview>
       </v-card>
-
-
+      <!-- Правая часть данных-->
       <v-card class="table_container">
         <v-card-title v-if="!selectedLeafTree.id_family">Не выбрано семейство</v-card-title>
 
@@ -60,6 +81,8 @@
             ref=familyTable
             :headers="headersFamilyTable"
             :items="listCharacteristicsFilteredByMToM"
+            :loading="loading"
+            :loading-text="'Загрузка данных'"
         >
           <template v-slot:top>
               <v-card-title>{{ 'Характеристики семейства - "' + selectedLeafTree.name_leaf }}</v-card-title>
@@ -163,6 +186,8 @@
             :headers="listNomenclatureByFamily"
             hide-default-header
             :items="listCharacteristicsFilteredByMToM"
+            :loading="loading"
+            :loading-text="'Загрузка данных'"
         >
           <template v-slot:top>
             <v-card-title>{{ 'Номенклатура семейства' }}</v-card-title>
@@ -200,7 +225,7 @@
                   </DropDownMenuStyled>
                 </th>
 
-                <th>
+                <th style="max-width: 40px;">
                   <TooltipStyled :title="'Добавить Номенклатуру'">
                     <v-btn text block class="justify-center align-center"
                            @click="set_action_query('add'); open_dialog_nomenclature();"
@@ -337,8 +362,8 @@
 
       <!-- Диалог для добавления/редактирования семейств -->
       <v-dialog :value="dialogFamily"
-          @click:outside="close_dialog_family(); clear_action_query();"
-          @keydown.esc="close_dialog_family(); clear_action_query();"
+          @click:outside="saveFamilyAction(); clear_action_query();"
+          @keydown.esc="saveFamilyAction(); clear_action_query();"
       >
         <v-card>
           <v-card-title>
@@ -644,6 +669,7 @@
 <!--        ></v-progress-circular>-->
 <!--      </v-overlay>-->
     </v-container>
+  </div>
 </template>
 
 <script>
@@ -672,7 +698,6 @@ export default {
     VueEditor
   },
   data: () => ({
-    open: ['Котлы'],
     icons: {
       openFolder: 'mdi-folder-open',
       closedFolder: 'mdi-folder',
@@ -716,9 +741,11 @@ export default {
     ],
     valid: true,
   }),
-  mounted() {
-    this.getTreeOnMount();
-    this.getDictionaryUnits()
+  async mounted() {
+    await this.getTreeOnMount();
+    await this.getDictionaryUnits();
+
+    this.$refs.treeView.updateAll(true);
   },
   watch: {},
   computed:{
@@ -744,7 +771,9 @@ export default {
         'listTypeCharacteristics',
         'dialogDeleteCharacteristic',
         'characteristic',
-        'dictionaryUnits'
+        'dictionaryUnits',
+        'arrBreadcrumbsToCurrentLeaf',
+        'openBreadcrumbsLeaf'
     ]),
     ...mapGetters('NomenclaturesTreeModule',[
         'getStateSelectedFamily',
@@ -755,8 +784,17 @@ export default {
         'getStateExistAddedCharacteristicInFamily',
         'getStateExistAddedNomenclatureInFamily',
         'deniedAccessByDeleteCharacteristic',
+        'getStateCheckedLeafByBreadcrumbs'
     ]),
-    ...mapGetters(['stateEditCreate'])
+    ...mapGetters(['stateEditCreate']),
+    localOpenLeafTree: {
+      get() {
+        return this.openBreadcrumbsLeaf;
+      },
+      set(newValue) {
+        return this.set_open_leaf_tree(newValue)
+      },
+    },
   },
   methods: {
     ...mapActions('NomenclaturesTreeModule', [
@@ -811,7 +849,9 @@ export default {
         'open_dialog_delete_characteristic',
         'set_nomenclature',
         'set_family',
-        'clear_list_families_by_search'
+        'clear_list_families_by_search',
+        'set_open_leaf_tree',
+        'set_open_leaf_tree_in_breadcrumb'
     ]),
     getIconRow(open, item){
       if (!item.children) return this.icons.circle
@@ -934,6 +974,12 @@ export default {
       this.close_dialog_characteristics();
       this.clear_action_query()
     },
+
+    scrollToLeaf(refVar){
+      this.$nextTick(() => {
+        this.$refs[refVar].$el.scrollIntoView({behavior: "smooth"});
+      });
+    }
   },
   beforeRouteLeave: function(to, from, next) {
     this.close_dialog_delete_characteristic()
@@ -951,6 +997,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.breadcrumbs-tree{
+  position: sticky;
+  top: 50px;
+  z-index: 9999;
+  background: white;
+  padding-left: 10px;
+  //box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
+}
 .nomenclatures-tree{
   display: grid;
   grid-template-columns: 35% 1fr;
@@ -959,6 +1013,10 @@ export default {
   #tree{
     max-height: 88vh;
     overflow: auto;
+  }
+  .selectedLeaf{
+    background: rgba(25, 118, 210, 0.10) !important;
+    //background: rgb(231, 237, 249) !important;
   }
 
   .table_container{
