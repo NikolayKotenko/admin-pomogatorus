@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- Хлебные крошки -->
     <v-container>
       <v-breadcrumbs :items="arrBreadcrumbsToCurrentLeaf" large class="breadcrumbs-tree">
       <template v-slot:item="{ item }">
@@ -14,6 +15,7 @@
     </v-breadcrumbs>
     </v-container>
 
+    <!-- Дерево плюс рабочая область   -->
     <v-container class="nomenclatures-tree">
 
       <!-- Дерево -->
@@ -367,11 +369,14 @@
       >
         <v-card>
           <v-card-title>
-            Создание/редактирование семейства
+            <section>
+              {{ $route.query.action === 'edit' ? 'Редактирование' : 'Создание' }} семейства <u>{{family.name}}</u>
+            </section>
           </v-card-title>
           <div class="container">
             <v-col cols="12" sm="12" md="12">
               <ComboboxStyled
+                  :is-disabled="$route.query.action === 'edit'"
                   :is-items="listFamiliesBySearch"
                   :data="family.name"
                   :key="idParentFamily"
@@ -437,13 +442,17 @@
                 @keydown.esc="close_dialog_nomenclature(); clear_action_query();"
       >
         <v-card>
-          <v-card-title>
-            <section>Создание/редактирование номенклатуры в семействе</section>
-            <section>"{{ selectedLeafTree.name_leaf }}"</section>
+          <v-card-title class="d-block">
+            <section>
+              {{ $route.query.action === 'edit' ? 'Редактирование' : 'Создание' }}
+              номенклатуры <u>{{nomenclature.name}}</u> в семействе
+            </section>
+            <section><u>{{ selectedLeafTree.name_leaf }}</u></section>
           </v-card-title>
           <div class="container">
             <v-col>
               <ComboboxStyled
+                  :is-disabled="$route.query.action === 'edit'"
                   :is-items="listNomenclaturesBySearch"
                   :data="nomenclature.name"
                   :key="nomenclature.id"
@@ -526,13 +535,17 @@
                 @keydown.esc="close_dialog_characteristics(); clear_action_query();"
       >
         <v-card>
-          <v-card-title>
-            <section>Создание/редактирование характеристики в семействе</section>
-            <section>"{{ selectedLeafTree.name_leaf }}"</section>
+          <v-card-title class="d-block">
+            <section>
+              {{ $route.query.action === 'edit' ? 'Редактирование' : 'Создание' }}
+              характеристики <u>{{characteristic.name}}</u>
+            </section>
+            <section>в семействе <u>{{ selectedLeafTree.name_leaf }}</u> </section>
           </v-card-title>
           <v-form ref="formCharacteristic" class="container" v-model="valid" lazy-validation>
               <v-col cols="12" sm="12" md="12">
                 <ComboboxStyled
+                    :is-disabled="$route.query.action === 'edit'"
                     :is-items="listCharacteristicsBySearch"
                     :data="characteristic.name"
                     :key="characteristic.id"
@@ -669,6 +682,25 @@
 <!--        ></v-progress-circular>-->
 <!--      </v-overlay>-->
     </v-container>
+
+    <!--  Всплывающие уведомления  -->
+    <v-snackbar
+        :style="{'margin-bottom':calcMargin(i)}"
+        v-for="(value,i) in popupNotifications"
+        :key="i"
+        v-model="popupSettings.show"
+        :timeout="popupSettings.timeout"
+        absolute
+        bottom
+        dark
+        color="success"
+        right
+    >
+      <div class="d-inline-flex" style="width: 100%; justify-content: space-between">
+        <section>{{ value }}</section>
+        <v-icon color="pink" right>mdi-close</v-icon>
+      </div>
+    </v-snackbar>
   </div>
 </template>
 
@@ -773,7 +805,9 @@ export default {
         'characteristic',
         'dictionaryUnits',
         'arrBreadcrumbsToCurrentLeaf',
-        'openBreadcrumbsLeaf'
+        'openBreadcrumbsLeaf',
+        'popupNotifications',
+        'popupSettings'
     ]),
     ...mapGetters('NomenclaturesTreeModule',[
         'getStateSelectedFamily',
@@ -979,7 +1013,10 @@ export default {
       this.$nextTick(() => {
         this.$refs[refVar].$el.scrollIntoView({behavior: "smooth"});
       });
-    }
+    },
+    calcMargin(i) {
+      return (i*60) + 'px'
+    },
   },
   beforeRouteLeave: function(to, from, next) {
     this.close_dialog_delete_characteristic()

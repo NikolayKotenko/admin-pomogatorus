@@ -55,8 +55,25 @@ export default {
     dictionaryUnits: new Dictionary(),
     arrBreadcrumbsToCurrentLeaf: [new Breadcrumb("Номенклатура")],
     openBreadcrumbsLeaf: [],
+    popupNotifications: ["Test"],
+    popupSettings: {
+      show: false,
+      timeout: 4000,
+    },
   },
   mutations: {
+    addPopupNotification(state, text) {
+      state.popupSettings.show = true;
+
+      state.popupNotifications = [];
+      state.popupNotifications.push(text);
+
+      // Очищаем по таймауту
+      // if (state.debounceTimeout) clearTimeout(state.debounceTimeout);
+      // state.debounceTimeout = setTimeout(() => {
+      //   state.popupNotifications = [];
+      // }, state.popupSettings.timeout);
+    },
     change_loading(state, value) {
       state.loading = value;
     },
@@ -400,7 +417,7 @@ export default {
       if (!name) return false;
 
       commit("change_loading", true);
-      const { data } = await Request.post(
+      const response = await Request.post(
         rootState.BASE_URL + "/dictionary/nomenclature-family",
         {
           name: name,
@@ -409,24 +426,25 @@ export default {
       commit(
         "set_family",
         new Family(
-          data.id,
-          data.code,
-          data.name,
-          data.brand,
-          data.id_brand,
-          data.photos,
-          data.files,
-          data.seo_title,
-          data.seo_description,
-          data.seo_keywords
+          response.data.id,
+          response.data.code,
+          response.data.name,
+          response.data.brand,
+          response.data.id_brand,
+          response.data.photos,
+          response.data.files,
+          response.data.seo_title,
+          response.data.seo_description,
+          response.data.seo_keywords
         )
       );
       commit("change_loading", false);
+      commit("addPopupNotification", response.message);
     },
     async addChildAction({ state, rootState, commit, dispatch }) {
       commit("change_loading", true);
 
-      await Request.post(
+      const response = await Request.post(
         rootState.BASE_URL + "/entity/nomenclatures-tree",
         new NomenclaturesTreeLeaf(
           state.family.id,
@@ -438,6 +456,7 @@ export default {
       await dispatch("getTreeOnMount");
       commit("close_dialog_family");
       commit("change_loading", false);
+      commit("addPopupNotification", response.message);
     },
     async saveFamilyAction({ commit, dispatch }) {
       commit("change_loading", true);
@@ -491,12 +510,13 @@ export default {
     async updateFamily({ state, rootState, commit }) {
       commit("change_loading", true);
 
-      const { data } = await Request.put(
+      const response = await Request.put(
         `${rootState.BASE_URL}/dictionary/nomenclature-family/${state.family.id}`,
         state.family
       );
-      commit("set_family", data);
+      commit("set_family", response.data);
       commit("change_loading", false);
+      commit("addPopupNotification", response.message);
     },
 
     // Характеристики
@@ -531,13 +551,14 @@ export default {
       }
 
       commit("change_loading", true);
-      const { data } = await Request.post(
+      const response = await Request.post(
         rootState.BASE_URL + "/dictionary/characteristic/nomenclature",
         { name: name }
       );
-      commit("set_characteristic", data);
+      commit("set_characteristic", response.data);
       commit("change_loading", false);
-      return data;
+      commit("addPopupNotification", response.message);
+      return response.data;
     },
     async getCharacteristicsBySearch({ state, rootState, commit }, string) {
       if (!string) return false;
@@ -630,6 +651,7 @@ export default {
       if (response.codeResponse >= 400) {
         commit("set_response_add_characteristic", response);
         commit("change_loading", false);
+        commit("addPopupNotification", response.message);
         return response;
       }
 
@@ -638,6 +660,7 @@ export default {
         state.selectedLeafTree.id_family
       );
       commit("change_loading", false);
+      commit("addPopupNotification", response.message);
       return response;
     },
 
@@ -673,14 +696,15 @@ export default {
     async updateCharacteristic({ state, rootState, commit }) {
       commit("change_loading", true);
 
-      const { data } = await Request.put(
+      const response = await Request.put(
         rootState.BASE_URL +
           "/dictionary/characteristic/nomenclature/" +
           state.characteristic.id,
         state.characteristic
       );
-      commit("set_characteristic", data);
+      commit("set_characteristic", response.data);
       commit("change_loading", false);
+      commit("addPopupNotification", response.message);
     },
 
     async deleteCharacteristicByMtoM(
@@ -774,10 +798,12 @@ export default {
       );
       if (response.codeResponse >= 400) {
         commit("set_response_add_nomenclature", response);
+        commit("addPopupNotification", response.message);
       }
 
       commit("set_nomenclature", response.data);
       commit("change_loading", false);
+      commit("addPopupNotification", response.message);
 
       return response.data;
     },
@@ -785,12 +811,13 @@ export default {
       if (!state.nomenclature.id) return false;
 
       commit("change_loading", true);
-      const { data } = await Request.put(
+      const response = await Request.put(
         `${rootState.BASE_URL}/entity/nomenclature/${state.nomenclature.id}`,
         state.nomenclature
       );
-      commit("set_nomenclature", data);
+      commit("set_nomenclature", response.data);
       commit("change_loading", false);
+      commit("addPopupNotification", response.message);
     },
     async deleteNomenclatureByFamily(
       { state, rootState, commit, dispatch },
