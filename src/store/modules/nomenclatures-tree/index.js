@@ -449,8 +449,7 @@ export default {
       commit("change_loading", true);
 
       const { data } = await Request.get(
-        rootState.BASE_URL +
-          "/entity/nomenclatures-tree/get-tree-by-first-level-leaf"
+        rootState.BASE_URL + "/entity/nomenclatures-tree"
       );
       commit("set_tree", data);
       commit("change_loading", false);

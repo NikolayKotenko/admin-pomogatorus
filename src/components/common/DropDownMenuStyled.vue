@@ -19,6 +19,7 @@
       <div
         v-bind="attrs"
         v-on="on"
+        class="icon_slot"
       >
         <slot name="icon"/>
       </div>
@@ -100,6 +101,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.icon_slot{
+  width: fit-content;
+  margin: auto;
+}
 .reverseIconContent{
   min-width: unset!important;
 }

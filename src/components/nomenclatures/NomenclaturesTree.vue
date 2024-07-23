@@ -1000,7 +1000,7 @@ export default {
 .breadcrumbs-tree{
   position: sticky;
   top: 50px;
-  z-index: 9999;
+  z-index: 9;
   background: white;
   padding-left: 10px;
   //box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
