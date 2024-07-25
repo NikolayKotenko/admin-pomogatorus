@@ -693,12 +693,12 @@
         absolute
         bottom
         dark
-        color="success"
+        color="#5c80b5"
         right
     >
       <div class="d-inline-flex" style="width: 100%; justify-content: space-between">
-        <section>{{ value }}</section>
-        <v-icon color="pink" right>mdi-close</v-icon>
+        <section style="align-content: center;">{{ value }}</section>
+        <v-btn color="pink" small right @click="popupSettings.show = false" :icon="true"><v-icon>mdi-close</v-icon></v-btn>
       </div>
     </v-snackbar>
   </div>

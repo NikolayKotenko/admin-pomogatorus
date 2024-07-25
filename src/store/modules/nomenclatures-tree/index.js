@@ -58,7 +58,7 @@ export default {
     popupNotifications: ["Test"],
     popupSettings: {
       show: false,
-      timeout: 4000,
+      timeout: 2000,
     },
   },
   mutations: {
