@@ -383,13 +383,14 @@ export default {
       //START
       commit("change_loading", true);
 
-      await Request.delete(
+      const response = await Request.delete(
         this.state.BASE_URL + "/entity/nomenclatures-tree/" + id_family
       );
       await dispatch("getTreeOnMount");
 
       //END
       commit("change_loading", false);
+      commit("addPopupNotification", response.message);
     },
     async getFamilyBySearch({ state, rootState, commit }, string) {
       if (!string) return false;
@@ -715,7 +716,7 @@ export default {
         return false;
 
       commit("change_loading", true);
-      await Request.delete(
+      const response = await Request.delete(
         rootState.BASE_URL +
           "/m-to-m/delete-entries-by-characteristic/" +
           idCharacteristic
@@ -727,6 +728,7 @@ export default {
 
       commit("close_dialog_delete_characteristic");
       commit("change_loading", false);
+      commit("addPopupNotification", response.message);
     },
 
     //Номенклатура
@@ -824,7 +826,7 @@ export default {
       idNomenclature
     ) {
       commit("change_loading", true);
-      await Request.delete(
+      const response = await Request.delete(
         rootState.BASE_URL + "/entity/nomenclature/" + idNomenclature
       );
       await dispatch(
@@ -834,6 +836,7 @@ export default {
 
       commit("close_dialog_delete_nomenclature");
       commit("change_loading", false);
+      commit("addPopupNotification", response.message);
     },
   },
   getters: {
