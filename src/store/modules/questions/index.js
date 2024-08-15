@@ -149,23 +149,33 @@ export default {
             value: result[key],
             focused: false,
           };
-        } else if (key === "value_type_answer") {
-          // FIXME: парсинг чет страдает
-          // if (result['id_type_answer'] !== 1 && result['id_type_answer'] !== 2) {
+        }
+        else if (key === "value_type_answer") {
           let parsed = null;
-          parsed = JSON.parse(JSON.parse(result[key]));
+          state.newQuestion[key] = [];
+
+          parsed = result[key];
+          //FIRST PARSING
+          parsed = JSON.parse(parsed);
+          // console.clear();
+          // console.log("first", { type: typeof parsed, data: parsed });
           if (Array.isArray(parsed)) {
-            state.newQuestion[key] = [];
             parsed.forEach((elem) => {
               state.newQuestion[key].push(new AnswerVariable(elem));
             });
-          } else {
-            state.newQuestion[key] = [];
+            return false;
           }
-          // } else {
-          //     state.newQuestion[key] = JSON.parse(result[key])
-          // }
-        } else state.newQuestion[key] = result[key];
+          // SECOND PARSING
+          parsed = JSON.parse(parsed);
+          // console.log("second", { type: typeof parsed, data: parsed });
+          if (Array.isArray(parsed)) {
+            parsed.forEach((elem) => {
+              state.newQuestion[key].push(new AnswerVariable(elem));
+            });
+            return false;
+          }
+        }
+        else state.newQuestion[key] = result[key];
       }
       state.nonEditState = Object.assign({}, state.newQuestion);
     },
