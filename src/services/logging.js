@@ -16,7 +16,7 @@ export default class Logging {
 
   /**
    * @param {any} request Принимает в себя либо один объект реквест либо массив реквестов.
-   * @return {array} message, Возвращает строку в виде либо склеенных сообщений либо в виде одного.
+   * @return {array} message, возвращает строку в виде либо склеенных сообщений, либо в виде одного.
    */
   static getMessage(request) {
     if (!Array.isArray(request)) return request.message;

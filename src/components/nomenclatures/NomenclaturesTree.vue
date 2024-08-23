@@ -43,14 +43,15 @@
             <hr>
           </template>
           <template v-slot:append="{item}">
-            <div class="d-flex align-center">
-              <TooltipStyled :title="'Добавить подсемейство в '+`'${item.name_leaf}'`">
-                <v-icon
-                    color="primary" class="ma-2"
-                    @click="set_action_query('add'); open_dialog_family(item.id_family)"
-                >mdi-plus-thick
-                </v-icon>
-              </TooltipStyled>
+            <div class="d-flex align-center" style="grid-column-gap: 5px">
+              <IconTooltip
+                :text-tooltip="'Добавить подсемейство в '+`'${item.name_leaf}'`"
+                :icon-text="'mdi-plus-thick'"
+                :class="'ma-2'"
+                :color-icon="'primary'"
+                :is-disabled="loading"
+                @click-icon="set_action_query('add'); open_dialog_family(item.id_family);"
+              />
               <IconTooltip
                   :icon-text="'mdi-pencil'"
                   :text-tooltip="'Редактировать семейство'"
@@ -60,14 +61,13 @@
                   set_family(item._family);
                   open_dialog_family(item.id_family);"
               />
-              <TooltipStyled :title="getDeleteMessage(item)">
-                <v-icon
-                    :disabled="stateExistChildren(item)"
-                    color="red" class="ma-2"
-                    @click="deleteEntry(item.id_family)"
-                >mdi-delete-outline
-                </v-icon>
-              </TooltipStyled>
+              <IconTooltip
+                  :icon-text="'mdi-delete-outline'"
+                  :text-tooltip="getDeleteMessage(item)"
+                  :is-disabled="stateExistChildren(item) || loading"
+                  :color-icon="'red'"
+                  @click-icon="deleteEntry(item.id_family)"
+              />
             </div>
           </template>
         </v-treeview>
@@ -92,7 +92,7 @@
           <template v-slot:item="{ item }">
             <tr v-if="item.id_family === selectedLeafTree.id_family">
               <td>
-                <DropDownMenuStyled :is-class="'reverseIconContent'" :is-top="true" >
+                <DropDownMenuStyled :is-class="'reverseIconContent'" :is-top="true" :open-on-hover="true">
                   <template #icon>
                     <section>{{ item.name_char }}</section>
                   </template>
@@ -362,7 +362,7 @@
         </v-data-table>
       </v-card>
 
-      <!-- Диалог для добавления/редактирования семейств -->
+      <!-- Диалог для добавления / редактирования семейств -->
       <v-dialog :value="dialogFamily"
           @click:outside="saveFamilyAction(); clear_action_query();"
           @keydown.esc="saveFamilyAction(); clear_action_query();"
@@ -376,8 +376,8 @@
           <div class="container">
             <v-col cols="12" sm="12" md="12">
               <ComboboxStyled
-                  :is-disabled="$route.query.action === 'edit'"
                   :is-items="listFamiliesBySearch"
+                  :action="$route.query.action"
                   :data="family.name"
                   :key="idParentFamily"
                   :is-return-object="true"
@@ -385,14 +385,16 @@
                   :is-item-value="'name'"
                   :is-hide-details="false"
                   :is-outlined="false"
-                  :is-placeholder="'Поиск. Введите имя нового семейства'"
                   :is-loading="loading"
+                  :is-error="responseByFamily.isError"
+                  :is-error-messages="responseByFamily.message"
                   @update-search-input="getFamilyBySearch($event);"
                   @change-search="localSetSearchFamily"
                   @click-clear="clear_family"
               ></ComboboxStyled>
             </v-col>
-            <v-col v-if="family.id">
+
+            <v-col v-if="family.id && !responseByFamily.isError">
               <InputStyledSimple
                   class="mb-5"
                   :data="family.seo_title"
@@ -417,18 +419,18 @@
               />
             </v-col>
 
-            <v-btn color="primary" text @click="close_dialog_family(); clear_action_query();" > Закрыть </v-btn>
+            <v-btn color="primary" text @click="saveFamilyAction(); clear_action_query();" > Закрыть </v-btn>
             <v-btn color="primary" text
                    v-if="$route.query.action === 'add'"
                    @click="addChildAction"
-                   :disabled="!family.id || loading"
+                   :disabled="!family.id || loading || responseByFamily.isError"
                    :loading="loading"
             > Добавить в дерево
             </v-btn>
             <v-btn color="primary" text
                    v-if="$route.query.action === 'edit'"
                    @click="saveFamilyAction(); clear_action_query();"
-                   :disabled="!family.id || loading"
+                   :disabled="!family.id || loading || responseByFamily.isError"
                    :loading="loading"
             > Сохранить
             </v-btn>
@@ -436,10 +438,10 @@
         </v-card>
       </v-dialog>
 
-      <!-- Диалог добавления номенклатуры  -->
+      <!-- Диалог добавления / редактирования номенклатуры  -->
       <v-dialog :value="dialogNomenclature"
-                @click:outside="close_dialog_nomenclature(); clear_action_query();"
-                @keydown.esc="close_dialog_nomenclature(); clear_action_query();"
+                @click:outside="saveNomenclatureAction(); clear_action_query();"
+                @keydown.esc="saveNomenclatureAction(); clear_action_query();"
       >
         <v-card>
           <v-card-title class="d-block">
@@ -452,7 +454,7 @@
           <div class="container">
             <v-col>
               <ComboboxStyled
-                  :is-disabled="$route.query.action === 'edit'"
+                  :action="$route.query.action"
                   :is-items="listNomenclaturesBySearch"
                   :data="nomenclature.name"
                   :key="nomenclature.id"
@@ -463,7 +465,6 @@
                   :is-error="responseAddNomenclature.isError"
                   :is-error-messages="responseAddNomenclature.message"
                   :is-outlined="false"
-                  :is-placeholder="'Введите имя номенклатуры'"
                   :is-loading="loading"
                   @update-search-input="getNomenclaturesBySearch($event)"
                   @change-search="localSetSearchNomenclature"
@@ -492,7 +493,7 @@
                   @text-change="localSetDescriptionNomenclature"
               />
             </v-col>
-            <v-btn color="primary" text @click="close_dialog_nomenclature(); clear_action_query();" > Закрыть </v-btn>
+            <v-btn color="primary" text @click="saveNomenclatureAction(); clear_action_query();" > Закрыть </v-btn>
             <v-btn color="primary" text
                    v-if="$route.query.action === 'add'"
                    @click="close_dialog_nomenclature()"
@@ -501,7 +502,7 @@
             > Добавить </v-btn>
             <v-btn color="primary" text
                    v-if="$route.query.action === 'edit'"
-                   @click="getNomenclatureByFamily(selectedLeafTree.id_family); close_dialog_nomenclature(); clear_action_query()"
+                   @click="saveNomenclatureAction(); clear_action_query()"
                    :disabled="!nomenclature.id || loading || responseAddNomenclature.isError"
                    :loading="loading"
             > Сохранить </v-btn>
@@ -556,7 +557,6 @@
                     :is-error="responseAddCharacteristics.isError"
                     :is-hide-details="false"
                     :is-outlined="false"
-                    :is-placeholder="'Поиск. Введите имя характеристики'"
                     :is-loading="loading"
                     @update-search-input="getCharacteristicsBySearch($event)"
                     @change-search="localSetSearchCharacteristics"
@@ -799,6 +799,7 @@ export default {
         'selectedLeafTree',
         'responseAddCharacteristics',
         'responseAddNomenclature',
+        'responseByFamily',
         'dialogDeleteNomenclature',
         'listTypeCharacteristics',
         'dialogDeleteCharacteristic',
@@ -853,7 +854,10 @@ export default {
           'setPropertyNomenclature',
           'setPropertyCharacteristic',
           'setPropertyFamily',
-          'saveFamilyAction'
+          'saveFamilyAction',
+          'saveNomenclatureAction',
+          'updateNameLeafTree',
+          'updateFamily'
         ],
     ),
     ...mapActions('DictionariesModule', [
@@ -885,18 +889,29 @@ export default {
         'set_family',
         'clear_list_families_by_search',
         'set_open_leaf_tree',
-        'set_open_leaf_tree_in_breadcrumb'
+        'set_open_leaf_tree_in_breadcrumb',
+        'set_property_family',
+        'add_popup_notification'
     ]),
     getIconRow(open, item){
       if (!item.children) return this.icons.circle
 
       return open ? 'mdi-folder-open' : 'mdi-folder';
     },
-    localSetSearchFamily(obj){
+    async localSetSearchFamily(obj){
       if (! obj) return false;
 
       const nameFamily = (obj.name) ? obj.name : obj;
-      this.setFamilyByName(nameFamily);
+      if (this.$route.query.action === 'add') {
+        await this.setFamilyByName(nameFamily);
+      }
+      if (this.$route.query.action === 'edit') {
+        this.set_property_family({ key: 'name', payload: nameFamily })
+        const response = await this.updateFamily();
+        if (! response.isError){
+          await this.updateNameLeafTree()
+        }
+      }
     },
     async localSetSearchCharacteristics(obj){
       if (! obj) return false;
@@ -907,10 +922,12 @@ export default {
 
       this.clear_response_add_characteristic();
       if (existEntry){
+        const message = entry.name + ' такое наименование уже существует в текущем семействе, создайте другое';
         this.set_response_add_characteristic({
-          message: entry.name + ' уже добавлена в текущее семейство',
+          message: message,
           codeResponse: 409
         });
+        this.add_popup_notification(message)
         return false;
       }
 
@@ -923,18 +940,26 @@ export default {
       if (! obj) return false;
 
       const name = (obj.name) ? obj.name : obj;
-      const entry = await this.setNomenclaturesByName(name);
-      const existEntry = this.getStateExistAddedNomenclatureInFamily(entry.id)
 
-      this.clear_response_add_nomenclature();
-      if (existEntry){
-        this.set_response_add_nomenclature({
-          message: entry.name + ' уже добавлена в текущее семейство',
-          codeResponse: 409
-        });
-        return false;
+      if (this.$route.query.action === 'add') {
+        const entry = await this.setNomenclaturesByName(name);
+        const existEntry = this.getStateExistAddedNomenclatureInFamily(entry.id)
+
+        this.clear_response_add_nomenclature();
+        if (existEntry) {
+          const message = entry.name + ' такое наименование уже существует в текущем семействе, создайте другое';
+          this.set_response_add_nomenclature({
+            message: message,
+            codeResponse: 409
+          });
+          this.add_popup_notification(message)
+          return false;
+        }
+        await this.getNomenclatureByFamily(this.selectedLeafTree.id_family);
       }
-      await this.getNomenclatureByFamily(this.selectedLeafTree.id_family);
+      if (this.$route.query.action === 'edit') {
+        this.setPropertyNomenclature({ key: 'name', payload: name })
+      }
     },
     stateExistChildren(item){
       if (!item.children) return false
@@ -1048,7 +1073,7 @@ export default {
   grid-column-gap: 10px;
   overflow: auto;
   #tree{
-    max-height: 88vh;
+    max-height: 85vh;
     overflow: auto;
   }
   .selectedLeaf{

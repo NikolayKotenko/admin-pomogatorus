@@ -9,30 +9,31 @@
         :hide-details="isHideDetails"
         :error="isError"
         :error-messages="isErrorMessages"
-        :placeholder="isPlaceholder"
-        :label="isPlaceholder"
+        :placeholder="localPlaceholder"
+        :label="localPlaceholder"
         :loading="isLoading"
         :disabled="isDisabled"
-        :items="isItems"
+        :items="action === 'add' ? isItems : []"
         :item-text="isItemText"
         :item-value="isItemValue"
         :return-object="isReturnObject"
         :hide-no-data="false"
-        chips
-        small-chips
-        :clearable="isClearable"
+        :chips="action === 'add'"
+        :small-chips="action === 'add'"
+        :clearable="action === 'add' ? isClearable : false"
         :search-input.sync="localSearchInputSync"
-        @update:search-input="$emit('update-search-input', localSearchInputSync)"
+        @update:search-input="action === 'add' ? ($emit('update-search-input', localSearchInputSync)) : null"
         @keyup.enter="$emit('change-search', localSelected)"
         @change="setChangeSelected(localSelected)"
-        @click:clear="$emit('click-clear'); clearSelected()"
+        @click:clear="clearSelected()"
         ref="comboboxStyled"
     >
       <template v-slot:no-data>
-        <v-list-item v-if="localSearchInputSync && !isItems.length && !isLoading"
+        <v-list-item v-if="localSearchInputSync && !isItems.length && !isLoading && (localSearchInputSync !== localSelected)"
           @click="$refs.comboboxStyled.focus()"
         >
-          <span class="subheading">Не найдено совпадений, нажмите "Enter" для создания &nbsp;</span>
+          <span class="subheading" v-if="action === 'add'">Не найдено совпадений, нажмите "Enter" для создания</span>
+          <span class="subheading" v-if="action === 'edit'">Нажмите "Enter" для переименования элемента в - &nbsp;</span>
           <v-chip label small>
             {{ localSearchInputSync }}
           </v-chip>
@@ -68,7 +69,7 @@ export default {
   name: 'ComboboxStyled',
   data: () => ({
     localSearchInputSync: '',
-    localSelected: null
+    localSelected: null,
   }),
   props: {
     isClass: {
@@ -92,10 +93,6 @@ export default {
       default: false
     },
     isErrorMessages: {
-      type: String,
-      default: ''
-    },
-    isPlaceholder: {
       type: String,
       default: ''
     },
@@ -135,6 +132,10 @@ export default {
       type: [String, Number],
       default: null
     },
+    action:{
+      type: [String, null],
+      default: 'add'
+    }
   },
   computed:{
     currentData: {
@@ -147,13 +148,18 @@ export default {
       set(value) {
         this.localSelected = value
       }
+    },
+    localPlaceholder() {
+      return this.action === 'add' ? 'Введите новое наименование' : 'Редактирование текущего наименования'
     }
   },
   methods:{
     clearSelected(){
-      console.log('check')
-      this.localSearchInputSync = '';
-      this.localSelected = null;
+      if (this.action === 'add'){
+        this.$emit('click-clear');
+        this.localSearchInputSync = '';
+        this.localSelected = null;
+      }
     },
     setChangeSelected(){
       if (typeof this.localSelected !== 'object')  return false;

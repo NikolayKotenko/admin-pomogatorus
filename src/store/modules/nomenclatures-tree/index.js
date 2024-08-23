@@ -21,6 +21,7 @@ export default {
     idParentFamily: null,
     dialogFamily: false,
     listFamiliesBySearch: [],
+    responseByFamily: new Logging(),
 
     //Характеристики
     characteristic: new CharacteristicNomenclature(),
@@ -30,13 +31,13 @@ export default {
     dialogCharacteristics: false,
     listTypeCharacteristics: [],
     dialogDeleteCharacteristic: false,
+    responseAddCharacteristics: new Logging(),
 
     //Номенклатура
     nomenclature: new Nomenclature(),
     listNomenclaturesBySearch: [],
     listNomenclatureByFamily: [],
     dialogNomenclature: false,
-    responseAddCharacteristics: new Logging(),
     responseAddNomenclature: new Logging(),
     dialogDeleteNomenclature: false,
 
@@ -62,7 +63,7 @@ export default {
     },
   },
   mutations: {
-    addPopupNotification(state, text) {
+    add_popup_notification(state, text) {
       state.popupSettings.show = true;
 
       state.popupNotifications = [];
@@ -117,7 +118,7 @@ export default {
     },
     close_dialog_family(state) {
       state.dialogFamily = false;
-
+      state.responseByFamily = new Logging();
       state.family = new Family();
       state.idParentFamily = null;
     },
@@ -149,7 +150,12 @@ export default {
     },
     clear_family(state) {
       state.family = new Family();
+      state.responseByFamily = new Logging();
       state.listFamiliesBySearch = [];
+    },
+    set_response_by_family(state, payload = Logging) {
+      state.responseByFamily = new Logging();
+      state.responseByFamily = new Logging(payload);
     },
 
     // Характеристики
@@ -327,12 +333,12 @@ export default {
       state.listNomenclaturesBySearch = [];
 
       // Изменяем приходящий с бэка масив
-      payload.map((item) => {
-        if (item.id_family) {
-          item.name =
-            item.name + " существует в семействе - '" + item._family.name + "'";
-        }
-      });
+      // payload.map((item) => {
+      //   if (item.id_family) {
+      //     item.name =
+      //       item.name + " существует в семействе - '" + item._family.name + "'";
+      //   }
+      // });
       state.listNomenclaturesBySearch = payload;
     },
     set_list_nomenclature_by_family(state, payload) {
@@ -366,6 +372,7 @@ export default {
     },
   },
   actions: {
+    // Дерево
     async getDictionaryUnits({ commit, dispatch }) {
       const response = await dispatch(
         "DictionariesModule/getListDictionaries",
@@ -377,8 +384,15 @@ export default {
       );
       commit("set_dictionary_units", response);
     },
+    async getTreeOnMount({ rootState, commit }) {
+      commit("change_loading", true);
 
-    // Семейства
+      const { data } = await Request.get(
+        rootState.BASE_URL + "/entity/nomenclatures-tree"
+      );
+      commit("set_tree", data);
+      commit("change_loading", false);
+    },
     async deleteEntry({ commit, dispatch }, id_family) {
       //START
       commit("change_loading", true);
@@ -390,8 +404,47 @@ export default {
 
       //END
       commit("change_loading", false);
-      commit("addPopupNotification", response.message);
+      commit("add_popup_notification", response.message);
     },
+    async addChildAction({ state, rootState, commit, dispatch }) {
+      commit("change_loading", true);
+
+      const response = await Request.post(
+        rootState.BASE_URL + "/entity/nomenclatures-tree",
+        new NomenclaturesTreeLeaf(
+          state.family.id,
+          state.idParentFamily,
+          state.family.name
+        )
+      );
+      if (response.isError) {
+        commit("set_response_by_family", response);
+      } else {
+        await dispatch("getTreeOnMount");
+        commit("close_dialog_family");
+      }
+
+      commit("clear_list_families_by_search");
+      commit("change_loading", false);
+      commit("add_popup_notification", response.message);
+    },
+    async updateNameLeafTree({ state, rootState, commit, dispatch }) {
+      commit("change_loading", true);
+
+      const response = await Request.put(
+        `${rootState.BASE_URL}/entity/nomenclatures-tree/${state.family.id}`,
+        new NomenclaturesTreeLeaf(null, null, state.family.name)
+      );
+      console.log("updateNameLeafTree", response);
+
+      await dispatch("getTreeOnMount");
+      commit("change_loading", false);
+      commit("add_popup_notification", response.message);
+
+      return response;
+    },
+
+    // Семейства
     async getFamilyBySearch({ state, rootState, commit }, string) {
       if (!string) return false;
       if (string.length <= 2) return false;
@@ -440,38 +493,12 @@ export default {
         )
       );
       commit("change_loading", false);
-      commit("addPopupNotification", response.message);
-    },
-    async addChildAction({ state, rootState, commit, dispatch }) {
-      commit("change_loading", true);
-
-      const response = await Request.post(
-        rootState.BASE_URL + "/entity/nomenclatures-tree",
-        new NomenclaturesTreeLeaf(
-          state.family.id,
-          state.idParentFamily,
-          state.family.name
-        )
-      );
-
-      await dispatch("getTreeOnMount");
-      commit("close_dialog_family");
-      commit("change_loading", false);
-      commit("addPopupNotification", response.message);
+      commit("add_popup_notification", response.message);
     },
     async saveFamilyAction({ commit, dispatch }) {
       commit("change_loading", true);
-      await dispatch("getTreeOnMount");
       commit("close_dialog_family");
-      commit("change_loading", false);
-    },
-    async getTreeOnMount({ rootState, commit }) {
-      commit("change_loading", true);
-
-      const { data } = await Request.get(
-        rootState.BASE_URL + "/entity/nomenclatures-tree"
-      );
-      commit("set_tree", data);
+      await dispatch("getTreeOnMount");
       commit("change_loading", false);
     },
     async setSelectedFamilyAction(
@@ -500,14 +527,21 @@ export default {
       );
     },
 
-    setPropertyFamily({ state, commit, dispatch }, obj = new PropertyEntity()) {
+    async setPropertyFamily(
+      { state, commit, dispatch },
+      obj = new PropertyEntity()
+    ) {
       commit("set_property_family", new PropertyEntity(obj.key, obj.payload));
 
       if (state.debounceTimeout) clearTimeout(state.debounceTimeout);
-      state.debounceTimeout = setTimeout(async () => {
-        await dispatch("updateFamily");
-      }, 1000);
+      return (state.debounceTimeout = setTimeout(async () => {
+        return await dispatch("updateFamily");
+      }, 1000));
     },
+
+    /**
+     * @returns {Logging}
+     */
     async updateFamily({ state, rootState, commit }) {
       commit("change_loading", true);
 
@@ -515,9 +549,15 @@ export default {
         `${rootState.BASE_URL}/dictionary/nomenclature-family/${state.family.id}`,
         state.family
       );
+      if (response.isError) {
+        commit("set_response_by_family", response);
+      }
+
       commit("set_family", response.data);
       commit("change_loading", false);
-      commit("addPopupNotification", response.message);
+      commit("add_popup_notification", response.message);
+
+      return response;
     },
 
     // Характеристики
@@ -558,7 +598,7 @@ export default {
       );
       commit("set_characteristic", response.data);
       commit("change_loading", false);
-      commit("addPopupNotification", response.message);
+      commit("add_popup_notification", response.message);
       return response.data;
     },
     async getCharacteristicsBySearch({ state, rootState, commit }, string) {
@@ -652,7 +692,7 @@ export default {
       if (response.codeResponse >= 400) {
         commit("set_response_add_characteristic", response);
         commit("change_loading", false);
-        commit("addPopupNotification", response.message);
+        commit("add_popup_notification", response.message);
         return response;
       }
 
@@ -661,7 +701,7 @@ export default {
         state.selectedLeafTree.id_family
       );
       commit("change_loading", false);
-      commit("addPopupNotification", response.message);
+      commit("add_popup_notification", response.message);
       return response;
     },
 
@@ -705,7 +745,7 @@ export default {
       );
       commit("set_characteristic", response.data);
       commit("change_loading", false);
-      commit("addPopupNotification", response.message);
+      commit("add_popup_notification", response.message);
     },
 
     async deleteCharacteristicByMtoM(
@@ -728,10 +768,19 @@ export default {
 
       commit("close_dialog_delete_characteristic");
       commit("change_loading", false);
-      commit("addPopupNotification", response.message);
+      commit("add_popup_notification", response.message);
     },
 
     //Номенклатура
+    async saveNomenclatureAction({ state, commit, dispatch }) {
+      commit("change_loading", true);
+      commit("close_dialog_nomenclature");
+      await dispatch(
+        "getNomenclatureByFamily",
+        state.selectedLeafTree.id_family
+      );
+      commit("change_loading", false);
+    },
     setPropertyNomenclature(
       { state, commit, dispatch },
       obj = new PropertyEntity()
@@ -800,12 +849,12 @@ export default {
       );
       if (response.codeResponse >= 400) {
         commit("set_response_add_nomenclature", response);
-        commit("addPopupNotification", response.message);
+        commit("add_popup_notification", response.message);
       }
 
       commit("set_nomenclature", response.data);
       commit("change_loading", false);
-      commit("addPopupNotification", response.message);
+      commit("add_popup_notification", response.message);
 
       return response.data;
     },
@@ -819,7 +868,7 @@ export default {
       );
       commit("set_nomenclature", response.data);
       commit("change_loading", false);
-      commit("addPopupNotification", response.message);
+      commit("add_popup_notification", response.message);
     },
     async deleteNomenclatureByFamily(
       { state, rootState, commit, dispatch },
@@ -836,7 +885,7 @@ export default {
 
       commit("close_dialog_delete_nomenclature");
       commit("change_loading", false);
-      commit("addPopupNotification", response.message);
+      commit("add_popup_notification", response.message);
     },
   },
   getters: {

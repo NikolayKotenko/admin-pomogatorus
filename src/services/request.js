@@ -1,10 +1,12 @@
 import Logging from "@/services/logging";
 
-/**
- * TODO я честно пытался подключить сюда store но не получилось
- * https://stackoverflow.com/questions/47571543/access-store-outside-of-component-vuejs
- */
 export default class Request {
+  /**
+   * @returns {Logging}
+   * @param {String} url
+   * @param {Object} params
+   * @param {String} method
+   */
   static async request(url, params, method) {
     let options = {
       method: method, // *GET, POST, PUT, DELETE, etc.
