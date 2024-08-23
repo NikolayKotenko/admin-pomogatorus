@@ -462,17 +462,14 @@ router.beforeEach(async (to, from, next) => {
   // console.groupEnd()
 
   if (process.env.NODE_ENV === "production") {
-    console.log("1", Vue.$cookies.get("accessToken"));
     if (Vue.$cookies.get("accessToken") === null) {
       const refreshResponse = await store.dispatch("refreshTokens");
       if (!refreshResponse) next("/login");
       if (Logging.checkExistErr(refreshResponse)) next("/login");
     } else {
       // Если пустой объект в сторе с пользовательскими данными, вызываем проверку
-      console.log("store.getters.stateAuth", store.getters.stateAuth);
       if (!store.getters.stateAuth) {
         const validateAuth = await store.dispatch("validateAuth");
-        console.log("2", validateAuth);
         if (Logging.checkExistErr(validateAuth)) next("/login");
       }
     }
