@@ -223,7 +223,8 @@ export function Nomenclature(
   id_family = null,
   seo_title = "",
   seo_description = "",
-  seo_keywords = ""
+  seo_keywords = "",
+  link_market = ""
 ) {
   this.id = id;
   this.name = name;
@@ -234,6 +235,7 @@ export function Nomenclature(
   this.seo_description = seo_description;
   this.seo_descriptionEditor = seo_description;
   this.seo_keywords = seo_keywords;
+  this.link_market = link_market;
 }
 
 export function ModifiedMtoMNomenclatureCharacteristics(

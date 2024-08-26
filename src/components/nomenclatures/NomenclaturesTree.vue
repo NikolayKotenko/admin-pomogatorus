@@ -471,28 +471,61 @@
                   @click-clear="clear_nomenclature(); clear_list_nomenclatures_by_search(); clear_response_add_nomenclature()"
               ></ComboboxStyled>
             </v-col>
+
             <v-col v-if="nomenclature.id && !responseAddNomenclature.isError">
-              <InputStyledSimple
+              <v-expansion-panels
+                  v-model="panel"
+                  multiple
                   class="mb-5"
-                  :data="nomenclature.seo_title"
-                  :placeholder="'Seo title'"
-                  @update-input="setPropertyNomenclature({ key: 'seo_title', payload: $event });"
-              />
-              <InputStyledSimple
-                  class="mb-5"
-                  :data="nomenclature.seo_keywords"
-                  :placeholder="'Seo keywords'"
-                  @update-input="setPropertyNomenclature({ key: 'seo_keywords', payload: $event });"
-              />
-              <VueEditor
-                  v-model="nomenclature.seo_descriptionEditor"
-                  placeholder="Seo description"
-                  class="mt-3"
-                  :editorToolbar="customToolbar"
-                  ref="characteristicEditor"
-                  @text-change="localSetDescriptionNomenclature"
-              />
+                  accordion
+                  focusable
+            >
+                <v-expansion-panel>
+                  <v-expansion-panel-header>Основные</v-expansion-panel-header>
+                  <v-expansion-panel-content>
+                    <InputStyledSimple
+                        class="mb-5 mt-5"
+                        :data="nomenclature.vendor_code"
+                        :placeholder="'Артикул'"
+                        @update-input="setPropertyNomenclature({ key: 'vendor_code', payload: $event });"
+                    />
+                    <InputStyledSimple
+                        class="mb-5"
+                        :data="nomenclature.link_market"
+                        :placeholder="'Ссылка на Я-маркет'"
+                        @update-input="setPropertyNomenclature({ key: 'link_market', payload: $event });"
+                    />
+                  </v-expansion-panel-content>
+                </v-expansion-panel>
+
+                <v-expansion-panel>
+                  <v-expansion-panel-header>Seo</v-expansion-panel-header>
+                  <v-expansion-panel-content>
+                    <InputStyledSimple
+                        class="mb-5 mt-5"
+                        :data="nomenclature.seo_title"
+                        :placeholder="'Seo title'"
+                        @update-input="setPropertyNomenclature({ key: 'seo_title', payload: $event });"
+                    />
+                    <InputStyledSimple
+                        class="mb-5"
+                        :data="nomenclature.seo_keywords"
+                        :placeholder="'Seo keywords'"
+                        @update-input="setPropertyNomenclature({ key: 'seo_keywords', payload: $event });"
+                    />
+                    <VueEditor
+                        v-model="nomenclature.seo_descriptionEditor"
+                        placeholder="Seo description"
+                        class="mt-3"
+                        :editorToolbar="customToolbar"
+                        ref="characteristicEditor"
+                        @text-change="localSetDescriptionNomenclature"
+                    />
+                  </v-expansion-panel-content>
+                </v-expansion-panel>
+            </v-expansion-panels>
             </v-col>
+
             <v-btn color="primary" text @click="saveNomenclatureAction(); clear_action_query();" > Закрыть </v-btn>
             <v-btn color="primary" text
                    v-if="$route.query.action === 'add'"
@@ -747,6 +780,7 @@ export default {
       { text: 'Обязательность заполнения в номенклатуре', value: 'nomenclature_filled', align: 'center' },
       { text: 'Обязательность заполнения *', value: 'required', align: 'center' },
     ],
+    panel: [0],
 
     //Editor
     customToolbar:[

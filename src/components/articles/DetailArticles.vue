@@ -4,34 +4,38 @@
       <v-form ref="form" class="form">
         <div class="detail-wrapper__content">
           <div class="detail-wrapper__content__title">
-            <TextAreaStyled
-                :class="{
+            <section class="detail-wrapper__content__title__head">
+              <TextAreaStyled
+                  :class="{
                   invalid:
                     !newArticle.name.value &&
                     $v.newArticle.name.$dirty &&
                     !$v.newArticle.name.required,
                 }"
-                :data="newArticle.name.value"
-                :is-flat="true"
-                :is-loading="$store.state.ArticleModule.loadingArticle"
-                :is-solo="true"
-                :placeholder="'Наименование'"
-                :rows-count="'1'"
-                class="detail-wrapper__content__title__name"
-                @update-input="setName"
-                @on-focus="() => {onFocus(newArticle.name)}"
-                @out-focus="() => {outFocus(newArticle.name)}"
-            >
-              <template slot="append">
-                <v-icon
-                    :color="newArticle.name.focused ? 'primary' : ''"
-                    class="detail-wrapper__content__title__name__icon"
-                    size="20"
-                >
-                  mdi-lead-pencil
-                </v-icon>
-              </template>
-            </TextAreaStyled>
+                  :data="newArticle.name.value"
+                  :is-flat="true"
+                  :is-loading="$store.state.ArticleModule.loadingArticle"
+                  :is-solo="true"
+                  :placeholder="'Наименование'"
+                  :rows-count="'1'"
+                  class="detail-wrapper__content__title__name"
+                  @update-input="setName"
+                  @on-focus="() => {onFocus(newArticle.name)}"
+                  @out-focus="() => {outFocus(newArticle.name)}"
+              >
+                <template slot="append">
+                  <v-icon
+                      :color="newArticle.name.focused ? 'primary' : ''"
+                      class="detail-wrapper__content__title__name__icon"
+                      size="20"
+                  >
+                    mdi-lead-pencil
+                  </v-icon>
+                </template>
+              </TextAreaStyled>
+              <v-btn link icon :href="'https://pomogatorus.ru/articles/'+newArticle.id" title="Ссылка на статью" target="_blank" ><v-icon>mdi-link</v-icon></v-btn>
+            </section>
+
             <small
                 v-if="
                 !newArticle.name.value &&
@@ -873,6 +877,12 @@ export default {
       row-gap: 5px;
 
       &__title {
+        &__head{
+          display: grid;
+          grid-template-columns: 1fr auto;
+          align-items: center;
+          grid-column-gap: 1em;
+        }
         &__name {
           margin-bottom: 7px !important;
           border-bottom: 2px solid #1976d2;
