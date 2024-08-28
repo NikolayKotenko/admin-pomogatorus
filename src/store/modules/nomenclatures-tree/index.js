@@ -444,6 +444,11 @@ export default {
 
       return response;
     },
+    updateBreadcrumbsToCurrentLeaf({ state, commit, getters }) {
+      commit("clear_arr_breadcrumbs_to_current_leaf");
+      getters.setBreadcrumbsToCurrentLeaf(state.selectedLeafTree.id_family);
+      commit("set_open_leaf_tree_in_breadcrumb");
+    },
 
     // Семейства
     async getFamilyBySearch({ state, rootState, commit }, string) {
@@ -499,6 +504,7 @@ export default {
     async saveFamilyAction({ commit, dispatch }) {
       commit("change_loading", true);
       commit("close_dialog_family");
+      dispatch("updateBreadcrumbsToCurrentLeaf");
       await dispatch("getTreeOnMount");
       commit("change_loading", false);
     },
@@ -508,8 +514,8 @@ export default {
     ) {
       commit("set_selected_family", NomenclaturesTreeLeaf);
 
-      commit("clear_arr_breadcrumbs_to_current_leaf");
-      getters.setBreadcrumbsToCurrentLeaf(state.selectedLeafTree.id_family);
+      // Обновляем хлебные крошки до текущего выбранного selectedLeafTree.id_family
+      dispatch("updateBreadcrumbsToCurrentLeaf");
 
       // Очищаем перед следующей загрузкой
       commit("clear_list_mtom_nomenclatures_characteristics");

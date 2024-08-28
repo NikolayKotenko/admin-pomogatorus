@@ -22,9 +22,9 @@ export default new Vuex.Store({
     BASE_URL:
       process.env.NODE_ENV === "development"
         ? // "http://127.0.0.1:8000"
-          // "https://api-test.agregatorus.com"
-          "https://api.agregatorus.com"
-        : "https://api.agregatorus.com",
+          "https://api-test.agregatorus.com"
+        : // "https://api.agregatorus.com"
+          "https://api.agregatorus.com",
     notification_modal: {
       show_notification: false,
       error: false,
