@@ -890,7 +890,7 @@ export default {
           'saveFamilyAction',
           'saveNomenclatureAction',
           'updateNameLeafTree',
-          'updateFamily'
+          'updateFamily',
         ],
     ),
     ...mapActions('DictionariesModule', [
@@ -950,21 +950,9 @@ export default {
       if (! obj) return false;
 
       const nameFamily = (obj.name) ? obj.name : obj;
-      const entry = await this.setCharacteristicOnFamily(nameFamily);
-      const existEntry = this.getStateExistAddedCharacteristicInFamily(entry.id)
+      const response = await this.setCharacteristicOnFamily(nameFamily);
+      if (response.isError) return false;
 
-      this.clear_response_add_characteristic();
-      if (existEntry){
-        const message = entry.name + ' такое наименование уже существует в текущем семействе, создайте другое';
-        this.set_response_add_characteristic({
-          message: message,
-          codeResponse: 409
-        });
-        this.add_popup_notification(message)
-        return false;
-      }
-
-      //Очищаем поиск для валидных данных с бэка
       this.clear_list_characteristics_by_search();
 
       await this.getListDictionaries({query: {flag_nomenclature: true}})

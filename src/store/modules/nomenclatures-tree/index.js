@@ -173,22 +173,22 @@ export default {
     },
     set_list_characteristics_by_search(state, payload) {
       state.listCharacteristicsBySearch = [];
-
-      state.listCharacteristicsBySearch = payload.map((itemChar) => {
-        const listFamilies = state.listMtoMNomenclaturesCharacteristics
-          .map((itemMtoM) => {
-            if (itemMtoM.id_characteristic !== itemChar.id) return null;
-            return itemMtoM._family.name;
-          })
-          .filter((item) => Boolean(item));
-        itemChar._listFamilies = [...new Set(listFamilies)];
-        const stringListFamilies = itemChar._listFamilies.join(", ");
-        if (stringListFamilies.length) {
-          itemChar.name =
-            itemChar.name + " (исп. в семействах: " + stringListFamilies + ")";
-        }
-        return itemChar;
-      });
+      state.listCharacteristicsBySearch = payload;
+      // state.listCharacteristicsBySearch = payload.map((itemChar) => {
+      //   const listFamilies = state.listMtoMNomenclaturesCharacteristics
+      //     .map((itemMtoM) => {
+      //       if (itemMtoM.id_characteristic !== itemChar.id) return null;
+      //       return itemMtoM._family.name;
+      //     })
+      //     .filter((item) => Boolean(item));
+      //   itemChar._listFamilies = [...new Set(listFamilies)];
+      //   const stringListFamilies = itemChar._listFamilies.join(", ");
+      //   if (stringListFamilies.length) {
+      //     itemChar.name =
+      //       itemChar.name + " (исп. в семействах: " + stringListFamilies + ")";
+      //   }
+      //   return itemChar;
+      // });
     },
     set_list_characteristics_by_family(state, payload) {
       state.listCharacteristicsByFamily = [];
@@ -587,26 +587,29 @@ export default {
       //Запрашиваем список типов характеристик для выбора типа характеристики
       await dispatch("getListTypeCharacteristics");
     },
-    async setCharacteristicOnFamily({ state, rootState, commit }, name) {
+    async setCharacteristicOnFamily({ rootState, commit }, name) {
       if (!name) return false;
-
-      const entry = state.listCharacteristicsBySearch.find(
-        (item) => item.name === name
-      );
-      if (entry) {
-        commit("set_characteristic", entry);
-        return entry;
-      }
 
       commit("change_loading", true);
       const response = await Request.post(
         rootState.BASE_URL + "/dictionary/characteristic/nomenclature",
         { name: name }
       );
+      const existCharacteristic = await Request.get(
+        `${rootState.BASE_URL}/m-to-m/nomenclature-characteristics/check-exist-characteristics/${response.data.id}`
+      );
+      commit("clear_response_add_characteristic");
+      if (existCharacteristic.isError) {
+        commit("set_response_add_characteristic", existCharacteristic);
+        commit("add_popup_notification", existCharacteristic.message);
+        commit("change_loading", false);
+        return existCharacteristic;
+      }
+
       commit("set_characteristic", response.data);
       commit("change_loading", false);
       commit("add_popup_notification", response.message);
-      return response.data;
+      return response;
     },
     async getCharacteristicsBySearch({ state, rootState, commit }, string) {
       if (!string) return false;
