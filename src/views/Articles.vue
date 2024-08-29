@@ -8,7 +8,15 @@
       >
         <div :class="{filterShow: show_filter}" class="questions_wrapper__item__top">
           <div :class="{filterShow: show_filter}" class="questions_wrapper__item__top__title">
-            <v-icon v-show="article.activity === 0" class="activity_icon">mdi-eye-off</v-icon>
+            <div class="questions_wrapper__item__top__title__icon" @click="setVisible(article)">
+                <template v-if="article.activity === 0">
+                  <v-icon class="activity_icon">mdi-eye-off</v-icon>
+                </template>
+
+                <template v-else>
+                  <v-icon class="activity_icon">mdi-eye</v-icon>
+                </template>
+            </div>
             <span @click="onShowDetailArticle(article)">
               {{ article.name }}
             </span>
@@ -215,8 +223,17 @@ export default {
     },
   },
   methods: {
+    setVisible(article) {
+      article.activity = article.activity === 0 ? 1 : 0
+
+      this.saveArticle(article)
+    },
     setName(value) {
       this.filters.name = value
+    },
+
+    saveArticle(article) {
+      this.$store.dispatch("updateArticle", {data: article, isEditor: false})
     },
 
     changeQuery() {
@@ -332,6 +349,17 @@ export default {
           &__quantity {
             color: lightcoral;
             transition: all 0.4s ease-in-out;
+          }
+
+          &__icon {
+            cursor: pointer;
+            transition: all 0.4s ease-in-out;
+
+            &:hover {
+              .activity_icon {
+                color: lighten(rgba(0, 0, 0, 0.54), 10%);
+              }
+            }
           }
         }
 
