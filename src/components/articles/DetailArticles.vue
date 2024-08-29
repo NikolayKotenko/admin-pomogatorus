@@ -241,6 +241,7 @@
 
           <!-- TEXTAREA -->
           <text-redactor
+              v-if="!getFromServer"
               :deletedContent="deletedContent"
               :newArticle="newArticle"
               @saveArticle="initialSaveArticle"
@@ -480,7 +481,7 @@ export default {
     deleteStorage: false,
     deletedContent: false,
     debounceTimeout: null,
-    getFromServer: false,
+    getFromServer: true,
 
     stateDropzone: false,
     dropzone_uploaded: [],
@@ -644,7 +645,7 @@ export default {
       }, 500);
     },
     saveDifferences(action) {
-      this.$store.dispatch("updateArticle", this.newArticle).then(() => {
+      this.$store.dispatch("updateArticle", {data: this.newArticle, isEditor: true}).then(() => {
         if (action === "next") {
           this.$router.push({
             path: "/articles",
@@ -837,7 +838,7 @@ export default {
       for (const item of this.dropzone_uploaded) {
         await Request.put(this.$store.state.BASE_URL + '/entity/files/' + item.id, item)
       }
-      await this.$store.dispatch('updateArticle', this.newArticle)
+      await this.$store.dispatch('updateArticle', {data: this.newArticle, isEditor: true})
     }
   },
   beforeDestroy() {

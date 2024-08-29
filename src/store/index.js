@@ -20,7 +20,11 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     BASE_URL:
-      process.env.NODE_ENV === "development"
+      // TODO: Че тут за фигня
+      // process.env.NODE_ENV === "development"
+      //   ? "https://api-test.agregatorus.com"
+      //   : "https://api.agregatorus.com",
+    process.env.NODE_ENV === "development"
         ? "http://127.0.0.1:8000"
         : //   "https://api-test.agregatorus.com"
           // "https://api.agregatorus.com"
@@ -97,7 +101,6 @@ export default new Vuex.Store({
       return response;
     },
     setTitle(_, title) {
-      // console.log('setTitle title = ', title)
       if (!title) return false;
       if (document.title.match(">")) return false;
 
