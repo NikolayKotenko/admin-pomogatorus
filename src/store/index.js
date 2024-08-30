@@ -20,15 +20,9 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     BASE_URL:
-      // TODO: Че тут за фигня
-      // process.env.NODE_ENV === "development"
-      //   ? "https://api-test.agregatorus.com"
-      //   : "https://api.agregatorus.com",
-    process.env.NODE_ENV === "development"
-        ? "http://127.0.0.1:8000"
-        : //   "https://api-test.agregatorus.com"
-          // "https://api.agregatorus.com"
-          "https://api.agregatorus.com",
+      process.env.NODE_ENV === "development"
+        ? process.env.VUE_APP_BASEURL_DEV
+        : process.env.VUE_APP_BASEURL_PROD,
     notification_modal: {
       show_notification: false,
       error: false,
