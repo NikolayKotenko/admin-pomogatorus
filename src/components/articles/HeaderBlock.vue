@@ -973,6 +973,9 @@ export default {
 
 ::v-deep
 .v-menu__content.theme--light.menuable__content__active.v-autocomplete__content {
-  max-width: 280px !important;
+  max-width: 552px !important;
+}
+.v-list {
+  max-width: 500px !important;
 }
 </style>

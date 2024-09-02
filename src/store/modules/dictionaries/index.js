@@ -116,8 +116,20 @@ export default {
         commit("change_notification_modal", e, { root: true });
       }
     },
-    async getListDictionaries({ commit }, { code, query }) {
+    async getListDictionaries({ commit }, obj) {
       commit("changeLoadingList", true);
+
+      let code = '';
+      let query = '';
+      if (!!obj && !!obj.code){
+        code = obj.code;
+      }
+      if (!!obj && !!obj.query){
+        query = obj.query;
+      }
+
+
+      console.log('getListDick', code, query)
 
       try {
         const result = await Request.get(
