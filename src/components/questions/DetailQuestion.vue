@@ -519,7 +519,6 @@ export default {
   },
   watch: {
     "newQuestion.value_type_answer": {
-      // eslint-disable-next-line no-unused-vars
       handler(oldValue, newValue) {
         if (Array.isArray(this.newQuestion.value_type_answer)) {
           if (
@@ -656,7 +655,6 @@ export default {
         const request = window.indexedDB.open(DB_NAME, DB_VERSION);
         request.onerror = (e) => {
           console.log("Error opening db", e);
-          // eslint-disable-next-line prefer-promise-reject-errors
           reject("Error");
         };
         request.onsuccess = (e) => {

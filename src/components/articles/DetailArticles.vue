@@ -667,7 +667,6 @@ export default {
         const request = window.indexedDB.open(DB_NAME, DB_VERSION);
         request.onerror = (e) => {
           console.log("Error opening db", e);
-          // eslint-disable-next-line prefer-promise-reject-errors
           reject("Error");
         };
         request.onsuccess = (e) => {

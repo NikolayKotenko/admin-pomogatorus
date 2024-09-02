@@ -387,7 +387,6 @@ export default {
     },
 
     /* LOCAL_STORAGE */
-    // eslint-disable-next-line no-unused-vars
     set_local_storage({ state }, object) {
       localStorage.setItem("article", JSON.stringify(object));
     },
