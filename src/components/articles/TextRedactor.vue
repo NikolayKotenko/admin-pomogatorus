@@ -112,35 +112,35 @@ export default {
           console.log("start rerender");
           /* Only way to get time for procedure render DOM */
           // setTimeout(() => {
-            /* Change content on article by static HTML */
-            this.$nextTick(() => {
-              this.content = _store.content_from_server;
-            });
+          /* Change content on article by static HTML */
+          this.$nextTick(() => {
+            this.content = _store.content_from_server;
+          });
 
-            console.log("components_after_request", _store.components_after_request)
+          console.log("components_after_request", _store.components_after_request)
 
-            /* Start render */
-            if (_store.components_after_request.length) {
-              /* Initialise render func */
-              this.initializeContent().then(() => {
-                /* Check if some questions was deleted from DB */
-                this.checkOnDeletedComponents();
-                this.$nextTick(() => {
-                  /* Reset Counters & Question number */
-                  this.resetCounter(_store.list_components);
-                  this.changeIndexQuestion();
-                  /* Set start Render to default and prepare for next rerender */
-                  this.$store.commit("change_start_render", false);
-                });
+          /* Start render */
+          if (_store.components_after_request.length) {
+            /* Initialise render func */
+            this.initializeContent().then(() => {
+              /* Check if some questions was deleted from DB */
+              this.checkOnDeletedComponents();
+              this.$nextTick(() => {
+                /* Reset Counters & Question number */
+                this.resetCounter(_store.list_components);
+                this.changeIndexQuestion();
+                /* Set start Render to default and prepare for next rerender */
+                this.$store.commit("change_start_render", false);
               });
-            } else {
-              console.log("EMPTY COMPONENTS")
+            });
+          } else {
+            console.log("EMPTY COMPONENTS")
 
-              this.$store.commit("clear_list_components", []);
-              this.$store.commit("change_start_render", false);
+            this.$store.commit("clear_list_components", []);
+            this.$store.commit("change_start_render", false);
 
-              console.log("AFTER CLEAR", _store.list_components)
-            }
+            console.log("AFTER CLEAR", _store.list_components)
+          }
           // }, 600);
         }
       },
@@ -404,7 +404,6 @@ export default {
         this.$store.commit("clear_list_components", []);
 
         /* If we have backendView component from API or UNDO/REDO start get data */
-        // if (_store.components_after_request.length) {
         /* LOADERS & OVERLAY */
         _store.loadingArticle = true;
         this.geting_from_server = true;
@@ -478,7 +477,6 @@ export default {
             resolve();
           });
         });
-        // }
       });
     },
     checkOnDeletedComponents() {
@@ -640,7 +638,7 @@ export default {
         nomenclatures_id: elem?.nomenclatures_id ?? []
       });
 
-      console.log("data_component",data_component)
+      console.log("data_component", data_component)
 
       // QUESTIONS DATA ADD TO ARRAY BECAUSE NEED UNDO/REDO
       if (_store.name_component === 'questions') {

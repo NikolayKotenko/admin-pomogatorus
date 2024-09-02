@@ -2,34 +2,48 @@
   <div>
     <v-combobox
         v-model="currentData"
-        :rules="$store.state.nameRules"
+        :rules="$store.state.requiredFieldRules"
         :class="isClass"
         :outlined="isOutlined"
         :dense="isDense"
         :hide-details="isHideDetails"
-        :placeholder="isPlaceholder"
-        :label="isPlaceholder"
+        :error="isError"
+        :error-messages="isErrorMessages"
+        :placeholder="localPlaceholder"
+        :label="localPlaceholder"
         :loading="isLoading"
         :disabled="isDisabled"
-        :items="isItems"
+        :items="action === 'add' ? isItems : []"
         :item-text="isItemText"
         :item-value="isItemValue"
-        :return-object="false"
+        :return-object="isReturnObject"
         :hide-no-data="false"
-        chips
-        small-chips
-        :clearable="isClearable"
+        :chips="action === 'add'"
+        :small-chips="action === 'add'"
+        :clearable="action === 'add' ? isClearable : false"
         :search-input.sync="localSearchInputSync"
-        @update:search-input="$emit('update-search-input', localSearchInputSync)"
-        @change="$emit('change-search', localSelected)"
+        @update:search-input="action === 'add' ? ($emit('update-search-input', localSearchInputSync)) : null"
+        @keyup.enter="$emit('change-search', localSelected)"
+        @change="setChangeSelected(localSelected)"
+        @click:clear="clearSelected()"
+        ref="comboboxStyled"
     >
       <template v-slot:no-data>
-        <v-list-item v-if="localSearchInputSync && !isItems.length && !isLoading">
-          <span class="subheading">Enter чтобы создать новый элемент &nbsp;</span>
+        <v-list-item v-if="localSearchInputSync && !isItems.length && !isLoading && (localSearchInputSync !== localSelected)"
+          @click="$refs.comboboxStyled.focus()"
+        >
+          <span class="subheading" v-if="action === 'add'">Не найдено совпадений, нажмите "Enter" для создания</span>
+          <span class="subheading" v-if="action === 'edit'">Нажмите "Enter" для переименования элемента в - &nbsp;</span>
           <v-chip label small>
             {{ localSearchInputSync }}
           </v-chip>
         </v-list-item>
+      </template>
+      <template v-slot:item="{ item }">
+        <v-list-item-content class="template_item">
+          <section>{{ item.name }}</section>
+          <section>Выбрать</section>
+        </v-list-item-content>
       </template>
 <!--      <template v-slot:selection="{ attrs, item, parent, selected }">-->
 <!--        <v-chip-->
@@ -55,7 +69,7 @@ export default {
   name: 'ComboboxStyled',
   data: () => ({
     localSearchInputSync: '',
-    localSelected: null
+    localSelected: null,
   }),
   props: {
     isClass: {
@@ -74,7 +88,11 @@ export default {
       type: Boolean,
       default: true
     },
-    isPlaceholder: {
+    isError: {
+      type: Boolean,
+      default: false
+    },
+    isErrorMessages: {
       type: String,
       default: ''
     },
@@ -106,10 +124,18 @@ export default {
       type: Boolean,
       default: true
     },
+    isReturnObject: {
+      type: Boolean,
+      default: false
+    },
     data: {
       type: [String, Number],
       default: null
     },
+    action:{
+      type: [String, null],
+      default: 'add'
+    }
   },
   computed:{
     currentData: {
@@ -122,13 +148,39 @@ export default {
       set(value) {
         this.localSelected = value
       }
+    },
+    localPlaceholder() {
+      return this.action === 'add' ? 'Введите новое наименование' : 'Редактирование текущего наименования'
+    }
+  },
+  methods:{
+    clearSelected(){
+      if (this.action === 'add'){
+        this.$emit('click-clear');
+        this.localSearchInputSync = '';
+        this.localSelected = null;
+      }
+    },
+    setChangeSelected(){
+      if (typeof this.localSelected !== 'object')  return false;
+
+      this.$emit('change-search', this.localSelected)
     }
   }
 }
 </script>
 
-<style lang='scss' scoped>
-
+<style lang='scss'>
+.template_item{
+  display: grid;
+  grid-template-columns: auto 1fr;
+  :first-child{
+    font-weight: bold;
+  }
+  :last-child{
+    margin-left: auto;
+  }
+}
 
 
 </style>

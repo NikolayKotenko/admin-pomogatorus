@@ -344,20 +344,13 @@ export default {
       this.filterValueFocused = false;
     },
     computedAnswersCount(question) {
-      if (question.value_type_answer !== null) {
-        let result = JSON.parse(JSON.parse(question.value_type_answer));
-        if (Array.isArray(result)) {
-          if (result.length) {
-            return result.length;
-          } else {
-            return 1;
-          }
-        } else {
-          if (JSON.parse(question.value_type_answer) !== null) {
-            return JSON.parse(question.value_type_answer).length;
-          } else return 0;
-        }
-      } else return 0;
+      if (question.value_type_answer === null) return 0;
+
+      const parseOne = JSON.parse(question.value_type_answer);
+      if (Array.isArray(parseOne)) return parseOne.length;
+
+      const parseTwo = JSON.parse(parseOne);
+      if (Array.isArray(parseTwo)) return parseTwo.length
     },
   },
 };

@@ -3,7 +3,7 @@
     <v-container class="mt-5">
       <template v-if="$store.getters.stateEditCreate($route.query.action)">
         <InputStyled
-            :current-rules="$store.state.nameRules"
+            :current-rules="$store.state.requiredFieldRules"
             :data="$store.state.ObjectPropertiesModule.entry.name"
             :is-clearable="true"
             :is-disabled="$store.state.ObjectPropertiesModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
@@ -61,7 +61,7 @@
               :item-text="'name'"
               :item-value="'id'"
               :placeholder="'Тип параметра'"
-              :current-rules="$store.state.nameRules"
+              :current-rules="$store.state.requiredFieldRules"
               :is-hide-details="false"
               :is-disabled="!$store.getters.stateEditCreate($route.query.action)"
               @update-input="setTypePropertyObject"
@@ -206,7 +206,7 @@ export default {
 
     await this.$store.dispatch('ObjectPropertiesModule/getListEntries', this.$route.params.code)
     await this.$store.dispatch('ObjectPropertiesModule/getInfoByEntry')
-    await this.$store.dispatch('DictionariesModule/getListEntries')
+    await this.$store.dispatch('DictionariesModule/getListDictionaries')
   },
   methods:{
     async setDictionary(value){

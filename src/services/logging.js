@@ -1,6 +1,8 @@
 export default class Logging {
   //Если удобно пользоваться конструктором
   constructor(request) {
+    if (!request) return false;
+
     const { message, data, meta, links, codeResponse, systemErrors } = request;
 
     this.message = message;
@@ -9,11 +11,12 @@ export default class Logging {
     this.links = links;
     this.codeResponse = codeResponse;
     this.systemErrors = systemErrors;
+    this.isError = codeResponse >= 400;
   }
 
   /**
    * @param {any} request Принимает в себя либо один объект реквест либо массив реквестов.
-   * @return {array} message, Возвращает строку в виде либо склеенных сообщений либо в виде одного.
+   * @return {array} message, возвращает строку в виде либо склеенных сообщений, либо в виде одного.
    */
   static getMessage(request) {
     if (!Array.isArray(request)) return request.message;

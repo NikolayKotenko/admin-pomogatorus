@@ -12,14 +12,17 @@ import DictionariesModule from "./modules/dictionaries";
 import Request from "../services/request";
 import NomenclaturesModule from "@/store/modules/nomenclatures";
 import FamiliesModule from "@/store/modules/families";
-import FamilyTypesModule from "@/store/modules/familyTypes";
 import Brands from "@/store/modules/brands";
+import NomenclaturesTreeModule from "@/store/modules/nomenclatures-tree";
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    BASE_URL: "https://api-test.agregatorus.com",
+    BASE_URL:
+      process.env.NODE_ENV === "development"
+        ? process.env.VUE_APP_BASEURL_DEV
+        : process.env.VUE_APP_BASEURL_PROD,
     notification_modal: {
       show_notification: false,
       error: false,
@@ -33,7 +36,7 @@ export default new Vuex.Store({
       (v) => !!v || "Обязательное для заполнение поле",
       (v) => /.+@.+/.test(v) || "E-mail должен быть валидным.",
     ],
-    nameRules: [(v) => !!v || "Обязательное для заполнение поле"],
+    requiredFieldRules: [(v) => !!v || "Обязательное для заполнение поле"],
     responseTag: {
       errorState: false,
       errorMessages: "",
@@ -92,7 +95,6 @@ export default new Vuex.Store({
       return response;
     },
     setTitle(_, title) {
-      // console.log('setTitle title = ', title)
       if (!title) return false;
       if (document.title.match(">")) return false;
 
@@ -139,7 +141,9 @@ export default new Vuex.Store({
       );
     },
     getToken() {
-      return "666777";
+      return process.env.NODE_ENV === "development"
+        ? "666777"
+        : `Bearer ${Vue.$cookies.get("accessToken")}`;
     },
   },
   modules: {
@@ -153,7 +157,7 @@ export default new Vuex.Store({
     DictionariesModule,
     NomenclaturesModule,
     FamiliesModule,
-    FamilyTypesModule,
-    Brands
+    Brands,
+    NomenclaturesTreeModule,
   },
 });

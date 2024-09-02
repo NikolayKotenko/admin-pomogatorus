@@ -188,7 +188,7 @@
                 <transition-group name="list">
                   <div
                       v-for="(answer, index) in newQuestion.value_type_answer"
-                      :key="answer.id"
+                      :key="index"
                       class="question_main_wrapper__item"
                   >
                     <TextAreaStyled
@@ -253,7 +253,7 @@
                 <transition-group name="list">
                   <div
                       v-for="(answer, index) in newQuestion.value_type_answer"
-                      :key="answer.id"
+                      :key="index"
                       class="question_main_wrapper__item"
                   >
                     <InputStyled

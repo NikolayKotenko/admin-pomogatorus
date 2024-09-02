@@ -3,7 +3,7 @@
     <v-container>
       <template v-if="$store.getters.stateEditCreate($route.query.action)">
         <InputStyled
-            :current-rules="$store.state.nameRules"
+            :current-rules="$store.state.requiredFieldRules"
             :data="$store.state.TagsModule.tag.name"
             :is-clearable="true"
             :is-disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
@@ -156,16 +156,6 @@
           dense
           hide-details
           label="Используется как услуги ?"
-      >
-      </v-checkbox>
-      <v-checkbox
-          v-model="$store.state.TagsModule.tag.flag_brands"
-          :disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
-          :loading="$store.state.loadingRequestGeneral"
-          class="mb-5 mt-5"
-          dense
-          hide-details
-          label="Используется как бренд ?"
       >
       </v-checkbox>
       <InputStyled

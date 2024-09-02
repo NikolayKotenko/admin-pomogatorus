@@ -5,6 +5,8 @@
       :autofocus='isAutofocus'
       :clearable="isClearable"
       :disabled='isDisabled'
+      :error="isError"
+      :error-messages="(isError) ? isErrorMessages : ''"
       :flat="isFlat"
       :item-text="itemText"
       :item-value="itemValue"
@@ -23,7 +25,7 @@
       :hide-details="isHideDetails"
       @focus='onFocus'
       @focusout='outFocus'
-      @change="$emit('change-input')"
+      @change="$emit('change-input', $event)"
       @click:clear="(internalData = null)"
       :menu-props="{
             closeOnContentClick: true,
@@ -123,6 +125,14 @@ export default {
     isFlat: {
       type: Boolean,
       default: false
+    },
+    isError: {
+      type: Boolean,
+      default: false
+    },
+    isErrorMessages: {
+      type: String,
+      default: ''
     },
   },
   data: () => ({

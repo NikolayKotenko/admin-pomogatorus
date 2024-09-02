@@ -163,6 +163,37 @@
           <span>Вставить заголовок</span>
         </v-tooltip>
       </div>
+      <!-- Вставить список -->
+      <div class="header__elBlock right">
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <v-icon
+                :color="icons_panel.insertUnorderedList.active ? 'blue darken-4' : ''"
+                size="28"
+                v-bind="attrs"
+                @click="setBulletedList()"
+                v-on="on"
+            >
+              mdi-format-list-bulleted
+            </v-icon>
+          </template>
+          <span>Вставить маркированный список</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <v-icon
+                :color="icons_panel.insertOrderedList.active ? 'blue darken-4' : ''"
+                size="28"
+                v-bind="attrs"
+                @click="setNumberedList()"
+                v-on="on"
+            >
+              mdi-format-list-numbered
+            </v-icon>
+          </template>
+          <span>Вставить нумерованный список</span>
+        </v-tooltip>
+      </div>
       <!-- Вставить ссылку -->
       <div class="header__elBlock right">
         <v-tooltip bottom>
@@ -324,8 +355,8 @@
               :menu-props="{ bottom: true, offsetY: true }"
               clearable
               item-text="name"
-              return-object
               placeholder="Наименование"
+              return-object
               style="position: sticky; top: 0"
               @change="setNomenclatureList($event)"
           >
@@ -816,6 +847,14 @@ export default {
         iconsModels.icons_panel.formatBlock.active = true;
       }
       this.$store.commit('get_range')
+    },
+
+    /* LIST */
+    setBulletedList() {
+      this.onAction('insertUnorderedList')
+    },
+    setNumberedList() {
+      this.onAction('insertOrderedList')
     },
 
     /* MODALS */

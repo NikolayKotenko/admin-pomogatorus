@@ -53,11 +53,11 @@
           :flat="flat"
           dense
           hide-details
-          placeholder="Выберите"
+          :placeholder="'Выберите - '+placeholderDynamic"
           :loading="loadingList"
           :disabled="loadingList"
           hide-no-data
-          :label="flat ? '' : 'Выберите'"
+          :label="flat ? '' : 'Выберите - '+placeholderDynamic"
           :items="secondEnvItemsArray"
           item-text="ru_text"
           return-object
@@ -111,6 +111,17 @@ export default {
       if (!Object.keys(this.firstEnv).length) return false;
       return this.firstEnv?.data?.model;
     },
+    placeholderDynamic(){
+      let str = '';
+      if (this.firstEnv.text === 'Объекты'){
+        str = 'параметр объекта'
+      }
+      if (this.firstEnv.text === 'Тэги'){
+        str = 'брэнд'
+      }
+
+      return str;
+    }
   },
   methods: {
     async getValues() {

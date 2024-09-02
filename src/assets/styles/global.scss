@@ -38,3 +38,9 @@ input:focus::placeholder {
   border-bottom-left-radius: 15px !important;
   border-bottom-right-radius: 15px !important;
 }
+
+.rollback-vuetify-text-style{
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: normal;
+}

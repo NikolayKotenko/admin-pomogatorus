@@ -3,7 +3,7 @@
     <v-container class="main_wrapper">
       <template v-if="$store.getters.stateEditCreate($route.query.action) ">
         <InputStyled
-            :current-rules="$store.state.nameRules"
+            :current-rules="$store.state.requiredFieldRules"
             :data="$store.state.FamiliesModule.entry.name"
             :is-clearable="true"
             :is-disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
@@ -270,7 +270,6 @@ export default {
   }),
   async mounted() {
     await this.$store.dispatch('FamiliesModule/getListEntries', this.$route.params.id)
-    await this.$store.dispatch('FamiliesModule/getListTypes')
     await this.$store.dispatch('FamiliesModule/getListBrands')
     await this.$store.dispatch('setTitle', this.$store.state.FamiliesModule.entry.name)
   },

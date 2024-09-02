@@ -28,6 +28,7 @@ const defaultQuestion = {
   value_type_answer: null,
   _all_tags: [],
   mtomtags: [],
+  activity: 0,
 };
 
 /* CONSTRUCTORS */
@@ -79,6 +80,7 @@ export default {
       value_type_answer: null,
       _all_tags: [],
       mtomtags: [],
+      activity: 0,
     },
     nonEditState: {},
 
@@ -137,37 +139,54 @@ export default {
     },
     set_new_question(state, result) {
       state.newQuestion = Object.assign({}, defaultQuestion);
-      for (let key in result) {
-        if (
-          key === "name" ||
-          key === "title" ||
-          key === "article" ||
-          key === "purpose_of_question" ||
-          key === "id_type_answer"
-        ) {
-          state.newQuestion[key] = {
-            value: result[key],
-            focused: false,
-          };
-        } else if (key === "value_type_answer") {
-          // FIXME: парсинг чет страдает
-          // if (result['id_type_answer'] !== 1 && result['id_type_answer'] !== 2) {
-          let parsed = null;
-          parsed = JSON.parse(JSON.parse(result[key]));
-          if (Array.isArray(parsed)) {
-            state.newQuestion[key] = [];
-            parsed.forEach((elem) => {
-              state.newQuestion[key].push(new AnswerVariable(elem));
-            });
-          } else {
-            state.newQuestion[key] = [];
-          }
-          // } else {
-          //     state.newQuestion[key] = JSON.parse(result[key])
-          // }
-        } else state.newQuestion[key] = result[key];
-      }
+
+      setFlatValue(result, [
+        "name",
+        "title",
+        "article",
+        "purpose_of_question",
+        "id_type_answer",
+      ]);
+      setValueTypeAnswer(result["value_type_answer"]);
+
       state.nonEditState = Object.assign({}, state.newQuestion);
+
+      function setFlatValue(result, arrRequiredKeys) {
+        for (let key in result) {
+          if (arrRequiredKeys.includes(key)) {
+            // console.log(`${key} - ${result[key]}`);
+            state.newQuestion[key] = {
+              value: result[key],
+              focused: false,
+            };
+          } else state.newQuestion[key] = result[key];
+        }
+      }
+      function setValueTypeAnswer(valueTypeAnswer) {
+        state.newQuestion["value_type_answer"] = [];
+        let parsed = null;
+        parsed = JSON.parse(valueTypeAnswer);
+        // console.clear();
+        // console.log("first", { type: typeof parsed, data: parsed });
+        if (Array.isArray(parsed)) {
+          parsed.forEach((elem) => {
+            state.newQuestion["value_type_answer"].push(
+              new AnswerVariable(elem)
+            );
+          });
+          return false;
+        }
+        // SECOND PARSING
+        parsed = JSON.parse(parsed);
+        // console.log("second", { type: typeof parsed, data: parsed });
+        if (Array.isArray(parsed)) {
+          parsed.forEach((elem) => {
+            state.newQuestion["value_type_answer"].push(
+              new AnswerVariable(elem)
+            );
+          });
+        }
+      }
     },
 
     /* LOCAL_STORAGE */

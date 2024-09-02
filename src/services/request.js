@@ -1,10 +1,13 @@
 import Logging from "@/services/logging";
+import Vue from "vue";
 
-/**
- * TODO я честно пытался подключить сюда store но не получилось
- * https://stackoverflow.com/questions/47571543/access-store-outside-of-component-vuejs
- */
 export default class Request {
+  /**
+   * @returns {Logging}
+   * @param {String} url
+   * @param {Object} params
+   * @param {String} method
+   */
   static async request(url, params, method) {
     let options = {
       method: method, // *GET, POST, PUT, DELETE, etc.
@@ -12,7 +15,10 @@ export default class Request {
       cache: "default", // *default, no-cache, reload, force-cache, only-if-cached
       credentials: "include", // include, *same-origin, omit
       headers: {
-        Authorization: "666777",
+        Authorization:
+          process.env.NODE_ENV === "development"
+            ? "666777"
+            : "Bearer " + Vue.$cookies.get("accessToken"),
         "Content-Type": "application/json",
       },
     };
@@ -63,12 +69,18 @@ export default class Request {
   //['id_tag': 1, 'id_prop': 2]
   static ConstructFilterQuery(arrNameParam = []) {
     let result = "";
-    for (let [key, value] of Object.entries(arrNameParam)) {
-      result += "filter[" + key + "]=" + value + "&";
+    for (const [key, value] of Object.entries(arrNameParam)) {
+      if (Array.isArray(value)) {
+        value.forEach((item) => {
+          result += "filter[" + key + "][]=" + item + "&";
+        });
+      } else {
+        result += "filter[" + key + "]=" + value + "&";
+      }
     }
     result = result.slice(0, -1);
 
-    // console.log("res", result);
+    // console.log("ConstructFilterQuery", result);
     return "?" + result;
   }
 }
