@@ -409,6 +409,10 @@
                 :is-loading="loading"
                 @update-input="setPropertyFamily({ key: 'seo_keywords', payload: $event });"
             />
+            <DropzoneStyled
+              :id-object="family.id"
+              :photos-array="family.photos"
+            ></DropzoneStyled>
             <VueEditor
                 v-model="family.seo_descriptionEditor"
                 placeholder="Seo description"
@@ -720,6 +724,7 @@
       </div>
     </v-snackbar>
 
+
 <!--    <v-overlay
         :absolute="true"
         :value="loading"
@@ -745,6 +750,7 @@ import {mapState, mapGetters, mapMutations, mapActions} from "vuex";
 import InputStyledSimple from "@/components/common/InputStyledSimple";
 import CheckboxStyled from "@/components/common/CheckboxStyled";
 import SelectStyled from "@/components/common/SelectStyled";
+import DropzoneStyled from "@/components/common/DropzoneStyled.vue";
 // import TextAreaStyled from "@/components/common/TextAreaStyled";
 import {VueEditor} from "vue2-editor";
 
@@ -758,6 +764,7 @@ export default {
     IconTooltip,
     CheckboxStyled,
     SelectStyled,
+    DropzoneStyled,
     // TextAreaStyled,
     VueEditor
   },
