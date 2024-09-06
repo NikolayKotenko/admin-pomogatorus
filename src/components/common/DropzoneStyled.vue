@@ -19,7 +19,7 @@
           <span v-else class="text-h7">Изображение уже загружено</span>
         </v-card-title>
         <v-card-text class="dialog_dropzone">
-          <div v-show="! currentData.length" class="dialog_dropzone_wrapper">
+          <div class="dialog_dropzone_wrapper">
             <vue-dropzone
                 id="dropzone"
                 ref="dropzone"
@@ -41,6 +41,9 @@
           <template>
             <div v-for="(item, index) in currentData" :key="index" class="dialog_dropzone_inputs">
               <v-img :src="$store.state.BASE_URL+item.full_path" contain></v-img>
+              <v-btn
+                @click="removeFile(item.id)"
+              >Удалить</v-btn>
               <span class="dialog_dropzone_inputs__label"> {{ item.filename }}</span>
               <InputStyled
                   :data="item.alt_image"
@@ -62,16 +65,16 @@
           </template>
         </v-card-text>
         <v-card-actions>
-          <v-btn
-              v-if="currentData.length"
-              :disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"
-              :loading="$store.state.loadingRequestGeneral"
-              color="blue darken-1"
-              text
-              @click="removedFile();"
-          >
-            Очистить
-          </v-btn>
+<!--          <v-btn-->
+<!--              v-if="currentData.length"-->
+<!--              :disabled="$store.state.loadingRequestGeneral || !$store.getters.stateEditCreate($route.query.action)"-->
+<!--              :loading="$store.state.loadingRequestGeneral"-->
+<!--              color="blue darken-1"-->
+<!--              text-->
+<!--              @click="removedFile();"-->
+<!--          >-->
+<!--            Очистить-->
+<!--          </v-btn>-->
           <v-spacer></v-spacer>
           <v-btn
               :disabled="$store.state.loadingRequestGeneral"
@@ -124,18 +127,30 @@ export default ({
       return {
         url: this.$store.state.BASE_URL + '/entity/files',
         // url: 'https://httpbin.org/post',
-        destroyDropzone: false,
+        destroyDropzone: true,
         duplicateCheck: true,
+        disablePreviews: true,
         headers: {
           Authorization: this.$store.getters.getToken,
         },
       }
     },
-    currentData() {
-      if (this.photosArray) {
-        return this.photosArray
+    // currentData() {
+    //   if (this.photosArray) {
+    //     return this.photosArray
+    //   }
+    //   return this.dropzone_uploaded
+    // },
+    currentData: {
+      get() {
+        if (this.photosArray) {
+          return this.photosArray
+        }
+        return this.dropzone_uploaded
+      },
+      set(value) {
+        this.dropzone_uploaded = value
       }
-      return this.dropzone_uploaded
     },
   },
   methods: {
@@ -146,14 +161,10 @@ export default ({
       this.currentData[data.index].title_image = data.value
     },
     sendingData(file, xhr, formData) {
-      console.log('_store', this.idObject)
       formData.append('uuid', file.upload.uuid)
       formData.append('id_family', parseInt(this.idObject))
     },
     async successData(file, response) {
-      console.log('dropzpne', response.data)
-      console.log('successData')
-      console.log(response)
       const formatObj = Object.assign({}, response.data)
       this.currentData.push(formatObj)
 
@@ -172,9 +183,22 @@ export default ({
       this.currentData = [];
       this.$refs.dropzone.removeAllFiles();
     },
+    async removeFile(fileId) {
+      if (!this.currentData.length)
+        return false;
+
+      await this.$store.dispatch('deleteFileGeneral', fileId);
+
+      this.$refs.dropzone.removeAllFiles();
+      const index = this.currentData.findIndex(item => item.id === fileId)
+
+      if (index !== -1) {
+        this.currentData.splice(index, 1);
+      }
+
+    },
     insertDropzoneData() {
-      console.log('123', this.currentData)
-      // if (!this.$store.state.stateDropzoneModal) return;
+      if (!this.$store.state.stateDropzoneModal) return;
       if (!this.currentData.length) return;
 
       this.$nextTick(() => {
@@ -192,6 +216,14 @@ export default ({
 })
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
+.dialog_dropzone_wrapper {
+  .dropzone .dz-preview.dz-image-preview {
+    display: none !important;
+  }
+  .dropzone.dz-started .dz-message {
+    display: block !important;
+  }
+}
 
 </style>
