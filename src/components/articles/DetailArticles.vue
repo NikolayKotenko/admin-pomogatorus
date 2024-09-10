@@ -33,7 +33,10 @@
                   </v-icon>
                 </template>
               </TextAreaStyled>
-              <v-btn link icon :href="'https://pomogatorus.ru/articles/'+newArticle.id" title="Ссылка на статью" target="_blank" ><v-icon>mdi-link</v-icon></v-btn>
+              <v-btn :href="'https://pomogatorus.ru/articles/'+newArticle.id" icon link target="_blank"
+                     title="Ссылка на статью">
+                <v-icon>mdi-link</v-icon>
+              </v-btn>
             </section>
 
             <small
@@ -219,17 +222,17 @@
                 Список приглашенных экспертов
               </span>
               <v-autocomplete
-                  class="detail-wrapper__content__title__help__list_experts"
                   v-model="newArticle.list_experts"
                   :disabled="$store.state.ArticleModule.loadingInfoArticle"
                   :items="$store.state.ArticleModule.listUsersByFilterExpert"
                   :loading="$store.state.ArticleModule.loadingInfoArticle"
-                  small-chips deletable-chips multiple
                   :menu-props="{ bottom: true, offsetY: true }"
-                  clearable
+                  class="detail-wrapper__content__title__help__list_experts" clearable deletable-chips
                   item-text="email"
                   item-value="id"
                   label=""
+                  multiple
+                  small-chips
                   style="position: sticky; top: 0"
               >
               </v-autocomplete>
@@ -612,6 +615,8 @@ export default {
             });
 
         this.$store.dispatch('getDetailArticleInfo');
+      } else {
+        this.getFromServer = false;
       }
     },
     resetFields() {
@@ -877,12 +882,13 @@ export default {
       row-gap: 5px;
 
       &__title {
-        &__head{
+        &__head {
           display: grid;
           grid-template-columns: 1fr auto;
           align-items: center;
           grid-column-gap: 1em;
         }
+
         &__name {
           margin-bottom: 7px !important;
           border-bottom: 2px solid #1976d2;
@@ -963,7 +969,7 @@ export default {
             transition: color 0.6s ease-in-out;
           }
 
-          &__list_experts{
+          &__list_experts {
             //max-width: 400px;
             //input{
             //  padding-left: 10px;
