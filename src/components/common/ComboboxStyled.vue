@@ -41,7 +41,7 @@
       </template>
       <template v-slot:item="{ item }">
         <v-list-item-content class="template_item">
-          <section>{{ item.name }}</section>
+          <section>{{ item.value || item.name }}</section>
           <section>Выбрать</section>
         </v-list-item-content>
       </template>

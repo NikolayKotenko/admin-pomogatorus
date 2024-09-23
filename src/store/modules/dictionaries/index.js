@@ -236,7 +236,7 @@ export default {
         );
         commit("setListOccurrencesAttributes", response.data);
         commit("changeLoadingOccurrencesAttributes", false);
-      }, 500);
+      }, 3000);
     },
   },
   getters: {

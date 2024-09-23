@@ -3,26 +3,36 @@
     <v-container class="main_wrapper">
 
       <div class="wrapper_checkbox">
-        <v-checkbox
-            v-model="$store.state.DictionariesModule.entry.flag_nomenclature"
-            :disabled="$store.state.DictionariesModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
-            :loading="$store.state.DictionariesModule.loadingList"
-            class="mb-5 mt-5"
-            dense
-            hide-details
-            label="Номенклатура"
+        <TooltipStyled
+          :title="'Справочник относится к Номенклатуре'"
         >
-        </v-checkbox>
-        <v-checkbox
-            v-model="$store.state.DictionariesModule.entry.flag_objects"
-            :disabled="$store.state.DictionariesModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
-            :loading="$store.state.DictionariesModule.loadingList"
-            class="mb-5 mt-5"
-            dense
-            hide-details
-            label="Объекты"
+          <v-checkbox
+              v-model="$store.state.DictionariesModule.entry.flag_nomenclature"
+              :disabled="$store.state.DictionariesModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+              :loading="$store.state.DictionariesModule.loadingList"
+              class="mb-5 mt-5"
+              dense
+              hide-details
+              label="Номенклатура"
+          >
+          </v-checkbox>
+        </TooltipStyled>
+
+        <TooltipStyled
+          :title="'Справочник относится к Объекту'"
         >
-        </v-checkbox>
+          <v-checkbox
+              v-model="$store.state.DictionariesModule.entry.flag_objects"
+              :disabled="$store.state.DictionariesModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
+              :loading="$store.state.DictionariesModule.loadingList"
+              class="mb-5 mt-5"
+              dense
+              hide-details
+              label="Объекты"
+          >
+          </v-checkbox>
+        </TooltipStyled>
+
       </div>
       <!-- Сам справочник  -->
       <template v-if="$store.getters.stateEditCreate($route.query.action)">
@@ -253,10 +263,12 @@ import {DictionaryAttribute} from "@/helpers/constructors";
 import ComboboxStyled from "@/components/common/ComboboxStyled";
 import InputStyledSimple from "@/components/common/InputStyledSimple";
 import SearchStyled from "@/components/common/SearchStyled";
+import TooltipStyled from "@/components/common/TooltipStyled.vue";
 
 export default {
   name: "Dictionaries",
   components:{
+    TooltipStyled,
     SearchStyled,
     InputStyledSimple,
     InputStyled,
