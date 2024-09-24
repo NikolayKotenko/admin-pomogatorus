@@ -140,7 +140,9 @@ export default {
           this.state.FamiliesModule.entry
         );
 
+        console.log('checkCreate', resp)
         return resp;
+
       } catch (e) {
         console.log(e);
         console.log(e.stack);
@@ -148,6 +150,7 @@ export default {
       }
     },
     async updateEntry({ commit }, objRequest) {
+
       try {
         let resp = await Request.put(
           this.state.BASE_URL +

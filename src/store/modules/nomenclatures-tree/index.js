@@ -560,6 +560,8 @@ export default {
         commit("set_response_by_family", response);
       }
 
+      console.log('checkUpdate', response)
+
       commit("set_family", response.data);
       commit("change_loading", false);
       commit("add_popup_notification", response.message);

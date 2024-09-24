@@ -1122,7 +1122,7 @@ export default {
     }
   }
 
-  .parentPropertyStyle{
+  .pДоarentPropertyStyle{
     background: #d3d3d37d;
   }
 
