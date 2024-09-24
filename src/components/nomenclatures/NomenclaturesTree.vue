@@ -364,10 +364,12 @@
 
     <!-- Диалог для добавления / редактирования семейств -->
     <v-dialog :value="dialogFamily"
+
               @click:outside="saveFamilyAction(); clear_action_query();"
+
               @keydown.esc="saveFamilyAction(); clear_action_query();"
     >
-      <v-card>
+      <v-card id="edit-dialog" @keyup.enter="saveFamilyAction(); clear_action_query();">
         <v-card-title>
           <section>
             {{ $route.query.action === 'edit' ? 'Редактирование' : 'Создание' }} семейства <u>{{family.name}}</u>
@@ -443,9 +445,11 @@
     </v-dialog>
 
     <!-- Диалог добавления / редактирования номенклатуры  -->
-    <v-dialog :value="dialogNomenclature"
-              @click:outside="saveNomenclatureAction(); clear_action_query();"
-              @keydown.esc="saveNomenclatureAction(); clear_action_query();"
+    <v-dialog
+
+        :value="dialogNomenclature"
+        @click:outside="saveNomenclatureAction(); clear_action_query();"
+        @keydown.esc="saveNomenclatureAction(); clear_action_query();"
     >
       <v-card>
         <v-card-title class="d-block">
@@ -818,6 +822,13 @@ export default {
     await this.getDictionaryUnits();
 
     this.$refs.treeView.updateAll(true);
+
+    await document.addEventListener('keyup', function (e) {
+        if (e.key === 'Enter') {
+          this.saveFamilyAction()
+        }
+    });
+
   },
   watch: {},
   computed:{
