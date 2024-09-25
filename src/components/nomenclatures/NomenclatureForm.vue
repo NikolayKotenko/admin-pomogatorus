@@ -12,7 +12,7 @@
             outlined
             required
             type="text"
-        ></v-text-field>
+        />
       </template>
       <template v-else>
         <v-autocomplete
@@ -31,40 +31,27 @@
         >
         </v-autocomplete>
       </template>
-      <v-text-field
-          ref="nomenclature-vendor-code"
-          v-model="$store.state.NomenclaturesModule.entry.vendor_code"
-          :disabled="$store.state.NomenclaturesModule.loadingList"
-          class="mb-0 mt-5"
-          dense
-          label="Артикул"
-          outlined
-          required
-          type="text"
-      ></v-text-field>
 
-      <v-list elevation="1" subheader>
-        <v-subheader>Семейство</v-subheader>
-        <v-combobox
-            @change="$store.state.NomenclaturesModule.entry.id_family = ($event) ? $event.id : null"
-            v-model="$store.state.NomenclaturesModule.entry._family"
-            :disabled="$store.state.NomenclaturesModule.loadingList || !$store.getters.stateEditCreate($route.query.action)"
-            :items="$store.state.NomenclaturesModule.listFamily" :loading="$store.state.NomenclaturesModule.loadingList"
-            chips
-            class="role_user pa-2 pt-0 ma-0 "
-            clearable
-            hide-details
-            item-text="name"
-            item-value="id"
-        >
-        </v-combobox>
-      </v-list>
-
-    <!-- TODO
-          Нужен компонент табличного вида на 2 колонки "ключ характеристики" - "значение"
-          плюс снизу кнопка отрисовки новой характеристики
-     -->
-    <Characteristics/>
+<!--      <ComboboxStyled-->
+<!--          :action="$route.query.action"-->
+<!--          :is-items="listNomenclaturesBySearch"-->
+<!--          :data="nomenclature.name"-->
+<!--          :key="nomenclature.id"-->
+<!--          :is-return-object="true"-->
+<!--          :is-item-text="'name'"-->
+<!--          :is-item-value="'name'"-->
+<!--          :is-hide-details="false"-->
+<!--          :is-error="responseAddNomenclature.isError"-->
+<!--          :is-error-messages="responseAddNomenclature.message"-->
+<!--          :is-outlined="false"-->
+<!--          :is-loading="loading"-->
+<!--          @update-search-input="getNomenclaturesBySearch($event)"-->
+<!--          @change-search="localSetSearchNomenclature"-->
+<!--          @click-clear="clear_nomenclature(); clear_list_nomenclatures_by_search(); clear_response_add_nomenclature()"-->
+<!--      ></ComboboxStyled>-->
+    <EditNomenclatureCard
+      :nomenclature-data="$store.state.NomenclaturesModule.entry"
+    />
 
     </v-container>
     <footer class="detail_footer">
@@ -92,7 +79,7 @@
             class="detail_footer__save_btn"
             color="blue darken-1"
             text
-            @click.prevent="onSubmitLocal()"
+            @click.prevent="onSubmitLocal() && $store.dispatch('NomenclaturesTreeModule/updateNomenclature')"
         >
           Сохранить
         </v-btn>
@@ -109,11 +96,21 @@
 // const _store = nomenclatureStore.state
 
 import Characteristics from "@/components/nomenclatures/Characteristics";
+import InputStyledSimple from "@/components/common/InputStyledSimple.vue";
+import EditNomenclatureCard from "@/components/nomenclatures/EditNomenclatureCard.vue";
+import ComboboxStyled from "@/components/common/ComboboxStyled.vue";
+import {mapActions, mapGetters, mapMutations, mapState} from "vuex";
+import {Nomenclature} from "@/helpers/constructors";
+import Logging from "@/services/logging";
 export default {
   name: "NomenclatureForm",
-  components: {Characteristics},
+  components: {ComboboxStyled, EditNomenclatureCard, InputStyledSimple, Characteristics},
   data() {
     return {
+      listNomenclaturesBySearch: [],
+      nomenclature: new Nomenclature(),
+      responseAddNomenclature: new Logging(),
+      loading: false,
       headers: [
         {text: 'Характеристика', value: 'characteristic'},
         {text: 'Значение', value: 'value'},
@@ -124,11 +121,66 @@ export default {
       formTitle: '',
     };
   },
+  computed: {
+    ...mapState('NomenclaturesTreeModule', [
+      'dialogFamily',
+      'dialogCharacteristics',
+      'dialogNomenclature',
+      'family',
+      'nomenclature',
+      'characteristic',
+      'listFamiliesBySearch',
+      'listCharacteristicsBySearch',
+      'listNomenclaturesBySearch',
+      'listNomenclatureByFamily',
+      'listCharacteristicsByFamily',
+      'loading',
+      'tree',
+      'idParentFamily',
+      'selectedLeafTree',
+      'responseAddCharacteristics',
+      'responseAddNomenclature',
+      'responseByFamily',
+      'dialogDeleteNomenclature',
+      'listTypeCharacteristics',
+      'dialogDeleteCharacteristic',
+      'characteristic',
+      'dictionaryUnits',
+      'arrBreadcrumbsToCurrentLeaf',
+      'openBreadcrumbsLeaf',
+      'popupNotifications',
+      'popupSettings'
+    ]),
+    ...mapGetters('NomenclaturesTreeModule', [
+      'getStateSelectedFamily',
+      'getStateExistChildren',
+      'lengthListNomenclatureByFamily',
+      'listCharacteristicsFilteredByMToM',
+      'getValueCharacteristicNomenclature',
+      'getStateExistAddedCharacteristicInFamily',
+      'getStateExistAddedNomenclatureInFamily',
+      'deniedAccessByDeleteCharacteristic',
+      'getStateCheckedLeafByBreadcrumbs'
+    ]),
+    ...mapGetters(['stateEditCreate']),
+  },
   async mounted() {
     await this.$store.dispatch('NomenclaturesModule/getListEntries', this.$route.params.id)
     await this.$store.dispatch('NomenclaturesModule/getListFamily')
   },
   methods: {
+    ...mapActions('NomenclaturesTreeModule', [
+      'getNomenclaturesBySearch',
+    ]),
+    ...mapMutations('NomenclaturesTreeModule', [
+      'clear_list_nomenclatures_by_search',
+      'clear_response_add_characteristic',
+      'clear_response_add_nomenclature',
+      'clear_nomenclature',
+      'clear_characteristic',
+      'clear_list_characteristics_by_search',
+      'clear_family',
+    ]),
     setAlt(data) {
       this.dropzone_uploaded[data.index].alt_image = data.value
     },
@@ -153,7 +205,32 @@ export default {
     closeDialog() {
       this.dialog = false;
       this.editedItem = {};
-    }
+    },
+    async localSetSearchNomenclature(obj){
+      if (! obj) return false;
+
+      const name = (obj.name) ? obj.name : obj;
+
+      if (this.$route.query.action === 'add') {
+        const entry = await this.setNomenclaturesByName(name);
+        const existEntry = this.getStateExistAddedNomenclatureInFamily(entry.id)
+
+        this.clear_response_add_nomenclature();
+        if (existEntry) {
+          const message = entry.name + ' такое наименование уже существует в текущем семействе, создайте другое';
+          this.set_response_add_nomenclature({
+            message: message,
+            codeResponse: 409
+          });
+          this.add_popup_notification(message)
+          return false;
+        }
+        await this.getNomenclatureByFamily(this.selectedLeafTree.id_family);
+      }
+      if (this.$route.query.action === 'edit') {
+        this.setPropertyNomenclature({ key: 'name', payload: name })
+      }
+    },
 
   },
   computed: {
