@@ -40,6 +40,7 @@ export default {
     dialogNomenclature: false,
     responseAddNomenclature: new Logging(),
     dialogDeleteNomenclature: false,
+    listAllNomenclature: [],
 
     //Общие
     loading: false,
@@ -371,6 +372,10 @@ export default {
     clear_response_add_nomenclature(state) {
       state.responseAddNomenclature = new Logging();
     },
+    set_list_all_nomenclature(state, payload) {
+      state.listAllNomenclature = []
+      state.listAllNomenclature = payload
+    }
   },
   actions: {
     // Дерево
@@ -870,7 +875,7 @@ export default {
 
       return response.data;
     },
-    async updateNomenclature({ state, rootState, commit }) {
+    async updateNomenclature({ state, rootState, commit,dispatch }) {
       if (!state.nomenclature.id) return false;
 
       commit("change_loading", true);
@@ -878,6 +883,11 @@ export default {
         `${rootState.BASE_URL}/entity/nomenclature/${state.nomenclature.id}`,
         state.nomenclature
       );
+
+      await dispatch(
+          "getListAllNomenclature",
+      )
+
       commit("set_nomenclature", response.data);
       commit("change_loading", false);
       commit("add_popup_notification", response.message);
@@ -899,6 +909,26 @@ export default {
       commit("change_loading", false);
       commit("add_popup_notification", response.message);
     },
+    async getListAllNomenclature({ commit, rootState }) {
+      commit("change_loading", true);
+
+      const response = await Request.get(
+          rootState.BASE_URL + "/entity/nomenclature"
+      )
+
+      commit("set_list_all_nomenclature", response.data);
+      commit("change_loading", false);
+    },
+    async setNomenclatureById({ commit, rootState }, idNomenclature) {
+      commit("change_loading", true);
+
+      const response = await Request.get(
+          rootState.BASE_URL + "/entity/nomenclature/" + idNomenclature
+      );
+
+      commit("set_nomenclature", response.data);
+      commit("change_loading", false);
+    }
   },
   getters: {
     setBreadcrumbsToCurrentLeaf: (state, getters) => (idFamily) => {

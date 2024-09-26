@@ -10,7 +10,7 @@
         :error="isError"
         :error-messages="isErrorMessages"
         :placeholder="localPlaceholder"
-        :label="localPlaceholder"
+        :label="isLabel"
         :loading="isLoading"
         :disabled="isDisabled"
         :items="action === 'add' ? isItems : []"
@@ -24,7 +24,7 @@
         :search-input.sync="localSearchInputSync"
         @update:search-input="action === 'add' ? ($emit('update-search-input', localSearchInputSync)) : null"
         @keyup.enter="$emit('change-search', localSelected)"
-        @change="setChangeSelected(localSelected)"
+        @change="setChangeSelected"
         @click:clear="clearSelected()"
         ref="comboboxStyled"
     >
@@ -135,6 +135,10 @@ export default {
     action:{
       type: [String, null],
       default: 'add'
+    },
+    isLabel: {
+      type: String,
+      default: ''
     }
   },
   computed:{
@@ -165,7 +169,8 @@ export default {
       if (typeof this.localSelected !== 'object')  return false;
 
       this.$emit('change-search', this.localSelected)
-    }
+    },
+
   }
 }
 </script>

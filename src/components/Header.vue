@@ -71,7 +71,7 @@
         mdi-home-search
       </v-icon>
       <v-icon
-          v-if="$route.meta.canDelete"
+          v-if="$route.meta.canDelete && !this.$route.name === 'NomenclatureForm'"
           :disabled="!this.$route.params.id && !this.$route.params.code"
           :color="'green'"
           large
@@ -91,7 +91,7 @@
         mdi-lead-pencil
       </v-icon>
       <v-icon
-          v-if="$route.meta.canCreate"
+          v-if="$route.meta.canCreate && !this.$route.name === 'NomenclatureForm'"
           :color="($route.query.action === 'create') ? 'red' : 'green'"
           x-large
           style="padding-left: 10px"

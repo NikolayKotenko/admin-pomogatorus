@@ -15,17 +15,22 @@
         <v-expansion-panel-content>
           <InputStyledSimple
               class="mb-5 mt-5"
-              :data="nomenclatureData.vendor_code"
+              :data="nomenclature.vendor_code"
               :placeholder="'Артикул'"
               :is-disabled="!$store.getters.stateEditCreate($route.query.action)"
               @update-input="setPropertyNomenclature({ key: 'vendor_code', payload: $event });"
           />
           <InputStyledSimple
               class="mb-5"
-              :data="nomenclatureData.link_market"
+              :data="nomenclature.link_market"
               :placeholder="'Ссылка на Я-маркет'"
               :is-disabled="!$store.getters.stateEditCreate($route.query.action)"
               @update-input="setPropertyNomenclature({ key: 'link_market', payload: $event });"
+          />
+          <DropzoneStyled
+              v-if="$store.getters.stateEditCreate($route.query.action)"
+              :is-nomenclature="true"
+              :id-object="nomenclature.id"
           />
         </v-expansion-panel-content>
       </v-expansion-panel>
@@ -34,22 +39,25 @@
         <v-expansion-panel-content>
           <InputStyledSimple
               class="mb-5 mt-5"
-              :data="nomenclatureData.seo_title"
+              :data="nomenclature.seo_title"
               :placeholder="'Seo title'"
+              :is-disabled="!$store.getters.stateEditCreate($route.query.action)"
               @update-input="setPropertyNomenclature({ key: 'seo_title', payload: $event });"
           />
           <InputStyledSimple
               class="mb-5"
-              :data="nomenclatureData.seo_keywords"
+              :data="nomenclature.seo_keywords"
               :placeholder="'Seo keywords'"
+              :is-disabled="!$store.getters.stateEditCreate($route.query.action)"
               @update-input="setPropertyNomenclature({ key: 'seo_keywords', payload: $event });"
           />
           <VueEditor
-              v-model="nomenclatureData.seo_descriptionEditor"
+              v-model="nomenclature.seo_descriptionEditor"
               placeholder="Seo description"
               class="mt-3"
               :editorToolbar="customToolbar"
               ref="characteristicEditor"
+              :is-disabled="!$store.getters.stateEditCreate($route.query.action)"
               @text-change="localSetDescriptionNomenclature"
           />
         </v-expansion-panel-content>
@@ -80,10 +88,11 @@ import InputStyledSimple from "@/components/common/InputStyledSimple.vue";
 import Characteristics from "@/components/nomenclatures/Characteristics.vue";
 import {mapActions, mapGetters, mapState} from "vuex";
 import {VueEditor} from "vue2-editor"
+import DropzoneStyled from "@/components/common/DropzoneStyled.vue";
 
 export default {
   name: "EditNomenclatureCard",
-  components: {InputStyledSimple, Characteristics, VueEditor},
+  components: {DropzoneStyled, InputStyledSimple, Characteristics, VueEditor},
   props: {
     nomenclatureData: {
       type: Object,

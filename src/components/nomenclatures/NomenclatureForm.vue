@@ -2,69 +2,65 @@
   <div class="detail_container">
     <v-container class="main_wrapper">
       <template v-if="$store.getters.stateEditCreate($route.query.action)">
-        <v-text-field
-            ref="nomenclature-name"
-            v-model="$store.state.NomenclaturesModule.entry.name"
-            :disabled="$store.state.NomenclaturesModule.loadingList"
-            class="mb-0 mt-5"
-            dense
-            label="Название модели"
-            outlined
-            required
-            type="text"
+        <InputStyledSimple
+            class="mb-5 mt-5"
+            :data="nomenclature.name"
+            :placeholder="'Название модели'"
+            :is-disabled="!$store.getters.stateEditCreate($route.query.action)"
+            @update-input="setPropertyNomenclature({ key: 'name', payload: $event })"
         />
       </template>
       <template v-else>
-        <v-autocomplete
-            v-model="$store.state.NomenclaturesModule.entry"
-            :disabled="$store.state.NomenclaturesModule.loadingList"
-            :items="$store.state.NomenclaturesModule.listEntries"
-            :loading="$store.state.NomenclaturesModule.loadingList"
-            class="mb-5 mt-5"
-            dense
-            hide-details
-            item-text="name"
-            item-value="id"
-            label="Поиск по номенклатурам"
-            outlined
-            return-object
-        >
-        </v-autocomplete>
+        <ComboboxStyled
+            :action="$route.query.action"
+            :is-items="listAllNomenclature"
+            :data="nomenclature.name"
+            :key="nomenclature.id"
+            :is-return-object="true"
+            :is-item-text="'name'"
+            :is-item-value="'name'"
+            :is-hide-details="false"
+            :is-label="'Выберите номенклатуру'"
+            :is-error="responseAddNomenclature.isError"
+            :is-error-messages="responseAddNomenclature.message"
+            :is-loading="loading"
+            @change-search="handleChangeSearch"
+            @click-clear="clear_nomenclature(); clear_list_nomenclatures_by_search(); clear_response_add_nomenclature()"
+        />
       </template>
-
-<!--      <ComboboxStyled-->
-<!--          :action="$route.query.action"-->
-<!--          :is-items="listNomenclaturesBySearch"-->
-<!--          :data="nomenclature.name"-->
-<!--          :key="nomenclature.id"-->
-<!--          :is-return-object="true"-->
-<!--          :is-item-text="'name'"-->
-<!--          :is-item-value="'name'"-->
-<!--          :is-hide-details="false"-->
-<!--          :is-error="responseAddNomenclature.isError"-->
-<!--          :is-error-messages="responseAddNomenclature.message"-->
-<!--          :is-outlined="false"-->
-<!--          :is-loading="loading"-->
-<!--          @update-search-input="getNomenclaturesBySearch($event)"-->
-<!--          @change-search="localSetSearchNomenclature"-->
-<!--          @click-clear="clear_nomenclature(); clear_list_nomenclatures_by_search(); clear_response_add_nomenclature()"-->
-<!--      ></ComboboxStyled>-->
-    <EditNomenclatureCard
-      :nomenclature-data="$store.state.NomenclaturesModule.entry"
-    />
+    <EditNomenclatureCard/>
 
     </v-container>
+    <!--  Всплывающие уведомления  -->
+    <v-snackbar
+        :style="{'margin-bottom':calcMargin(i)}"
+        v-for="(value,i) in popupNotifications"
+        :key="i"
+        v-model="popupSettings.show"
+        :timeout="popupSettings.timeout"
+        absolute
+        bottom
+        style="bottom: 50px"
+        dark
+        color="#5c80b5"
+        right
+    >
+      <div class="d-inline-flex" style="width: 100%; justify-content: space-between">
+        <section style="align-content: center;">{{ value }}</section>
+        <v-btn color="pink" small right @click="popupSettings.show = false" :icon="true"><v-icon>mdi-close</v-icon></v-btn>
+      </div>
+    </v-snackbar>
     <footer class="detail_footer">
       <v-container>
-        <v-btn
-            v-if="$store.state.NomenclaturesModule.entry.id"
-            :disabled="$store.state.NomenclaturesModule.loadingList || !$store.state.NomenclaturesModule.entry.id"
-            color="red darken-1"
-            text
-            @click="$store.dispatch('NomenclaturesModule/stateModalAction', true)"
-        >
-          Удалить
-        </v-btn>
+<!--        <v-btn-->
+<!--            v-if="$store.state.NomenclaturesModule.entry.id"-->
+<!--            :disabled="$store.state.NomenclaturesModule.loadingList || !$store.state.NomenclaturesModule.entry.id"-->
+<!--            color="red darken-1"-->
+<!--            text-->
+<!--            @click="$store.dispatch('NomenclaturesModule/stateModalAction', true)"-->
+<!--        >-->
+<!--          Удалить-->
+<!--        </v-btn>-->
         <v-btn
             v-if="$route.query.action"
             :disabled="$store.state.loadingRequestGeneral"
@@ -79,7 +75,7 @@
             class="detail_footer__save_btn"
             color="blue darken-1"
             text
-            @click.prevent="onSubmitLocal() && $store.dispatch('NomenclaturesTreeModule/updateNomenclature')"
+            @click.prevent="$store.dispatch('NomenclaturesTreeModule/updateNomenclature') && $router.push({path: $route.meta.returnLink.path})"
         >
           Сохранить
         </v-btn>
@@ -108,9 +104,6 @@ export default {
   data() {
     return {
       listNomenclaturesBySearch: [],
-      nomenclature: new Nomenclature(),
-      responseAddNomenclature: new Logging(),
-      loading: false,
       headers: [
         {text: 'Характеристика', value: 'characteristic'},
         {text: 'Значение', value: 'value'},
@@ -120,6 +113,12 @@ export default {
       dialog: false,
       formTitle: '',
     };
+  },
+
+  async mounted() {
+    await this.$store.dispatch('NomenclaturesTreeModule/getListAllNomenclature')
+    await this.$store.dispatch('NomenclaturesModule/getListEntries', this.$route.params.id)
+    await this.$store.dispatch('NomenclaturesModule/getListFamily')
   },
   computed: {
     ...mapState('NomenclaturesTreeModule', [
@@ -131,9 +130,9 @@ export default {
       'characteristic',
       'listFamiliesBySearch',
       'listCharacteristicsBySearch',
-      'listNomenclaturesBySearch',
       'listNomenclatureByFamily',
       'listCharacteristicsByFamily',
+      'listAllNomenclature',
       'loading',
       'tree',
       'idParentFamily',
@@ -149,7 +148,7 @@ export default {
       'arrBreadcrumbsToCurrentLeaf',
       'openBreadcrumbsLeaf',
       'popupNotifications',
-      'popupSettings'
+      'popupSettings',
     ]),
     ...mapGetters('NomenclaturesTreeModule', [
       'getStateSelectedFamily',
@@ -164,13 +163,11 @@ export default {
     ]),
     ...mapGetters(['stateEditCreate']),
   },
-  async mounted() {
-    await this.$store.dispatch('NomenclaturesModule/getListEntries', this.$route.params.id)
-    await this.$store.dispatch('NomenclaturesModule/getListFamily')
-  },
   methods: {
     ...mapActions('NomenclaturesTreeModule', [
       'getNomenclaturesBySearch',
+      'setNomenclatureById',
+      'setPropertyNomenclature'
     ]),
     ...mapMutations('NomenclaturesTreeModule', [
       'clear_list_nomenclatures_by_search',
@@ -181,6 +178,9 @@ export default {
       'clear_list_characteristics_by_search',
       'clear_family',
     ]),
+    handleChangeSearch(selectedItem) {
+      this.setNomenclatureById(selectedItem.id);
+    },
     setAlt(data) {
       this.dropzone_uploaded[data.index].alt_image = data.value
     },
@@ -206,37 +206,14 @@ export default {
       this.dialog = false;
       this.editedItem = {};
     },
-    async localSetSearchNomenclature(obj){
-      if (! obj) return false;
-
-      const name = (obj.name) ? obj.name : obj;
-
-      if (this.$route.query.action === 'add') {
-        const entry = await this.setNomenclaturesByName(name);
-        const existEntry = this.getStateExistAddedNomenclatureInFamily(entry.id)
-
-        this.clear_response_add_nomenclature();
-        if (existEntry) {
-          const message = entry.name + ' такое наименование уже существует в текущем семействе, создайте другое';
-          this.set_response_add_nomenclature({
-            message: message,
-            codeResponse: 409
-          });
-          this.add_popup_notification(message)
-          return false;
-        }
-        await this.getNomenclatureByFamily(this.selectedLeafTree.id_family);
-      }
-      if (this.$route.query.action === 'edit') {
-        this.setPropertyNomenclature({ key: 'name', payload: name })
-      }
+    calcMargin(i) {
+      return (i*600) + 'px'
     },
 
   },
-  computed: {
-  },
+
   watch: {
-    '$store.state.NomenclaturesModule.entry.id': {
+    '$store.state.NomenclaturesTreeModule.nomenclature.id': {
       handler(newValue) {
         if (this.$route.query.action === 'create')
           return false;
@@ -255,14 +232,14 @@ export default {
     '$route.query.action': {
       handler(newValue) {
         if (newValue === 'create') {
-          this.$store.dispatch('NomenclaturesModule/clearEntry');
+          this.$store.commit('NomenclaturesTreeModule/clear_nomenclature');
         }
       }
     },
     '$route.params.id': {
       handler(newValue) {
         if (!newValue) {
-          this.$store.dispatch('NomenclaturesModule/clearEntry');
+          this.$store.commit('NomenclaturesTreeModule/clear_nomenclature');
         }
       }
     },

@@ -115,6 +115,14 @@ export default ({
       type: Array,
       default: () => ([]),
     },
+    isNomenclature: {
+      type: Boolean,
+      default: false
+    },
+    isFamily: {
+      type: Boolean,
+      default: false
+    }
   },
   data: () => ({
     dropzone_uploaded: [],
@@ -162,7 +170,13 @@ export default ({
     },
     sendingData(file, xhr, formData) {
       formData.append('uuid', file.upload.uuid)
-      formData.append('id_family', parseInt(this.idObject))
+
+      if (this.isNomenclature) {
+        formData.append('id_nomenclature', this.idObject)
+      }
+      if (this.isFamily) {
+        formData.append('id_family', parseInt(this.idObject))
+      }
     },
     async successData(file, response) {
       const formatObj = Object.assign({}, response.data)

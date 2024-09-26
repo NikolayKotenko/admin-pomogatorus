@@ -412,6 +412,7 @@
                 @update-input="setPropertyFamily({ key: 'seo_keywords', payload: $event });"
             />
             <DropzoneStyled
+              :is-family="true"
               :id-object="family.id"
               :photos-array="family.photos"
             ></DropzoneStyled>
@@ -446,7 +447,6 @@
 
     <!-- Диалог добавления / редактирования номенклатуры  -->
     <v-dialog
-
         :value="dialogNomenclature"
         @click:outside="saveNomenclatureAction(); clear_action_query();"
         @keydown.esc="saveNomenclatureAction(); clear_action_query();"
@@ -481,57 +481,58 @@
           </v-col>
 
           <v-col v-if="nomenclature.id && !responseAddNomenclature.isError">
-            <v-expansion-panels
-                v-model="panel"
-                multiple
-                class="mb-5"
-                accordion
-                focusable
-            >
-              <v-expansion-panel>
-                <v-expansion-panel-header>Основные</v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  <InputStyledSimple
-                      class="mb-5 mt-5"
-                      :data="nomenclature.vendor_code"
-                      :placeholder="'Артикул'"
-                      @update-input="setPropertyNomenclature({ key: 'vendor_code', payload: $event });"
-                  />
-                  <InputStyledSimple
-                      class="mb-5"
-                      :data="nomenclature.link_market"
-                      :placeholder="'Ссылка на Я-маркет'"
-                      @update-input="setPropertyNomenclature({ key: 'link_market', payload: $event });"
-                  />
-                </v-expansion-panel-content>
-              </v-expansion-panel>
+            <EditNomenclatureCard/>
+<!--            <v-expansion-panels-->
+<!--                v-model="panel"-->
+<!--                multiple-->
+<!--                class="mb-5"-->
+<!--                accordion-->
+<!--                focusable-->
+<!--            >-->
+<!--              <v-expansion-panel>-->
+<!--                <v-expansion-panel-header>Основные</v-expansion-panel-header>-->
+<!--                <v-expansion-panel-content>-->
+<!--                  <InputStyledSimple-->
+<!--                      class="mb-5 mt-5"-->
+<!--                      :data="nomenclature.vendor_code"-->
+<!--                      :placeholder="'Артикул'"-->
+<!--                      @update-input="setPropertyNomenclature({ key: 'vendor_code', payload: $event });"-->
+<!--                  />-->
+<!--                  <InputStyledSimple-->
+<!--                      class="mb-5"-->
+<!--                      :data="nomenclature.link_market"-->
+<!--                      :placeholder="'Ссылка на Я-маркет'"-->
+<!--                      @update-input="setPropertyNomenclature({ key: 'link_market', payload: $event });"-->
+<!--                  />-->
+<!--                </v-expansion-panel-content>-->
+<!--              </v-expansion-panel>-->
 
-              <v-expansion-panel>
-                <v-expansion-panel-header>Seo</v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  <InputStyledSimple
-                      class="mb-5 mt-5"
-                      :data="nomenclature.seo_title"
-                      :placeholder="'Seo title'"
-                      @update-input="setPropertyNomenclature({ key: 'seo_title', payload: $event });"
-                  />
-                  <InputStyledSimple
-                      class="mb-5"
-                      :data="nomenclature.seo_keywords"
-                      :placeholder="'Seo keywords'"
-                      @update-input="setPropertyNomenclature({ key: 'seo_keywords', payload: $event });"
-                  />
-                  <VueEditor
-                      v-model="nomenclature.seo_descriptionEditor"
-                      placeholder="Seo description"
-                      class="mt-3"
-                      :editorToolbar="customToolbar"
-                      ref="characteristicEditor"
-                      @text-change="localSetDescriptionNomenclature"
-                  />
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-            </v-expansion-panels>
+<!--              <v-expansion-panel>-->
+<!--                <v-expansion-panel-header>Seo</v-expansion-panel-header>-->
+<!--                <v-expansion-panel-content>-->
+<!--                  <InputStyledSimple-->
+<!--                      class="mb-5 mt-5"-->
+<!--                      :data="nomenclature.seo_title"-->
+<!--                      :placeholder="'Seo title'"-->
+<!--                      @update-input="setPropertyNomenclature({ key: 'seo_title', payload: $event });"-->
+<!--                  />-->
+<!--                  <InputStyledSimple-->
+<!--                      class="mb-5"-->
+<!--                      :data="nomenclature.seo_keywords"-->
+<!--                      :placeholder="'Seo keywords'"-->
+<!--                      @update-input="setPropertyNomenclature({ key: 'seo_keywords', payload: $event });"-->
+<!--                  />-->
+<!--                  <VueEditor-->
+<!--                      v-model="nomenclature.seo_descriptionEditor"-->
+<!--                      placeholder="Seo description"-->
+<!--                      class="mt-3"-->
+<!--                      :editorToolbar="customToolbar"-->
+<!--                      ref="characteristicEditor"-->
+<!--                      @text-change="localSetDescriptionNomenclature"-->
+<!--                  />-->
+<!--                </v-expansion-panel-content>-->
+<!--              </v-expansion-panel>-->
+<!--            </v-expansion-panels>-->
           </v-col>
 
           <v-btn color="primary" text @click="saveNomenclatureAction(); clear_action_query();" > Закрыть </v-btn>
@@ -757,10 +758,12 @@ import SelectStyled from "@/components/common/SelectStyled";
 import DropzoneStyled from "@/components/common/DropzoneStyled.vue";
 // import TextAreaStyled from "@/components/common/TextAreaStyled";
 import {VueEditor} from "vue2-editor";
+import EditNomenclatureCard from "@/components/nomenclatures/EditNomenclatureCard.vue";
 
 export default {
   name: "NomenclaturesTree",
   components: {
+    EditNomenclatureCard,
     InputStyledSimple,
     TooltipStyled,
     ComboboxStyled,
