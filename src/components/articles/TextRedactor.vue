@@ -28,7 +28,6 @@ import store from "@/store/index.js";
 import vuetify from "@/plugins/vuetify";
 
 // import vueCarousel from "@/plugins/vue-carousel";
-
 import HeaderBlock from "./HeaderBlock";
 import Question from "../frontLayouts/Question";
 import ImageLayout from "../frontLayouts/ImageLayout";
@@ -213,6 +212,7 @@ export default {
         }
       }
     },
+    /** Меняем в скопированном тексте символы на значение из хэш-таблицы **/
     escapeText(text) {
       let map = {
         "&": "&amp;",
@@ -225,12 +225,14 @@ export default {
         return map[m];
       });
     },
+    /** Функция отключает стили и отступы в скопированном тексте, оставляет чисто сырой текст **/
     preventInsertingStyles() {
       const _this = this;
       this.$refs.content.onpaste = function (e) {
         e.preventDefault();
         let text = (e.originalEvent || e).clipboardData.getData("text/plain");
-        document.execCommand("insertHtml", false, _this.escapeText(text));
+        // document.execCommand("insertHtml", false, _this.escapeText(text));
+        document.execCommand("insertHtml", false, text)
         _this.onContentChange();
       };
     },
