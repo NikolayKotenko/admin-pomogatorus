@@ -110,7 +110,6 @@ export default {
         if (v) {
           console.log("start rerender");
           /* Only way to get time for procedure render DOM */
-          // setTimeout(() => {
           /* Change content on article by static HTML */
           this.$nextTick(() => {
             this.content = _store.content_from_server;
@@ -140,7 +139,6 @@ export default {
 
             console.log("AFTER CLEAR", _store.list_components)
           }
-          // }, 600);
         }
       },
     },
@@ -268,6 +266,8 @@ export default {
 
       /* Check if components length from DB isn't equal components count by DOM */
       if (componentsNodes.length !== _store.list_components.length) {
+        console.log("start check out of sync");
+
         let arrCollection = [...componentsNodes];
 
         let counters = {
@@ -362,6 +362,14 @@ export default {
         this.$store.commit("changeSelectedObject", data);
         /* Now we get place on DOM in our contentEditable div to place HTML on article */
         let range = document.createRange();
+
+        /** Если в DOM (JSON-контент всей статьи с бэкенда) нет нужного компонента - выходим **/
+        if (!document.getElementById(`component_wrapper-${elem.index}`)) {
+          console.warn("stop render - NO DOM element")
+
+          return
+        }
+
         range.selectNode(
             document.getElementById(`component_wrapper-${elem.index}`)
         );
@@ -413,20 +421,31 @@ export default {
         /* Set content from API or UNDO/REDO */
         this.content = _store.content_from_server;
 
-        console.log("start check out of sync");
+        /** Если контента нет, то нет смысла рендерить компоненты **/
+        if (!this.content) {
+          /* LOADERS & OVERLAY */
+          _store.loadingArticle = false;
+          this.geting_from_server = false;
+
+          console.warn("end render - NO CONTENT")
+          return
+        }
 
         let restoredArr = [];
         restoredArr = this.checkOutOfSync();
 
-        console.log("end check out of sync");
-
+        console.log("end check out of sync step");
         console.log('restoredArr', restoredArr)
+
+        // console.log("_store.components_after_request", _store.components_after_request)
 
         let componentsForRequest;
 
+        /** Если мы восстановили компоненты через верстку, идем по ним, если их в верстке нет, пробуем через JSON с бэкенда **/
         if (restoredArr.length) {
           componentsForRequest = restoredArr
         } else {
+          console.log("_store.components_after_request", _store.components_after_request)
           componentsForRequest = _store.components_after_request
         }
 
@@ -436,6 +455,12 @@ export default {
         console.log('Questions from BACKEND', questions_data)
 
         componentsForRequest.forEach((elem) => {
+          /** Если структура не валидная, значит компонент поломан, исключаем **/
+          if (!elem?.component?.name) {
+            console.warn("NOT VALID `inserted_components` COMPONENT FROM BACKEND")
+            return
+          }
+
           if (elem.component.name === 'questions') {
             let question = questions_data.filter(question => {
               return question.id == elem.component.id
@@ -476,6 +501,7 @@ export default {
             _store.loadingArticle = false;
             this.geting_from_server = false;
 
+            console.log("ALL COMPONENTS ARE RENDERED")
             resolve();
           });
         });
@@ -494,15 +520,25 @@ export default {
         if (componentsNodes.length !== _store.list_components.length) {
           let arrCollection = [...componentsNodes];
 
+          /** Фильтруем компоненты только по вопросам, и проверяем не удален ли вопрос в принципе из БД **/
           const arrIDs = _store.list_components
               .filter((elem) => {
+                const name = elem?.data?.component?.name
+
+                if (!name) {
+                  console.warn("NOT VALID COMPONENT NAME ON CHECK DELETED COMPONENTS")
+
+                  return false
+                }
+
+                //TODO
                 return (
-                    elem.data.component.name === "question" ||
-                    elem.data.component.name === "questions"
+                    name === "question" ||
+                    name === "questions"
                 );
               })
               .map((i) => {
-                return i.data.component.id;
+                return i?.data?.component?.id ?? i?.component?.id;
               });
 
           console.log(arrIDs)
@@ -668,7 +704,7 @@ export default {
     getStructureForInstance(data_component) {
       const instance = new this.componentLayout({
         store,
-        vuetify,
+        vuetify
       });
       const data = new Imported_component({
         index: _store.counters.layout,
@@ -755,21 +791,40 @@ export default {
         let tmpStr = block.id.match("-(.*)");
         let id = tmpStr[tmpStr.length - 1];
 
+        /** Фильтруемся только по вопросам в статье, и переписываем индексы на корректные в соответствии с их положением в DOM **/
         let component = _store.list_components
             .filter((elem) => {
+              const name = elem?.data?.component?.name
+
+              /** Если в переданном компоненте нет нужной структуры, пропускаем его **/
+              if (!name) {
+                console.warn("NOT VALID COMPONENT NAME ON FILTER CHANGE INDEX")
+
+                return
+              }
+
+              //TODO
               return (
-                  elem.data.component.name === "question" ||
-                  elem.data.component.name === "questions"
+                  name === "question" ||
+                  name === "questions"
               );
             })
             .filter((elem) => {
-              return elem.data.index == id;
+              return elem?.data?.index == id;
             });
 
         // console.log(block)
 
         if (component.length) {
-          const key_data = `index_${component[0].data.component.name}`;
+          let nameComponent = component[0]?.data?.component?.name
+
+          /** Если в переданном компоненте нет нужной структуры, пропускаем его **/
+          if (!nameComponent) {
+            console.warn("NOT VALID NAME ON CHANGE COUNTER QUESTION")
+            return
+          }
+
+          const key_data = `index_${nameComponent}`;
           component[0].instance.$data[key_data] = counter;
           counter++;
         }
@@ -789,12 +844,23 @@ export default {
       };
 
       array.forEach((elem) => {
-        console.log("resets id");
+        console.log("resets id", elem);
         // console.log(elem.data.index)
         // console.log(elem.instance.$data.index_component)
-        elem.data.index = global_counter.counter_index;
-        const key_data = `index_${elem.data.component.name}`;
-        elem.data.component[key_data] = global_counter[key_data];
+
+        const currentDataComponent = elem?.data?.component?.name ? elem.data : elem
+
+        const name = currentDataComponent?.component?.name
+
+        /** Если в переданном компоненте нет нужной структуры, пропускаем его **/
+        if (!name) {
+          console.warn("NOT VALID COMPONENT ON RESET COUNTERS")
+          return
+        }
+
+        currentDataComponent.index = global_counter.counter_index;
+        const key_data = `index_${name}`;
+        currentDataComponent.component[key_data] = global_counter[key_data];
         elem.instance.$data[key_data] = global_counter[key_data];
         console.log("block");
         const block = document.getElementById(
@@ -805,7 +871,7 @@ export default {
         elem.instance.$data.index_component = global_counter.counter_index;
 
         this.$store.commit("change_counter", {
-          name: elem.data.component.name,
+          name: name,
           count: global_counter[key_data],
         });
         global_counter[key_data]++;
@@ -831,9 +897,12 @@ export default {
           );
         });
         if (index !== -1) {
-          if (_store.list_components[index].data.component.name === 'questions') {
+          const currentComponent = _store.list_components[index]
+
+          //TODO
+          if (currentComponent?.data?.component?.name === 'questions' || currentComponent?.component?.name === 'questions') {
             let question_index = _store.questions_data.findIndex(elem => {
-              return elem.id == _store.list_components[index].instance.$data.question_data.id
+              return elem.id == currentComponent.instance.$data.question_data.id
             })
             if (question_index !== -1) {
               _store.questions_data.splice(question_index, 1);
