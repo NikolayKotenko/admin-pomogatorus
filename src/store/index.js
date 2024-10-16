@@ -41,7 +41,7 @@ export default new Vuex.Store({
       errorState: false,
       errorMessages: "",
     },
-    stateDropzoneModal: false
+    stateDropzoneModal: false,
   },
   mutations: {
     change_notification_modal(state, value) {
@@ -70,15 +70,15 @@ export default new Vuex.Store({
       state.responseTag.errorMessages = "";
     },
     set_dropzone_modal_state(state, payload) {
-      state.stateDropzoneModal = payload
-    }
+      state.stateDropzoneModal = payload;
+    },
   },
   actions: {
     openDropzoneModal({ commit }) {
-      commit('set_dropzone_modal_state', true)
+      commit("set_dropzone_modal_state", true);
     },
     closeDropzoneModal({ commit }) {
-      commit('set_dropzone_modal_state', false)
+      commit("set_dropzone_modal_state", false);
     },
     async getListAgents({ commit }) {
       commit("changeLoadingAgents", true);

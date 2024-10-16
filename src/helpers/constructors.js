@@ -41,6 +41,29 @@ export function AnswerRangeMax(id) {
   this.dataEnv = null;
 }
 
+export function DTag(
+  id = null,
+  code = "",
+  name = "",
+  description = "",
+  seo_description = "",
+  seo_keywords = "",
+  seo_title = "",
+  flag_engineering_system = false,
+  sort_engineering_system = "",
+  flag_service = false
+) {
+  this.id = id;
+  this.code = code;
+  this.name = name;
+  this.description = description;
+  this.seo_description = seo_description;
+  this.seo_keywords = seo_keywords;
+  this.seo_title = seo_title;
+  this.flag_engineering_system = flag_engineering_system;
+  this.flag_service = flag_service;
+  this.sort_engineering_system = sort_engineering_system;
+}
 export function MToMTags(
   id_tag = null,
   id_answer = null,
