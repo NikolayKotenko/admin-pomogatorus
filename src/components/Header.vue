@@ -334,9 +334,12 @@ export default {
     /** Стартовые евенты **/
     /** При нажатии комбинации -> открываем страницу "Создание нового элемента" **/
     setCreateEvent() {
+      const _this = this
+
       window.addEventListener("keydown", function (e) {
-        if (e.ctrlKey && e.keyCode === 78) {
+        if (e.ctrlKey && e.altKey && e.keyCode === 78) {
           e.preventDefault()
+          _this.onCreate()
         }
       })
     },
