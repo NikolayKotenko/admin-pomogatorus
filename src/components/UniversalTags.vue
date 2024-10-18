@@ -30,7 +30,7 @@
       <v-card>
         <v-card-title>
           <span class="text-h6" style="text-align: center; width: 100%"
-            >Добавить тэг к вопросу</span
+            >Добавление тэга</span
           >
         </v-card-title>
         <v-card-text>

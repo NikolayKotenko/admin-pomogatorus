@@ -84,20 +84,22 @@
               .code === 'vybor-iz-spravocnika'
           "
         >
-          <ComboboxStyled
-            :data="
-              $store.state.ObjectPropertiesModule.entry.d_dictionaries
-                ? $store.state.ObjectPropertiesModule.entry.d_dictionaries.name
-                : null
-            "
-            :is-items="$store.state.DictionariesModule.listEntries"
-            :is-item-text="'name'"
-            :is-item-value="'name'"
-            :is-hide-details="false"
-            :is-placeholder="'Справочник'"
-            :is-disabled="!$store.getters.stateEditCreate($route.query.action)"
-            @change-search="setDictionary"
-          ></ComboboxStyled>
+          <v-combobox
+            :value="$store.state.ObjectPropertiesModule.entry.d_dictionaries"
+            :items="$store.state.DictionariesModule.listEntries"
+            :return-object="true"
+            :item-text="'name'"
+            :item-value="'id'"
+            :hide-details="false"
+            label="Справочник"
+            :disabled="!$store.getters.stateEditCreate($route.query.action)"
+            @change="setDictionary"
+            outlined
+            dense
+            clearable
+            :loading="$store.state.DictionariesModule.loadingList"
+            @click="$store.dispatch('DictionariesModule/getListDictionaries')"
+          ></v-combobox>
         </v-col>
       </v-row>
       <v-checkbox
@@ -231,22 +233,19 @@ export default {
       this.$route.params.code
     );
     await this.$store.dispatch("ObjectPropertiesModule/getInfoByEntry");
-    await this.$store.dispatch("DictionariesModule/getListDictionaries");
   },
   methods: {
     async setDictionary(value) {
-      if (!value) {
-        this.$store.state.ObjectPropertiesModule.entry.id_dictionary = null;
-        this.$store.state.ObjectPropertiesModule.entry.d_dictionaries =
-          new Dictionary();
-      } else {
-        const objDictionary =
-          this.$store.getters["DictionariesModule/getDictionaryByName"](value);
-        this.$store.state.ObjectPropertiesModule.entry.id_dictionary =
-          objDictionary.id;
-        this.$store.state.ObjectPropertiesModule.entry.d_dictionaries =
-          objDictionary;
-      }
+      if (!value) return;
+      if (typeof value !== "object") return;
+
+      this.$store.state.ObjectPropertiesModule.entry.id_dictionary = null;
+      this.$store.state.ObjectPropertiesModule.entry.d_dictionaries =
+        new Dictionary();
+
+      this.$store.state.ObjectPropertiesModule.entry.id_dictionary = value.id;
+      this.$store.state.ObjectPropertiesModule.entry.d_dictionaries = value;
+
       await this.onSubmitLocal();
     },
     setTypePropertyObject(value) {

@@ -119,17 +119,16 @@ export default {
     async getListDictionaries({ commit }, obj) {
       commit("changeLoadingList", true);
 
-      let code = '';
-      let query = '';
-      if (!!obj && !!obj.code){
+      let code = "";
+      let query = "";
+      if (!!obj && !!obj.code) {
         code = obj.code;
       }
-      if (!!obj && !!obj.query){
+      if (!!obj && !!obj.query) {
         query = obj.query;
       }
 
-
-      console.log('getListDick', code, query)
+      // console.log('getListDick', code, query)
 
       try {
         const result = await Request.get(
@@ -147,10 +146,12 @@ export default {
         };
         commit("setEntry", getLocalEntry());
 
+        commit("changeLoadingList", false);
         return getLocalEntry();
       } catch (e) {
         console.log(e);
         commit("change_notification_modal", e, { root: true });
+        commit("changeLoadingList", false);
       }
       commit("changeLoadingList", false);
     },
