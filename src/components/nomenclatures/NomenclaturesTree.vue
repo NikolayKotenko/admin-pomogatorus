@@ -369,7 +369,7 @@
 
               @keydown.esc="saveFamilyAction(); clear_action_query();"
     >
-      <v-card id="edit-dialog" @keyup.enter="saveFamilyAction(); clear_action_query();">
+      <v-card id="edit-dialog">
         <v-card-title>
           <section>
             {{ $route.query.action === 'edit' ? 'Редактирование' : 'Создание' }} семейства <u>{{family.name}}</u>
@@ -420,6 +420,7 @@
                 v-model="family.seo_descriptionEditor"
                 placeholder="Seo description"
                 class="mt-3"
+                style="max-height: 300px; overflow: auto"
                 :editorToolbar="customToolbar"
                 ref="characteristicEditor"
                 @text-change="localSetDescriptionFamily"
@@ -650,6 +651,7 @@
                   v-model="characteristic.descriptionEditor"
                   placeholder="Описание"
                   class="mt-5"
+                  style="max-height: 300px; overflow: auto"
                   :editorToolbar="customToolbar"
                   ref="characteristicEditor"
                   @text-change="localSetDescriptionCharacteristic"
@@ -1125,6 +1127,7 @@ export default {
 
   .table_container{
     .v-data-table{
+
       tbody {
         tr {
           td{
@@ -1144,6 +1147,15 @@ export default {
     position: sticky;
     background-color: #d3d3d347;
     width: 100%;
+  }
+}
+
+</style>
+
+<style lang="scss">
+.table_container{
+  .v-data-table__wrapper {
+    overflow-x: hidden !important;
   }
 }
 

@@ -299,10 +299,10 @@ const routes = [
       ru_name: "Номенклатура",
       singleComponent: true,
       requiresAuth: true,
-      canCreate: true,
+      canCreate: false,
       canEdit: true,
       canView: true,
-      canDelete: true,
+      canDelete: false,
       createLink: {
         name: "NomenclatureForm",
         query: { action: "create" },

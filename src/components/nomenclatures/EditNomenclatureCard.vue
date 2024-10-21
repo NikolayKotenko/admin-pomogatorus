@@ -31,6 +31,7 @@
               v-if="$store.getters.stateEditCreate($route.query.action)"
               :is-nomenclature="true"
               :id-object="nomenclature.id"
+              :photos-array="nomenclature._photos"
           />
         </v-expansion-panel-content>
       </v-expansion-panel>
@@ -55,6 +56,7 @@
               v-model="nomenclature.seo_descriptionEditor"
               placeholder="Seo description"
               class="mt-3"
+              style="max-height: 300px; overflow: auto"
               :editorToolbar="customToolbar"
               ref="characteristicEditor"
               :is-disabled="!$store.getters.stateEditCreate($route.query.action)"

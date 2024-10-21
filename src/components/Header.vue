@@ -74,7 +74,6 @@
           v-if="$route.meta.canDelete && !this.$route.name === 'NomenclatureForm'"
           :disabled="!this.$route.params.id && !this.$route.params.code"
           :color="'green'"
-          :disabled="!this.$route.params.id && !this.$route.params.code"
           large
           style="padding-left: 10px"
           @click="onDelete()"
@@ -92,7 +91,7 @@
         mdi-lead-pencil
       </v-icon>
       <v-icon
-          v-if="$route.meta.canCreate && !this.$route.name === 'NomenclatureForm'"
+          v-if="$route.meta.canCreate"
           :color="($route.query.action === 'create') ? 'red' : 'green'"
           style="padding-left: 10px"
           x-large

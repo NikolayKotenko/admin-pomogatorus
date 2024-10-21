@@ -356,7 +356,9 @@ export default {
         payload.seo_title,
         payload.seo_description,
         payload.seo_keywords,
-        payload.link_market
+        payload.link_market,
+        payload._photos,
+        payload._files,
       );
     },
     set_property_nomenclature(state, obj = PropertyEntity) {
@@ -429,6 +431,8 @@ export default {
         await dispatch("getTreeOnMount");
         commit("close_dialog_family");
       }
+
+      console.log('CHECK ADD CHILD', state.dialogFamily)
 
       commit("clear_list_families_by_search");
       commit("change_loading", false);
@@ -597,11 +601,16 @@ export default {
     async setCharacteristicOnFamily({ rootState, commit }, name) {
       if (!name) return false;
 
+      console.log('CHECKK set character', name)
+
       commit("change_loading", true);
       const response = await Request.post(
         rootState.BASE_URL + "/dictionary/characteristic/nomenclature",
         { name: name }
       );
+
+      console.log('CHECKK set character', response)
+
       const existCharacteristic = await Request.get(
         `${rootState.BASE_URL}/m-to-m/nomenclature-characteristics/check-exist-characteristics/${response.data.id}`
       );
@@ -675,6 +684,8 @@ export default {
       }
     ) {
       commit("change_loading", true);
+
+
 
       let response = new Logging();
       // Если есть ИД записи, то обновляем

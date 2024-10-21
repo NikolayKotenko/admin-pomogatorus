@@ -172,7 +172,7 @@ export default ({
       formData.append('uuid', file.upload.uuid)
 
       if (this.isNomenclature) {
-        formData.append('id_nomenclature', this.idObject)
+        formData.append('id_nomenclature', parseInt(this.idObject))
       }
       if (this.isFamily) {
         formData.append('id_family', parseInt(this.idObject))
