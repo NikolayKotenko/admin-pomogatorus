@@ -1,97 +1,93 @@
 <template>
   <div>
     <v-autocomplete
-        :class="isClass"
-        :outlined="isOutlined"
-        :dense="isDense"
-        :hide-details="isHideDetails"
-        :placeholder="isPlaceholder"
-        :label="isPlaceholder"
-        :loading="isLoading"
-        :disabled="isDisabled"
-        :hide-no-data="isHideNoData"
-        :items="isItems"
-        :item-text="isItemText"
-        :item-value="isItemValue"
-        :return-object="isReturnObject"
-        :clearable="isClearable"
-        :search-input.sync="localSearchInputSync"
-        v-model="localSelected"
-        @update:search-input="$emit('update-search-input', localSearchInputSync)"
-        @change="$emit('change-search', localSelected)"
+      :class="isClass"
+      :outlined="isOutlined"
+      :dense="isDense"
+      :hide-details="isHideDetails"
+      :placeholder="isPlaceholder"
+      :label="isPlaceholder"
+      :loading="isLoading"
+      :disabled="isDisabled"
+      :hide-no-data="isHideNoData"
+      :items="isItems"
+      :item-text="isItemText"
+      :item-value="isItemValue"
+      :return-object="isReturnObject"
+      :clearable="isClearable"
+      :search-input.sync="localSearchInputSync"
+      v-model="localSelected"
+      @update:search-input="$emit('update-search-input', localSearchInputSync)"
+      @change="$emit('change-search', localSelected)"
+      :menu-props="{ maxHeight: '80vh' }"
     >
     </v-autocomplete>
   </div>
 </template>
 
 <script>
-
 export default {
-  name: 'SearchStyled',
+  name: "SearchStyled",
   data: () => ({
-    localSearchInputSync: '',
-    localSelected: null
+    localSearchInputSync: "",
+    localSelected: null,
   }),
   props: {
     isClass: {
       type: String,
-      default: ''
+      default: "",
     },
     isOutlined: {
       type: Boolean,
-      default: true
+      default: true,
     },
     isDense: {
       type: Boolean,
-      default: true
+      default: true,
     },
     isHideDetails: {
       type: Boolean,
-      default: true
+      default: true,
     },
     isPlaceholder: {
       type: String,
-      default: ''
+      default: "",
     },
     isLoading: {
       type: Boolean,
-      default: false
+      default: false,
     },
     isDisabled: {
       type: Boolean,
-      default: false
+      default: false,
     },
     isHideNoData: {
       type: Boolean,
-      default: false
+      default: false,
     },
     isItems: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     isItemText: {
       type: String,
-      default: ''
+      default: "",
     },
     isItemValue: {
       type: String,
-      default: ''
+      default: "",
     },
     isReturnObject: {
       type: Boolean,
-      default: true
+      default: true,
     },
     isClearable: {
       type: Boolean,
-      default: true
+      default: true,
     },
   },
-  computed: {}
-}
+  computed: {},
+};
 </script>
 
-<style lang='scss' scoped>
-
-
-
-</style>
+<style lang="scss" scoped></style>

@@ -34,6 +34,7 @@
           label="Выберите параметр"
           outlined
           return-object
+          :menu-props="{ maxHeight: '80vh' }"
         >
         </v-autocomplete>
       </template>
