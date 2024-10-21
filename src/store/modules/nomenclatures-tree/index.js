@@ -27,6 +27,7 @@ export default {
     characteristic: new CharacteristicNomenclature(),
     listCharacteristicsBySearch: [],
     listMtoMNomenclaturesCharacteristics: [],
+    listAllMtoMNomenclatureCharacteristics: [],
     listCharacteristicsByFamily: [],
     dialogCharacteristics: false,
     listTypeCharacteristics: [],
@@ -160,6 +161,14 @@ export default {
     },
 
     // Характеристики
+    set_list_all_characteristic(state, payload) {
+      state.listAllMtoMNomenclatureCharacteristics = []
+      state.listAllMtoMNomenclatureCharacteristics = payload.reduce((r, a) => {
+        r[a.id_family] = r[a.id_family] || []
+        r[a.id_family].push(a)
+        return r
+      }, {})
+    },
     set_list_type_characteristics(state, payload) {
       state.listTypeCharacteristics = [];
       state.listTypeCharacteristics = payload;
@@ -579,6 +588,13 @@ export default {
     },
 
     // Характеристики
+    async getListALlCharacteristics({ state, commit, rootState }){
+      const response = await Request.get(
+          rootState.BASE_URL +
+          `/m-to-m/nomenclature-characteristics`
+      )
+      commit("set_list_all_characteristic", response.data)
+    },
     setPropertyCharacteristic(
       { state, commit, dispatch },
       obj = new PropertyEntity()
@@ -1003,6 +1019,13 @@ export default {
     lengthListNomenclatureByFamily(state) {
       return state.listNomenclatureByFamily.length;
     },
+    // getGroupedArrCharacteristicsNomenclature(state) {
+    //   return state.listAllMtoMNomenclatureCharacteristics.reduce((r, a) => {
+    //     r[a.id_family] = r[a.id_family] || []
+    //     r[a.id_family].push(a)
+    //     return r
+    //   }, {})
+    // },
     listCharacteristicsFilteredByMToM(state) {
       return (
         state.listMtoMNomenclaturesCharacteristics

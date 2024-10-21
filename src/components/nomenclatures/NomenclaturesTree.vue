@@ -30,15 +30,24 @@
                     ref="treeView"
         >
           <template v-slot:prepend="{open, item}">
+
             <v-icon>{{ getIconRow(open, item) }}</v-icon>
           </template>
           <template v-slot:label="{item}">
             <v-btn
-                  :ref="item.name_leaf"
-                   class="rollback-vuetify-text-style justify-start"
-                   :class="{selectedLeaf: getStateCheckedLeafByBreadcrumbs(item.name_leaf)}"
-                   block text
-                   @click="setSelectedFamilyAction(item)">{{ item.name_leaf }}</v-btn>
+              :ref="item.name_leaf"
+               class="rollback-vuetify-text-style justify-start"
+               :class="{selectedLeaf: getStateCheckedLeafByBreadcrumbs(item.name_leaf)}"
+               block text
+               @click="setSelectedFamilyAction(item)">{{ item.name_leaf }}
+              >
+              <v-icon
+                  size="16"
+                  style="margin-left: 10px"
+              >
+                mdi-circle
+              </v-icon>
+            </v-btn>
             <hr>
           </template>
           <template v-slot:append="{item}">
@@ -825,6 +834,7 @@ export default {
   async mounted() {
     await this.getTreeOnMount();
     await this.getDictionaryUnits();
+    await this.getListALlCharacteristics();
 
     this.$refs.treeView.updateAll(true);
 
@@ -849,6 +859,8 @@ export default {
         'listNomenclaturesBySearch',
         'listNomenclatureByFamily',
         'listCharacteristicsByFamily',
+        'listAllMtoMNomenclatureCharacteristics',
+        'listMtoMNomenclaturesCharacteristics',
         'loading',
         'tree',
         'idParentFamily',
@@ -873,9 +885,10 @@ export default {
         'listCharacteristicsFilteredByMToM',
         'getValueCharacteristicNomenclature',
         'getStateExistAddedCharacteristicInFamily',
+        // 'getGroupedArrCharacteristicsNomenclature',
         'getStateExistAddedNomenclatureInFamily',
         'deniedAccessByDeleteCharacteristic',
-        'getStateCheckedLeafByBreadcrumbs'
+        'getStateCheckedLeafByBreadcrumbs',
     ]),
     ...mapGetters(['stateEditCreate']),
     localOpenLeafTree: {
@@ -886,6 +899,15 @@ export default {
         return this.set_open_leaf_tree(newValue)
       },
     },
+    getPercentageCharacteristicsFilled(idFamily) {
+      // return this.listAllMtoMNomenclatureCharacteristics[idFamily]
+      // return this.getGroupedArrCharacteristicsNomenclature.filter((elem) => elem.id === idFamily)
+      // const result = this.listMtoMNomenclaturesCharacteristics.filter(
+      //     (elem) => elem.value !== null
+      // )
+      //
+      // return Math.round((result.length / this.listMtoMNomenclaturesCharacteristics.length) * 100)
+    }
   },
   methods: {
     ...mapActions('NomenclaturesTreeModule', [
@@ -896,6 +918,7 @@ export default {
           'addChildAction',
           'setFamilyByName',
           'deleteEntry',
+          'getListALlCharacteristics',
           'setCharacteristicOnFamily',
           'setNomenclaturesByName',
           'setSelectedFamilyAction',
