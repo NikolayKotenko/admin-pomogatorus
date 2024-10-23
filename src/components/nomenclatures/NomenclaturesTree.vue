@@ -42,8 +42,12 @@
                @click="setSelectedFamilyAction(item)">{{ item.name_leaf }}
               >
               <v-icon
-                  size="16"
+                  v-if="!item.children"
                   style="margin-left: 10px"
+                  size="20"
+                  :color="
+                  getPercentageCharacteristicsFilled(item.id_family) === 100 ? 'green'
+                   : getPercentageCharacteristicsFilled(item.id_family) > 70 ? 'yellow' : 'red'"
               >
                 mdi-circle
               </v-icon>
@@ -835,6 +839,7 @@ export default {
     await this.getTreeOnMount();
     await this.getDictionaryUnits();
     await this.getListALlCharacteristics();
+    await this.getPercentageCharacteristicsFilled();
 
     this.$refs.treeView.updateAll(true);
 
@@ -899,15 +904,14 @@ export default {
         return this.set_open_leaf_tree(newValue)
       },
     },
-    getPercentageCharacteristicsFilled(idFamily) {
-      // return this.listAllMtoMNomenclatureCharacteristics[idFamily]
+
       // return this.getGroupedArrCharacteristicsNomenclature.filter((elem) => elem.id === idFamily)
       // const result = this.listMtoMNomenclaturesCharacteristics.filter(
       //     (elem) => elem.value !== null
       // )
       //
       // return Math.round((result.length / this.listMtoMNomenclaturesCharacteristics.length) * 100)
-    }
+
   },
   methods: {
     ...mapActions('NomenclaturesTreeModule', [
@@ -972,6 +976,28 @@ export default {
         'set_property_family',
         'add_popup_notification'
     ]),
+    getPercentageCharacteristicsFilled(idFamily) {
+      if (!this.listAllMtoMNomenclatureCharacteristics.hasOwnProperty(idFamily)) {
+        return 0;
+      }
+
+      if (this.listAllMtoMNomenclatureCharacteristics[idFamily].length === 0) {
+        return 0;
+      }
+
+      // const filterCharacteristicsByIdNomenclature = this.listAllMtoMNomenclatureCharacteristics[idFamily].filter(
+      //     (elem) => elem.id_nomenclature !== null
+      // )
+
+      const filterCharacteristicsLengthByValue =  this.listAllMtoMNomenclatureCharacteristics[idFamily].filter(
+          (elem) => elem.value !== null
+      )
+
+
+      return Math.round((
+          filterCharacteristicsLengthByValue.length / this.listAllMtoMNomenclatureCharacteristics[idFamily].length
+      ) * 100)
+    },
     getIconRow(open, item){
       if (!item.children) return this.icons.circle
 

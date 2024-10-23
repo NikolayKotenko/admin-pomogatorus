@@ -163,11 +163,13 @@ export default {
     // Характеристики
     set_list_all_characteristic(state, payload) {
       state.listAllMtoMNomenclatureCharacteristics = []
-      state.listAllMtoMNomenclatureCharacteristics = payload.reduce((r, a) => {
-        r[a.id_family] = r[a.id_family] || []
-        r[a.id_family].push(a)
-        return r
-      }, {})
+      state.listAllMtoMNomenclatureCharacteristics = payload
+          .filter((item) => item.id_nomenclature)
+          .reduce((r, a) => {
+            r[a.id_family] = r[a.id_family] || []
+            r[a.id_family].push(a)
+            return r
+          }, {})
     },
     set_list_type_characteristics(state, payload) {
       state.listTypeCharacteristics = [];
