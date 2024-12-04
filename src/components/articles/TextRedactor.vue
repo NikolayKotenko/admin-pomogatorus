@@ -867,15 +867,17 @@ export default {
             `component_wrapper-${elem.instance.$data.index_component}`
         );
         // console.log(block)
-        block.id = `component_wrapper-${global_counter.counter_index}`;
-        elem.instance.$data.index_component = global_counter.counter_index;
+        if (block) {
+          block.id = `component_wrapper-${global_counter.counter_index}`;
+          elem.instance.$data.index_component = global_counter.counter_index;
 
-        this.$store.commit("change_counter", {
-          name: name,
-          count: global_counter[key_data],
-        });
-        global_counter[key_data]++;
-        global_counter.counter_index++;
+          this.$store.commit("change_counter", {
+            name: name,
+            count: global_counter[key_data],
+          });
+          global_counter[key_data]++;
+          global_counter.counter_index++;
+        }
       });
 
       this.$store.commit("change_counter", {
