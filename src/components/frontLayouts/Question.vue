@@ -292,6 +292,7 @@
 import AnswerController from "../../services/article/AnswerController";
 import CloseSVG from "@/assets/svg/closeIcon.svg"
 import HelpSVG from "@/assets/svg/help-circle.svg"
+import isJson from "../../helpers/checkJSON";
 
 export default {
   name: "Question",
@@ -424,11 +425,18 @@ export default {
       }
     },
     getValue_type_answer() {
+      let parsed = null
+
+      if (isJson(this.question_data["value_type_answer"])) {
+        parsed = JSON.parse(this.question_data["value_type_answer"]);
+        if (isJson(parsed)) {
+          parsed = JSON.parse(parsed);
+        }
+      } else {
+        parsed = this.question_data["value_type_answer"]
+      }
+
       if (this.question_data["id_type_answer"] == "7") {
-        let parsed = null;
-        parsed = JSON.parse(
-            JSON.parse(this.question_data["value_type_answer"])
-        );
         if (Array.isArray(parsed)) {
           this.value_type_answer = parsed;
         } else {
@@ -445,19 +453,13 @@ export default {
           this.question_data["id_type_answer"] !== 1 &&
           this.question_data["id_type_answer"] !== 2
       ) {
-        let parsed = null;
-        parsed = JSON.parse(
-            JSON.parse(this.question_data["value_type_answer"])
-        );
         if (Array.isArray(parsed)) {
           this.value_type_answer = parsed;
         } else {
           this.value_type_answer = [];
         }
       } else {
-        this.value_type_answer = JSON.parse(
-            this.question_data["value_type_answer"]
-        );
+        this.value_type_answer = parsed
       }
     },
     getWidthOfControls() {
