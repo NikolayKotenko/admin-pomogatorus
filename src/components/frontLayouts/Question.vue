@@ -1,19 +1,19 @@
 <template>
   <div
-      :id="`component_wrapper-${index_component}`"
-      :data-id="dataId"
-      class="componentArticle_wrapper question_wrapper component_container"
-      contenteditable="false"
-      data-name="questions"
+    :id="`component_wrapper-${index_component}`"
+    :data-id="dataId"
+    class="componentArticle_wrapper question_wrapper component_container"
+    contenteditable="false"
+    data-name="questions"
   >
     <div
-        class="componentArticle_wrapper__admin_controls-header"
-        contenteditable="false"
+      class="componentArticle_wrapper__admin_controls-header"
+      contenteditable="false"
     >
       <CloseSVG
-          alt="close"
-          class="componentArticle_wrapper__admin_controls-header__img"
-          @click="deleteQuestion()"
+        alt="close"
+        class="componentArticle_wrapper__admin_controls-header__img"
+        @click="deleteQuestion()"
       />
     </div>
     <div class="componentArticle_wrapper__title">
@@ -24,12 +24,7 @@
       <div v-if="question_data.title" class="helper_wrapper">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
-            <HelpSVG
-                alt="help"
-                class="help_img"
-                v-bind="attrs"
-                v-on="on"
-            />
+            <HelpSVG alt="help" class="help_img" v-bind="attrs" v-on="on" />
           </template>
           <span>{{ question_data.title }}</span>
         </v-tooltip>
@@ -39,54 +34,54 @@
     <div class="componentArticle_wrapper__content">
       <template v-if="question_data.id_type_answer == '1'">
         <v-text-field
-            v-model="answer"
-            dense
-            disabled
-            hide-details
-            placeholder="Введите ответ"
-            solo
-            @change="changeAnswer"
+          v-model="answer"
+          dense
+          disabled
+          hide-details
+          placeholder="Введите ответ"
+          solo
+          @change="changeAnswer"
         >
         </v-text-field>
       </template>
       <template v-else-if="question_data.id_type_answer == '2'">
         <v-textarea
-            v-model="answer"
-            auto-grow
-            clearable
-            dense
-            disabled
-            hide-details
-            placeholder="Введите ответ"
-            row-height="25"
-            rows="3"
-            solo
-            @change="changeAnswer"
+          v-model="answer"
+          auto-grow
+          clearable
+          dense
+          disabled
+          hide-details
+          placeholder="Введите ответ"
+          row-height="25"
+          rows="3"
+          solo
+          @change="changeAnswer"
         >
         </v-textarea>
       </template>
       <template v-else-if="question_data.id_type_answer == '3'">
         <v-radio-group v-model="answer" dense hide-details>
           <v-radio
-              v-for="(item, index) in value_type_answer"
-              :key="index"
-              :value="item.answer"
-              disabled
-              @change="changeAnswer"
+            v-for="(item, index) in value_type_answer"
+            :key="index"
+            :value="item.answer"
+            disabled
+            @change="changeAnswer"
           >
             <template slot="label">
               <div
-                  style="display: flex; column-gap: 20px; align-items: flex-start"
+                style="display: flex; column-gap: 20px; align-items: flex-start"
               >
                 <span v-html="item.answer" @click.stop></span>
                 <div v-if="item.commentary">
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on, attrs }">
                       <HelpSVG
-                          alt="help"
-                          class="help_img"
-                          v-bind="attrs"
-                          v-on="on"
+                        alt="help"
+                        class="help_img"
+                        v-bind="attrs"
+                        v-on="on"
                       />
                     </template>
                     <span>{{ item.commentary }}</span>
@@ -99,29 +94,29 @@
       </template>
       <template v-else-if="question_data.id_type_answer == '4'">
         <v-checkbox
-            v-for="(item, index) in value_type_answer"
-            :key="index"
-            v-model="answer"
-            :value="item.answer"
-            dense
-            disabled
-            hide-details
-            multiple
-            @change="changeAnswer"
+          v-for="(item, index) in value_type_answer"
+          :key="index"
+          v-model="answer"
+          :value="item.answer"
+          dense
+          disabled
+          hide-details
+          multiple
+          @change="changeAnswer"
         >
           <template slot="label">
             <div
-                style="display: flex; column-gap: 20px; align-items: flex-start"
+              style="display: flex; column-gap: 20px; align-items: flex-start"
             >
               <span v-html="item.answer" @click.stop></span>
               <div v-if="item.commentary">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <HelpSVG
-                        alt="help"
-                        class="help_img"
-                        v-bind="attrs"
-                        v-on="on"
+                      alt="help"
+                      class="help_img"
+                      v-bind="attrs"
+                      v-on="on"
                     />
                   </template>
                   <span>{{ item.commentary }}</span>
@@ -133,22 +128,22 @@
       </template>
       <template v-else-if="question_data.id_type_answer == '5'">
         <v-select
-            v-model="answer"
-            :items="value_type_answer"
-            :menu-props="{
+          v-model="answer"
+          :items="value_type_answer"
+          :menu-props="{
             closeOnContentClick: true,
             bottom: true,
             offsetY: true,
           }"
-            clearable
-            dense
-            disabled
-            hide-details
-            item-text="answer"
-            placeholder="Введите ответ"
-            return-object
-            solo
-            @change="changeAnswer"
+          clearable
+          dense
+          disabled
+          hide-details
+          item-text="answer"
+          placeholder="Введите ответ"
+          return-object
+          solo
+          @change="changeAnswer"
         >
           <template v-slot:selection="data">
             <span v-bind="data.attrs" v-html="data.item.answer"></span>
@@ -164,10 +159,10 @@
                       <v-tooltip bottom>
                         <template v-slot:activator="{ on, attrs }">
                           <HelpSVG
-                              alt="help"
-                              class="help_img"
-                              v-bind="attrs"
-                              v-on="on"
+                            alt="help"
+                            class="help_img"
+                            v-bind="attrs"
+                            v-on="on"
                           />
                         </template>
                         <span>{{ item.commentary }}</span>
@@ -182,19 +177,19 @@
       </template>
       <template v-else-if="question_data.id_type_answer == '6'">
         <span
-        >Укажите число в диапозоне от {{ value_type_answer[0].answer }} и до
+          >Укажите число в диапозоне от {{ value_type_answer[0].answer }} и до
           {{ value_type_answer[1].answer }}</span
         >
         <v-text-field
-            v-model="range_one"
-            :class="{ rangeError: rangeError }"
-            dense
-            disabled
-            hide-details
-            placeholder="Введите ответ"
-            solo
-            type="number"
-            @change="changeAnswer"
+          v-model="range_one"
+          :class="{ rangeError: rangeError }"
+          dense
+          disabled
+          hide-details
+          placeholder="Введите ответ"
+          solo
+          type="number"
+          @change="changeAnswer"
         >
           <template slot="prepend-inner">
             <v-icon color="primary" @click="rangeEdit('minus')">
@@ -213,40 +208,40 @@
       </template>
       <template v-else-if="question_data.id_type_answer == '7'">
         <span
-        >Укажите число в диапозоне от {{ value_type_answer[0].answer }} и до
+          >Укажите число в диапозоне от {{ value_type_answer[0].answer }} и до
           {{ value_type_answer[1].answer }}</span
         >
         <v-range-slider
-            v-model="range_two"
-            :max="max"
-            :min="min"
-            class="align-center"
-            disabled
-            hide-details
-            type="number"
+          v-model="range_two"
+          :max="max"
+          :min="min"
+          class="align-center"
+          disabled
+          hide-details
+          type="number"
         >
           <template v-slot:prepend>
             <v-text-field
-                :value="range_two[0]"
-                class="mt-0 pt-0"
-                disabled
-                hide-details
-                single-line
-                style="width: 60px"
-                type="number"
-                @change="$set(range_two, 0, $event)"
+              :value="range_two[0]"
+              class="mt-0 pt-0"
+              disabled
+              hide-details
+              single-line
+              style="width: 60px"
+              type="number"
+              @change="$set(range_two, 0, $event)"
             ></v-text-field>
           </template>
           <template v-slot:append>
             <v-text-field
-                :value="range_two[1]"
-                class="mt-0 pt-0"
-                disabled
-                hide-details
-                single-line
-                style="width: 60px"
-                type="number"
-                @change="$set(range_two, 1, $event)"
+              :value="range_two[1]"
+              class="mt-0 pt-0"
+              disabled
+              hide-details
+              single-line
+              style="width: 60px"
+              type="number"
+              @change="$set(range_two, 1, $event)"
             ></v-text-field>
           </template>
         </v-range-slider>
@@ -255,14 +250,14 @@
         </small>
       </template>
       <v-text-field
-          v-if="question_data.state_detailed_response"
-          v-model="detailed_response"
-          class="py-2"
-          dense
-          disabled
-          hide-details
-          placeholder="Место для развернутого ответа"
-          solo
+        v-if="question_data.state_detailed_response"
+        v-model="detailed_response"
+        class="py-2"
+        dense
+        disabled
+        hide-details
+        placeholder="Место для развернутого ответа"
+        solo
       ></v-text-field>
     </div>
 
@@ -277,8 +272,8 @@
 
     <transition name="list">
       <div
-          v-if="status_question.type !== 'sending' && check_status"
-          class="componentArticle_wrapper__content__alert pt-3"
+        v-if="status_question.type !== 'sending' && check_status"
+        class="componentArticle_wrapper__content__alert pt-3"
       >
         <v-alert :icon="status_question.icon" :type="status_question.type">
           <span v-html="status_question.text"></span>
@@ -290,14 +285,15 @@
 
 <script>
 import AnswerController from "../../services/article/AnswerController";
-import CloseSVG from "@/assets/svg/closeIcon.svg"
-import HelpSVG from "@/assets/svg/help-circle.svg"
+import CloseSVG from "@/assets/svg/closeIcon.svg";
+import HelpSVG from "@/assets/svg/help-circle.svg";
+import { jsonParseDepth } from "@/helpers/jsonParseDepth";
 
 export default {
   name: "Question",
   components: {
     CloseSVG,
-    HelpSVG
+    HelpSVG,
   },
   data: () => ({
     question_data: {},
@@ -320,8 +316,7 @@ export default {
     answer: null,
     detailed_response: "",
   }),
-  created() {
-  },
+  created() {},
   mounted() {
     this.getData();
   },
@@ -331,9 +326,9 @@ export default {
         if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
         this.debounceTimeout = setTimeout(() => {
           this.rangeError =
-              parseInt(this.range_one) <
+            parseInt(this.range_one) <
               parseInt(this.value_type_answer[0].answer) ||
-              parseInt(this.range_one) >
+            parseInt(this.range_one) >
               parseInt(this.value_type_answer[1].answer);
         });
       },
@@ -350,14 +345,14 @@ export default {
     status_question() {
       let auth_block;
       let index =
-          this.$store.state.ArticleModule.components_after_request.findIndex(
-              (i) => {
-                return i.component.name === "auth";
-              }
-          );
+        this.$store.state.ArticleModule.components_after_request.findIndex(
+          (i) => {
+            return i.component.name === "auth";
+          }
+        );
       if (index !== -1)
         auth_block =
-            this.$store.state.ArticleModule.components_after_request[index].index;
+          this.$store.state.ArticleModule.components_after_request[index].index;
 
       return new AnswerController().create_status(this.status_name, auth_block);
     },
@@ -405,18 +400,18 @@ export default {
     },
     getData() {
       if (
-          Object.keys(this.$store.state.ArticleModule.selectedComponent).length
+        Object.keys(this.$store.state.ArticleModule.selectedComponent).length
       ) {
         this.index_questions =
-            this.$store.state.ArticleModule.counters.questions;
+          this.$store.state.ArticleModule.counters.questions;
         this.index_component = this.$store.state.ArticleModule.counters.layout;
         this.question_data = Object.assign(
-            {},
-            this.$store.state.ArticleModule.selectedComponent
+          {},
+          this.$store.state.ArticleModule.selectedComponent
         );
         this.dataForRerender = Object.assign(
-            {},
-            this.$store.state.ArticleModule.selectedComponent
+          {},
+          this.$store.state.ArticleModule.selectedComponent
         );
         this.getValue_type_answer();
         this.getHeightOfControls();
@@ -426,9 +421,7 @@ export default {
     getValue_type_answer() {
       if (this.question_data["id_type_answer"] == "7") {
         let parsed = null;
-        parsed = JSON.parse(
-            JSON.parse(this.question_data["value_type_answer"])
-        );
+        parsed = jsonParseDepth(this.question_data["value_type_answer"]);
         if (Array.isArray(parsed)) {
           this.value_type_answer = parsed;
         } else {
@@ -442,28 +435,31 @@ export default {
           this.range_two.push(this.max);
         }
       } else if (
-          this.question_data["id_type_answer"] !== 1 &&
-          this.question_data["id_type_answer"] !== 2
+        this.question_data["id_type_answer"] !== 1 &&
+        this.question_data["id_type_answer"] !== 2
       ) {
         let parsed = null;
-        parsed = JSON.parse(
-            JSON.parse(this.question_data["value_type_answer"])
+        console.log(
+          'this.question_data["value_type_answer"]',
+          this.question_data["value_type_answer"]
         );
+        parsed = jsonParseDepth(this.question_data["value_type_answer"]);
+
         if (Array.isArray(parsed)) {
           this.value_type_answer = parsed;
         } else {
           this.value_type_answer = [];
         }
       } else {
-        this.value_type_answer = JSON.parse(
-            this.question_data["value_type_answer"]
+        this.value_type_answer = jsonParseDepth(
+          this.question_data["value_type_answer"]
         );
       }
     },
     getWidthOfControls() {
       this.$nextTick(() => {
         const elem = document.getElementById(
-            `component_wrapper-${this.index_component}`
+          `component_wrapper-${this.index_component}`
         );
         if (elem) {
           this.controls_width = elem.getBoundingClientRect().width + 6;
@@ -475,7 +471,7 @@ export default {
     getHeightOfControls() {
       this.$nextTick(() => {
         const elem = document.getElementById(
-            `component_wrapper-${this.index_component}`
+          `component_wrapper-${this.index_component}`
         );
         if (elem) {
           this.controls_height = elem.getBoundingClientRect().height + 22;

@@ -1,8 +1,10 @@
 export default function isJson(str) {
-    try {
-        JSON.parse(str)
-    } catch (e) {
-        return false
-    }
-    return true
+  if (typeof str !== "string") return false;
+
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
 }
