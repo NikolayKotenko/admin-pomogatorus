@@ -439,10 +439,6 @@ export default {
         this.question_data["id_type_answer"] !== 2
       ) {
         let parsed = null;
-        console.log(
-          'this.question_data["value_type_answer"]',
-          this.question_data["value_type_answer"]
-        );
         parsed = jsonParseDepth(this.question_data["value_type_answer"]);
 
         if (Array.isArray(parsed)) {

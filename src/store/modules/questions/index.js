@@ -1,4 +1,5 @@
 import Request from "@/services/request";
+import { jsonParseDepth } from "@/helpers/jsonParseDepth";
 
 /* DEFAULT STATE */
 const defaultQuestion = {
@@ -164,28 +165,11 @@ export default {
       }
       function setValueTypeAnswer(valueTypeAnswer) {
         state.newQuestion["value_type_answer"] = [];
-        let parsed = null;
-        parsed = JSON.parse(valueTypeAnswer);
-        // console.clear();
-        // console.log("first", { type: typeof parsed, data: parsed });
-        if (Array.isArray(parsed)) {
-          parsed.forEach((elem) => {
-            state.newQuestion["value_type_answer"].push(
-              new AnswerVariable(elem)
-            );
-          });
-          return false;
-        }
-        // SECOND PARSING
-        parsed = JSON.parse(parsed);
-        // console.log("second", { type: typeof parsed, data: parsed });
-        if (Array.isArray(parsed)) {
-          parsed.forEach((elem) => {
-            state.newQuestion["value_type_answer"].push(
-              new AnswerVariable(elem)
-            );
-          });
-        }
+
+        let parsed = jsonParseDepth(valueTypeAnswer);
+        parsed.forEach((elem) => {
+          state.newQuestion["value_type_answer"].push(new AnswerVariable(elem));
+        });
       }
     },
 
