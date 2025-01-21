@@ -36,6 +36,16 @@
           return-object
           :menu-props="{ maxHeight: '80vh' }"
         >
+          <template v-slot:item="{ item }">
+            <v-list-item-content class="autocomplete_list_with_tags">
+              <div class="name">{{ item.name }}</div>
+              <div class="block_tags">
+                <section v-for="elem in item._all_tags">
+                  #{{ elem.name }}
+                </section>
+              </div>
+            </v-list-item-content>
+          </template>
         </v-autocomplete>
       </template>
 

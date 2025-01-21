@@ -6,67 +6,69 @@
         :key="index"
         class="questions_wrapper__item"
       >
-        <div
-          :class="{ filterShow: show_filter }"
-          class="questions_wrapper__item__top"
-        >
+        <TooltipStyled :title="computedStringTags(question)">
           <div
             :class="{ filterShow: show_filter }"
-            class="questions_wrapper__item__top__title"
+            class="questions_wrapper__item__top"
           >
-            <v-icon v-show="question.activity === 0" class="activity_icon"
-              >mdi-eye-off</v-icon
+            <div
+              :class="{ filterShow: show_filter }"
+              class="questions_wrapper__item__top__title"
             >
-            <span @click="onShowDetailQuestion(question)">
-              {{ question.name }}
-            </span>
-            <span class="questions_wrapper__item__top__title__quantity">
-              [{{ computedAnswersCount(question) }}]
-            </span>
+              <v-icon v-show="question.activity === 0" class="activity_icon"
+                >mdi-eye-off</v-icon
+              >
+              <span @click="onShowDetailQuestion(question)">
+                {{ question.name }}
+              </span>
+              <span class="questions_wrapper__item__top__title__quantity">
+                [{{ computedAnswersCount(question) }}]
+              </span>
+            </div>
+            <div class="questions_wrapper__item__top__icons">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon
+                    v-if="question.title"
+                    color="grey lighten-1"
+                    v-bind="attrs"
+                    v-on="on"
+                  >
+                    mdi-comment-text
+                  </v-icon>
+                </template>
+                <span>Заполнено поле комментарий</span>
+              </v-tooltip>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon
+                    v-if="question.state_detailed_response"
+                    color="grey lighten-1"
+                    v-bind="attrs"
+                    v-on="on"
+                  >
+                    mdi-pencil-box-outline
+                  </v-icon>
+                </template>
+                <span>Возможность дать развернутый ответ</span>
+              </v-tooltip>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon
+                    v-if="question.state_attachment_response"
+                    color="grey lighten-1"
+                    style="transform: rotate(45deg)"
+                    v-bind="attrs"
+                    v-on="on"
+                  >
+                    mdi-paperclip
+                  </v-icon>
+                </template>
+                <span>Возможность осуществлять вложение</span>
+              </v-tooltip>
+            </div>
           </div>
-          <div class="questions_wrapper__item__top__icons">
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon
-                  v-if="question.title"
-                  color="grey lighten-1"
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  mdi-comment-text
-                </v-icon>
-              </template>
-              <span>Заполнено поле комментарий</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon
-                  v-if="question.state_detailed_response"
-                  color="grey lighten-1"
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  mdi-pencil-box-outline
-                </v-icon>
-              </template>
-              <span>Возможность дать развернутый ответ</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon
-                  v-if="question.state_attachment_response"
-                  color="grey lighten-1"
-                  style="transform: rotate(45deg)"
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  mdi-paperclip
-                </v-icon>
-              </template>
-              <span>Возможность осуществлять вложение</span>
-            </v-tooltip>
-          </div>
-        </div>
+        </TooltipStyled>
         <div class="questions_wrapper__item__bottom universal_date">
           <div
             :class="{ filterShow: show_filter }"
@@ -218,10 +220,11 @@
 <script>
 import InputStyled from "../components/common/InputStyled";
 import { jsonParseDepth } from "@/helpers/jsonParseDepth";
+import TooltipStyled from "@/components/common/TooltipStyled.vue";
 
 export default {
   name: "Questions",
-  components: { InputStyled },
+  components: { TooltipStyled, InputStyled },
   data: () => ({
     show_filter: false,
     filterValueFocused: false,
@@ -344,6 +347,13 @@ export default {
       if (question.value_type_answer === null) return 0;
 
       return jsonParseDepth(question.value_type_answer).length;
+    },
+    computedStringTags(question) {
+      if (!question) return "Отсутствуют привязанные тэги";
+      if (!question._all_tags) return "Отсутствуют привязанные тэги";
+      if (!question._all_tags.length) return "Отсутствуют привязанные тэги";
+
+      return question._all_tags.map((item) => "#" + item.name).join(",  ");
     },
   },
 };
