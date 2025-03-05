@@ -228,25 +228,10 @@ export default {
       return new Promise((resolve, reject) => {
         state.loadingList = true;
 
-        const { tag, updated_at, name, activity } = data;
-
-        const filter = {};
-        if (tag.length) {
-          filter["filter[tag]"] = tag;
-        }
-        if (updated_at) {
-          filter["filter[updated_at]"] = updated_at;
-        }
-        if (name) {
-          filter["filter[name]"] = name;
-        }
-        if (activity) {
-          filter["filter[activity]"] = activity;
-        }
-
-        Request.get(`${this.state.BASE_URL}/entity/questions`, {
-          ...filter,
-        })
+        Request.get(
+          `${this.state.BASE_URL}/entity/questions` +
+            Request.ConstructFilterQuery(data)
+        )
           .then((response) => {
             console.log(response);
             commit("set_list_questions", response.data);

@@ -176,7 +176,7 @@
         class="mb-5 mt-5"
         dense
         hide-details
-        label="Публичный"
+        label="Активность"
       >
       </v-checkbox>
       <v-checkbox

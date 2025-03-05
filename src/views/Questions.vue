@@ -5,6 +5,7 @@
         v-for="(question, index) in $store.state.QuestionsModule.listQuestions"
         :key="index"
         class="questions_wrapper__item"
+        :class="{ updated_today_style: stateUpdatedToday(question) }"
       >
         <TooltipStyled :title="computedStringTags(question)">
           <div
@@ -18,7 +19,10 @@
               <v-icon v-show="question.activity === 0" class="activity_icon"
                 >mdi-eye-off</v-icon
               >
-              <span @click="onShowDetailQuestion(question)">
+              <span
+                class="questions_wrapper__item__top__title__name"
+                @click="onShowDetailQuestion(question)"
+              >
                 {{ question.name }}
               </span>
               <span class="questions_wrapper__item__top__title__quantity">
@@ -250,6 +254,12 @@ export default {
         ? this.$store.state.QuestionsModule.questionNotification
         : "Ничего не найдено";
     },
+    currentDateOnClient() {
+      let date = new Date();
+      if (!date) return;
+
+      return date.toLocaleString().split(",")[0];
+    },
   },
   watch: {
     filters: {
@@ -355,6 +365,9 @@ export default {
 
       return question._all_tags.map((item) => "#" + item.name).join(",  ");
     },
+    stateUpdatedToday(question) {
+      return question.updated_at === this.currentDateOnClient;
+    },
   },
 };
 </script>
@@ -380,6 +393,10 @@ export default {
       display: flex;
       flex-direction: column;
       width: 100%;
+
+      &.updated_today_style {
+        opacity: 0.4;
+      }
 
       &__top {
         display: flex;
