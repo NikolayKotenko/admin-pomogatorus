@@ -394,7 +394,7 @@
               :loading="$store.state.QuestionsModule.loadingQuestion"
               class="question_settings__checkbox"
               hide-details
-              label="Наличие вложения в ответе"
+              label="Возможность загружать pdf документы"
               @change="saveDBQuestion(newQuestion)"
             ></v-checkbox>
             <v-checkbox
