@@ -751,10 +751,10 @@ export default {
     disableInput() {
       this.$nextTick(() => {
         setTimeout(() => {
-          if (this.$refs.selector) {
+          if (this.$refs?.selector?.$refs?.input) {
             this.$refs.selector.$refs.input.blur();
           }
-          if (this.$refs.selector) {
+          if (this.$refs?.nomenclature?.$refs?.input) {
             this.$refs.nomenclature.$refs.input.blur();
           }
         });
@@ -994,6 +994,7 @@ export default {
   .v-menu__content.theme--light.menuable__content__active.v-autocomplete__content {
   max-width: 552px !important;
 }
+
 .v-list {
   max-width: 500px !important;
 }
