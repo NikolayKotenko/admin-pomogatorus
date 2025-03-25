@@ -261,14 +261,12 @@
       ></v-text-field>
     </div>
 
-    <div v-if="question_data.state_attachment_response" class="py-3 file_input">
-      <template>
-        <v-btn color="primary" dark rounded>
-          <v-icon>mdi-upload</v-icon>
-          Загрузить файл
-        </v-btn>
-      </template>
-    </div>
+    <template>
+      <v-btn color="primary" dark rounded>
+        <v-icon>mdi-upload</v-icon>
+        Загрузить файл
+      </v-btn>
+    </template>
 
     <transition name="list">
       <div
