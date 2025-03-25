@@ -70,12 +70,14 @@ export default class Request {
   static ConstructFilterQuery(arrNameParam = []) {
     let result = "";
     for (const [key, value] of Object.entries(arrNameParam)) {
-      if (Array.isArray(value)) {
-        value.forEach((item) => {
-          result += "filter[" + key + "][]=" + item + "&";
-        });
-      } else {
-        result += "filter[" + key + "]=" + value + "&";
+      if (value) {
+        if (Array.isArray(value)) {
+          value.forEach((item) => {
+            result += "filter[" + key + "][]=" + item + "&";
+          });
+        } else {
+          result += "filter[" + key + "]=" + value + "&";
+        }
       }
     }
     result = result.slice(0, -1);

@@ -1,4 +1,5 @@
 import Request from "@/services/request";
+import { jsonParseDepth } from "@/helpers/jsonParseDepth";
 
 /* DEFAULT STATE */
 const defaultQuestion = {
@@ -164,28 +165,11 @@ export default {
       }
       function setValueTypeAnswer(valueTypeAnswer) {
         state.newQuestion["value_type_answer"] = [];
-        let parsed = null;
-        parsed = JSON.parse(valueTypeAnswer);
-        // console.clear();
-        // console.log("first", { type: typeof parsed, data: parsed });
-        if (Array.isArray(parsed)) {
-          parsed.forEach((elem) => {
-            state.newQuestion["value_type_answer"].push(
-              new AnswerVariable(elem)
-            );
-          });
-          return false;
-        }
-        // SECOND PARSING
-        parsed = JSON.parse(parsed);
-        // console.log("second", { type: typeof parsed, data: parsed });
-        if (Array.isArray(parsed)) {
-          parsed.forEach((elem) => {
-            state.newQuestion["value_type_answer"].push(
-              new AnswerVariable(elem)
-            );
-          });
-        }
+
+        let parsed = jsonParseDepth(valueTypeAnswer);
+        parsed.forEach((elem) => {
+          state.newQuestion["value_type_answer"].push(new AnswerVariable(elem));
+        });
       }
     },
 
@@ -244,25 +228,10 @@ export default {
       return new Promise((resolve, reject) => {
         state.loadingList = true;
 
-        const { tag, updated_at, name, activity } = data;
-
-        const filter = {};
-        if (tag.length) {
-          filter["filter[tag]"] = tag;
-        }
-        if (updated_at) {
-          filter["filter[updated_at]"] = updated_at;
-        }
-        if (name) {
-          filter["filter[name]"] = name;
-        }
-        if (activity) {
-          filter["filter[activity]"] = activity;
-        }
-
-        Request.get(`${this.state.BASE_URL}/entity/questions`, {
-          ...filter,
-        })
+        Request.get(
+          `${this.state.BASE_URL}/entity/questions` +
+            Request.ConstructFilterQuery(data)
+        )
           .then((response) => {
             console.log(response);
             commit("set_list_questions", response.data);

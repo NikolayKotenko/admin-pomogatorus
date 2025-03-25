@@ -2,70 +2,87 @@
   <div class="questions">
     <div class="questions_wrapper universal_list">
       <div
-          v-for="(question, index) in $store.state.QuestionsModule.listQuestions"
-          :key="index"
-          class="questions_wrapper__item"
+        v-for="(question, index) in $store.state.QuestionsModule.listQuestions"
+        :key="index"
+        class="questions_wrapper__item"
+        :class="{ updated_today_style: stateUpdatedToday(question) }"
       >
-        <div :class="{filterShow: show_filter}" class="questions_wrapper__item__top">
-          <div :class="{filterShow: show_filter}" class="questions_wrapper__item__top__title">
-            <v-icon v-show="question.activity === 0" class="activity_icon">mdi-eye-off</v-icon>
-            <span @click="onShowDetailQuestion(question)">
-              {{ question.name }}
-            </span>
-            <span class="questions_wrapper__item__top__title__quantity">
-              [{{ computedAnswersCount(question) }}]
-            </span>
-          </div>
-          <div class="questions_wrapper__item__top__icons">
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon
+        <TooltipStyled :title="computedStringTags(question)">
+          <div
+            :class="{ filterShow: show_filter }"
+            class="questions_wrapper__item__top"
+          >
+            <div
+              :class="{ filterShow: show_filter }"
+              class="questions_wrapper__item__top__title"
+            >
+              <v-icon v-show="question.activity === 0" class="activity_icon"
+                >mdi-eye-off</v-icon
+              >
+              <span
+                class="questions_wrapper__item__top__title__name"
+                @click="onShowDetailQuestion(question)"
+              >
+                {{ question.name }}
+              </span>
+              <span class="questions_wrapper__item__top__title__quantity">
+                [{{ computedAnswersCount(question) }}]
+              </span>
+            </div>
+            <div class="questions_wrapper__item__top__icons">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon
                     v-if="question.title"
                     color="grey lighten-1"
                     v-bind="attrs"
                     v-on="on"
-                >
-                  mdi-comment-text
-                </v-icon>
-              </template>
-              <span>Заполнено поле комментарий</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon
+                  >
+                    mdi-comment-text
+                  </v-icon>
+                </template>
+                <span>Заполнено поле комментарий</span>
+              </v-tooltip>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon
                     v-if="question.state_detailed_response"
                     color="grey lighten-1"
                     v-bind="attrs"
                     v-on="on"
-                >
-                  mdi-pencil-box-outline
-                </v-icon>
-              </template>
-              <span>Возможность дать развернутый ответ</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon
+                  >
+                    mdi-pencil-box-outline
+                  </v-icon>
+                </template>
+                <span>Возможность дать развернутый ответ</span>
+              </v-tooltip>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon
                     v-if="question.state_attachment_response"
                     color="grey lighten-1"
                     style="transform: rotate(45deg)"
                     v-bind="attrs"
                     v-on="on"
-                >
-                  mdi-paperclip
-                </v-icon>
-              </template>
-              <span>Возможность осуществлять вложение</span>
-            </v-tooltip>
+                  >
+                    mdi-paperclip
+                  </v-icon>
+                </template>
+                <span>Возможность осуществлять вложение</span>
+              </v-tooltip>
+            </div>
           </div>
-        </div>
+        </TooltipStyled>
         <div class="questions_wrapper__item__bottom universal_date">
-          <div :class="{filterShow: show_filter}" class="questions_wrapper__item__bottom__date">
+          <div
+            :class="{ filterShow: show_filter }"
+            class="questions_wrapper__item__bottom__date"
+          >
             {{ question.created_at }}
           </div>
           <div
-              :class="{ filterShow: show_filter }"
-              class="questions_wrapper__item__bottom__date"
+            :class="{ filterShow: show_filter }"
+            class="questions_wrapper__item__bottom__date"
           >
             {{ question.updated_at }}
           </div>
@@ -73,14 +90,14 @@
       </div>
 
       <v-alert
-          v-if="
+        v-if="
           !$store.state.QuestionsModule.loadingList &&
           ($store.state.QuestionsModule.listQuestions === null ||
             !$store.state.QuestionsModule.listQuestions.length)
         "
-          class="err-msg"
-          text
-          type="error"
+        class="err-msg"
+        text
+        type="error"
       >
         {{ computedErrMsg }}
       </v-alert>
@@ -88,21 +105,29 @@
     <v-sheet class="footer">
       <div class="footer_input">
         <InputStyled
-            :class="{ inputFocused: filterValueFocused }"
-            :data="filters.name"
-            :is-flat="true"
-            :is-solo="true"
-            :placeholder="'Поиск в выбранных разделах'"
-            @update-input="setName"
-            @on-focus="() => {onFocus()}"
-            @out-focus="() => {outFocus()}"
+          :class="{ inputFocused: filterValueFocused }"
+          :data="filters.name"
+          :is-flat="true"
+          :is-solo="true"
+          :placeholder="'Поиск в выбранных разделах'"
+          @update-input="setName"
+          @on-focus="
+            () => {
+              onFocus();
+            }
+          "
+          @out-focus="
+            () => {
+              outFocus();
+            }
+          "
         ></InputStyled>
       </div>
       <div class="footer_filter">
         <v-icon
-            :color="!!show_filter ? 'blue' : 'grey'"
-            x-large
-            @click="show_filter = !show_filter"
+          :color="!!show_filter ? 'blue' : 'grey'"
+          x-large
+          @click="show_filter = !show_filter"
         >
           mdi-filter-outline
         </v-icon>
@@ -111,29 +136,23 @@
 
     <!-- LOADER -->
     <v-overlay
-        :absolute="true"
-        :value="$store.state.QuestionsModule.loadingList"
-        :z-index="207"
+      :absolute="true"
+      :value="$store.state.QuestionsModule.loadingList"
+      :z-index="207"
     >
       <v-progress-circular
-          v-if="$store.state.QuestionsModule.loadingList"
-          :indeterminate="true"
-          :size="70"
-          color="blue"
-          style="margin: auto"
-          width="4"
+        v-if="$store.state.QuestionsModule.loadingList"
+        :indeterminate="true"
+        :size="70"
+        color="blue"
+        style="margin: auto"
+        width="4"
       ></v-progress-circular>
     </v-overlay>
 
-    <v-dialog
-        v-model="show_filter"
-        content-class="bottom_filters"
-    >
+    <v-dialog v-model="show_filter" content-class="bottom_filters">
       <transition appear name="slide-y-reverse-transition">
-        <v-sheet
-            v-show="show_filter"
-            class="text-center filter_modal"
-        >
+        <v-sheet v-show="show_filter" class="text-center filter_modal">
           <div class="filter_modal_header">
             <div class="filter_modal_header__close">
               <v-icon color="blue" x-large @click="show_filter = !show_filter">
@@ -143,25 +162,12 @@
           </div>
           <div class="filter_modal_filters">
             <div class="filter_modal_filters__item">
-              <div class="filter_modal_filters__item__title">
-                Активность:
-              </div>
+              <div class="filter_modal_filters__item__title">Активность:</div>
               <div class="filter_modal_filters__item__chips">
-                <v-radio-group
-                    v-model="filters.activity"
-                >
-                  <v-radio
-                      label="Активен"
-                      value="true"
-                  ></v-radio>
-                  <v-radio
-                      label="Не активен"
-                      value="false"
-                  ></v-radio>
-                  <v-radio
-                      :value="null"
-                      label="Все"
-                  ></v-radio>
+                <v-radio-group v-model="filters.activity">
+                  <v-radio label="Активен" value="true"></v-radio>
+                  <v-radio label="Не активен" value="false"></v-radio>
+                  <v-radio :value="null" label="Все"></v-radio>
                 </v-radio-group>
               </div>
             </div>
@@ -170,21 +176,17 @@
                 Выбор разделов:
               </div>
               <div class="filter_modal_filters__item__chips">
-                <v-chip-group
-                    v-model="filters.tag"
-                    column
-                    multiple
-                >
+                <v-chip-group v-model="filters.tag" column multiple>
                   <v-chip
-                      v-for="tag in $store.state.QuestionsModule.listGeneralTags"
-                      :key="tag.id"
-                      :value="tag.code"
-                      color="#f2f5f7"
+                    v-for="tag in $store.state.QuestionsModule.listGeneralTags"
+                    :key="tag.id"
+                    :value="tag.code"
+                    color="#f2f5f7"
                   >
                     <v-icon
-                        v-if="filters.tag.includes(tag.code)"
-                        color="grey darken-2"
-                        left
+                      v-if="filters.tag.includes(tag.code)"
+                      color="grey darken-2"
+                      left
                     >
                       mdi-check-bold
                     </v-icon>
@@ -203,11 +205,11 @@
               <div class="filter_modal_filters__item__chips">
                 <v-radio-group v-model="filters.updated_at">
                   <v-radio
-                      v-for="(variable, index) in $store.state.QuestionsModule
+                    v-for="(variable, index) in $store.state.QuestionsModule
                       .listConfigDate"
-                      :key="index"
-                      :label="variable.text"
-                      :value="variable.value"
+                    :key="index"
+                    :label="variable.text"
+                    :value="variable.value"
                   ></v-radio>
                 </v-radio-group>
               </div>
@@ -221,10 +223,12 @@
 
 <script>
 import InputStyled from "../components/common/InputStyled";
+import { jsonParseDepth } from "@/helpers/jsonParseDepth";
+import TooltipStyled from "@/components/common/TooltipStyled.vue";
 
 export default {
   name: "Questions",
-  components: {InputStyled},
+  components: { TooltipStyled, InputStyled },
   data: () => ({
     show_filter: false,
     filterValueFocused: false,
@@ -247,8 +251,14 @@ export default {
   computed: {
     computedErrMsg() {
       return this.$store.state.QuestionsModule.questionNotification
-          ? this.$store.state.QuestionsModule.questionNotification
-          : "Ничего не найдено";
+        ? this.$store.state.QuestionsModule.questionNotification
+        : "Ничего не найдено";
+    },
+    currentDateOnClient() {
+      let date = new Date();
+      if (!date) return;
+
+      return date.toLocaleString().split(",")[0];
     },
   },
   watch: {
@@ -264,7 +274,7 @@ export default {
   },
   methods: {
     setName(value) {
-      this.filters.name = value
+      this.filters.name = value;
     },
 
     getQuestions() {
@@ -285,8 +295,8 @@ export default {
     onShowDetailQuestion(question) {
       this.$router.push({
         name: "DetailQuestion",
-        params: {action: "edit"},
-        query: {question_id: question.id},
+        params: { action: "edit" },
+        query: { question_id: question.id },
       });
     },
     initializeQuery() {
@@ -294,8 +304,8 @@ export default {
       if (Object.keys(this.$route.query).length) {
         for (let key in this.filters) {
           if (
-              Object.keys(this.$route.query).includes(key) &&
-              this.$route.query[key] !== null
+            Object.keys(this.$route.query).includes(key) &&
+            this.$route.query[key] !== null
           ) {
             if (key === "tag") {
               if (Array.isArray(this.$route.query[key])) {
@@ -334,7 +344,7 @@ export default {
       }
       this.$router.push({
         path: this.$route.path,
-        query: {...this.queryObject},
+        query: { ...this.queryObject },
       });
     },
     onFocus() {
@@ -346,11 +356,17 @@ export default {
     computedAnswersCount(question) {
       if (question.value_type_answer === null) return 0;
 
-      const parseOne = JSON.parse(question.value_type_answer);
-      if (Array.isArray(parseOne)) return parseOne.length;
+      return jsonParseDepth(question.value_type_answer).length;
+    },
+    computedStringTags(question) {
+      if (!question) return "Отсутствуют привязанные тэги";
+      if (!question._all_tags) return "Отсутствуют привязанные тэги";
+      if (!question._all_tags.length) return "Отсутствуют привязанные тэги";
 
-      const parseTwo = JSON.parse(parseOne);
-      if (Array.isArray(parseTwo)) return parseTwo.length
+      return question._all_tags.map((item) => "#" + item.name).join(",  ");
+    },
+    stateUpdatedToday(question) {
+      return question.updated_at === this.currentDateOnClient;
     },
   },
 };
@@ -377,6 +393,10 @@ export default {
       display: flex;
       flex-direction: column;
       width: 100%;
+
+      &.updated_today_style {
+        opacity: 0.4;
+      }
 
       &__top {
         display: flex;

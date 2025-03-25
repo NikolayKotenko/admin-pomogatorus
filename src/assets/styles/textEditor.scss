@@ -38,6 +38,17 @@
   border-radius: 5px;
   position: relative;
 
+  &__questionsModals{
+    .autocomplete_tags{
+      .v-chip--select{
+        margin: 4px 2px!important;
+      }
+    }
+    .chip_group{
+      height: 100px;
+    }
+  }
+
   &__header {
     background: #e9ecf4;
     width: 100%;

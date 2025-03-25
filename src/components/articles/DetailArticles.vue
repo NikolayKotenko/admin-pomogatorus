@@ -6,264 +6,375 @@
           <div class="detail-wrapper__content__title">
             <section class="detail-wrapper__content__title__head">
               <TextAreaStyled
-                  :class="{
+                :class="{
                   invalid:
                     !newArticle.name.value &&
                     $v.newArticle.name.$dirty &&
                     !$v.newArticle.name.required,
                 }"
-                  :data="newArticle.name.value"
-                  :is-flat="true"
-                  :is-loading="$store.state.ArticleModule.loadingArticle"
-                  :is-solo="true"
-                  :placeholder="'Наименование'"
-                  :rows-count="'1'"
-                  class="detail-wrapper__content__title__name"
-                  @update-input="setName"
-                  @on-focus="() => {onFocus(newArticle.name)}"
-                  @out-focus="() => {outFocus(newArticle.name)}"
+                :data="newArticle.name.value"
+                :is-flat="true"
+                :is-loading="$store.state.ArticleModule.loadingArticle"
+                :is-solo="true"
+                :placeholder="'Наименование'"
+                :rows-count="'1'"
+                class="detail-wrapper__content__title__name"
+                @update-input="setName"
+                @on-focus="
+                  () => {
+                    onFocus(newArticle.name);
+                  }
+                "
+                @out-focus="
+                  () => {
+                    outFocus(newArticle.name);
+                  }
+                "
               >
                 <template slot="append">
                   <v-icon
-                      :color="newArticle.name.focused ? 'primary' : ''"
-                      class="detail-wrapper__content__title__name__icon"
-                      size="20"
+                    :color="newArticle.name.focused ? 'primary' : ''"
+                    class="detail-wrapper__content__title__name__icon"
+                    size="20"
                   >
                     mdi-lead-pencil
                   </v-icon>
                 </template>
               </TextAreaStyled>
-              <v-btn :href="'https://pomogatorus.ru/articles/'+newArticle.id" icon link target="_blank"
-                     title="Ссылка на статью">
+              <v-btn
+                :href="'https://pomogatorus.ru/articles/' + newArticle.id"
+                icon
+                link
+                target="_blank"
+                title="Ссылка на статью"
+              >
                 <v-icon>mdi-link</v-icon>
               </v-btn>
             </section>
 
             <small
-                v-if="
+              v-if="
                 !newArticle.name.value &&
                 $v.newArticle.name.$dirty &&
                 !$v.newArticle.name.required
               "
-                style="color: lightcoral"
+              style="color: lightcoral"
             >
               Поле обязательно для заполнения
             </small>
+
+            <!-- Короткое наименование -->
+            <!--
             <div class="detail-wrapper__content__title__help">
               <span
-                  :class="{ focused: newArticle.short_header.focused }"
-                  class="detail-wrapper__content__title__help__title"
+                :class="{ focused: newArticle.short_header.focused }"
+                class="detail-wrapper__content__title__help__title"
               >
                 Короткое наименование
               </span>
               <TextAreaStyled
-                  :class="{
-                    inputFocused: newArticle.short_header.focused,
-                    invalid:
-                      !newArticle.short_header.value &&
-                      $v.newArticle.short_header.$dirty &&
-                      !$v.newArticle.short_header.required,
-                  }"
-                  :data="newArticle.short_header.value"
-                  :is-flat="true"
-                  :is-loading="$store.state.ArticleModule.loadingArticle"
-                  :is-solo="true"
-                  :placeholder="'Короткое наименование'"
-                  :rows-count="'1'"
-                  class="detail-wrapper__content__title__help__description"
-                  @update-input="setShort"
-                  @on-focus="() => {onFocus(newArticle.short_header)}"
-                  @out-focus="() => {outFocus(newArticle.short_header)}"
+                :class="{
+                  inputFocused: newArticle.short_header.focused,
+                  invalid:
+                    !newArticle.short_header.value &&
+                    $v.newArticle.short_header.$dirty &&
+                    !$v.newArticle.short_header.required,
+                }"
+                :data="newArticle.short_header.value"
+                :is-flat="true"
+                :is-loading="$store.state.ArticleModule.loadingArticle"
+                :is-solo="true"
+                :placeholder="'Короткое наименование'"
+                :rows-count="'1'"
+                class="detail-wrapper__content__title__help__description"
+                @update-input="setShort"
+                @on-focus="
+                  () => {
+                    onFocus(newArticle.short_header);
+                  }
+                "
+                @out-focus="
+                  () => {
+                    outFocus(newArticle.short_header);
+                  }
+                "
               ></TextAreaStyled>
               <small
-                  v-if="
+                v-if="
                   !newArticle.short_header.value &&
                   $v.newArticle.short_header.$dirty &&
                   !$v.newArticle.short_header.required
                 "
-                  style="color: lightcoral"
+                style="color: lightcoral"
               >
                 Поле обязательно для заполнения
               </small>
             </div>
+            -->
+
             <div class="detail-wrapper__content__title__help">
               <span
-                  :class="{ focused: newArticle.purpose_of_article.focused }"
-                  class="detail-wrapper__content__title__help__title"
-              >
-                Цель статьи
-              </span>
-              <TextAreaStyled
-                  :class="{ inputFocused: newArticle.purpose_of_article.focused }"
-                  :data="newArticle.purpose_of_article.value"
-                  :is-flat="true"
-                  :is-loading="$store.state.ArticleModule.loadingArticle"
-                  :is-solo="true"
-                  :placeholder="'Цель статьи'"
-                  :rows-count="'1'"
-                  class="detail-wrapper__content__title__help__description"
-                  @update-input="setPurpose"
-                  @on-focus="() => {onFocus(newArticle.purpose_of_article)}"
-                  @out-focus="() => {outFocus(newArticle.purpose_of_article)}"
-              ></TextAreaStyled>
-            </div>
-            <div class="detail-wrapper__content__title__help">
-              <span
-                  :class="{ focused: newArticle.target_button_placeholder.focused }"
-                  class="detail-wrapper__content__title__help__title"
-              >
-                Плейсхолдер целевой кнопки
-              </span>
-              <TextAreaStyled
-                  :class="{ inputFocused: newArticle.target_button_placeholder.focused }"
-                  :data="newArticle.target_button_placeholder.value"
-                  :is-flat="true"
-                  :is-loading="$store.state.ArticleModule.loadingArticle"
-                  :is-solo="true"
-                  :placeholder="'Плейсхолдер целевой кнопки'"
-                  :rows-count="'1'"
-                  class="detail-wrapper__content__title__help__description"
-                  @update-input="setTargetButtonPlaceholder"
-                  @on-focus="() => {onFocus(newArticle.target_button_placeholder)}"
-                  @out-focus="() => {outFocus(newArticle.target_button_placeholder)}"
-              ></TextAreaStyled>
-            </div>
-            <div class="detail-wrapper__content__title__help">
-              <span
-                  :class="{ focused: newArticle.preview.focused }"
-                  class="detail-wrapper__content__title__help__title"
+                :class="{ focused: newArticle.preview.focused }"
+                class="detail-wrapper__content__title__help__title"
               >
                 Анонс
               </span>
               <TextAreaStyled
-                  :class="{ inputFocused: newArticle.preview.focused }"
-                  :data="newArticle.preview.value"
-                  :is-flat="true"
-                  :is-loading="$store.state.ArticleModule.loadingArticle"
-                  :is-solo="true"
-                  :placeholder="'Анонс'"
-                  :rows-count="'1'"
-                  class="detail-wrapper__content__title__help__description"
-                  @update-input="setPreview"
-                  @on-focus="() => {onFocus(newArticle.preview)}"
-                  @out-focus="() => {outFocus(newArticle.preview)}"
+                :class="{ inputFocused: newArticle.preview.focused }"
+                :data="newArticle.preview.value"
+                :is-flat="true"
+                :is-loading="$store.state.ArticleModule.loadingArticle"
+                :is-solo="true"
+                :placeholder="'Анонс'"
+                :rows-count="'1'"
+                class="detail-wrapper__content__title__help__description"
+                @update-input="setPreview"
+                @on-focus="
+                  () => {
+                    onFocus(newArticle.preview);
+                  }
+                "
+                @out-focus="
+                  () => {
+                    outFocus(newArticle.preview);
+                  }
+                "
               ></TextAreaStyled>
             </div>
             <div class="detail-wrapper__content__title__help">
               <span
-                  :class="{ focused: newArticle.seo_description.focused }"
-                  class="detail-wrapper__content__title__help__title"
+                :class="{ focused: newArticle.seo_description.focused }"
+                class="detail-wrapper__content__title__help__title"
               >
                 SEO DESCRIPT
               </span>
               <TextAreaStyled
-                  :class="{ inputFocused: newArticle.seo_description.focused }"
-                  :data="newArticle.seo_description.value"
-                  :is-flat="true"
-                  :is-loading="$store.state.ArticleModule.loadingArticle"
-                  :is-solo="true"
-                  :placeholder="'SEO-описание для статьи'"
-                  :rows-count="'1'"
-                  class="detail-wrapper__content__title__help__description"
-                  @update-input="setSeoDescription"
-                  @on-focus="() => {onFocus(newArticle.seo_description)}"
-                  @out-focus="() => {outFocus(newArticle.seo_description)}"
+                :class="{ inputFocused: newArticle.seo_description.focused }"
+                :data="newArticle.seo_description.value"
+                :is-flat="true"
+                :is-loading="$store.state.ArticleModule.loadingArticle"
+                :is-solo="true"
+                :placeholder="'SEO-описание для статьи'"
+                :rows-count="'1'"
+                class="detail-wrapper__content__title__help__description"
+                @update-input="setSeoDescription"
+                @on-focus="
+                  () => {
+                    onFocus(newArticle.seo_description);
+                  }
+                "
+                @out-focus="
+                  () => {
+                    outFocus(newArticle.seo_description);
+                  }
+                "
               ></TextAreaStyled>
             </div>
             <div class="detail-wrapper__content__title__help">
               <span
-                  :class="{ focused: newArticle.seo_keywords.focused }"
-                  class="detail-wrapper__content__title__help__title"
+                :class="{ focused: newArticle.seo_keywords.focused }"
+                class="detail-wrapper__content__title__help__title"
               >
                 SEO KEYWORDS
               </span>
               <TextAreaStyled
-                  :class="{ inputFocused: newArticle.seo_keywords.focused }"
-                  :data="newArticle.seo_keywords.value"
-                  :is-flat="true"
-                  :is-loading="$store.state.ArticleModule.loadingArticle"
-                  :is-solo="true"
-                  :placeholder="'SEO ключевые слова для статьи'"
-                  :rows-count="'1'"
-                  class="detail-wrapper__content__title__help__description"
-                  @update-input="setSeoKeywords"
-                  @on-focus="() => {onFocus(newArticle.seo_keywords)}"
-                  @out-focus="() => {outFocus(newArticle.seo_keywords)}"
+                :class="{ inputFocused: newArticle.seo_keywords.focused }"
+                :data="newArticle.seo_keywords.value"
+                :is-flat="true"
+                :is-loading="$store.state.ArticleModule.loadingArticle"
+                :is-solo="true"
+                :placeholder="'SEO ключевые слова для статьи'"
+                :rows-count="'1'"
+                class="detail-wrapper__content__title__help__description"
+                @update-input="setSeoKeywords"
+                @on-focus="
+                  () => {
+                    onFocus(newArticle.seo_keywords);
+                  }
+                "
+                @out-focus="
+                  () => {
+                    outFocus(newArticle.seo_keywords);
+                  }
+                "
               ></TextAreaStyled>
             </div>
             <div class="detail-wrapper__content__title__help">
               <v-checkbox
-                  v-model="newArticle.activity"
-                  false-value="0"
-                  label="Активность"
-                  true-value="1"
+                v-model="newArticle.activity"
+                false-value="0"
+                label="Активность"
+                true-value="1"
               ></v-checkbox>
               <v-checkbox
-                  v-model="newArticle.use_in_equipment_widget"
-                  :false-value="false"
-                  label="Использовать виджет оборудования"
+                v-model="newArticle.use_in_equipment_widget"
+                :false-value="false"
+                label="Использовать виджет оборудования"
               ></v-checkbox>
             </div>
             <!-- DROPZONE -->
             <v-btn
-                :disabled="$store.state.ArticleModule.loadingArticle"
-                class="mb-5"
-                @click="stateDropzone = true; insertDropzoneData()"
+              :disabled="$store.state.ArticleModule.loadingArticle"
+              class="mb-5"
+              @click="
+                stateDropzone = true;
+                insertDropzoneData();
+              "
             >
               Превью-изображение
-              <v-icon color="grey lighten-1" style="transform: rotate(45deg)">mdi-paperclip</v-icon>
+              <v-icon color="grey lighten-1" style="transform: rotate(45deg)"
+                >mdi-paperclip</v-icon
+              >
               [{{ dropzone_uploaded.length }}]
             </v-btn>
 
             <div class="detail-wrapper__content__title__help">
-              <span
-                  class="detail-wrapper__content__title__help__title"
-              >
+              <span class="detail-wrapper__content__title__help__title">
                 Список приглашенных экспертов
               </span>
               <v-autocomplete
-                  v-model="newArticle.list_experts"
-                  :disabled="$store.state.ArticleModule.loadingInfoArticle"
-                  :items="$store.state.ArticleModule.listUsersByFilterExpert"
-                  :loading="$store.state.ArticleModule.loadingInfoArticle"
-                  :menu-props="{ bottom: true, offsetY: true }"
-                  class="detail-wrapper__content__title__help__list_experts" clearable deletable-chips
-                  item-text="email"
-                  item-value="id"
-                  label=""
-                  multiple
-                  small-chips
-                  style="position: sticky; top: 0"
+                v-model="newArticle.list_experts"
+                :disabled="$store.state.ArticleModule.loadingInfoArticle"
+                :items="$store.state.ArticleModule.listUsersByFilterExpert"
+                :loading="$store.state.ArticleModule.loadingInfoArticle"
+                :menu-props="{ bottom: true, offsetY: true }"
+                class="detail-wrapper__content__title__help__list_experts"
+                clearable
+                deletable-chips
+                item-text="email"
+                item-value="id"
+                label=""
+                multiple
+                small-chips
+                style="position: sticky; top: 0"
               >
               </v-autocomplete>
             </div>
           </div>
 
           <!-- Tags Component -->
-          <question-tags class="mb-5"/>
+          <question-tags class="mb-5" />
 
           <!-- TEXTAREA -->
           <text-redactor
-              v-if="!getFromServer"
-              :deletedContent="deletedContent"
-              :newArticle="newArticle"
-              @saveArticle="initialSaveArticle"
+            v-if="!getFromServer"
+            :deletedContent="deletedContent"
+            :newArticle="newArticle"
+            @saveArticle="initialSaveArticle"
           />
 
+          <!-- Цель статьи -->
+          <div
+            class="detail-wrapper__content__title__help"
+            style="margin-top: 1em"
+          >
+            <span
+              :class="{ focused: newArticle.purpose_of_article.focused }"
+              class="detail-wrapper__content__title__help__title"
+            >
+              Цель статьи | Примечание автора
+            </span>
+            <TextAreaStyled
+              :class="{ inputFocused: newArticle.purpose_of_article.focused }"
+              :data="newArticle.purpose_of_article.value"
+              :is-flat="true"
+              :is-loading="$store.state.ArticleModule.loadingArticle"
+              :is-solo="true"
+              :placeholder="'Цель статьи'"
+              :rows-count="'1'"
+              class="detail-wrapper__content__title__help__description"
+              @update-input="setPurpose"
+              @on-focus="
+                () => {
+                  onFocus(newArticle.purpose_of_article);
+                }
+              "
+              @out-focus="
+                () => {
+                  outFocus(newArticle.purpose_of_article);
+                }
+              "
+            ></TextAreaStyled>
+          </div>
+
+          <!--  Целевые действия -->
+          <div class="detail-wrapper__content__title__help">
+            <span
+              :class="{ focused: newArticle.target_button_placeholder.focused }"
+              class="detail-wrapper__content__title__help__title"
+            >
+              Плейсхолдер целевой кнопки
+            </span>
+            <TextAreaStyled
+              :class="{
+                inputFocused: newArticle.target_button_placeholder.focused,
+              }"
+              :data="newArticle.target_button_placeholder.value"
+              :is-flat="true"
+              :is-loading="$store.state.ArticleModule.loadingArticle"
+              :is-solo="true"
+              :placeholder="'Плейсхолдер целевой кнопки'"
+              :rows-count="'1'"
+              class="detail-wrapper__content__title__help__description"
+              @update-input="setTargetButtonPlaceholder"
+              @on-focus="
+                () => {
+                  onFocus(newArticle.target_button_placeholder);
+                }
+              "
+              @out-focus="
+                () => {
+                  outFocus(newArticle.target_button_placeholder);
+                }
+              "
+            ></TextAreaStyled>
+          </div>
+
+          <div class="detail-wrapper__content__title__help">
+            <span
+              :class="{ focused: newArticle.target_button_url.focused }"
+              class="detail-wrapper__content__title__help__title"
+            >
+              Url целевой кнопки
+            </span>
+            <TextAreaStyled
+              :class="{
+                inputFocused: newArticle.target_button_url.focused,
+              }"
+              :data="newArticle.target_button_url.value"
+              :is-flat="true"
+              :is-loading="$store.state.ArticleModule.loadingArticle"
+              :is-solo="true"
+              :placeholder="'Url целевой кнопки'"
+              :rows-count="'1'"
+              class="detail-wrapper__content__title__help__description"
+              @update-input="setTargetButtonUrl"
+              @on-focus="
+                () => {
+                  onFocus(newArticle.target_button_url);
+                }
+              "
+              @out-focus="
+                () => {
+                  outFocus(newArticle.target_button_url);
+                }
+              "
+            ></TextAreaStyled>
+          </div>
         </div>
         <!-- LOADER -->
         <v-overlay
-            :absolute="true"
-            :value="$store.state.ArticleModule.loadingArticle"
-            :z-index="2"
+          :absolute="true"
+          :value="$store.state.ArticleModule.loadingArticle"
+          :z-index="2"
         >
           <v-progress-circular
-              v-if="$store.state.ArticleModule.loadingArticle"
-              :indeterminate="true"
-              :size="70"
-              color="blue"
-              style="margin: auto"
-              width="4"
+            v-if="$store.state.ArticleModule.loadingArticle"
+            :indeterminate="true"
+            :size="70"
+            color="blue"
+            style="margin: auto"
+            width="4"
           ></v-progress-circular>
         </v-overlay>
       </v-form>
@@ -273,26 +384,26 @@
         <v-card>
           <v-card-title>
             <span class="text-h6" style="font-size: 0.8em !important"
-            >Вы точно хотите удалить статью?</span
+              >Вы точно хотите удалить статью?</span
             >
           </v-card-title>
           <v-card-actions>
             <v-btn
-                :disabled="$store.state.ArticleModule.loadingRequest"
-                :loading="$store.state.ArticleModule.loadingRequest"
-                color="blue darken-1"
-                text
-                @click="deleteModal = false"
+              :disabled="$store.state.ArticleModule.loadingRequest"
+              :loading="$store.state.ArticleModule.loadingRequest"
+              color="blue darken-1"
+              text
+              @click="deleteModal = false"
             >
               Нет
             </v-btn>
             <v-spacer></v-spacer>
             <v-btn
-                :disabled="$store.state.ArticleModule.loadingRequest"
-                :loading="$store.state.ArticleModule.loadingRequest"
-                color="red darken-1"
-                text
-                @click="deleteArticle"
+              :disabled="$store.state.ArticleModule.loadingRequest"
+              :loading="$store.state.ArticleModule.loadingRequest"
+              color="red darken-1"
+              text
+              @click="deleteArticle"
             >
               Да
             </v-btn>
@@ -300,77 +411,97 @@
         </v-card>
       </v-dialog>
 
-      <v-dialog
-          v-model="stateDropzone"
-          max-width="600"
-      >
+      <v-dialog v-model="stateDropzone" max-width="600">
         <v-card>
           <v-card-title>
-            <span v-if="dropzone_uploaded.length === 0" class="text-h7">Загрузите изображение</span>
+            <span v-if="dropzone_uploaded.length === 0" class="text-h7"
+              >Загрузите изображение</span
+            >
             <span v-else class="text-h7">Изображение уже загружено</span>
           </v-card-title>
           <v-card-text class="dialog_dropzone">
-            <div v-show="dropzone_uploaded.length === 0" class="dialog_dropzone_wrapper">
+            <div
+              v-show="dropzone_uploaded.length === 0"
+              class="dialog_dropzone_wrapper"
+            >
               <vue-dropzone
-                  id="dropzone"
-                  ref="TagDropZone"
-                  :options="options"
-                  :useCustomSlot=true
-                  @vdropzone-success="successData"
-                  @vdropzone-sending="sendingData"
+                id="dropzone"
+                ref="TagDropZone"
+                :options="options"
+                :useCustomSlot="true"
+                @vdropzone-success="successData"
+                @vdropzone-sending="sendingData"
               >
                 <h3 class="dropzone-custom-title">
-                  <v-icon color="grey lighten-1" size="120" style="transform: rotate(45deg)">
+                  <v-icon
+                    color="grey lighten-1"
+                    size="120"
+                    style="transform: rotate(45deg)"
+                  >
                     mdi-paperclip
                   </v-icon>
                 </h3>
-                <div class="subtitle" style="color: darkgrey">Для вставки изображения перетащите файл в зону или
-                  нажмите на скрепку
+                <div class="subtitle" style="color: darkgrey">
+                  Для вставки изображения перетащите файл в зону или нажмите на
+                  скрепку
                 </div>
               </vue-dropzone>
             </div>
             <template>
-              <div v-for="(item, index) in dropzone_uploaded" :key="index" class="dialog_dropzone_inputs">
-                <v-img :src="$store.state.BASE_URL+item.full_path" class="main_img" contain
-                       max-width="300px"></v-img>
-                <span class="dialog_dropzone_inputs__label"> {{ item.filename }}</span>
+              <div
+                v-for="(item, index) in dropzone_uploaded"
+                :key="index"
+                class="dialog_dropzone_inputs"
+              >
+                <v-img
+                  :src="$store.state.BASE_URL + item.full_path"
+                  class="main_img"
+                  contain
+                  max-width="300px"
+                ></v-img>
+                <span class="dialog_dropzone_inputs__label">
+                  {{ item.filename }}</span
+                >
                 <InputStyled
-                    :data="item.alt_image"
-                    :index-array="index"
-                    :is-disabled="$store.state.loadingRequestGeneral"
-                    :is-loading="$store.state.loadingRequestGeneral"
-                    :placeholder="'alt-наименование изображения'"
-                    @update-input="setAlt"
+                  :data="item.alt_image"
+                  :index-array="index"
+                  :is-disabled="$store.state.loadingRequestGeneral"
+                  :is-loading="$store.state.loadingRequestGeneral"
+                  :placeholder="'alt-наименование изображения'"
+                  @update-input="setAlt"
                 />
                 <InputStyled
-                    :data="item.title_image"
-                    :index-array="index"
-                    :is-disabled="$store.state.loadingRequestGeneral"
-                    :is-loading="$store.state.loadingRequestGeneral"
-                    :placeholder="'подпись изображения'"
-                    @update-input="setTitle"
+                  :data="item.title_image"
+                  :index-array="index"
+                  :is-disabled="$store.state.loadingRequestGeneral"
+                  :is-loading="$store.state.loadingRequestGeneral"
+                  :placeholder="'подпись изображения'"
+                  @update-input="setTitle"
                 />
               </div>
             </template>
           </v-card-text>
           <v-card-actions>
             <v-btn
-                v-if="dropzone_uploaded.length"
-                :disabled="$store.state.loadingRequestGeneral"
-                :loading="$store.state.loadingRequestGeneral"
-                color="blue darken-1"
-                text
-                @click="removedFile();"
+              v-if="dropzone_uploaded.length"
+              :disabled="$store.state.loadingRequestGeneral"
+              :loading="$store.state.loadingRequestGeneral"
+              color="blue darken-1"
+              text
+              @click="removedFile()"
             >
               Очистить
             </v-btn>
             <v-spacer></v-spacer>
             <v-btn
-                :disabled="$store.state.loadingRequestGeneral"
-                :loading="$store.state.loadingRequestGeneral"
-                color="green darken-1"
-                text
-                @click="stateDropzone = false; updateDropZoneImage()"
+              :disabled="$store.state.loadingRequestGeneral"
+              :loading="$store.state.loadingRequestGeneral"
+              color="green darken-1"
+              text
+              @click="
+                stateDropzone = false;
+                updateDropZoneImage();
+              "
             >
               Готово
             </v-btn>
@@ -382,17 +513,17 @@
       <template v-if="$route.params.action === 'create'">
         <v-btn color="red darken-1" text @click="resetFields"> Очистить</v-btn>
         <v-btn
-            :disabled="computedValidations"
-            color="blue darken-1"
-            text
-            @click.prevent="onSubmit('next')"
+          :disabled="computedValidations"
+          color="blue darken-1"
+          text
+          @click.prevent="onSubmit('next')"
         >
           Закончить работу
         </v-btn>
       </template>
       <template v-else>
         <template
-            v-if="
+          v-if="
             Object.keys(this.$store.state.ArticleModule.nonEditState).length
           "
         >
@@ -400,9 +531,9 @@
             Удалить
           </v-btn>
           <v-btn
-              color="blue darken-1"
-              text
-              @click.prevent="saveDifferences('next')"
+            color="blue darken-1"
+            text
+            @click.prevent="saveDifferences('next')"
           >
             Закончить работу
           </v-btn>
@@ -413,12 +544,12 @@
 </template>
 
 <script>
-import {required} from "vuelidate/lib/validators";
+import { required } from "vuelidate/lib/validators";
 import TextRedactor from "./TextRedactor";
 import QuestionTags from "../questions/QuestionTags";
 import Request from "@/services/request";
-import vue2Dropzone from 'vue2-dropzone'
-import 'vue2-dropzone/dist/vue2Dropzone.min.css'
+import vue2Dropzone from "vue2-dropzone";
+import "vue2-dropzone/dist/vue2Dropzone.min.css";
 import TextAreaStyled from "../common/TextAreaStyled";
 import InputStyled from "../common/InputStyled";
 
@@ -430,17 +561,23 @@ let DB;
 
 export default {
   name: "DetailArticles",
-  components: {InputStyled, TextAreaStyled, QuestionTags, TextRedactor, vueDropzone: vue2Dropzone},
+  components: {
+    InputStyled,
+    TextAreaStyled,
+    QuestionTags,
+    TextRedactor,
+    vueDropzone: vue2Dropzone,
+  },
   validations: {
     newArticle: {
       name: {
-        value: {required},
+        value: { required },
       },
       short_header: {
-        value: {required},
+        value: { required },
       },
     },
-    validationGroup: ["newArticle.name.value", "newArticle.short_header.value"],
+    validationGroup: ["newArticle.name.value"],
   },
   data: () => ({
     newArticle: {
@@ -458,6 +595,10 @@ export default {
         focused: false,
       },
       target_button_placeholder: {
+        value: "",
+        focused: false,
+      },
+      target_button_url: {
         value: "",
         focused: false,
       },
@@ -507,114 +648,113 @@ export default {
     },
     "$store.state.ArticleModule.content": {
       handler() {
-        this.$store.dispatch('setTitle', this.$store.state.ArticleModule.newArticle.name.value)
-        this.saveArticle(this.newArticle)
-      }
+        this.$store.dispatch(
+          "setTitle",
+          this.$store.state.ArticleModule.newArticle.name.value
+        );
+        this.saveArticle(this.newArticle);
+      },
     },
     "$store.state.ArticleModule.newArticle._all_tags": {
       handler() {
         this.newArticle._all_tags =
-            this.$store.state.ArticleModule.newArticle._all_tags;
+          this.$store.state.ArticleModule.newArticle._all_tags;
         this.saveArticle(this.newArticle);
       },
     },
-    '$store.state.ArticleModule.newArticle.e_client_files': {
+    "$store.state.ArticleModule.newArticle.e_client_files": {
       handler(newValue) {
         this.dropzone_uploaded = [];
-        if (this.$route.params.action !== 'create') {
-          this.dropzone_uploaded = newValue.filter(elem => {
-            return elem.preview_image === true
+        if (this.$route.params.action !== "create") {
+          this.dropzone_uploaded = newValue.filter((elem) => {
+            return elem.preview_image === true;
           });
         }
-      }
-    }
+      },
+    },
   },
   computed: {
     computedValidations() {
       return (
-          (!this.newArticle.name.value &&
-              this.$v.newArticle.name.$dirty &&
-              !this.$v.newArticle.name.required) ||
-          (!this.newArticle.short_header.value &&
-              this.$v.newArticle.short_header.$dirty &&
-              !this.$v.newArticle.short_header.required)
+        !this.newArticle.name.value &&
+        this.$v.newArticle.name.$dirty &&
+        !this.$v.newArticle.name.required
       );
     },
     check_short_name() {
-      return (
-          this.newArticle.name.value !== "" &&
-          this.newArticle.short_header.value !== "" &&
-          this.newArticle.id === null
-      );
+      return this.newArticle.name.value !== "" && this.newArticle.id === null;
     },
     options() {
       return {
-        url: this.$store.state.BASE_URL + '/entity/files',
+        url: this.$store.state.BASE_URL + "/entity/files",
         destroyDropzone: false,
         duplicateCheck: true,
         headers: {
           Authorization: this.$store.getters.getToken,
         },
-      }
+      };
     },
   },
   methods: {
     setName(value) {
-      this.newArticle.name.value = value
-      this.saveArticle(this.newArticle)
+      this.newArticle.name.value = value;
+      this.saveArticle(this.newArticle);
     },
     setShort(value) {
-      this.newArticle.short_header.value = value
-      this.saveArticle(this.newArticle)
+      this.newArticle.short_header.value = value;
+      this.saveArticle(this.newArticle);
     },
     setPurpose(value) {
-      this.newArticle.purpose_of_article.value = value
-      this.saveArticle(this.newArticle)
+      this.newArticle.purpose_of_article.value = value;
+      this.saveArticle(this.newArticle);
     },
     setTargetButtonPlaceholder(value) {
-      this.newArticle.target_button_placeholder.value = value
-      this.saveArticle(this.newArticle)
+      this.newArticle.target_button_placeholder.value = value;
+      this.saveArticle(this.newArticle);
+    },
+    setTargetButtonUrl(value) {
+      this.newArticle.target_button_url.value = value;
+      this.saveArticle(this.newArticle);
     },
     setPreview(value) {
-      this.newArticle.preview.value = value
-      this.saveArticle(this.newArticle)
+      this.newArticle.preview.value = value;
+      this.saveArticle(this.newArticle);
     },
     setSeoDescription(value) {
-      this.newArticle.seo_description.value = value
-      this.saveArticle(this.newArticle)
+      this.newArticle.seo_description.value = value;
+      this.saveArticle(this.newArticle);
     },
     setSeoKeywords(value) {
-      this.newArticle.seo_keywords.value = value
-      this.saveArticle(this.newArticle)
+      this.newArticle.seo_keywords.value = value;
+      this.saveArticle(this.newArticle);
     },
     setAlt(data) {
-      this.dropzone_uploaded[data.index].alt_image = data.value
+      this.dropzone_uploaded[data.index].alt_image = data.value;
     },
     setTitle(data) {
-      this.dropzone_uploaded[data.index].title_image = data.value
-
+      this.dropzone_uploaded[data.index].title_image = data.value;
     },
 
     /* MAIN */
     initializeQuery() {
       if (
-          Object.keys(this.$route.query).length &&
-          Object.keys(this.$route.query).includes("article_id")
+        Object.keys(this.$route.query).length &&
+        Object.keys(this.$route.query).includes("article_id")
       ) {
         this.getFromServer = true;
         this.$store
-            .dispatch("getDetailArticle", this.$route.query.article_id)
-            .then(() => {
-              if (this.$store.state.ArticleModule.newArticle.name) {
-                this.newArticle = this.$store.state.ArticleModule.newArticle;
-                this.$store.commit("change_cur_num", this.newArticle.id);
-                setTimeout(() => {
-                  this.getFromServer = false;
-                }, 2000);
-              }
-            });
+          .dispatch("getDetailArticle", this.$route.query.article_id)
+          .then(() => {
+            if (this.$store.state.ArticleModule.newArticle.name) {
+              this.newArticle = this.$store.state.ArticleModule.newArticle;
+              this.$store.commit("change_cur_num", this.newArticle.id);
+              setTimeout(() => {
+                this.getFromServer = false;
+              }, 2000);
+            }
+          });
 
-        this.$store.dispatch('getDetailArticleInfo');
+        this.$store.dispatch("getDetailArticleInfo");
       } else {
         this.getFromServer = false;
       }
@@ -623,8 +763,8 @@ export default {
       this.deleteStorage = true;
       for (let key in this.newArticle) {
         if (
-            typeof this.newArticle[key] === "object" &&
-            this.newArticle[key] !== null
+          typeof this.newArticle[key] === "object" &&
+          this.newArticle[key] !== null
         ) {
           if (Array.isArray(this.newArticle[key])) {
             this.newArticle[key] = [];
@@ -640,7 +780,7 @@ export default {
       this.deletedContent = true;
 
       this.$store.state.ArticleModule.inserted_components = [];
-      this.$store.commit("change_counter", {name: "layout", count: 0});
+      this.$store.commit("change_counter", { name: "layout", count: 0 });
       this.$store.state.ArticleModule.newArticle._all_tags = [];
       this.$store.dispatch("removeLocalStorageArticle");
       this.deleteDBQuestion(this.newArticle);
@@ -650,13 +790,15 @@ export default {
       }, 500);
     },
     saveDifferences(action) {
-      this.$store.dispatch("updateArticle", {data: this.newArticle, isEditor: true}).then(() => {
-        if (action === "next") {
-          this.$router.push({
-            path: "/articles",
-          });
-        }
-      });
+      this.$store
+        .dispatch("updateArticle", { data: this.newArticle, isEditor: true })
+        .then(() => {
+          if (action === "next") {
+            this.$router.push({
+              path: "/articles",
+            });
+          }
+        });
     },
     async deleteArticle() {
       await this.removeFilesArticle();
@@ -702,7 +844,7 @@ export default {
       };
       req.onblocked = function () {
         console.log(
-            "Couldn't delete database due to the operation being blocked"
+          "Couldn't delete database due to the operation being blocked"
         );
       };
     },
@@ -736,11 +878,11 @@ export default {
                 this.$nextTick(() => {
                   this.newArticle = question[0];
                   this.$store.state.ArticleModule.content_from_server =
-                      question[0].content;
+                    question[0].content;
                   this.$store.state.ArticleModule.inserted_components =
-                      question[0].inserted_components;
+                    question[0].inserted_components;
                   this.$store.state.ArticleModule.newArticle._all_tags =
-                      this.newArticle._all_tags;
+                    this.newArticle._all_tags;
                 });
               }
             };
@@ -807,23 +949,26 @@ export default {
     /* DROPZONE */
     sendingData(file, xhr, formData) {
       this.$store.state.loadingRequestGeneral = true;
-      formData.append('uuid', file.upload.uuid)
-      formData.append('id_article', this.$store.state.ArticleModule.newArticle.id)
+      formData.append("uuid", file.upload.uuid);
+      formData.append(
+        "id_article",
+        this.$store.state.ArticleModule.newArticle.id
+      );
       formData.append("preview_image", 1);
     },
     successData(file, response) {
-      const formatObj = Object.assign({}, response.data)
-      this.dropzone_uploaded.push(formatObj)
+      const formatObj = Object.assign({}, response.data);
+      this.dropzone_uploaded.push(formatObj);
       this.$store.state.loadingRequestGeneral = false;
     },
     async removeFilesArticle() {
       for (const item of this.newArticle.e_client_files) {
-        await this.$store.dispatch('deleteFileGeneral', item.id);
+        await this.$store.dispatch("deleteFileGeneral", item.id);
       }
     },
     async removedFile() {
       for (const item of this.dropzone_uploaded) {
-        await this.$store.dispatch('deleteFileGeneral', item.id);
+        await this.$store.dispatch("deleteFileGeneral", item.id);
       }
       this.dropzone_uploaded = [];
       this.$refs.TagDropZone.removeAllFiles();
@@ -833,17 +978,26 @@ export default {
       if (!this.dropzone_uploaded.length) return;
 
       this.$nextTick(() => {
-        this.$refs.TagDropZone.manuallyAddFile(this.dropzone_uploaded[0], this.dropzone_uploaded[0].full_path)
-      })
+        this.$refs.TagDropZone.manuallyAddFile(
+          this.dropzone_uploaded[0],
+          this.dropzone_uploaded[0].full_path
+        );
+      });
     },
     async updateDropZoneImage() {
       if (!this.dropzone_uploaded.length) return;
 
       for (const item of this.dropzone_uploaded) {
-        await Request.put(this.$store.state.BASE_URL + '/entity/files/' + item.id, item)
+        await Request.put(
+          this.$store.state.BASE_URL + "/entity/files/" + item.id,
+          item
+        );
       }
-      await this.$store.dispatch('updateArticle', {data: this.newArticle, isEditor: true})
-    }
+      await this.$store.dispatch("updateArticle", {
+        data: this.newArticle,
+        isEditor: true,
+      });
+    },
   },
   beforeDestroy() {
     this.$store.state.ArticleModule.newArticle._all_tags = [];
@@ -880,6 +1034,7 @@ export default {
       display: flex;
       flex-direction: column;
       row-gap: 5px;
+      margin-bottom: 2em;
 
       &__title {
         &__head {
@@ -920,16 +1075,16 @@ export default {
           }
 
           ::v-deep
-          .v-text-field.v-text-field--solo.v-input--dense
-          > .v-input__control {
+            .v-text-field.v-text-field--solo.v-input--dense
+            > .v-input__control {
             min-height: 26px !important;
           }
         }
 
         ::v-deep
-        .v-text-field.v-text-field--enclosed:not(.v-text-field--rounded)
-        > .v-input__control
-        > .v-input__slot,
+          .v-text-field.v-text-field--enclosed:not(.v-text-field--rounded)
+          > .v-input__control
+          > .v-input__slot,
         .v-text-field.v-text-field--enclosed .v-text-field__details {
           padding: 0 !important;
         }
@@ -940,8 +1095,8 @@ export default {
         }
 
         ::v-deep
-        .v-text-field.v-text-field--solo.v-input--dense
-        > .v-input__control {
+          .v-text-field.v-text-field--solo.v-input--dense
+          > .v-input__control {
           min-height: 26px;
         }
 
@@ -981,8 +1136,8 @@ export default {
           }
 
           ::v-deep
-          .v-text-field.v-text-field--solo.v-input--dense
-          > .v-input__control {
+            .v-text-field.v-text-field--solo.v-input--dense
+            > .v-input__control {
             min-height: 20px !important;
           }
 
@@ -1034,10 +1189,10 @@ export default {
 }
 
 ::v-deep
-.v-text-field
-> .v-input__control
-> .v-input__slot
-> .v-text-field__slot {
+  .v-text-field
+  > .v-input__control
+  > .v-input__slot
+  > .v-text-field__slot {
   margin-right: 0 !important;
 }
 

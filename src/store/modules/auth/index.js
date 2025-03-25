@@ -91,10 +91,19 @@ export default {
       state.userData = {};
       state.userData = result;
 
-      if (!result.access_token) return false;
-
-      const { token, defined_ttl_minutes } = result.access_token;
-      Vue.$cookies.set("accessToken", token, defined_ttl_minutes + "min");
+      // if (!result.access_token) return false;
+      //
+      // console.log("set_user_data accessToken", result.access_token);
+      //
+      // const arrayToken = result.access_token.split(".");
+      // const tokenPayload = JSON.parse(atob(arrayToken[1]));
+      // console.log("tokenPayload", tokenPayload);
+      //
+      // Vue.$cookies.set(
+      //   "accessToken",
+      //   result.access_token,
+      //   new Date(tokenPayload.exp * 1000)
+      // );
     },
     changeInsertingComponents(state, value) {
       state.inserting_component = value;

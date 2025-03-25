@@ -44,3 +44,21 @@ input:focus::placeholder {
   letter-spacing: normal;
   font-weight: normal;
 }
+.autocomplete_list_with_tags{
+  display: grid;
+  grid-template-columns: 35% 1fr;
+  grid-column-gap: 1em;
+  align-items: center;
+  .name {
+    //font-weight: bold;
+  }
+  .block_tags {
+    font-size: 0.7em;
+    margin-left: auto;
+    display: inline-flex;
+    flex-wrap: wrap;
+    grid-column-gap: 0.5em;
+    grid-row-gap: 0.5em;
+    justify-content: end;
+  }
+}

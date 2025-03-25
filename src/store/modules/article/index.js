@@ -22,6 +22,10 @@ const defaultArticle = {
     value: "",
     focused: false,
   },
+  target_button_url: {
+    value: "",
+    focused: false,
+  },
   preview: {
     value: "",
     focused: false,
@@ -69,6 +73,10 @@ export default {
         focused: false,
       },
       target_button_placeholder: {
+        value: "",
+        focused: false,
+      },
+      target_button_url: {
         value: "",
         focused: false,
       },
@@ -284,6 +292,9 @@ export default {
     },
 
     /* TAGS */
+    clear_list_general_tags_article(state) {
+      state.listGeneralTags = [];
+    },
     set_list_general_tags_article(state, result) {
       state.listGeneralTags = [];
       state.listGeneralTags = result;
@@ -301,6 +312,7 @@ export default {
           key === "short_header" ||
           key === "purpose_of_article" ||
           key === "target_button_placeholder" ||
+          key === "target_button_url" ||
           key === "preview" ||
           key === "seo_description" ||
           key === "seo_keywords"
@@ -352,7 +364,10 @@ export default {
     clear_list_components(state) {
       state.list_components = [];
     },
-    change_list_components(state, result) {
+    clear_list_questions(state) {
+      state.list_questions = [];
+    },
+    change_list_questions(state, result) {
       state.list_questions = result;
     },
     change_list_nomenclature(state, result) {
@@ -439,22 +454,10 @@ export default {
       return new Promise((resolve, reject) => {
         state.loadingList = true;
 
-        const { tag, updated_at, name } = data;
-
-        const filter = {};
-        filter["filter[tag]"] = tag;
-
-        if (updated_at) {
-          filter["filter[updated_at]"] = updated_at;
-        }
-
-        if (name) {
-          filter["filter[name]"] = name;
-        }
-
-        Request.get(`${this.state.BASE_URL}/entity/questions`, {
-          ...filter,
-        })
+        Request.get(
+          `${this.state.BASE_URL}/entity/questions` +
+            Request.ConstructFilterQuery(data)
+        )
           .then((response) => {
             console.log(response);
             commit("set_list_questions", response.data);
@@ -473,25 +476,10 @@ export default {
       return new Promise((resolve, reject) => {
         state.loadingList = true;
 
-        const { tag, updated_at, name, activity } = data;
-
-        const filter = {};
-        if (tag.length) {
-          filter["filter[tag]"] = tag;
-        }
-        if (updated_at) {
-          filter["filter[updated_at]"] = updated_at;
-        }
-        if (name) {
-          filter["filter[name]"] = name;
-        }
-        if (activity) {
-          filter["filter[activity]"] = activity;
-        }
-
-        Request.get(`${this.state.BASE_URL}/entity/articles`, {
-          ...filter,
-        })
+        Request.get(
+          `${this.state.BASE_URL}/entity/articles` +
+            Request.ConstructFilterQuery(data)
+        )
           .then((response) => {
             console.log(response.data);
             commit("set_list_articles", response.data);
@@ -840,7 +828,7 @@ export default {
         state.loadingModalList = true;
         Request.get(`${this.state.BASE_URL}/entity/${params}`)
           .then((response) => {
-            commit("change_list_components", response.data);
+            commit("change_list_questions", response.data);
             state.loadingModalList = false;
             resolve();
           })

@@ -20,8 +20,16 @@
                 :rows-count="'1'"
                 class="question_title__name"
                 @update-input="setName"
-                @on-focus="() => {onFocus(newQuestion.name)}"
-                @out-focus="() => {outFocus(newQuestion.name)}"
+                @on-focus="
+                () => {
+                  onFocus(newQuestion.name);
+                }
+              "
+                @out-focus="
+                () => {
+                  outFocus(newQuestion.name);
+                }
+              "
             >
               <template slot="append">
                 <v-icon
@@ -60,8 +68,16 @@
                   :rows-count="'1'"
                   class="question_title_help__description"
                   @update-input="setTitle"
-                  @on-focus="() => {onFocus(newQuestion.title)}"
-                  @out-focus="() => {outFocus(newQuestion.title)}"
+                  @on-focus="
+                  () => {
+                    onFocus(newQuestion.title);
+                  }
+                "
+                  @out-focus="
+                  () => {
+                    outFocus(newQuestion.title);
+                  }
+                "
               >
               </TextAreaStyled>
             </div>
@@ -82,8 +98,16 @@
                   :rows-count="'1'"
                   class="question_title_help__description"
                   @update-input="setArticle"
-                  @on-focus="() => {onFocus(newQuestion.article)}"
-                  @out-focus="() => {outFocus(newQuestion.article)}"
+                  @on-focus="
+                  () => {
+                    onFocus(newQuestion.article);
+                  }
+                "
+                  @out-focus="
+                  () => {
+                    outFocus(newQuestion.article);
+                  }
+                "
               >
               </TextAreaStyled>
             </div>
@@ -106,12 +130,23 @@
                   :rows-count="'1'"
                   class="question_title_help__description"
                   @update-input="setPurpose"
-                  @on-focus="() => {onFocus(newQuestion.purpose_of_question)}"
-                  @out-focus="() => {outFocus(newQuestion.purpose_of_question)}"
+                  @on-focus="
+                  () => {
+                    onFocus(newQuestion.purpose_of_question);
+                  }
+                "
+                  @out-focus="
+                  () => {
+                    outFocus(newQuestion.purpose_of_question);
+                  }
+                "
               >
               </TextAreaStyled>
             </div>
           </div>
+
+          <!-- Tags Component -->
+          <question-tags/>
 
           <!-- AGENTS -->
           <div class="question_main">
@@ -128,13 +163,16 @@
 
           <!-- SELECTOR & INPUT'S -->
           <div class="question_main">
+            <!--      Блок с выбором типа вопроса      -->
             <div class="question_main_selector">
+              <!--      Заголовок        -->
               <span
                   :class="{ focused: newQuestion.id_type_answer.focused }"
                   class="question_main_selector__title"
               >
                 Тип ответа
               </span>
+              <!--      Селектор типа вопроса        -->
               <v-select
                   v-model="newQuestion.id_type_answer.value"
                   :class="{
@@ -159,6 +197,7 @@
                   @focus="onFocus(newQuestion.id_type_answer)"
                   @focusout="outFocus(newQuestion.id_type_answer)"
               ></v-select>
+              <!--      Текст валидации        -->
               <small
                   v-if="
                   !newQuestion.id_type_answer.value &&
@@ -170,7 +209,9 @@
                 Поле обязательно для заполнения
               </small>
             </div>
-            <!-- INPUTS -->
+
+            <!--      Заполняемые пользователем поля      -->
+            <!-- Если у типа вопросов несколько вариантов ответов -->
             <template
                 v-if="
                 newQuestion.id_type_answer.value !== 1 &&
@@ -178,6 +219,7 @@
                 !!newQuestion.id_type_answer.value
               "
             >
+              <!--      Блок с инпутами для радиобатанов, чекбоксов и селекторов        -->
               <div
                   v-if="
                   newQuestion.id_type_answer.value !== 6 &&
@@ -185,6 +227,33 @@
                 "
                   class="question_main_wrapper"
               >
+                <!--        Блок с выбором справочника для автозаполнения        -->
+                <div class="question_main_wrapper__item">
+                  <v-autocomplete
+                      v-model="selectedDictionary"
+                      :class="{focused: dictionaryFocused}"
+                      :items="dictionariesList"
+                      :loading="loadingDictionaries"
+                      :outlined="false"
+                      class="innerSelector"
+                      clearable
+                      dense
+                      flat
+                      hide-details
+                      hide-no-data
+                      item-text="name"
+                      item-value="code"
+                      placeholder="Выберете справочник для автозаполнения"
+                      prepend-icon="mdi-database"
+                      return-object
+                      solo
+                      @change="setDictionary"
+                      @focus="dictionaryFocused = true"
+                      @focusout="dictionaryFocused = false"
+                  />
+                </div>
+
+                <!--        Список вариантов ответа        -->
                 <transition-group name="list">
                   <div
                       v-for="(answer, index) in newQuestion.value_type_answer"
@@ -192,8 +261,12 @@
                       class="question_main_wrapper__item"
                   >
                     <TextAreaStyled
-                        :append-icon="answer.showComentary ? 'mdi-menu-right' : 'mdi-menu-down'"
-                        :class="{inputFocused: answer.focused}"
+                        :append-icon="
+                        answer.showComentary
+                          ? 'mdi-menu-right'
+                          : 'mdi-menu-down'
+                      "
+                        :class="{ inputFocused: answer.focused }"
                         :data="answer.answer"
                         :index-array="index"
                         :is-flat="true"
@@ -204,14 +277,24 @@
                         :rows-count="'1'"
                         class="question_main_wrapper__item__value"
                         @update-input="setSubAnswer"
-                        @on-focus="() => {onFocus(newQuestion.id_type_answer, answer.id)}"
-                        @out-focus="() => {outFocus(newQuestion.id_type_answer, answer.id)}"
-                        @click:append="answer.showComentary = !answer.showComentary"
+                        @on-focus="
+                        () => {
+                          onFocus(newQuestion.id_type_answer, answer.id);
+                        }
+                      "
+                        @out-focus="
+                        () => {
+                          outFocus(newQuestion.id_type_answer, answer.id);
+                        }
+                      "
+                        @click:append="
+                        answer.showComentary = !answer.showComentary
+                      "
                     ></TextAreaStyled>
                     <template v-if="answer.showComentary">
                       <div class="divider"></div>
                       <TextAreaStyled
-                          :class="{inputFocused: answer.focused}"
+                          :class="{ inputFocused: answer.focused }"
                           :data="answer.commentary"
                           :index-array="index"
                           :is-flat="true"
@@ -222,8 +305,16 @@
                           :rows-count="'1'"
                           class="question_main_wrapper__item__description"
                           @update-input="setSubCommentary"
-                          @on-focus="() => {onFocus(newQuestion.id_type_answer, answer.id)}"
-                          @out-focus="() => {outFocus(newQuestion.id_type_answer, answer.id)}"
+                          @on-focus="
+                          () => {
+                            onFocus(newQuestion.id_type_answer, answer.id);
+                          }
+                        "
+                          @out-focus="
+                          () => {
+                            outFocus(newQuestion.id_type_answer, answer.id);
+                          }
+                        "
                       ></TextAreaStyled>
                       <div class="divider"></div>
                       <!-- ENVIRONMENTS -->
@@ -245,6 +336,8 @@
                   </div>
                 </transition-group>
               </div>
+
+              <!--      Блок с ренджами (диапозоны чисел)        -->
               <div
                   v-else
                   :class="{ rangeError: rangeError }"
@@ -266,8 +359,16 @@
                         :type-data="'number'"
                         class="question_main_wrapper__item__value"
                         @update-input="setAnswer"
-                        @on-focus="() => {onFocus(newQuestion.id_type_answer, answer.id)}"
-                        @out-focus="() => {outFocus(newQuestion.id_type_answer, answer.id)}"
+                        @on-focus="
+                        () => {
+                          onFocus(newQuestion.id_type_answer, answer.id);
+                        }
+                      "
+                        @out-focus="
+                        () => {
+                          outFocus(newQuestion.id_type_answer, answer.id);
+                        }
+                      "
                     >
                       <template slot="prepend-inner">
                         <v-icon
@@ -291,6 +392,7 @@
                   </div>
                 </transition-group>
               </div>
+
               <small v-if="rangeError" style="color: lightcoral">
                 Неккоректные значения
               </small>
@@ -329,7 +431,7 @@
                 :loading="$store.state.QuestionsModule.loadingQuestion"
                 class="question_settings__checkbox"
                 hide-details
-                label="Наличие вложения в ответе"
+                label="Возможность загружать pdf документы"
                 @change="saveDBQuestion(newQuestion)"
             ></v-checkbox>
             <v-checkbox
@@ -340,8 +442,6 @@
                 label="Активность"
             ></v-checkbox>
           </div>
-          <!-- Tags Component -->
-          <question-tags/>
         </div>
 
         <!-- LOADER -->
@@ -432,9 +532,10 @@ import QuestionTags from "./QuestionTags";
 import AgentList from "./AgentList";
 import EnvironmentsSelector from "../environments/environmentsSelector";
 
-import {AnswerRangeMax, AnswerRangeMin, AnswerVariable} from "../../helpers/constructors";
+import {AnswerRangeMax, AnswerRangeMin, AnswerVariable,} from "../../helpers/constructors";
 import InputStyled from "../common/InputStyled";
 import TextAreaStyled from "../common/TextAreaStyled";
+import Request from "../../services/request";
 
 /* INDEXEDDB */
 const DB_NAME = "questionDB";
@@ -444,7 +545,13 @@ let DB;
 
 export default {
   name: "CreateQuestion",
-  components: {TextAreaStyled, InputStyled, EnvironmentsSelector, AgentList, QuestionTags},
+  components: {
+    TextAreaStyled,
+    InputStyled,
+    EnvironmentsSelector,
+    AgentList,
+    QuestionTags,
+  },
   validations: {
     newQuestion: {
       name: {
@@ -464,6 +571,16 @@ export default {
     // 'newQuestion.purpose_of_question.value'
   },
   data: () => ({
+    /** Для селектора справочника **/
+    /** @property {Null, Object} - выбранный справочник для автозаполнения **/
+    selectedDictionary: null,
+    /** @property {Boolean} - св-во для лоадера списка справочников **/
+    loadingDictionaries: false,
+    /** @property {Array} - список справочников **/
+    dictionariesList: [],
+    /** @property {Boolean} - св-во активности для селектора **/
+    dictionaryFocused: false,
+
     lastIdAnswer: 1,
     debounceTimeout: null,
     rangeError: false,
@@ -516,6 +633,9 @@ export default {
         this.getDBQuestion();
       }
     }
+
+    /** Получаем список справочников **/
+    this.getDictionaries()
   },
   watch: {
     "newQuestion.value_type_answer": {
@@ -554,7 +674,10 @@ export default {
           }
         }
 
-        this.$store.dispatch('setTitle', this.$store.state.QuestionsModule.newQuestion.name.value)
+        this.$store.dispatch(
+            "setTitle",
+            this.$store.state.QuestionsModule.newQuestion.name.value
+        );
       },
       deep: true,
     },
@@ -598,33 +721,70 @@ export default {
     },
   },
   methods: {
+    /** Блок выбора справочника для автозаполнения ответов **/
+    /** @function - Проставляем варианты ответа в зависимости от выбранного справочника **/
+    /** @param data {Object, null} - выбранный справочник в селекторе **/
+    setDictionary(data) {
+      if (!data) {
+        this.$set(this.newQuestion, "value_type_answer", [])
+        return
+      }
+
+      if (!data?.d_dictionary_attributes || !data?.d_dictionary_attributes?.length) {
+        this.$set(this.newQuestion, "value_type_answer", [])
+        return
+      }
+
+      const result = data.d_dictionary_attributes.map((elem, index) => {
+        return {
+          id: index,
+          answer: elem.value,
+          commentary: "",
+          showComentary: true,
+          focused: false,
+          dataEnv: null,
+        }
+      })
+
+      this.$set(this.newQuestion, "value_type_answer", result)
+    },
+    /** @function - Получаем список справочников **/
+    async getDictionaries() {
+      const {data} = await Request.get(
+          this.$store.state.BASE_URL +
+          "/dictionary/dictionaries"
+      );
+      /** Проставляем только те справочники у которых есть параметры для заполнения **/
+      this.dictionariesList = data.filter((dict) => dict.d_dictionary_attributes && dict.d_dictionary_attributes.length)
+    },
+
     setAnswer(data) {
-      this.newQuestion.value_type_answer[data.index].answer = data.value
-      this.saveDBQuestion(this.newQuestion)
+      this.newQuestion.value_type_answer[data.index].answer = data.value;
+      this.saveDBQuestion(this.newQuestion);
     },
     setName(value) {
-      this.newQuestion.name.value = value
-      this.saveDBQuestion(this.newQuestion)
+      this.newQuestion.name.value = value;
+      this.saveDBQuestion(this.newQuestion);
     },
     setTitle(value) {
-      this.newQuestion.title.value = value
-      this.saveDBQuestion(this.newQuestion)
+      this.newQuestion.title.value = value;
+      this.saveDBQuestion(this.newQuestion);
     },
     setArticle(value) {
-      this.newQuestion.article.value = value
-      this.saveDBQuestion(this.newQuestion)
+      this.newQuestion.article.value = value;
+      this.saveDBQuestion(this.newQuestion);
     },
     setPurpose(value) {
-      this.newQuestion.purpose_of_question.value = value
-      this.saveDBQuestion(this.newQuestion)
+      this.newQuestion.purpose_of_question.value = value;
+      this.saveDBQuestion(this.newQuestion);
     },
     setSubAnswer(data) {
-      this.newQuestion.value_type_answer[data.index].answer = data.value
-      this.saveDBQuestion(this.newQuestion)
+      this.newQuestion.value_type_answer[data.index].answer = data.value;
+      this.saveDBQuestion(this.newQuestion);
     },
     setSubCommentary(data) {
-      this.newQuestion.value_type_answer[data.index].commentary = data.value
-      this.saveDBQuestion(this.newQuestion)
+      this.newQuestion.value_type_answer[data.index].commentary = data.value;
+      this.saveDBQuestion(this.newQuestion);
     },
 
     /* ENV */
@@ -806,7 +966,9 @@ export default {
             new AnswerVariable(this.lastIdAnswer)
         );
       }
-      // else this.newQuestion.value_type_answer = []
+
+      /** Очищаем выбранный справочник **/
+      this.selectedDictionary = null
     },
     addVariable() {
       this.lastIdAnswer++;
@@ -1110,7 +1272,7 @@ export default {
               font-size: 14px;
 
               ::v-deep textarea {
-                color: darkgray;
+                color: #1976d2;
                 transition: all 0.6s ease-in-out;
               }
             }
@@ -1133,6 +1295,10 @@ export default {
               ::v-deep textarea {
                 color: darkgray;
                 transition: color 0.6s ease-in-out;
+              }
+
+              &.inputFocused ::v-deep textarea {
+                color: black !important;
               }
             }
           }
@@ -1204,7 +1370,7 @@ export default {
 
 .inputFocused {
   ::v-deep textarea {
-    color: black !important;
+    color: red !important;
   }
 
   ::v-deep input {
@@ -1214,6 +1380,32 @@ export default {
 
 ::v-deep .v-dialog > .v-card > .v-card__title {
   justify-content: center;
+}
+
+/** Для селектора справочников **/
+/** TODO: вынести в отдельный файл, используется в комп-те environmentsSelector.vue **/
+.focused {
+  ::v-deep textarea {
+    color: black !important;
+  }
+
+  ::v-deep input {
+    color: black !important;
+  }
+}
+
+.innerSelector {
+  font-size: 14px;
+
+  ::v-deep textarea {
+    color: darkgray;
+    transition: color 0.6s ease-in-out;
+  }
+
+  ::v-deep input {
+    color: darkgray;
+    transition: color 0.6s ease-in-out;
+  }
 }
 </style>
 <style lang="scss">
