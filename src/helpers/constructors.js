@@ -77,6 +77,15 @@ export function MToMTags(
   this.id_article = id_article;
   this.id_object_property = id_object_property;
 }
+export function MToMTagsTechTask(
+  id_tag = null,
+  id_question = null,
+  id_object_property = null
+) {
+  this.id_tag = id_tag;
+  this.id_question = id_question;
+  this.id_object_property = id_object_property;
+}
 
 export function ObjectProperties(
   id = null,
@@ -88,6 +97,7 @@ export function ObjectProperties(
   _all_tags = [],
   _all_public_tags = [],
   mtomtags = [],
+  m_to_m_tags_tech_task = [],
   d_property_objects = {},
   d_dictionaries = {},
   broadcast_to_snippet = false
@@ -101,6 +111,7 @@ export function ObjectProperties(
   this._all_tags = _all_tags;
   this._all_public_tags = _all_public_tags;
   this.mtomtags = mtomtags;
+  this.m_to_m_tags_tech_task = m_to_m_tags_tech_task;
   this.d_property_objects = d_property_objects;
   this.d_dictionaries = d_dictionaries;
   this.broadcast_to_snippet = broadcast_to_snippet;

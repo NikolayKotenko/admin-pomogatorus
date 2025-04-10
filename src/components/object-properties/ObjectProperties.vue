@@ -123,6 +123,7 @@
         :loading="$store.state.ObjectPropertiesModule.loadingList"
         @change="onSubmitLocal"
       ></v-checkbox>
+
       <!-- Tags Component -->
       <UniversalTags
         :attached-tags="$store.state.ObjectPropertiesModule.entry.mtomtags"
@@ -137,6 +138,25 @@
           $store.state.ObjectPropertiesModule.loadingList
         "
         ref="universal-tags"
+      />
+      <br />
+      <!-- Раздел в ТЗ -->
+      <UniversalTags
+        :attached-tags="
+          $store.state.ObjectPropertiesModule.entry.m_to_m_tags_tech_task
+        "
+        :list-tags="$store.state.ObjectPropertiesModule.listTags"
+        :error-state="$store.state.responseTag.errorState"
+        :error-messages="$store.state.responseTag.errorMessages"
+        @createNewTag="createNewTagTechTask"
+        @removeAttachedTag="removeAttachedTagTechTask"
+        :disabled-new-tag="!$store.getters.stateEditCreate($route.query.action)"
+        :loading="
+          $store.state.loadingRequestGeneral ||
+          $store.state.ObjectPropertiesModule.loadingList
+        "
+        ref="universal-tags-tech-task"
+        :name-heading="'Раздел в ТЗ'"
       />
     </v-container>
 
@@ -223,7 +243,12 @@ import InputStyled from "../common/InputStyled";
 import InputStyledSimple from "../common/InputStyledSimple";
 import SelectStyled from "@/components/common/SelectStyled";
 import UniversalTags from "../UniversalTags";
-import { Dictionary, DPropertyObject, MToMTags } from "@/helpers/constructors";
+import {
+  Dictionary,
+  DPropertyObject,
+  MToMTags,
+  MToMTagsTechTask,
+} from "@/helpers/constructors";
 import ComboboxStyled from "@/components/common/ComboboxStyled";
 
 export default {
@@ -343,9 +368,42 @@ export default {
         this.$refs["universal-tags"].modal.state = false;
       }
     },
+    async createNewTagTechTask(tagData) {
+      const objMToMTags = new MToMTagsTechTask(
+        tagData.id,
+        null,
+        this.$store.state.ObjectPropertiesModule.entry.id
+      );
+
+      console.log(tagData);
+
+      const response = await this.$store.dispatch(
+        "addUniversalMToMTagsTechTaskTable",
+        objMToMTags
+      );
+      if (response.codeResponse < 400) {
+        await this.$store.dispatch(
+          "ObjectPropertiesModule/getListEntries",
+          this.$route.params.code
+        );
+        this.$refs["universal-tags-tech-task"].modal.state = false;
+      }
+    },
     async removeAttachedTag(MToMTagData) {
       const response = await this.$store.dispatch(
         "removeAttachedTagMToMTable",
+        MToMTagData.id
+      );
+      if (response.codeResponse < 400) {
+        await this.$store.dispatch(
+          "ObjectPropertiesModule/getListEntries",
+          this.$route.params.code
+        );
+      }
+    },
+    async removeAttachedTagTechTask(MToMTagData) {
+      const response = await this.$store.dispatch(
+        "removeAttachedMToMTagsTechTaskTable",
         MToMTagData.id
       );
       if (response.codeResponse < 400) {

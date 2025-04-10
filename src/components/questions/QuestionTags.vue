@@ -1,6 +1,6 @@
 <template>
   <div class="question_tags">
-    <span class="question_tags__title"> Разделы </span>
+    <span class="question_tags__title"> Разместить в подборках </span>
     <div class="question_tags__wrapper" v-if="list_tags.length">
       <v-chip-group column>
         <v-chip

@@ -123,7 +123,6 @@ export default new Vuex.Store({
     },
     async addUniversalTagMToMTable({ commit, state }, objMToMTags) {
       state.loadingRequestGeneral = true;
-
       const response = await Request.post(
         this.state.BASE_URL + "/m-to-m/tags",
         objMToMTags
@@ -131,13 +130,30 @@ export default new Vuex.Store({
       if (response.codeResponse >= 400) {
         commit("setErrorResponseTag", response.message);
       }
-
       state.loadingRequestGeneral = false;
       return response;
     },
     async removeAttachedTagMToMTable(_, idEntry) {
       return await Request.delete(
         this.state.BASE_URL + "/m-to-m/tags/" + idEntry
+      );
+    },
+
+    async addUniversalMToMTagsTechTaskTable({ commit, state }, objMToMTags) {
+      state.loadingRequestGeneral = true;
+      const response = await Request.post(
+        this.state.BASE_URL + "/m-to-m/tags-tech-task",
+        objMToMTags
+      );
+      if (response.codeResponse >= 400) {
+        commit("setErrorResponseTag", response.message);
+      }
+      state.loadingRequestGeneral = false;
+      return response;
+    },
+    async removeAttachedMToMTagsTechTaskTable(_, idEntry) {
+      return await Request.delete(
+        this.state.BASE_URL + "/m-to-m/tags-tech-task/" + idEntry
       );
     },
   },

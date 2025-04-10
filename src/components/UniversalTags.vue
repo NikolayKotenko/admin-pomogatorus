@@ -1,6 +1,6 @@
 <template>
   <div class="question_tags">
-    <span class="question_tags__title"> Разделы </span>
+    <span class="question_tags__title"> {{ nameHeading }} </span>
     <div class="question_tags__wrapper" v-if="attachedTags.length">
       <v-chip-group column>
         <v-chip
@@ -111,6 +111,10 @@ export default {
     errorMessages: {
       type: String,
       default: "",
+    },
+    nameHeading: {
+      type: String,
+      default: "Разместить в подборках",
     },
   },
   data: () => ({
