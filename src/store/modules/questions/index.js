@@ -1,5 +1,5 @@
 import Request from "@/services/request";
-import { jsonParseDepth } from "@/helpers/jsonParseDepth";
+import {jsonParseDepth} from "@/helpers/jsonParseDepth";
 
 /* DEFAULT STATE */
 const defaultQuestion = {
@@ -163,6 +163,7 @@ export default {
           } else state.newQuestion[key] = result[key];
         }
       }
+
       function setValueTypeAnswer(valueTypeAnswer) {
         state.newQuestion["value_type_answer"] = [];
 
@@ -353,22 +354,22 @@ export default {
           console.log("test");
         });
     },
-    async getDetailQuestion({ commit, state }, id) {
+    async getDetailQuestion({ commit, state, dispatch }, id) {
       state.loadingQuestion = true;
-      return new Promise((resolve, reject) => {
-        Request.get(`${this.state.BASE_URL}/entity/questions/${id}`)
-          .then((response) => {
-            commit("set_new_question", response.data);
-            state.loadingQuestion = false;
-            resolve();
-          })
-          .catch((error) => {
-            //handle error
-            state.loadingQuestion = false;
-            reject(error);
-            console.log(error.body);
-          });
-      });
+
+      const response = await Request.get(
+        `${this.state.BASE_URL}/entity/questions/${id}`
+      );
+      commit("set_new_question", response.data);
+
+      const responseTags = await dispatch(
+        "getUniversalListTag",
+        "?filter[flag_engineering_system]=true",
+        { root: true }
+      );
+      commit("set_list_general_tags_question", responseTags.data);
+
+      state.loadingQuestion = false;
     },
     async createQuestion({ dispatch, state }, data) {
       return new Promise((resolve) => {
@@ -529,7 +530,10 @@ export default {
       return state.listTypesOfQuestions;
     },
     getTagsQuestion(state) {
-      return state.newQuestion._all_tags;
+      return state.newQuestion.mtomtags;
+    },
+    getTechTagsQuestion(state) {
+      return state.newQuestion.m_to_m_tags_tech_task;
     },
   },
 };
