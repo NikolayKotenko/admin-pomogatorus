@@ -64,6 +64,8 @@ export function DTag(
   this.flag_service = flag_service;
   this.sort_engineering_system = sort_engineering_system;
 }
+
+/** TODO: Неудобная штука вписывать id согласно порядковому номеру в параметрах. В некст раз переписать с деструктуризацией и объектом **/
 export function MToMTags(
   id_tag = null,
   id_answer = null,
@@ -77,6 +79,7 @@ export function MToMTags(
   this.id_article = id_article;
   this.id_object_property = id_object_property;
 }
+
 export function MToMTagsTechTask(
   id_tag = null,
   id_question = null,
@@ -116,6 +119,7 @@ export function ObjectProperties(
   this.d_dictionaries = d_dictionaries;
   this.broadcast_to_snippet = broadcast_to_snippet;
 }
+
 export function DPropertyObject(id = null, name = "", code = "") {
   this.id = id;
   this.name = name;
@@ -325,12 +329,12 @@ export function MtoMNomenclatureCharacteristics(
 }
 
 export function PropertyEntity(key = "", payload) {
-  this.key = key;
-  this.payload = payload;
+    this.key = key;
+    this.payload = payload;
 }
 
 export function Breadcrumb(text = "", disabled = false) {
-  this.text = text;
-  this.href = "#" + text;
-  this.disabled = disabled;
+    this.text = text;
+    this.href = "#" + text;
+    this.disabled = disabled;
 }

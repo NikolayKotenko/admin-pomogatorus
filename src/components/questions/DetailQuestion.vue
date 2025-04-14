@@ -146,7 +146,41 @@
           </div>
 
           <!-- Tags Component -->
-          <question-tags/>
+          <UniversalTags
+              ref="universal-tags"
+              :attached-tags="$store.state.QuestionsModule.newQuestion.mtomtags"
+              :disable-deleting="!$route.query.question_id"
+              :disabled-new-tag="!$store.state.QuestionsModule.listGeneralTags.length || !$route.query.question_id"
+              :error-messages="$store.state.responseTag.errorMessages"
+              :error-state="$store.state.responseTag.errorState"
+              :list-tags="$store.state.QuestionsModule.listGeneralTags"
+              :loading="
+          $store.state.loadingRequestGeneral ||
+          $store.state.QuestionsModule.tagsLoaded
+        "
+              @createNewTag="createNewTag"
+              @removeAttachedTag="removeAttachedTag"
+          />
+          <br/>
+          <!-- Раздел в ТЗ -->
+          <UniversalTags
+              ref="universal-tags-tech-task"
+              :attached-tags="
+          $store.state.QuestionsModule.newQuestion.m_to_m_tags_tech_task
+        "
+              :disable-deleting="!$route.query.question_id"
+              :disabled-new-tag="!$store.state.QuestionsModule.listGeneralTags.length || !$route.query.question_id"
+              :error-messages="$store.state.responseTag.errorMessages"
+              :error-state="$store.state.responseTag.errorState"
+              :list-tags="$store.state.QuestionsModule.listGeneralTags"
+              :loading="
+          $store.state.loadingRequestGeneral ||
+          $store.state.QuestionsModule.tagsLoaded
+        "
+              :name-heading="'Раздел в ТЗ'"
+              @createNewTag="createNewTagTechTask"
+              @removeAttachedTag="removeAttachedTagTechTask"
+          />
 
           <!-- AGENTS -->
           <div class="question_main">
@@ -532,10 +566,11 @@ import QuestionTags from "./QuestionTags";
 import AgentList from "./AgentList";
 import EnvironmentsSelector from "../environments/environmentsSelector";
 
-import {AnswerRangeMax, AnswerRangeMin, AnswerVariable,} from "../../helpers/constructors";
+import {AnswerRangeMax, AnswerRangeMin, AnswerVariable, MToMTags, MToMTagsTechTask,} from "../../helpers/constructors";
 import InputStyled from "../common/InputStyled";
 import TextAreaStyled from "../common/TextAreaStyled";
 import Request from "../../services/request";
+import UniversalTags from "../UniversalTags";
 
 /* INDEXEDDB */
 const DB_NAME = "questionDB";
@@ -546,6 +581,7 @@ let DB;
 export default {
   name: "CreateQuestion",
   components: {
+    UniversalTags,
     TextAreaStyled,
     InputStyled,
     EnvironmentsSelector,
@@ -721,6 +757,106 @@ export default {
     },
   },
   methods: {
+    /** Функции работы с тэгами **/
+    /** @function - получаем с emit'a данные по новому тэгу и отправляем запрос на создание связки тэг-вопрос
+     *  @param data {Object} - данные по выбранному тэгу **/
+    async createNewTag(data) {
+      /** Если id еще нет, то не записываем в БД **/
+      if (!this.$route.query.question_id) {
+        return
+      }
+
+      /** Делаем структуру под нужную нам **/
+      const objMToMTags = new MToMTags(
+          data.id,
+          null,
+          parseInt(this.$route.query.question_id),
+          null,
+          null
+      );
+
+      /** Запрос на добавление связки тэга **/
+      const response = await this.$store.dispatch(
+          "addUniversalTagMToMTable",
+          objMToMTags
+      );
+
+      /** Рефрешим информацию по вопросу, чтобы получить актуальные тэги **/
+      if (response.codeResponse < 400) {
+        await this.$store
+            .dispatch("getDetailQuestion", this.$route.query.question_id)
+        this.$refs["universal-tags"].modal.state = false;
+      }
+    },
+    /** @function - получаем с emit'a данные по удаляемому тэгу и отправляем запрос на удаление тэга из вопроса
+     *  @param data {Object} - данные по удаляемому тэгу **/
+    async removeAttachedTag(data) {
+      /** Если id еще нет, то не записываем в БД **/
+      if (!this.$route.query.question_id) {
+        return
+      }
+
+      /** Запрос на удаление связки тэга **/
+      const response = await this.$store.dispatch(
+          "removeAttachedTagMToMTable",
+          data.id
+      );
+
+      /** Рефрешим информацию по вопросу, чтобы получить актуальные тэги **/
+      if (response.codeResponse < 400) {
+        await this.$store
+            .dispatch("getDetailQuestion", this.$route.query.question_id)
+      }
+    },
+    /** @function - получаем с emit'a данные по новому тех-тэгу и отправляем запрос на создание связки тэг-вопрос
+     *  @param data {Object} - данные по выбранному тех-тэгу **/
+    async createNewTagTechTask(data) {
+      /** Если id еще нет, то не записываем в БД **/
+      if (!this.$route.query.question_id) {
+        return
+      }
+
+      /** Делаем структуру под нужную нам **/
+      const objMToMTags = new MToMTagsTechTask(
+          data.id,
+          this.$route.query.question_id,
+          null
+      );
+
+      /** Запрос на добавление связки тэга **/
+      const response = await this.$store.dispatch(
+          "addUniversalMToMTagsTechTaskTable",
+          objMToMTags
+      );
+
+      /** Рефрешим информацию по вопросу, чтобы получить актуальные тэги **/
+      if (response.codeResponse < 400) {
+        await this.$store
+            .dispatch("getDetailQuestion", this.$route.query.question_id)
+        this.$refs["universal-tags-tech-task"].modal.state = false;
+      }
+    },
+    /** @function - получаем с emit'a данные по удаляемому тех-тэгу и отправляем запрос на удаление тэга из вопроса
+     *  @param data {Object} - данные по удаляемому тех-тэгу **/
+    async removeAttachedTagTechTask(data) {
+      /** Если id еще нет, то не записываем в БД **/
+      if (!this.$route.query.question_id) {
+        return
+      }
+
+      /** Запрос на удаление связки тэга **/
+      const response = await this.$store.dispatch(
+          "removeAttachedMToMTagsTechTaskTable",
+          data.id
+      );
+
+      /** Рефрешим информацию по вопросу, чтобы получить актуальные тэги **/
+      if (response.codeResponse < 400) {
+        await this.$store
+            .dispatch("getDetailQuestion", this.$route.query.question_id)
+      }
+    },
+
     /** Блок выбора справочника для автозаполнения ответов **/
     /** @function - Проставляем варианты ответа в зависимости от выбранного справочника **/
     /** @param data {Object, null} - выбранный справочник в селекторе **/
