@@ -3,38 +3,38 @@
     <v-container class="mt-5">
       <template v-if="$store.getters.stateEditCreate($route.query.action)">
         <InputStyled
-            :current-rules="$store.state.requiredFieldRules"
-            :data="$store.state.ObjectPropertiesModule.entry.name"
-            :is-clearable="true"
-            :is-disabled="
+          :current-rules="$store.state.requiredFieldRules"
+          :data="$store.state.ObjectPropertiesModule.entry.name"
+          :is-clearable="true"
+          :is-disabled="
             $store.state.ObjectPropertiesModule.loadingList ||
             !$store.getters.stateEditCreate($route.query.action)
           "
-            :is-outlined="true"
-            :is-required="true"
-            :item-text="'name'"
-            :item-value="'name'"
-            :placeholder="'Имя параметра'"
-            class="mb-5"
-            @update-input="setNameObjectProperty"
-            @change-input="onSubmitLocal"
+          :is-outlined="true"
+          :is-required="true"
+          :item-text="'name'"
+          :item-value="'name'"
+          :placeholder="'Имя параметра'"
+          class="mb-5"
+          @update-input="setNameObjectProperty"
+          @change-input="onSubmitLocal"
         />
       </template>
       <template v-else>
         <v-autocomplete
-            v-model="$store.state.ObjectPropertiesModule.entry"
-            :disabled="$store.state.ObjectPropertiesModule.loadingList"
-            :items="$store.state.ObjectPropertiesModule.listEntries"
-            :loading="$store.state.ObjectPropertiesModule.loadingList"
-            :menu-props="{ maxHeight: '80vh' }"
-            class="mb-5"
-            dense
-            hide-details
-            item-text="name"
-            item-value="code"
-            label="Выберите параметр"
-            outlined
-            return-object
+          v-model="$store.state.ObjectPropertiesModule.entry"
+          :disabled="$store.state.ObjectPropertiesModule.loadingList"
+          :items="$store.state.ObjectPropertiesModule.listEntries"
+          :loading="$store.state.ObjectPropertiesModule.loadingList"
+          :menu-props="{ maxHeight: '80vh' }"
+          class="mb-5"
+          dense
+          hide-details
+          item-text="name"
+          item-value="code"
+          label="Выберите параметр"
+          outlined
+          return-object
         >
           <template v-slot:item="{ item }">
             <v-list-item-content class="autocomplete_list_with_tags">
@@ -50,147 +50,163 @@
       </template>
 
       <InputStyledSimple
-          :data="$store.state.ObjectPropertiesModule.entry.sort"
-          :is-clearable="true"
-          :is-disabled="
+        :data="$store.state.ObjectPropertiesModule.entry.sort"
+        :is-clearable="true"
+        :is-disabled="
           $store.state.ObjectPropertiesModule.loadingList ||
           !$store.getters.stateEditCreate($route.query.action)
         "
-          :item-text="'name'"
-          :item-value="'name'"
-          :placeholder="'Сортировка'"
-          class="mb-5"
-          @update-input="setSortObjectProperty"
-          @change-input="onSubmitLocal"
+        :item-text="'name'"
+        :item-value="'name'"
+        :placeholder="'Сортировка'"
+        class="mb-5"
+        @update-input="setSortObjectProperty"
+        @change-input="onSubmitLocal"
       />
       <InputStyled
-          :data="$store.state.ObjectPropertiesModule.entry.code"
-          :is-disabled="true"
-          :is-outlined="true"
-          :placeholder="'Автоматически заполняемый псевдоним параметра'"
-          class="mb-5"
+        :data="$store.state.ObjectPropertiesModule.entry.code"
+        :is-disabled="true"
+        :is-outlined="true"
+        :placeholder="'Автоматически заполняемый псевдоним параметра'"
+        class="mb-5"
       />
       <v-row>
         <v-col>
           <SelectStyled
-              :current-rules="$store.state.requiredFieldRules"
-              :data="
+            :current-rules="$store.state.requiredFieldRules"
+            :data="
               $store.state.ObjectPropertiesModule.entry.id_type_property_object
             "
-              :is-disabled="!$store.getters.stateEditCreate($route.query.action)"
-              :is-hide-details="false"
-              :item-text="'name'"
-              :item-value="'id'"
-              :items="$store.state.ObjectPropertiesModule.listPropertyObject"
-              :placeholder="'Тип параметра'"
-              @update-input="setTypePropertyObject"
-              @change-input="onSubmitLocal"
+            :is-disabled="!$store.getters.stateEditCreate($route.query.action)"
+            :is-hide-details="false"
+            :item-text="'name'"
+            :item-value="'id'"
+            :items="$store.state.ObjectPropertiesModule.listPropertyObject"
+            :placeholder="'Тип параметра'"
+            @update-input="setTypePropertyObject"
+            @change-input="onSubmitLocal"
           />
         </v-col>
         <v-col
-            v-if="
+          v-if="
             $store.state.ObjectPropertiesModule.entry.d_property_objects &&
             $store.state.ObjectPropertiesModule.entry.d_property_objects
               .code === 'vybor-iz-spravocnika'
           "
-            cols="6"
+          cols="6"
         >
           <v-combobox
-              :disabled="!$store.getters.stateEditCreate($route.query.action)"
-              :hide-details="false"
-              :item-text="'name'"
-              :item-value="'id'"
-              :items="$store.state.DictionariesModule.listEntries"
-              :loading="$store.state.DictionariesModule.loadingList"
-              :return-object="true"
-              :value="$store.state.ObjectPropertiesModule.entry.d_dictionaries"
-              clearable
-              dense
-              label="Справочник"
-              outlined
-              @change="setDictionary"
-              @click="$store.dispatch('DictionariesModule/getListDictionaries')"
+            :disabled="!$store.getters.stateEditCreate($route.query.action)"
+            :hide-details="false"
+            :item-text="'name'"
+            :item-value="'id'"
+            :items="$store.state.DictionariesModule.listEntries"
+            :loading="$store.state.DictionariesModule.loadingList"
+            :return-object="true"
+            :value="$store.state.ObjectPropertiesModule.entry.d_dictionaries"
+            clearable
+            dense
+            label="Справочник"
+            outlined
+            @change="setDictionary"
+            @click="$store.dispatch('DictionariesModule/getListDictionaries')"
           ></v-combobox>
         </v-col>
       </v-row>
       <v-checkbox
-          v-model="$store.state.ObjectPropertiesModule.entry.broadcast_to_snippet"
-          :disabled="
+        v-model="$store.state.ObjectPropertiesModule.entry.broadcast_to_snippet"
+        :disabled="
           $store.state.ObjectPropertiesModule.loadingList ||
           !$store.getters.stateEditCreate($route.query.action)
         "
-          :loading="$store.state.ObjectPropertiesModule.loadingList"
-          label="Транслировать в сниппет"
-          @change="onSubmitLocal"
+        :loading="$store.state.ObjectPropertiesModule.loadingList"
+        label="Транслировать в сниппет"
+        @change="onSubmitLocal"
       ></v-checkbox>
 
       <!-- Tags Component -->
       <UniversalTags
-          ref="universal-tags"
-          :attached-tags="$store.state.ObjectPropertiesModule.entry.mtomtags"
-          :disable-deleting="!$store.state.ObjectPropertiesModule.entry.id"
-          :disabled-new-tag="!$store.getters.stateEditCreate($route.query.action)  || !$store.state.ObjectPropertiesModule.entry.id"
-          :error-messages="$store.state.responseTag.errorMessages"
-          :error-state="$store.state.responseTag.errorState"
-          :list-tags="$store.state.ObjectPropertiesModule.listTags"
-          :loading="
+        ref="universal-tags"
+        :attached-tags="$store.state.ObjectPropertiesModule.entry.mtomtags"
+        :disable-deleting="!$store.state.ObjectPropertiesModule.entry.id"
+        :disabled-new-tag="
+          !$store.getters.stateEditCreate($route.query.action) ||
+          !$store.state.ObjectPropertiesModule.entry.id
+        "
+        :disabled-exist-tag="
+          !$store.getters.stateEditCreate($route.query.action) ||
+          !$store.state.ObjectPropertiesModule.entry.id
+        "
+        :error-messages="$store.state.responseTag.errorMessages"
+        :error-state="$store.state.responseTag.errorState"
+        :list-tags="$store.state.ObjectPropertiesModule.listTags"
+        :loading="
           $store.state.loadingRequestGeneral ||
           $store.state.ObjectPropertiesModule.loadingList
         "
-          @createNewTag="createNewTag"
-          @removeAttachedTag="removeAttachedTag"
+        @createNewTag="createNewTag"
+        @removeAttachedTag="removeAttachedTag"
       />
-      <br/>
+      <br />
       <!-- Раздел в ТЗ -->
       <UniversalTags
-          ref="universal-tags-tech-task"
-          :attached-tags="
+        ref="universal-tags-tech-task"
+        :attached-tags="
           $store.state.ObjectPropertiesModule.entry.m_to_m_tags_tech_task
         "
-          :disable-deleting="!$store.state.ObjectPropertiesModule.entry.id"
-          :disabled-new-tag="!$store.getters.stateEditCreate($route.query.action) || !$store.state.ObjectPropertiesModule.entry.id"
-          :error-messages="$store.state.responseTag.errorMessages"
-          :error-state="$store.state.responseTag.errorState"
-          :list-tags="$store.state.ObjectPropertiesModule.listTags"
-          :loading="
+        :disable-deleting="!$store.state.ObjectPropertiesModule.entry.id"
+        :disabled-exist-tag="
+          !$store.getters.stateEditCreate($route.query.action) ||
+          !$store.state.ObjectPropertiesModule.entry.id
+        "
+        :disabled-new-tag="
+          !$store.getters.stateEditCreate($route.query.action) ||
+          !$store.state.ObjectPropertiesModule.entry.id ||
+          $store.state.ObjectPropertiesModule.entry.m_to_m_tags_tech_task
+            .length >= 1
+        "
+        :error-messages="$store.state.responseTag.errorMessages"
+        :error-state="$store.state.responseTag.errorState"
+        :list-tags="$store.state.ObjectPropertiesModule.listTags"
+        :loading="
           $store.state.loadingRequestGeneral ||
           $store.state.ObjectPropertiesModule.loadingList
         "
-          :name-heading="'Раздел в ТЗ'"
-          @createNewTag="createNewTagTechTask"
-          @removeAttachedTag="removeAttachedTagTechTask"
+        :name-heading="'Раздел в ТЗ'"
+        @createNewTag="createNewTagTechTask"
+        @removeAttachedTag="removeAttachedTagTechTask"
       />
     </v-container>
 
     <footer class="detail_footer">
       <v-container>
         <v-btn
-            v-if="$store.state.ObjectPropertiesModule.entry.code"
-            :disabled="$store.state.ObjectPropertiesModule.loadingList"
-            color="red darken-1"
-            text
-            @click="
+          v-if="$store.state.ObjectPropertiesModule.entry.code"
+          :disabled="$store.state.ObjectPropertiesModule.loadingList"
+          color="red darken-1"
+          text
+          @click="
             $store.dispatch('ObjectPropertiesModule/stateModalAction', true)
           "
         >
           Удалить
         </v-btn>
         <v-btn
-            v-if="$route.query.action"
-            :disabled="$store.state.ObjectPropertiesModule.loadingList"
-            color="white darken-1"
-            text
-            @click="$router.push({ path: $route.meta.returnLink.path })"
+          v-if="$route.query.action"
+          :disabled="$store.state.ObjectPropertiesModule.loadingList"
+          color="white darken-1"
+          text
+          @click="$router.push({ path: $route.meta.returnLink.path })"
         >
           Отменить
         </v-btn>
 
         <v-btn
-            :disabled="!$store.getters.stateEditCreate($route.query.action)"
-            class="detail_footer__save_btn"
-            color="blue darken-1"
-            text
-            @click.prevent="onSubmitLocalRefresh()"
+          :disabled="!$store.getters.stateEditCreate($route.query.action)"
+          class="detail_footer__save_btn"
+          color="blue darken-1"
+          text
+          @click.prevent="onSubmitLocalRefresh()"
         >
           Сохранить
         </v-btn>
@@ -199,22 +215,22 @@
 
     <!--  MODALS  -->
     <v-dialog
-        v-model="$store.state.ObjectPropertiesModule.deleteModal"
-        max-width="600"
+      v-model="$store.state.ObjectPropertiesModule.deleteModal"
+      max-width="600"
     >
       <v-card>
         <v-card-title>
           <span class="text-h6" style="font-size: 0.8em !important"
-          >Вы точно хотите удалить параметр объекта?</span
+            >Вы точно хотите удалить параметр объекта?</span
           >
         </v-card-title>
         <v-card-actions>
           <v-btn
-              :disabled="$store.state.ObjectPropertiesModule.loadingList"
-              :loading="$store.state.ObjectPropertiesModule.loadingList"
-              color="blue darken-1"
-              text
-              @click="
+            :disabled="$store.state.ObjectPropertiesModule.loadingList"
+            :loading="$store.state.ObjectPropertiesModule.loadingList"
+            color="blue darken-1"
+            text
+            @click="
               $store.dispatch('ObjectPropertiesModule/stateModalAction', false)
             "
           >
@@ -222,11 +238,11 @@
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn
-              :disabled="$store.state.ObjectPropertiesModule.loadingList"
-              :loading="$store.state.ObjectPropertiesModule.loadingList"
-              color="red darken-1"
-              text
-              @click="deleteLocal()"
+            :disabled="$store.state.ObjectPropertiesModule.loadingList"
+            :loading="$store.state.ObjectPropertiesModule.loadingList"
+            color="red darken-1"
+            text
+            @click="deleteLocal()"
           >
             Да
           </v-btn>
@@ -245,7 +261,12 @@ import InputStyled from "../common/InputStyled";
 import InputStyledSimple from "../common/InputStyledSimple";
 import SelectStyled from "@/components/common/SelectStyled";
 import UniversalTags from "../UniversalTags";
-import {Dictionary, DPropertyObject, MToMTags, MToMTagsTechTask,} from "@/helpers/constructors";
+import {
+  Dictionary,
+  DPropertyObject,
+  MToMTags,
+  MToMTagsTechTask,
+} from "@/helpers/constructors";
 import ComboboxStyled from "@/components/common/ComboboxStyled";
 
 export default {
@@ -262,8 +283,8 @@ export default {
     await this.$store.dispatch("ObjectPropertiesModule/clearEntry");
 
     await this.$store.dispatch(
-        "ObjectPropertiesModule/getListEntries",
-        this.$route.params.code
+      "ObjectPropertiesModule/getListEntries",
+      this.$route.params.code
     );
     await this.$store.dispatch("ObjectPropertiesModule/getInfoByEntry");
   },
@@ -274,7 +295,7 @@ export default {
 
       this.$store.state.ObjectPropertiesModule.entry.id_dictionary = null;
       this.$store.state.ObjectPropertiesModule.entry.d_dictionaries =
-          new Dictionary();
+        new Dictionary();
 
       this.$store.state.ObjectPropertiesModule.entry.id_dictionary = value.id;
       this.$store.state.ObjectPropertiesModule.entry.d_dictionaries = value;
@@ -284,16 +305,16 @@ export default {
     setTypePropertyObject(value) {
       if (!value) {
         this.$store.state.ObjectPropertiesModule.entry.id_type_property_object =
-            null;
+          null;
         this.$store.state.ObjectPropertiesModule.entry.d_property_objects =
-            new DPropertyObject();
+          new DPropertyObject();
       }
 
       if (this.$store.getters.checkValueIsAnObject(value)) {
         this.$store.state.ObjectPropertiesModule.entry.id_type_property_object =
-            value.id;
+          value.id;
         this.$store.state.ObjectPropertiesModule.entry.d_property_objects =
-            value;
+          value;
       }
     },
     setNameObjectProperty(value) {
@@ -304,72 +325,68 @@ export default {
     },
     async deleteLocal() {
       for (const obj of this.$store.state.ObjectPropertiesModule.entry
-          .mtomtags) {
+        .mtomtags) {
         await this.$store.dispatch("removeAttachedTagMToMTable", obj.id);
       }
 
       await this.$store.dispatch("ObjectPropertiesModule/deleteEntry");
       await this.$router
-          .push({path: this.$route.meta.returnLink.path})
-          .catch(() => {
-          });
+        .push({ path: this.$route.meta.returnLink.path })
+        .catch(() => {});
     },
     async onSubmitLocal() {
       await this.$store.dispatch("ObjectPropertiesModule/onSubmit");
       if (this.$route.query.action === "create") {
         await this.$router
-            .replace({
-              path:
-                  this.$route.path +
-                  "/" +
-                  this.$store.state.ObjectPropertiesModule.entry.code,
-              query: {action: "edit"},
-            })
-            .catch(() => {
-            });
+          .replace({
+            path:
+              this.$route.path +
+              "/" +
+              this.$store.state.ObjectPropertiesModule.entry.code,
+            query: { action: "edit" },
+          })
+          .catch(() => {});
       } else {
         await this.$router
-            .replace({
-              path: this.$route.path,
-              query: {action: "edit"},
-            })
-            .catch(() => {
-            });
+          .replace({
+            path: this.$route.path,
+            query: { action: "edit" },
+          })
+          .catch(() => {});
       }
     },
     async onSubmitLocalRefresh() {
       await this.$store.dispatch("ObjectPropertiesModule/onSubmit");
       await this.$router
-          .replace({
-            path: this.$route.meta.returnLink.path,
-          })
-          .catch(() => {
-          });
+        .replace({
+          path: this.$route.meta.returnLink.path,
+        })
+        .catch(() => {});
     },
     async createNewTag(tagData) {
       /** Если id параметра еще нет (только создаем), то как нам записывать в БД данные? **/
       if (!this.$store.state.ObjectPropertiesModule.entry.id) {
-        return
+        return;
       }
 
       const objMToMTags = new MToMTags(
-          tagData.id,
-          null,
-          null,
-          null,
-          this.$store.state.ObjectPropertiesModule.entry.id
+        tagData.id,
+        null,
+        null,
+        null,
+        this.$store.state.ObjectPropertiesModule.entry.id
       );
 
-      console.log(tagData);
+      // console.log(tagData);
 
       const response = await this.$store.dispatch(
-          "addUniversalTagMToMTable",
-          objMToMTags
+        "addUniversalTagMToMTable",
+        objMToMTags
       );
       if (response.codeResponse < 400) {
         await this.$store.dispatch(
-            "ObjectPropertiesModule/getListEntries",
-            this.$route.params.code
+          "ObjectPropertiesModule/getListEntries",
+          this.$route.params.code
         );
         this.$refs["universal-tags"].modal.state = false;
       }
@@ -377,50 +394,50 @@ export default {
     async createNewTagTechTask(tagData) {
       /** Если id параметра еще нет (только создаем), то как нам записывать в БД данные? **/
       if (!this.$store.state.ObjectPropertiesModule.entry.id) {
-        return
+        return;
       }
 
       const objMToMTags = new MToMTagsTechTask(
-          tagData.id,
-          null,
-          this.$store.state.ObjectPropertiesModule.entry.id
+        tagData.id,
+        null,
+        this.$store.state.ObjectPropertiesModule.entry.id
       );
 
-      console.log(tagData);
+      // console.log(tagData);
 
       const response = await this.$store.dispatch(
-          "addUniversalMToMTagsTechTaskTable",
-          objMToMTags
+        "addUniversalMToMTagsTechTaskTable",
+        objMToMTags
       );
       if (response.codeResponse < 400) {
         await this.$store.dispatch(
-            "ObjectPropertiesModule/getListEntries",
-            this.$route.params.code
+          "ObjectPropertiesModule/getListEntries",
+          this.$route.params.code
         );
         this.$refs["universal-tags-tech-task"].modal.state = false;
       }
     },
     async removeAttachedTag(MToMTagData) {
       const response = await this.$store.dispatch(
-          "removeAttachedTagMToMTable",
-          MToMTagData.id
+        "removeAttachedTagMToMTable",
+        MToMTagData.id
       );
       if (response.codeResponse < 400) {
         await this.$store.dispatch(
-            "ObjectPropertiesModule/getListEntries",
-            this.$route.params.code
+          "ObjectPropertiesModule/getListEntries",
+          this.$route.params.code
         );
       }
     },
     async removeAttachedTagTechTask(MToMTagData) {
       const response = await this.$store.dispatch(
-          "removeAttachedMToMTagsTechTaskTable",
-          MToMTagData.id
+        "removeAttachedMToMTagsTechTaskTable",
+        MToMTagData.id
       );
       if (response.codeResponse < 400) {
         await this.$store.dispatch(
-            "ObjectPropertiesModule/getListEntries",
-            this.$route.params.code
+          "ObjectPropertiesModule/getListEntries",
+          this.$route.params.code
         );
       }
     },
@@ -433,16 +450,15 @@ export default {
         const currentQuery = this.$route.query;
         const codeEntry = newValue ? newValue : "";
         this.$router
-            .replace({
-              path: this.$route.meta.returnLink.path + "/" + codeEntry,
-              query: currentQuery,
-            })
-            .catch(() => {
-            });
+          .replace({
+            path: this.$route.meta.returnLink.path + "/" + codeEntry,
+            query: currentQuery,
+          })
+          .catch(() => {});
 
         this.$store.dispatch(
-            "setTitle",
-            this.$store.state.ObjectPropertiesModule.entry.name
+          "setTitle",
+          this.$store.state.ObjectPropertiesModule.entry.name
         );
       },
     },

@@ -6,26 +6,26 @@
         <div class="question_content">
           <div class="question_title">
             <TextAreaStyled
-                :class="{
+              :class="{
                 invalid:
                   !newQuestion.name.value &&
                   $v.newQuestion.name.$dirty &&
                   !$v.newQuestion.name.required,
               }"
-                :data="newQuestion.name.value"
-                :is-flat="true"
-                :is-loading="$store.state.QuestionsModule.loadingQuestion"
-                :is-solo="true"
-                :placeholder="'Название вопроса'"
-                :rows-count="'1'"
-                class="question_title__name"
-                @update-input="setName"
-                @on-focus="
+              :data="newQuestion.name.value"
+              :is-flat="true"
+              :is-loading="$store.state.QuestionsModule.loadingQuestion"
+              :is-solo="true"
+              :placeholder="'Название вопроса'"
+              :rows-count="'1'"
+              class="question_title__name"
+              @update-input="setName"
+              @on-focus="
                 () => {
                   onFocus(newQuestion.name);
                 }
               "
-                @out-focus="
+              @out-focus="
                 () => {
                   outFocus(newQuestion.name);
                 }
@@ -33,47 +33,47 @@
             >
               <template slot="append">
                 <v-icon
-                    :color="newQuestion.name.focused ? 'primary' : ''"
-                    class="question_title__name__icon"
-                    size="20"
+                  :color="newQuestion.name.focused ? 'primary' : ''"
+                  class="question_title__name__icon"
+                  size="20"
                 >
                   mdi-lead-pencil
                 </v-icon>
               </template>
             </TextAreaStyled>
             <small
-                v-if="
+              v-if="
                 !newQuestion.name.value &&
                 $v.newQuestion.name.$dirty &&
                 !$v.newQuestion.name.required
               "
-                style="color: lightcoral"
+              style="color: lightcoral"
             >
               Поле обязательно для заполнения
             </small>
             <div class="question_title_help">
               <span
-                  :class="{ focused: newQuestion.title.focused }"
-                  class="question_title_help__title"
+                :class="{ focused: newQuestion.title.focused }"
+                class="question_title_help__title"
               >
                 Подсказка
               </span>
               <TextAreaStyled
-                  :class="{ inputFocused: newQuestion.title.focused }"
-                  :data="newQuestion.title.value"
-                  :is-flat="true"
-                  :is-loading="$store.state.QuestionsModule.loadingQuestion"
-                  :is-solo="true"
-                  :placeholder="'Подсказка для вопроса'"
-                  :rows-count="'1'"
-                  class="question_title_help__description"
-                  @update-input="setTitle"
-                  @on-focus="
+                :class="{ inputFocused: newQuestion.title.focused }"
+                :data="newQuestion.title.value"
+                :is-flat="true"
+                :is-loading="$store.state.QuestionsModule.loadingQuestion"
+                :is-solo="true"
+                :placeholder="'Подсказка для вопроса'"
+                :rows-count="'1'"
+                class="question_title_help__description"
+                @update-input="setTitle"
+                @on-focus="
                   () => {
                     onFocus(newQuestion.title);
                   }
                 "
-                  @out-focus="
+                @out-focus="
                   () => {
                     outFocus(newQuestion.title);
                   }
@@ -83,27 +83,27 @@
             </div>
             <div class="question_title_help">
               <span
-                  :class="{ focused: newQuestion.article.focused }"
-                  class="question_title_help__title"
+                :class="{ focused: newQuestion.article.focused }"
+                class="question_title_help__title"
               >
                 Разъясняющий текст
               </span>
               <TextAreaStyled
-                  :class="{ inputFocused: newQuestion.article.focused }"
-                  :data="newQuestion.article.value"
-                  :is-flat="true"
-                  :is-loading="$store.state.QuestionsModule.loadingQuestion"
-                  :is-solo="true"
-                  :placeholder="'Разъясняющий текст'"
-                  :rows-count="'1'"
-                  class="question_title_help__description"
-                  @update-input="setArticle"
-                  @on-focus="
+                :class="{ inputFocused: newQuestion.article.focused }"
+                :data="newQuestion.article.value"
+                :is-flat="true"
+                :is-loading="$store.state.QuestionsModule.loadingQuestion"
+                :is-solo="true"
+                :placeholder="'Разъясняющий текст'"
+                :rows-count="'1'"
+                class="question_title_help__description"
+                @update-input="setArticle"
+                @on-focus="
                   () => {
                     onFocus(newQuestion.article);
                   }
                 "
-                  @out-focus="
+                @out-focus="
                   () => {
                     outFocus(newQuestion.article);
                   }
@@ -113,29 +113,29 @@
             </div>
             <div class="question_title_help">
               <span
-                  :class="{ focused: newQuestion.purpose_of_question.focused }"
-                  class="question_title_help__title"
+                :class="{ focused: newQuestion.purpose_of_question.focused }"
+                class="question_title_help__title"
               >
                 Цель вопроса
               </span>
               <TextAreaStyled
-                  :class="{
+                :class="{
                   inputFocused: newQuestion.purpose_of_question.focused,
                 }"
-                  :data="newQuestion.purpose_of_question.value"
-                  :is-flat="true"
-                  :is-loading="$store.state.QuestionsModule.loadingQuestion"
-                  :is-solo="true"
-                  :placeholder="'Цель вопроса'"
-                  :rows-count="'1'"
-                  class="question_title_help__description"
-                  @update-input="setPurpose"
-                  @on-focus="
+                :data="newQuestion.purpose_of_question.value"
+                :is-flat="true"
+                :is-loading="$store.state.QuestionsModule.loadingQuestion"
+                :is-solo="true"
+                :placeholder="'Цель вопроса'"
+                :rows-count="'1'"
+                class="question_title_help__description"
+                @update-input="setPurpose"
+                @on-focus="
                   () => {
                     onFocus(newQuestion.purpose_of_question);
                   }
                 "
-                  @out-focus="
+                @out-focus="
                   () => {
                     outFocus(newQuestion.purpose_of_question);
                   }
@@ -145,53 +145,63 @@
             </div>
           </div>
 
+          <br />
           <!-- Tags Component -->
           <UniversalTags
-              ref="universal-tags"
-              :attached-tags="$store.state.QuestionsModule.newQuestion.mtomtags"
-              :disable-deleting="!$route.query.question_id"
-              :disabled-new-tag="!$store.state.QuestionsModule.listGeneralTags.length || !$route.query.question_id"
-              :error-messages="$store.state.responseTag.errorMessages"
-              :error-state="$store.state.responseTag.errorState"
-              :list-tags="$store.state.QuestionsModule.listGeneralTags"
-              :loading="
-          $store.state.loadingRequestGeneral ||
-          $store.state.QuestionsModule.tagsLoaded
-        "
-              @createNewTag="createNewTag"
-              @removeAttachedTag="removeAttachedTag"
+            ref="universal-tags"
+            :attached-tags="$store.state.QuestionsModule.newQuestion.mtomtags"
+            :disable-deleting="!$route.query.question_id"
+            :disabled-new-tag="
+              !$store.state.QuestionsModule.listGeneralTags.length ||
+              !$route.query.question_id
+            "
+            :error-messages="$store.state.responseTag.errorMessages"
+            :error-state="$store.state.responseTag.errorState"
+            :list-tags="$store.state.QuestionsModule.listGeneralTags"
+            :loading="
+              $store.state.loadingRequestGeneral ||
+              $store.state.QuestionsModule.tagsLoaded
+            "
+            @createNewTag="createNewTag"
+            @removeAttachedTag="removeAttachedTag"
           />
-          <br/>
+          <br />
           <!-- Раздел в ТЗ -->
           <UniversalTags
-              ref="universal-tags-tech-task"
-              :attached-tags="
-          $store.state.QuestionsModule.newQuestion.m_to_m_tags_tech_task
-        "
-              :disable-deleting="!$route.query.question_id"
-              :disabled-new-tag="!$store.state.QuestionsModule.listGeneralTags.length || !$route.query.question_id"
-              :error-messages="$store.state.responseTag.errorMessages"
-              :error-state="$store.state.responseTag.errorState"
-              :list-tags="$store.state.QuestionsModule.listGeneralTags"
-              :loading="
-          $store.state.loadingRequestGeneral ||
-          $store.state.QuestionsModule.tagsLoaded
-        "
-              :name-heading="'Раздел в ТЗ'"
-              @createNewTag="createNewTagTechTask"
-              @removeAttachedTag="removeAttachedTagTechTask"
+            ref="universal-tags-tech-task"
+            :attached-tags="
+              $store.state.QuestionsModule.newQuestion.m_to_m_tags_tech_task
+            "
+            :disable-deleting="!$route.query.question_id"
+            :disabled-new-tag="
+              !$store.state.QuestionsModule.listGeneralTags.length ||
+              !$route.query.question_id ||
+              $store.state.QuestionsModule.newQuestion.m_to_m_tags_tech_task
+                .length >= 1
+            "
+            :error-messages="$store.state.responseTag.errorMessages"
+            :error-state="$store.state.responseTag.errorState"
+            :list-tags="$store.state.QuestionsModule.listGeneralTags"
+            :loading="
+              $store.state.loadingRequestGeneral ||
+              $store.state.QuestionsModule.tagsLoaded
+            "
+            :name-heading="'Раздел в ТЗ'"
+            @createNewTag="createNewTagTechTask"
+            @removeAttachedTag="removeAttachedTagTechTask"
           />
+          <br />
 
           <!-- AGENTS -->
           <div class="question_main">
             <div class="question_main_selector">
               <span
-                  :class="{ focused: agentFocused }"
-                  class="question_main_selector__title"
+                :class="{ focused: agentFocused }"
+                class="question_main_selector__title"
               >
                 Агенты
               </span>
-              <AgentList @onFocus="onFocusFrom" @outFocus="outFocusFrom"/>
+              <AgentList @onFocus="onFocusFrom" @outFocus="outFocusFrom" />
             </div>
           </div>
 
@@ -201,44 +211,44 @@
             <div class="question_main_selector">
               <!--      Заголовок        -->
               <span
-                  :class="{ focused: newQuestion.id_type_answer.focused }"
-                  class="question_main_selector__title"
+                :class="{ focused: newQuestion.id_type_answer.focused }"
+                class="question_main_selector__title"
               >
                 Тип ответа
               </span>
               <!--      Селектор типа вопроса        -->
               <v-select
-                  v-model="newQuestion.id_type_answer.value"
-                  :class="{
+                v-model="newQuestion.id_type_answer.value"
+                :class="{
                   invalidSelector:
                     !newQuestion.id_type_answer.value &&
                     $v.newQuestion.id_type_answer.$dirty &&
                     !$v.newQuestion.id_type_answer.required,
                 }"
-                  :items="getListTypesOfQuestions"
-                  :loading="$store.state.QuestionsModule.loadingQuestion"
-                  :menu-props="{ bottom: true, offsetY: true }"
-                  dense
-                  hide-details
-                  item-text="name"
-                  item-value="id"
-                  outlined
-                  placeholder="Выберите тип"
-                  @change="
+                :items="getListTypesOfQuestions"
+                :loading="$store.state.QuestionsModule.loadingQuestion"
+                :menu-props="{ bottom: true, offsetY: true }"
+                dense
+                hide-details
+                item-text="name"
+                item-value="id"
+                outlined
+                placeholder="Выберите тип"
+                @change="
                   onSelect();
                   saveDBQuestion(newQuestion);
                 "
-                  @focus="onFocus(newQuestion.id_type_answer)"
-                  @focusout="outFocus(newQuestion.id_type_answer)"
+                @focus="onFocus(newQuestion.id_type_answer)"
+                @focusout="outFocus(newQuestion.id_type_answer)"
               ></v-select>
               <!--      Текст валидации        -->
               <small
-                  v-if="
+                v-if="
                   !newQuestion.id_type_answer.value &&
                   $v.newQuestion.id_type_answer.$dirty &&
                   !$v.newQuestion.id_type_answer.required
                 "
-                  style="color: lightcoral"
+                style="color: lightcoral"
               >
                 Поле обязательно для заполнения
               </small>
@@ -247,7 +257,7 @@
             <!--      Заполняемые пользователем поля      -->
             <!-- Если у типа вопросов несколько вариантов ответов -->
             <template
-                v-if="
+              v-if="
                 newQuestion.id_type_answer.value !== 1 &&
                 newQuestion.id_type_answer.value !== 2 &&
                 !!newQuestion.id_type_answer.value
@@ -255,96 +265,96 @@
             >
               <!--      Блок с инпутами для радиобатанов, чекбоксов и селекторов        -->
               <div
-                  v-if="
+                v-if="
                   newQuestion.id_type_answer.value !== 6 &&
                   newQuestion.id_type_answer.value !== 7
                 "
-                  class="question_main_wrapper"
+                class="question_main_wrapper"
               >
                 <!--        Блок с выбором справочника для автозаполнения        -->
                 <div class="question_main_wrapper__item">
                   <v-autocomplete
-                      v-model="selectedDictionary"
-                      :class="{focused: dictionaryFocused}"
-                      :items="dictionariesList"
-                      :loading="loadingDictionaries"
-                      :outlined="false"
-                      class="innerSelector"
-                      clearable
-                      dense
-                      flat
-                      hide-details
-                      hide-no-data
-                      item-text="name"
-                      item-value="code"
-                      placeholder="Выберете справочник для автозаполнения"
-                      prepend-icon="mdi-database"
-                      return-object
-                      solo
-                      @change="setDictionary"
-                      @focus="dictionaryFocused = true"
-                      @focusout="dictionaryFocused = false"
+                    v-model="selectedDictionary"
+                    :class="{ focused: dictionaryFocused }"
+                    :items="dictionariesList"
+                    :loading="loadingDictionaries"
+                    :outlined="false"
+                    class="innerSelector"
+                    clearable
+                    dense
+                    flat
+                    hide-details
+                    hide-no-data
+                    item-text="name"
+                    item-value="code"
+                    placeholder="Выберете справочник для автозаполнения"
+                    prepend-icon="mdi-database"
+                    return-object
+                    solo
+                    @change="setDictionary"
+                    @focus="dictionaryFocused = true"
+                    @focusout="dictionaryFocused = false"
                   />
                 </div>
 
                 <!--        Список вариантов ответа        -->
                 <transition-group name="list">
                   <div
-                      v-for="(answer, index) in newQuestion.value_type_answer"
-                      :key="index"
-                      class="question_main_wrapper__item"
+                    v-for="(answer, index) in newQuestion.value_type_answer"
+                    :key="index"
+                    class="question_main_wrapper__item"
                   >
                     <TextAreaStyled
-                        :append-icon="
+                      :append-icon="
                         answer.showComentary
                           ? 'mdi-menu-right'
                           : 'mdi-menu-down'
                       "
-                        :class="{ inputFocused: answer.focused }"
-                        :data="answer.answer"
-                        :index-array="index"
-                        :is-flat="true"
-                        :is-solo="true"
-                        :multi-line="true"
-                        :placeholder="'Значение'"
-                        :prepend-icon="'mdi-message-reply-outline'"
-                        :rows-count="'1'"
-                        class="question_main_wrapper__item__value"
-                        @update-input="setSubAnswer"
-                        @on-focus="
+                      :class="{ inputFocused: answer.focused }"
+                      :data="answer.answer"
+                      :index-array="index"
+                      :is-flat="true"
+                      :is-solo="true"
+                      :multi-line="true"
+                      :placeholder="'Значение'"
+                      :prepend-icon="'mdi-message-reply-outline'"
+                      :rows-count="'1'"
+                      class="question_main_wrapper__item__value"
+                      @update-input="setSubAnswer"
+                      @on-focus="
                         () => {
                           onFocus(newQuestion.id_type_answer, answer.id);
                         }
                       "
-                        @out-focus="
+                      @out-focus="
                         () => {
                           outFocus(newQuestion.id_type_answer, answer.id);
                         }
                       "
-                        @click:append="
+                      @click:append="
                         answer.showComentary = !answer.showComentary
                       "
                     ></TextAreaStyled>
                     <template v-if="answer.showComentary">
                       <div class="divider"></div>
                       <TextAreaStyled
-                          :class="{ inputFocused: answer.focused }"
-                          :data="answer.commentary"
-                          :index-array="index"
-                          :is-flat="true"
-                          :is-solo="true"
-                          :multi-line="true"
-                          :placeholder="'Примечание'"
-                          :prepend-icon="'mdi-help-circle-outline'"
-                          :rows-count="'1'"
-                          class="question_main_wrapper__item__description"
-                          @update-input="setSubCommentary"
-                          @on-focus="
+                        :class="{ inputFocused: answer.focused }"
+                        :data="answer.commentary"
+                        :index-array="index"
+                        :is-flat="true"
+                        :is-solo="true"
+                        :multi-line="true"
+                        :placeholder="'Примечание'"
+                        :prepend-icon="'mdi-help-circle-outline'"
+                        :rows-count="'1'"
+                        class="question_main_wrapper__item__description"
+                        @update-input="setSubCommentary"
+                        @on-focus="
                           () => {
                             onFocus(newQuestion.id_type_answer, answer.id);
                           }
                         "
-                          @out-focus="
+                        @out-focus="
                           () => {
                             outFocus(newQuestion.id_type_answer, answer.id);
                           }
@@ -353,18 +363,18 @@
                       <div class="divider"></div>
                       <!-- ENVIRONMENTS -->
                       <EnvironmentsSelector
-                          :dataEnv.sync="answer.dataEnv"
-                          :flat="true"
-                          :flatFocused="answer.focused"
-                          @onFocus="
+                        :dataEnv.sync="answer.dataEnv"
+                        :flat="true"
+                        :flatFocused="answer.focused"
+                        @onFocus="
                           onFocusFrom;
                           onFocus(newQuestion.id_type_answer, answer.id);
                         "
-                          @outFocus="
+                        @outFocus="
                           outFocusFrom;
                           onFocus(newQuestion.id_type_answer, answer.id);
                         "
-                          @selectedEnvironment="setEnvironment"
+                        @selectedEnvironment="setEnvironment"
                       />
                     </template>
                   </div>
@@ -373,32 +383,32 @@
 
               <!--      Блок с ренджами (диапозоны чисел)        -->
               <div
-                  v-else
-                  :class="{ rangeError: rangeError }"
-                  class="question_main_wrapper"
+                v-else
+                :class="{ rangeError: rangeError }"
+                class="question_main_wrapper"
               >
                 <transition-group name="list">
                   <div
-                      v-for="(answer, index) in newQuestion.value_type_answer"
-                      :key="index"
-                      class="question_main_wrapper__item"
+                    v-for="(answer, index) in newQuestion.value_type_answer"
+                    :key="index"
+                    class="question_main_wrapper__item"
                   >
                     <InputStyled
-                        :class="{ inputFocused: answer.focused }"
-                        :data="answer.answer"
-                        :index-array="index"
-                        :is-flat="true"
-                        :is-solo="true"
-                        :placeholder="answer.placeholder"
-                        :type-data="'number'"
-                        class="question_main_wrapper__item__value"
-                        @update-input="setAnswer"
-                        @on-focus="
+                      :class="{ inputFocused: answer.focused }"
+                      :data="answer.answer"
+                      :index-array="index"
+                      :is-flat="true"
+                      :is-solo="true"
+                      :placeholder="answer.placeholder"
+                      :type-data="'number'"
+                      class="question_main_wrapper__item__value"
+                      @update-input="setAnswer"
+                      @on-focus="
                         () => {
                           onFocus(newQuestion.id_type_answer, answer.id);
                         }
                       "
-                        @out-focus="
+                      @out-focus="
                         () => {
                           outFocus(newQuestion.id_type_answer, answer.id);
                         }
@@ -406,18 +416,18 @@
                     >
                       <template slot="prepend-inner">
                         <v-icon
-                            :color="answer.focused ? 'black' : ''"
-                            small
-                            @click="rangeEdit('minus', answer)"
+                          :color="answer.focused ? 'black' : ''"
+                          small
+                          @click="rangeEdit('minus', answer)"
                         >
                           mdi-minus
                         </v-icon>
                       </template>
                       <template slot="append">
                         <v-icon
-                            :color="answer.focused ? 'black' : ''"
-                            small
-                            @click="rangeEdit('plus', answer)"
+                          :color="answer.focused ? 'black' : ''"
+                          small
+                          @click="rangeEdit('plus', answer)"
                         >
                           mdi-plus
                         </v-icon>
@@ -437,60 +447,60 @@
           <div v-if="showEnv" class="question_main">
             <div class="question_main_selector">
               <span
-                  :class="{ focused: envFocused }"
-                  class="question_main_selector__title"
+                :class="{ focused: envFocused }"
+                class="question_main_selector__title"
               >
                 Переменные окружения
               </span>
               <EnvironmentsSelector
-                  :dataEnv.sync="newQuestion.value_type_answer[0].dataEnv"
-                  @onFocus="onFocusFrom"
-                  @outFocus="outFocusFrom"
-                  @selectedEnvironment="setEnvironment"
+                :dataEnv.sync="newQuestion.value_type_answer[0].dataEnv"
+                @onFocus="onFocusFrom"
+                @outFocus="outFocusFrom"
+                @selectedEnvironment="setEnvironment"
               />
             </div>
           </div>
 
           <div class="question_settings">
             <v-checkbox
-                v-model="newQuestion.state_detailed_response"
-                :loading="$store.state.QuestionsModule.loadingQuestion"
-                class="question_settings__checkbox"
-                hide-details
-                label="Допускается развернутый ответ"
-                @change="saveDBQuestion(newQuestion)"
+              v-model="newQuestion.state_detailed_response"
+              :loading="$store.state.QuestionsModule.loadingQuestion"
+              class="question_settings__checkbox"
+              hide-details
+              label="Допускается развернутый ответ"
+              @change="saveDBQuestion(newQuestion)"
             ></v-checkbox>
             <v-checkbox
-                v-model="newQuestion.state_attachment_response"
-                :loading="$store.state.QuestionsModule.loadingQuestion"
-                class="question_settings__checkbox"
-                hide-details
-                label="Возможность загружать pdf документы"
-                @change="saveDBQuestion(newQuestion)"
+              v-model="newQuestion.state_attachment_response"
+              :loading="$store.state.QuestionsModule.loadingQuestion"
+              class="question_settings__checkbox"
+              hide-details
+              label="Возможность загружать pdf документы"
+              @change="saveDBQuestion(newQuestion)"
             ></v-checkbox>
             <v-checkbox
-                v-model.number="newQuestion.activity"
-                :false-value="0"
-                :true-value="1"
-                hide-details
-                label="Активность"
+              v-model.number="newQuestion.activity"
+              :false-value="0"
+              :true-value="1"
+              hide-details
+              label="Активность"
             ></v-checkbox>
           </div>
         </div>
 
         <!-- LOADER -->
         <v-overlay
-            :absolute="true"
-            :value="$store.state.QuestionsModule.loadingQuestion"
-            :z-index="2"
+          :absolute="true"
+          :value="$store.state.QuestionsModule.loadingQuestion"
+          :z-index="2"
         >
           <v-progress-circular
-              v-if="$store.state.QuestionsModule.loadingQuestion"
-              :indeterminate="true"
-              :size="70"
-              color="blue"
-              style="margin: auto"
-              width="4"
+            v-if="$store.state.QuestionsModule.loadingQuestion"
+            :indeterminate="true"
+            :size="70"
+            color="blue"
+            style="margin: auto"
+            width="4"
           ></v-progress-circular>
         </v-overlay>
       </v-form>
@@ -500,26 +510,26 @@
         <v-card>
           <v-card-title>
             <span class="text-h6" style="font-size: 0.8em !important"
-            >Вы точно хотите удалить вопрос?</span
+              >Вы точно хотите удалить вопрос?</span
             >
           </v-card-title>
           <v-card-actions>
             <v-btn
-                :disabled="$store.state.QuestionsModule.loadingRequest"
-                :loading="$store.state.QuestionsModule.loadingRequest"
-                color="blue darken-1"
-                text
-                @click="deleteModal = false"
+              :disabled="$store.state.QuestionsModule.loadingRequest"
+              :loading="$store.state.QuestionsModule.loadingRequest"
+              color="blue darken-1"
+              text
+              @click="deleteModal = false"
             >
               Нет
             </v-btn>
             <v-spacer></v-spacer>
             <v-btn
-                :disabled="$store.state.QuestionsModule.loadingRequest"
-                :loading="$store.state.QuestionsModule.loadingRequest"
-                color="red darken-1"
-                text
-                @click="deleteQuestion()"
+              :disabled="$store.state.QuestionsModule.loadingRequest"
+              :loading="$store.state.QuestionsModule.loadingRequest"
+              color="red darken-1"
+              text
+              @click="deleteQuestion()"
             >
               Да
             </v-btn>
@@ -531,17 +541,17 @@
       <template v-if="$route.params.action === 'create'">
         <v-btn color="red darken-1" text @click="resetFields"> Очистить</v-btn>
         <v-btn
-            :disabled="computedValidations"
-            color="blue darken-1"
-            text
-            @click.prevent="onSubmit"
+          :disabled="computedValidations"
+          color="blue darken-1"
+          text
+          @click.prevent="onSubmit"
         >
           Создать
         </v-btn>
       </template>
       <template v-else>
         <template
-            v-if="
+          v-if="
             Object.keys(this.$store.state.QuestionsModule.nonEditState).length
           "
         >
@@ -558,15 +568,21 @@
 </template>
 
 <script>
-import {required} from "vuelidate/lib/validators";
+import { required } from "vuelidate/lib/validators";
 
-import {mapGetters} from "vuex";
+import { mapGetters } from "vuex";
 
 import QuestionTags from "./QuestionTags";
 import AgentList from "./AgentList";
 import EnvironmentsSelector from "../environments/environmentsSelector";
 
-import {AnswerRangeMax, AnswerRangeMin, AnswerVariable, MToMTags, MToMTagsTechTask,} from "../../helpers/constructors";
+import {
+  AnswerRangeMax,
+  AnswerRangeMin,
+  AnswerVariable,
+  MToMTags,
+  MToMTagsTechTask,
+} from "../../helpers/constructors";
 import InputStyled from "../common/InputStyled";
 import TextAreaStyled from "../common/TextAreaStyled";
 import Request from "../../services/request";
@@ -591,13 +607,13 @@ export default {
   validations: {
     newQuestion: {
       name: {
-        value: {required},
+        value: { required },
       },
       // purpose_of_question: {
       //   value: {required}
       // },
       id_type_answer: {
-        value: {required},
+        value: { required },
       },
     },
     validationGroup: [
@@ -671,48 +687,48 @@ export default {
     }
 
     /** Получаем список справочников **/
-    this.getDictionaries()
+    this.getDictionaries();
   },
   watch: {
     "newQuestion.value_type_answer": {
       handler(oldValue, newValue) {
         if (Array.isArray(this.newQuestion.value_type_answer)) {
           if (
-              this.newQuestion.id_type_answer.value !== 6 &&
-              this.newQuestion.id_type_answer.value !== 7
+            this.newQuestion.id_type_answer.value !== 6 &&
+            this.newQuestion.id_type_answer.value !== 7
           ) {
             if (
-                this.newQuestion.value_type_answer[
+              this.newQuestion.value_type_answer[
                 this.newQuestion.value_type_answer.length - 1
-                    ]?.answer
+              ]?.answer
             ) {
               this.addVariable();
             } else if (
-                this.newQuestion.value_type_answer[
+              this.newQuestion.value_type_answer[
                 this.newQuestion.value_type_answer.length - 2
-                    ]?.answer === "" &&
-                this.newQuestion.value_type_answer[
+              ]?.answer === "" &&
+              this.newQuestion.value_type_answer[
                 this.newQuestion.value_type_answer.length - 2
-                    ]?.commentary === ""
+              ]?.commentary === ""
             ) {
               this.newQuestion.value_type_answer.splice(
-                  this.newQuestion.value_type_answer.length - 1,
-                  1
+                this.newQuestion.value_type_answer.length - 1,
+                1
               );
             }
           } else {
             if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
             this.debounceTimeout = setTimeout(() => {
               this.rangeError =
-                  parseInt(this.newQuestion.value_type_answer[0].answer) >
-                  parseInt(this.newQuestion.value_type_answer[1].answer);
+                parseInt(this.newQuestion.value_type_answer[0].answer) >
+                parseInt(this.newQuestion.value_type_answer[1].answer);
             }, 500);
           }
         }
 
         this.$store.dispatch(
-            "setTitle",
-            this.$store.state.QuestionsModule.newQuestion.name.value
+          "setTitle",
+          this.$store.state.QuestionsModule.newQuestion.name.value
         );
       },
       deep: true,
@@ -720,7 +736,7 @@ export default {
     "$store.state.QuestionsModule.newQuestion._all_tags": {
       handler() {
         this.newQuestion._all_tags =
-            this.$store.state.QuestionsModule.newQuestion._all_tags;
+          this.$store.state.QuestionsModule.newQuestion._all_tags;
         this.saveDBQuestion(this.newQuestion);
         // this.onChange()
       },
@@ -731,28 +747,28 @@ export default {
     ...mapGetters(["getListTypesOfQuestions"]),
     computedValidations() {
       return (
-          (!this.newQuestion.name.value &&
-              this.$v.newQuestion.name.$dirty &&
-              !this.$v.newQuestion.name.required) ||
-          // (!this.newQuestion.purpose_of_question.value && this.$v.newQuestion.purpose_of_question.$dirty && !this.$v.newQuestion.purpose_of_question.required) ||
-          (!this.newQuestion.id_type_answer.value &&
-              this.$v.newQuestion.id_type_answer.$dirty &&
-              !this.$v.newQuestion.id_type_answer.required) ||
-          this.rangeError
+        (!this.newQuestion.name.value &&
+          this.$v.newQuestion.name.$dirty &&
+          !this.$v.newQuestion.name.required) ||
+        // (!this.newQuestion.purpose_of_question.value && this.$v.newQuestion.purpose_of_question.$dirty && !this.$v.newQuestion.purpose_of_question.required) ||
+        (!this.newQuestion.id_type_answer.value &&
+          this.$v.newQuestion.id_type_answer.$dirty &&
+          !this.$v.newQuestion.id_type_answer.required) ||
+        this.rangeError
       );
     },
     showEnv() {
       if (
-          !this.newQuestion.value_type_answer ||
-          !this.newQuestion.value_type_answer.length
+        !this.newQuestion.value_type_answer ||
+        !this.newQuestion.value_type_answer.length
       )
         return false;
       return (
-          (this.newQuestion.id_type_answer.value === 1 ||
-              this.newQuestion.id_type_answer.value === 2 ||
-              this.newQuestion.id_type_answer.value === 6 ||
-              this.newQuestion.id_type_answer.value === 7) &&
-          !!this.newQuestion.id_type_answer.value
+        (this.newQuestion.id_type_answer.value === 1 ||
+          this.newQuestion.id_type_answer.value === 2 ||
+          this.newQuestion.id_type_answer.value === 6 ||
+          this.newQuestion.id_type_answer.value === 7) &&
+        !!this.newQuestion.id_type_answer.value
       );
     },
   },
@@ -763,28 +779,30 @@ export default {
     async createNewTag(data) {
       /** Если id еще нет, то не записываем в БД **/
       if (!this.$route.query.question_id) {
-        return
+        return;
       }
 
       /** Делаем структуру под нужную нам **/
       const objMToMTags = new MToMTags(
-          data.id,
-          null,
-          parseInt(this.$route.query.question_id),
-          null,
-          null
+        data.id,
+        null,
+        parseInt(this.$route.query.question_id),
+        null,
+        null
       );
 
       /** Запрос на добавление связки тэга **/
       const response = await this.$store.dispatch(
-          "addUniversalTagMToMTable",
-          objMToMTags
+        "addUniversalTagMToMTable",
+        objMToMTags
       );
 
       /** Рефрешим информацию по вопросу, чтобы получить актуальные тэги **/
       if (response.codeResponse < 400) {
-        await this.$store
-            .dispatch("getDetailQuestion", this.$route.query.question_id)
+        await this.$store.dispatch(
+          "getDetailQuestion",
+          this.$route.query.question_id
+        );
         this.$refs["universal-tags"].modal.state = false;
       }
     },
@@ -793,19 +811,21 @@ export default {
     async removeAttachedTag(data) {
       /** Если id еще нет, то не записываем в БД **/
       if (!this.$route.query.question_id) {
-        return
+        return;
       }
 
       /** Запрос на удаление связки тэга **/
       const response = await this.$store.dispatch(
-          "removeAttachedTagMToMTable",
-          data.id
+        "removeAttachedTagMToMTable",
+        data.id
       );
 
       /** Рефрешим информацию по вопросу, чтобы получить актуальные тэги **/
       if (response.codeResponse < 400) {
-        await this.$store
-            .dispatch("getDetailQuestion", this.$route.query.question_id)
+        await this.$store.dispatch(
+          "getDetailQuestion",
+          this.$route.query.question_id
+        );
       }
     },
     /** @function - получаем с emit'a данные по новому тех-тэгу и отправляем запрос на создание связки тэг-вопрос
@@ -813,26 +833,28 @@ export default {
     async createNewTagTechTask(data) {
       /** Если id еще нет, то не записываем в БД **/
       if (!this.$route.query.question_id) {
-        return
+        return;
       }
 
       /** Делаем структуру под нужную нам **/
       const objMToMTags = new MToMTagsTechTask(
-          data.id,
-          this.$route.query.question_id,
-          null
+        data.id,
+        this.$route.query.question_id,
+        null
       );
 
       /** Запрос на добавление связки тэга **/
       const response = await this.$store.dispatch(
-          "addUniversalMToMTagsTechTaskTable",
-          objMToMTags
+        "addUniversalMToMTagsTechTaskTable",
+        objMToMTags
       );
 
       /** Рефрешим информацию по вопросу, чтобы получить актуальные тэги **/
       if (response.codeResponse < 400) {
-        await this.$store
-            .dispatch("getDetailQuestion", this.$route.query.question_id)
+        await this.$store.dispatch(
+          "getDetailQuestion",
+          this.$route.query.question_id
+        );
         this.$refs["universal-tags-tech-task"].modal.state = false;
       }
     },
@@ -841,19 +863,21 @@ export default {
     async removeAttachedTagTechTask(data) {
       /** Если id еще нет, то не записываем в БД **/
       if (!this.$route.query.question_id) {
-        return
+        return;
       }
 
       /** Запрос на удаление связки тэга **/
       const response = await this.$store.dispatch(
-          "removeAttachedMToMTagsTechTaskTable",
-          data.id
+        "removeAttachedMToMTagsTechTaskTable",
+        data.id
       );
 
       /** Рефрешим информацию по вопросу, чтобы получить актуальные тэги **/
       if (response.codeResponse < 400) {
-        await this.$store
-            .dispatch("getDetailQuestion", this.$route.query.question_id)
+        await this.$store.dispatch(
+          "getDetailQuestion",
+          this.$route.query.question_id
+        );
       }
     },
 
@@ -862,13 +886,16 @@ export default {
     /** @param data {Object, null} - выбранный справочник в селекторе **/
     setDictionary(data) {
       if (!data) {
-        this.$set(this.newQuestion, "value_type_answer", [])
-        return
+        this.$set(this.newQuestion, "value_type_answer", []);
+        return;
       }
 
-      if (!data?.d_dictionary_attributes || !data?.d_dictionary_attributes?.length) {
-        this.$set(this.newQuestion, "value_type_answer", [])
-        return
+      if (
+        !data?.d_dictionary_attributes ||
+        !data?.d_dictionary_attributes?.length
+      ) {
+        this.$set(this.newQuestion, "value_type_answer", []);
+        return;
       }
 
       const result = data.d_dictionary_attributes.map((elem, index) => {
@@ -879,19 +906,21 @@ export default {
           showComentary: true,
           focused: false,
           dataEnv: null,
-        }
-      })
+        };
+      });
 
-      this.$set(this.newQuestion, "value_type_answer", result)
+      this.$set(this.newQuestion, "value_type_answer", result);
     },
     /** @function - Получаем список справочников **/
     async getDictionaries() {
-      const {data} = await Request.get(
-          this.$store.state.BASE_URL +
-          "/dictionary/dictionaries"
+      const { data } = await Request.get(
+        this.$store.state.BASE_URL + "/dictionary/dictionaries"
       );
       /** Проставляем только те справочники у которых есть параметры для заполнения **/
-      this.dictionariesList = data.filter((dict) => dict.d_dictionary_attributes && dict.d_dictionary_attributes.length)
+      this.dictionariesList = data.filter(
+        (dict) =>
+          dict.d_dictionary_attributes && dict.d_dictionary_attributes.length
+      );
     },
 
     setAnswer(data) {
@@ -930,8 +959,8 @@ export default {
     restoreDataEnv() {
       this.$nextTick(() => {
         if (
-            this.newQuestion.value_type_answer &&
-            this.newQuestion.value_type_answer.length
+          this.newQuestion.value_type_answer &&
+          this.newQuestion.value_type_answer.length
         ) {
           this.newQuestion.value_type_answer.forEach((elem) => {
             elem?.dataEnv ? "" : (elem.dataEnv = null);
@@ -996,7 +1025,7 @@ export default {
                 this.newQuestion = question[0];
                 this.lastIdAnswer = this.newQuestion.value_type_answer.length;
                 this.$store.state.QuestionsModule.newQuestion._all_tags =
-                    this.newQuestion._all_tags;
+                  this.newQuestion._all_tags;
               }
             };
           });
@@ -1040,33 +1069,33 @@ export default {
     /* MAIN SCRIPT */
     initializeQuery() {
       if (
-          Object.keys(this.$route.query).length &&
-          Object.keys(this.$route.query).includes("question_id")
+        Object.keys(this.$route.query).length &&
+        Object.keys(this.$route.query).includes("question_id")
       ) {
         this.$store
-            .dispatch("getDetailQuestion", this.$route.query.question_id)
-            .then(() => {
-              if (this.$store.state.QuestionsModule.newQuestion.name) {
-                this.newQuestion = this.$store.state.QuestionsModule.newQuestion;
-                this.restoreDataEnv();
-                this.$store.commit("change_cur_num", this.newQuestion.id);
-                if (
-                    Array.isArray(
-                        this.$store.state.QuestionsModule.newQuestion
-                            .value_type_answer
-                    )
-                ) {
-                  this.lastIdAnswer =
-                      this.$store.state.QuestionsModule.newQuestion.value_type_answer.length;
-                }
+          .dispatch("getDetailQuestion", this.$route.query.question_id)
+          .then(() => {
+            if (this.$store.state.QuestionsModule.newQuestion.name) {
+              this.newQuestion = this.$store.state.QuestionsModule.newQuestion;
+              this.restoreDataEnv();
+              this.$store.commit("change_cur_num", this.newQuestion.id);
+              if (
+                Array.isArray(
+                  this.$store.state.QuestionsModule.newQuestion
+                    .value_type_answer
+                )
+              ) {
+                this.lastIdAnswer =
+                  this.$store.state.QuestionsModule.newQuestion.value_type_answer.length;
               }
-            });
+            }
+          });
       }
     },
     initializeStorage() {
       if (
-          Object.keys(this.$route.params).length &&
-          Object.keys(this.$route.params).includes("action")
+        Object.keys(this.$route.params).length &&
+        Object.keys(this.$route.params).includes("action")
       ) {
         if (this.$route.params.action === "create") {
           if (localStorage.getItem("question") !== null) {
@@ -1084,32 +1113,32 @@ export default {
     onSelect() {
       this.lastIdAnswer = 1;
       if (
-          this.newQuestion.id_type_answer.value === 6 ||
-          this.newQuestion.id_type_answer.value === 7
+        this.newQuestion.id_type_answer.value === 6 ||
+        this.newQuestion.id_type_answer.value === 7
       ) {
         this.newQuestion.value_type_answer = [];
         this.newQuestion.value_type_answer.push(
-            new AnswerRangeMin(this.lastIdAnswer)
+          new AnswerRangeMin(this.lastIdAnswer)
         );
         this.lastIdAnswer++;
         this.newQuestion.value_type_answer.push(
-            new AnswerRangeMax(this.lastIdAnswer)
+          new AnswerRangeMax(this.lastIdAnswer)
         );
         //  if (this.newQuestion.id_type_answer.value !== 1 && this.newQuestion.id_type_answer.value !== 2)
       } else {
         this.newQuestion.value_type_answer = [];
         this.newQuestion.value_type_answer.push(
-            new AnswerVariable(this.lastIdAnswer)
+          new AnswerVariable(this.lastIdAnswer)
         );
       }
 
       /** Очищаем выбранный справочник **/
-      this.selectedDictionary = null
+      this.selectedDictionary = null;
     },
     addVariable() {
       this.lastIdAnswer++;
       this.newQuestion.value_type_answer.push(
-          new AnswerVariable(this.lastIdAnswer)
+        new AnswerVariable(this.lastIdAnswer)
       );
     },
     onFocusFrom(value) {
@@ -1143,8 +1172,8 @@ export default {
       this.deleteStorage = true;
       for (let key in this.newQuestion) {
         if (
-            typeof this.newQuestion[key] === "object" &&
-            this.newQuestion[key] !== null
+          typeof this.newQuestion[key] === "object" &&
+          this.newQuestion[key] !== null
         ) {
           if (Array.isArray(this.newQuestion[key])) {
             this.newQuestion[key] = [];
@@ -1299,16 +1328,16 @@ export default {
           }
 
           ::v-deep
-          .v-text-field.v-text-field--solo.v-input--dense
-          > .v-input__control {
+            .v-text-field.v-text-field--solo.v-input--dense
+            > .v-input__control {
             min-height: 26px !important;
           }
         }
 
         ::v-deep
-        .v-text-field.v-text-field--enclosed:not(.v-text-field--rounded)
-        > .v-input__control
-        > .v-input__slot,
+          .v-text-field.v-text-field--enclosed:not(.v-text-field--rounded)
+          > .v-input__control
+          > .v-input__slot,
         .v-text-field.v-text-field--enclosed .v-text-field__details {
           padding: 0 !important;
         }
@@ -1319,8 +1348,8 @@ export default {
         }
 
         ::v-deep
-        .v-text-field.v-text-field--solo.v-input--dense
-        > .v-input__control {
+          .v-text-field.v-text-field--solo.v-input--dense
+          > .v-input__control {
           min-height: 26px;
         }
 
@@ -1353,8 +1382,8 @@ export default {
           }
 
           ::v-deep
-          .v-text-field.v-text-field--solo.v-input--dense
-          > .v-input__control {
+            .v-text-field.v-text-field--solo.v-input--dense
+            > .v-input__control {
             min-height: 20px !important;
           }
 
@@ -1418,9 +1447,9 @@ export default {
             }
 
             ::v-deep
-            .v-text-field.v-text-field--enclosed:not(.v-text-field--rounded)
-            > .v-input__control
-            > .v-input__slot,
+              .v-text-field.v-text-field--enclosed:not(.v-text-field--rounded)
+              > .v-input__control
+              > .v-input__slot,
             .v-text-field.v-text-field--enclosed .v-text-field__details {
               padding: 0 6px !important;
             }
@@ -1493,10 +1522,10 @@ export default {
 }
 
 ::v-deep
-.v-text-field
-> .v-input__control
-> .v-input__slot
-> .v-text-field__slot {
+  .v-text-field
+  > .v-input__control
+  > .v-input__slot
+  > .v-text-field__slot {
   margin-right: 0 !important;
 }
 
