@@ -164,7 +164,17 @@
             "
             @createNewTag="createNewTag"
             @removeAttachedTag="removeAttachedTag"
-          />
+          >
+            <template v-slot:icon-tooltip>
+              <IconTooltip
+                text-tooltip="Где используется ?"
+                @click-icon="
+                  snackbar = true;
+                  snackbarValue = 1;
+                "
+              />
+            </template>
+          </UniversalTags>
           <br />
           <!-- Раздел в ТЗ -->
           <UniversalTags
@@ -189,7 +199,17 @@
             :name-heading="'Раздел в ТЗ'"
             @createNewTag="createNewTagTechTask"
             @removeAttachedTag="removeAttachedTagTechTask"
-          />
+          >
+            <template v-slot:icon-tooltip>
+              <IconTooltip
+                text-tooltip="Где используется ?"
+                @click-icon="
+                  snackbar = true;
+                  snackbarValue = 0;
+                "
+              />
+            </template>
+          </UniversalTags>
           <br />
 
           <!-- AGENTS -->
@@ -536,6 +556,24 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+
+      <!--  SNACKBAR -->
+      <v-snackbar v-model="snackbar" :vertical="true" timeout="-1">
+        <template v-if="snackbarValue === 0">
+          <p>Выбор одиночного тэга, используется:</p>
+          <ul>
+            <li>pdf файл ТЗ - вопросы ответы</li>
+          </ul>
+        </template>
+        <template v-if="snackbarValue === 1">
+          <p>Используется везде</p>
+        </template>
+        <template v-slot:action="{ attrs }">
+          <v-btn color="red" text v-bind="attrs" @click="snackbar = false">
+            Закрыть
+          </v-btn>
+        </template>
+      </v-snackbar>
     </div>
     <footer class="detail_footer">
       <template v-if="$route.params.action === 'create'">
@@ -587,6 +625,7 @@ import InputStyled from "../common/InputStyled";
 import TextAreaStyled from "../common/TextAreaStyled";
 import Request from "../../services/request";
 import UniversalTags from "../UniversalTags";
+import IconTooltip from "@/components/common/IconTooltip.vue";
 
 /* INDEXEDDB */
 const DB_NAME = "questionDB";
@@ -597,6 +636,7 @@ let DB;
 export default {
   name: "CreateQuestion",
   components: {
+    IconTooltip,
     UniversalTags,
     TextAreaStyled,
     InputStyled,
@@ -674,6 +714,8 @@ export default {
     },
     deleteModal: false,
     deleteStorage: false,
+    snackbar: false,
+    snackbarValue: 0,
   }),
   mounted() {
     this.initializeQuery();

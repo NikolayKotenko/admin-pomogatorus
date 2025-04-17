@@ -1,6 +1,10 @@
 <template>
   <div class="question_tags">
-    <span class="question_tags__title"> {{ nameHeading }} </span>
+    <section class="question_tags__title" style="display: flex">
+      <span>{{ nameHeading }}&nbsp;</span>
+      <slot name="icon-tooltip" />
+    </section>
+
     <div v-if="attachedTags.length" class="question_tags__wrapper">
       <v-chip-group column>
         <v-chip
@@ -81,10 +85,11 @@
 <script>
 import ComboboxStyled from "@/components/common/ComboboxStyled.vue";
 import { DTag } from "@/helpers/constructors";
+import IconTooltip from "@/components/common/IconTooltip.vue";
 
 export default {
   name: "UniversalTags",
-  components: { ComboboxStyled },
+  components: { IconTooltip, ComboboxStyled },
   props: {
     attachedTags: {
       type: Array,

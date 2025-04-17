@@ -174,11 +174,11 @@
         "
         :loading="$store.state.loadingRequestGeneral"
         class="mb-5 mt-5"
+        style="max-width: fit-content"
         dense
         hide-details
         label="Активность"
-      >
-      </v-checkbox>
+      />
       <v-checkbox
         v-model="$store.state.TagsModule.tag.flag_engineering_system"
         :disabled="
@@ -187,11 +187,26 @@
         "
         :loading="$store.state.loadingRequestGeneral"
         class="mb-5 mt-5"
+        style="max-width: fit-content"
         dense
         hide-details
         label="Используется в инженерной системе ?"
       >
+        <template v-slot:append>
+          <IconTooltip
+            text-tooltip="Где используется ?"
+            :is-disabled="
+              $store.state.loadingRequestGeneral ||
+              !$store.getters.stateEditCreate($route.query.action)
+            "
+            @click-icon="
+              snackbar = true;
+              snackbarValue = 0;
+            "
+          />
+        </template>
       </v-checkbox>
+
       <v-checkbox
         v-model="$store.state.TagsModule.tag.flag_service"
         :disabled="
@@ -200,11 +215,26 @@
         "
         :loading="$store.state.loadingRequestGeneral"
         class="mb-5 mt-5"
+        style="max-width: fit-content"
         dense
         hide-details
         label="Используется как услуги ?"
       >
+        <template v-slot:append>
+          <IconTooltip
+            text-tooltip="Где используется ?"
+            :is-disabled="
+              $store.state.loadingRequestGeneral ||
+              !$store.getters.stateEditCreate($route.query.action)
+            "
+            @click-icon="
+              snackbar = true;
+              snackbarValue = 1;
+            "
+          />
+        </template>
       </v-checkbox>
+
       <InputStyled
         v-if="$store.state.TagsModule.tag.flag_engineering_system"
         :data="$store.state.TagsModule.tag.sort_engineering_system"
@@ -288,6 +318,31 @@
       </v-container>
     </footer>
 
+    <!--  SNACKBAR -->
+    <v-snackbar v-model="snackbar" :vertical="true" timeout="-1">
+      <template v-if="snackbarValue === 0">
+        <p>Текущий флаг влияет на:</p>
+        <ul>
+          <li>страница объекта - “Предпочтения” и “Вложенные документы”</li>
+          <li>
+            в “Конфигураторе технического задания” - компонент “предпочтения”
+          </li>
+          <li>
+            на главной странице “Подборка для быстрого старта” - список подборок
+          </li>
+          <li>pdf генерация ТЗ - параметры объекта и вопросы ответы</li>
+        </ul>
+      </template>
+      <template v-if="snackbarValue === 1">
+        <p>Текущий флаг нигде не используется</p>
+      </template>
+      <template v-slot:action="{ attrs }">
+        <v-btn color="red" text v-bind="attrs" @click="snackbar = false">
+          Закрыть
+        </v-btn>
+      </template>
+    </v-snackbar>
+
     <!--  MODALS  -->
     <v-dialog v-model="$store.state.TagsModule.deleteModal" max-width="600">
       <v-card>
@@ -333,11 +388,13 @@ import { VueEditor } from "vue2-editor";
 import tagsStore from "@/store/modules/tags";
 import Request from "@/services/request";
 import InputStyled from "../common/InputStyled";
+import IconTooltip from "@/components/common/IconTooltip.vue";
 
 const _store = tagsStore.state;
 
 export default {
   components: {
+    IconTooltip,
     InputStyled,
     VueEditor,
     vueDropzone: vue2Dropzone,
@@ -348,6 +405,8 @@ export default {
     index_uploaded: 1,
     stateDropzone: false,
     dropzone_uploaded: [],
+    snackbar: false,
+    snackbarValue: 0,
   }),
   async mounted() {
     await this.$store.dispatch("getListTags", this.$route.params.id);
