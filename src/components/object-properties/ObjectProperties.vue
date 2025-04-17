@@ -149,7 +149,7 @@
       >
         <template v-slot:icon-tooltip>
           <IconTooltip
-            text-tooltip="Где используется ?"
+            text-tooltip=""
             @click-icon="
               snackbar = true;
               snackbarValue = 1;
@@ -188,7 +188,7 @@
       >
         <template v-slot:icon-tooltip>
           <IconTooltip
-            text-tooltip="Где используется ?"
+            text-tooltip=""
             @click-icon="
               snackbar = true;
               snackbarValue = 0;

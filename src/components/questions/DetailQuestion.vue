@@ -167,7 +167,7 @@
           >
             <template v-slot:icon-tooltip>
               <IconTooltip
-                text-tooltip="Где используется ?"
+                text-tooltip=""
                 @click-icon="
                   snackbar = true;
                   snackbarValue = 1;
@@ -202,7 +202,7 @@
           >
             <template v-slot:icon-tooltip>
               <IconTooltip
-                text-tooltip="Где используется ?"
+                text-tooltip=""
                 @click-icon="
                   snackbar = true;
                   snackbarValue = 0;
@@ -563,6 +563,7 @@
           <p>Выбор одиночного тэга, используется:</p>
           <ul>
             <li>pdf файл ТЗ - вопросы ответы</li>
+            <li>страница объекта - “Предпочтения” и “Вложенные документы”</li>
           </ul>
         </template>
         <template v-if="snackbarValue === 1">

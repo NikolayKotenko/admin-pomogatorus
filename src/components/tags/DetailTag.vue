@@ -194,7 +194,7 @@
       >
         <template v-slot:append>
           <IconTooltip
-            text-tooltip="Где используется ?"
+            text-tooltip=""
             :is-disabled="
               $store.state.loadingRequestGeneral ||
               !$store.getters.stateEditCreate($route.query.action)
@@ -222,7 +222,7 @@
       >
         <template v-slot:append>
           <IconTooltip
-            text-tooltip="Где используется ?"
+            text-tooltip=""
             :is-disabled="
               $store.state.loadingRequestGeneral ||
               !$store.getters.stateEditCreate($route.query.action)
