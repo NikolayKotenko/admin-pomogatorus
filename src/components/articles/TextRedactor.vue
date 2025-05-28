@@ -1,23 +1,26 @@
 <template>
   <div :class="{ disabled: !check_created_article }" class="textRedactor">
-    <HeaderBlock @callCheckout="callCheckout" @add-link="addLink"/>
+    <HeaderBlock @callCheckout="callCheckout" @add-link="addLink" />
 
     <div
-        ref="content"
-        :contenteditable="
+      ref="content"
+      :contenteditable="
         check_created_article && !$store.state.ArticleModule.startRender
       "
-        class="textRedactor__content"
-        spellcheck="false"
-        @input="onContentChange; preventStyles"
-        @mouseup="onSelectionContent()"
-        @keyup.enter="preventStyles"
+      class="textRedactor__content"
+      spellcheck="false"
+      @input="
+        onContentChange;
+        preventStyles;
+      "
+      @mouseup="onSelectionContent()"
+      @keyup.enter="preventStyles"
     ></div>
 
     <!-- OVERLAYS -->
     <div
-        v-if="!check_created_article || $store.state.ArticleModule.startRender"
-        class="overlay"
+      v-if="!check_created_article || $store.state.ArticleModule.startRender"
+      class="overlay"
     ></div>
   </div>
 </template>
@@ -36,7 +39,10 @@ import LoginAuth from "../auth/LoginAuth";
 
 import titlesStore from "@/store/modules/article/index.js";
 import DataComponent from "../../services/article/dataComponent";
-import {Constructor_instance, Imported_component} from "../../helpers/constructors";
+import {
+  Constructor_instance,
+  Imported_component,
+} from "../../helpers/constructors";
 
 import iconsModels from "../../models/iconsModels";
 
@@ -65,7 +71,7 @@ export default {
     this.preventInsertingStyles();
     this.onkeydownInEditable();
     setTimeout(() => {
-      this.$refs.content.addEventListener("input", this.onContentChange)
+      this.$refs.content.addEventListener("input", this.onContentChange);
 
       this.initializeContent().then(() => {
         this.checkOnDeletedComponents();
@@ -80,7 +86,7 @@ export default {
     saveDB: {
       handler(v) {
         if (!this.geting_from_server && v) {
-          console.log('save article')
+          console.log("save article");
           this.$store.commit("changeContent", this.content);
           this.$store.commit("change_by_action_editor");
         }
@@ -115,7 +121,10 @@ export default {
             this.content = _store.content_from_server;
           });
 
-          console.log("components_after_request", _store.components_after_request)
+          console.log(
+            "components_after_request",
+            _store.components_after_request
+          );
 
           /* Start render */
           if (_store.components_after_request.length) {
@@ -132,12 +141,12 @@ export default {
               });
             });
           } else {
-            console.log("EMPTY COMPONENTS")
+            console.log("EMPTY COMPONENTS");
 
             this.$store.commit("clear_list_components", []);
             this.$store.commit("change_start_render", false);
 
-            console.log("AFTER CLEAR", _store.list_components)
+            console.log("AFTER CLEAR", _store.list_components);
           }
         }
       },
@@ -146,8 +155,9 @@ export default {
   computed: {
     check_created_article() {
       return (
-          this.newArticle.name.value !== "" &&
-          this.newArticle.short_header.value !== ""
+        this.newArticle.name.value !== ""
+        // &&
+        // this.newArticle.short_header.value !== ""
       );
     },
     content: {
@@ -156,7 +166,7 @@ export default {
         if (this.$refs.content) {
           return this.$refs.content.innerHTML;
         }
-        return ''
+        return "";
       },
       set: function (val) {
         this.$refs.content.innerHTML = val;
@@ -164,15 +174,15 @@ export default {
     },
     componentLayout() {
       if (_store.name_component === "questions") {
-        return Vue.extend(Question)
+        return Vue.extend(Question);
       }
 
       if (_store.name_component === "image") {
-        return Vue.extend(ImageLayout)
+        return Vue.extend(ImageLayout);
       }
 
       if (_store.name_component === "nomenclature") {
-        return Vue.extend(NomenclatureArticle)
+        return Vue.extend(NomenclatureArticle);
       }
 
       return Vue.extend(LoginAuth);
@@ -196,14 +206,12 @@ export default {
       }
 
       if (range) {
-        if (range.commonAncestorContainer.parentElement.nodeName === 'H2') {
-          let value = range.commonAncestorContainer.parentElement.innerText
-          let element = document.createElement('div')
-          element.innerText = value
+        if (range.commonAncestorContainer.parentElement.nodeName === "H2") {
+          let value = range.commonAncestorContainer.parentElement.innerText;
+          let element = document.createElement("div");
+          element.innerText = value;
 
-          range.selectNode(
-              range.commonAncestorContainer.parentElement
-          );
+          range.selectNode(range.commonAncestorContainer.parentElement);
           range.deleteContents();
           range.collapse(false);
           range.insertNode(element);
@@ -230,7 +238,7 @@ export default {
         e.preventDefault();
         let text = (e.originalEvent || e).clipboardData.getData("text/plain");
         // document.execCommand("insertHtml", false, _this.escapeText(text));
-        document.execCommand("insertHtml", false, text)
+        document.execCommand("insertHtml", false, text);
         _this.onContentChange();
       };
     },
@@ -242,9 +250,9 @@ export default {
           // Don't allow deleting nodes
           if (!selection.anchorNode) return;
           if (
-              selection.anchorNode.textContent === "" &&
-              selection.anchorNode.className !== "textRedactor__content" &&
-              selection.anchorNode.isContentEditable
+            selection.anchorNode.textContent === "" &&
+            selection.anchorNode.className !== "textRedactor__content" &&
+            selection.anchorNode.isContentEditable
           ) {
             e.preventDefault();
             selection.anchorNode.parentNode.removeChild(selection.anchorNode);
@@ -259,10 +267,10 @@ export default {
       let arrComponentsData = [];
       /* Get all components from DOM by class identifier */
       const componentsNodes = document.getElementsByClassName(
-          "component_container"
+        "component_container"
       );
 
-      console.log(componentsNodes)
+      console.log(componentsNodes);
 
       /* Check if components length from DB isn't equal components count by DOM */
       if (componentsNodes.length !== _store.list_components.length) {
@@ -288,7 +296,7 @@ export default {
             dataComponent.name = htmlCollection.dataset.name;
             /* Set uniq index_%component% */
             dataComponent[`index_${htmlCollection.dataset.name}`] =
-                counters[`index_${htmlCollection.dataset.name}`];
+              counters[`index_${htmlCollection.dataset.name}`];
             /* Set uniq data for specific component */
             if (htmlCollection.dataset.name === "questions") {
               dataComponent.id = htmlCollection.dataset.id;
@@ -298,21 +306,23 @@ export default {
               dataComponent.id = htmlCollection.dataset.id;
 
               if (htmlCollection.getElementsByClassName("c-slide").length) {
-                const slideArr = [...htmlCollection.getElementsByClassName("c-slide")]
+                const slideArr = [
+                  ...htmlCollection.getElementsByClassName("c-slide"),
+                ];
 
-                dataComponent.nomenclatures_id = []
+                dataComponent.nomenclatures_id = [];
 
-                slideArr.forEach(slide => {
-                  dataComponent.nomenclatures_id.push(slide.dataset.id)
-                })
+                slideArr.forEach((slide) => {
+                  dataComponent.nomenclatures_id.push(slide.dataset.id);
+                });
               }
             }
             /* Push to arr result */
             arrComponentsData.push(
-                new Imported_component({
-                  index: index,
-                  component: dataComponent,
-                })
+              new Imported_component({
+                index: index,
+                component: dataComponent,
+              })
             );
             /* Update global counters */
             counters[`index_${htmlCollection.dataset.name}`]++;
@@ -320,7 +330,7 @@ export default {
             dataComponent = {};
           }
         });
-        console.log('end restore components by html')
+        console.log("end restore components by html");
       }
       /* Rewrite components data for next render function */
       return arrComponentsData;
@@ -330,12 +340,12 @@ export default {
     renderFunc() {
       console.log("nextTIck inserting");
 
-      let deletedIndexes = []
+      let deletedIndexes = [];
 
       _store.list_components.forEach((elem, index) => {
         // console.log("elemRender", elem)
 
-        console.log('countInserted', index)
+        console.log("countInserted", index);
         /** Function that change counter by @elem, and call prepare layout that we need **/
         this.checkTypeComponent(elem);
 
@@ -344,14 +354,13 @@ export default {
         /* If component is image we get URL of img and title/alt */
         if (elem.component.name === "image") {
           const full_url = document
-              .getElementById(`component_wrapper-${elem.index}`)
-              .getElementsByClassName("inserted_image")[0].src;
+            .getElementById(`component_wrapper-${elem.index}`)
+            .getElementsByClassName("inserted_image")[0].src;
           let sub_url = full_url.split(".com");
-          const IdImage = document.getElementById(`component_wrapper-${elem.index}`).dataset.id;
-          data = Object.assign({},
-              {full_path: sub_url[1]},
-              {id: IdImage},
-          );
+          const IdImage = document.getElementById(
+            `component_wrapper-${elem.index}`
+          ).dataset.id;
+          data = Object.assign({}, { full_path: sub_url[1] }, { id: IdImage });
         }
         /* Here change global counter of component in article */
         this.$store.commit("change_counter", {
@@ -365,26 +374,29 @@ export default {
 
         /** Если в DOM (JSON-контент всей статьи с бэкенда) нет нужного компонента - выходим **/
         if (!document.getElementById(`component_wrapper-${elem.index}`)) {
-          console.warn("stop render - NO DOM element")
+          console.warn("stop render - NO DOM element");
 
-          return
+          return;
         }
 
         range.selectNode(
-            document.getElementById(`component_wrapper-${elem.index}`)
+          document.getElementById(`component_wrapper-${elem.index}`)
         );
         range.deleteContents();
         range.collapse(false);
         /* Constructor return our FullReady component to get mounted on DOM */
         _store.list_components[index] = this.getStructureForInstance(
-            elem.component
+          elem.component
         );
 
         /* Check if question is not active */
-        if (elem.component.name === "questions" || elem.component.name === "question") {
+        if (
+          elem.component.name === "questions" ||
+          elem.component.name === "question"
+        ) {
           if (elem.data.activity !== 1) {
-            console.log(elem.data.id, 'Is not active => remove')
-            deletedIndexes.push(index)
+            console.log(elem.data.id, "Is not active => remove");
+            deletedIndexes.push(index);
           }
         }
 
@@ -398,10 +410,10 @@ export default {
       });
 
       if (deletedIndexes.length) {
-        console.log('Not active indexes', deletedIndexes)
-        deletedIndexes.forEach(index => {
-          _store.list_components.splice(index, 1)
-        })
+        console.log("Not active indexes", deletedIndexes);
+        deletedIndexes.forEach((index) => {
+          _store.list_components.splice(index, 1);
+        });
       }
       console.log("insertingDone");
     },
@@ -427,15 +439,15 @@ export default {
           _store.loadingArticle = false;
           this.geting_from_server = false;
 
-          console.warn("end render - NO CONTENT")
-          return
+          console.warn("end render - NO CONTENT");
+          return;
         }
 
         let restoredArr = [];
         restoredArr = this.checkOutOfSync();
 
         console.log("end check out of sync step");
-        console.log('restoredArr', restoredArr)
+        console.log("restoredArr", restoredArr);
 
         // console.log("_store.components_after_request", _store.components_after_request)
 
@@ -443,40 +455,47 @@ export default {
 
         /** Если мы восстановили компоненты через верстку, идем по ним, если их в верстке нет, пробуем через JSON с бэкенда **/
         if (restoredArr.length) {
-          componentsForRequest = restoredArr
+          componentsForRequest = restoredArr;
         } else {
-          console.log("_store.components_after_request", _store.components_after_request)
-          componentsForRequest = _store.components_after_request
+          console.log(
+            "_store.components_after_request",
+            _store.components_after_request
+          );
+          componentsForRequest = _store.components_after_request;
         }
 
         /* Requests for get data of list_components, that lay on Array<Promises> */
         const promises = [];
-        const questions_data = _store.questions_data
-        console.log('Questions from BACKEND', questions_data)
+        const questions_data = _store.questions_data;
+        console.log("Questions from BACKEND", questions_data);
 
         componentsForRequest.forEach((elem) => {
           /** Если структура не валидная, значит компонент поломан, исключаем **/
           if (!elem?.component?.name) {
-            console.warn("NOT VALID `inserted_components` COMPONENT FROM BACKEND")
-            return
+            console.warn(
+              "NOT VALID `inserted_components` COMPONENT FROM BACKEND"
+            );
+            return;
           }
 
-          if (elem.component.name === 'questions') {
-            let question = questions_data.filter(question => {
-              return question.id == elem.component.id
-            })[0]
+          if (elem.component.name === "questions") {
+            let question = questions_data.filter((question) => {
+              return question.id == elem.component.id;
+            })[0];
             if (question) {
               this.$store.commit("changeSelectedComponent", {
                 data: question,
                 index: elem.index,
-                component: elem.component
+                component: elem.component,
               });
             } else {
-              promises.push(this.$store.dispatch(`get_${elem.component.name}`, elem))
+              promises.push(
+                this.$store.dispatch(`get_${elem.component.name}`, elem)
+              );
             }
           } else {
             promises.push(
-                this.$store.dispatch(`get_${elem.component.name}`, elem)
+              this.$store.dispatch(`get_${elem.component.name}`, elem)
             );
           }
         });
@@ -485,7 +504,7 @@ export default {
         Promise.allSettled(promises).finally(() => {
           console.log("all promises done");
 
-          console.log("_store.list_components", _store.list_components)
+          console.log("_store.list_components", _store.list_components);
 
           /* Sorting list_components for index, to get right structure on article */
           _store.list_components.sort((a, b) => {
@@ -501,7 +520,7 @@ export default {
             _store.loadingArticle = false;
             this.geting_from_server = false;
 
-            console.log("ALL COMPONENTS ARE RENDERED")
+            console.log("ALL COMPONENTS ARE RENDERED");
             resolve();
           });
         });
@@ -513,7 +532,7 @@ export default {
 
         /* Get all components from DOM by class identifier */
         const componentsNodes = document.getElementsByClassName(
-            "component_container"
+          "component_container"
         );
 
         /* Check if components length from DB isn't equal components count by DOM */
@@ -522,47 +541,55 @@ export default {
 
           /** Фильтруем компоненты только по вопросам, и проверяем не удален ли вопрос в принципе из БД **/
           const arrIDs = _store.list_components
-              .filter((elem) => {
-                const name = elem?.data?.component?.name
+            .filter((elem) => {
+              const name = elem?.data?.component?.name;
 
-                if (!name) {
-                  console.warn("NOT VALID COMPONENT NAME ON CHECK DELETED COMPONENTS")
-
-                  return false
-                }
-
-                //TODO
-                return (
-                    name === "question" ||
-                    name === "questions"
+              if (!name) {
+                console.warn(
+                  "NOT VALID COMPONENT NAME ON CHECK DELETED COMPONENTS"
                 );
-              })
-              .map((i) => {
-                return i?.data?.component?.id ?? i?.component?.id;
-              });
 
-          console.log(arrIDs)
+                return false;
+              }
+
+              //TODO
+              return name === "question" || name === "questions";
+            })
+            .map((i) => {
+              return i?.data?.component?.id ?? i?.component?.id;
+            });
+
+          console.log(arrIDs);
 
           arrCollection.forEach((htmlCollection) => {
-            if (htmlCollection.dataset.name && htmlCollection.dataset.name === "questions") {
+            if (
+              htmlCollection.dataset.name &&
+              htmlCollection.dataset.name === "questions"
+            ) {
               if (!arrIDs.includes(htmlCollection.dataset.id)) {
-                console.log('Question which is deleted', htmlCollection.dataset.id)
+                console.log(
+                  "Question which is deleted",
+                  htmlCollection.dataset.id
+                );
                 let tmpStr = htmlCollection.id.match("-(.*)");
                 let index = tmpStr[tmpStr.length - 1];
-                console.log(`index question on the page`, index)
+                console.log(`index question on the page`, index);
 
                 if (index) {
                   let range = document.createRange();
-                  console.log('deleted html', document.getElementById(`component_wrapper-${index}`))
+                  console.log(
+                    "deleted html",
+                    document.getElementById(`component_wrapper-${index}`)
+                  );
                   range.selectNode(
-                      document.getElementById(`component_wrapper-${index}`)
+                    document.getElementById(`component_wrapper-${index}`)
                   );
                   range.deleteContents();
                   range.collapse(false);
                 }
               }
             }
-          })
+          });
         }
         console.log("ended check deleted question");
       });
@@ -570,11 +597,11 @@ export default {
     checkTypeComponent(elem) {
       this.$store.commit("change_name_component", elem.component.name);
       const name = Object.prototype.hasOwnProperty.call(
-          elem.component,
-          "index_question"
+        elem.component,
+        "index_question"
       )
-          ? "question"
-          : elem.component.name;
+        ? "question"
+        : elem.component.name;
       this.$store.commit("change_counter", {
         name: elem.component.name,
         count: elem.component[`index_${name}`],
@@ -595,7 +622,7 @@ export default {
         /* IF WE DELETED COMPONENT BY KEYBOARD */
         _store.list_components.forEach((elem) => {
           const elem_content = document.getElementById(
-              `component_wrapper-${elem.instance.$data.index_component}`
+            `component_wrapper-${elem.instance.$data.index_component}`
           );
           if (!elem_content) {
             _store.deletedComponent = elem.instance.$data.index_component;
@@ -606,13 +633,13 @@ export default {
 
     /* MANIPULATING WITH INSERTING COMPONENTS */
     addLink() {
-      console.log(_store.linkSelection)
+      console.log(_store.linkSelection);
 
-      const link = document.createElement("a")
-      link.href = _store.urlValue
-      link.innerText = `${_store.urlText}`
-      link.title = _store.urlText
-      link.target = '_blank'
+      const link = document.createElement("a");
+      link.href = _store.urlValue;
+      link.innerText = `${_store.urlText}`;
+      link.title = _store.urlText;
+      link.target = "_blank";
 
       if (_store.linkSelection) {
         // If we selected already exist text on editor
@@ -620,18 +647,18 @@ export default {
       } else {
         // IF we create link with new text
         if (
-            _store.range &&
-            (this.checkIfTextEditor(_store.range.commonAncestorContainer))
+          _store.range &&
+          this.checkIfTextEditor(_store.range.commonAncestorContainer)
         ) {
           if (window.getSelection) {
             _store.range.insertNode(link);
           } else if (document.selection && document.selection.createRange) {
             if (
-                _store.range &&
-                (_store.range.commonAncestorContainer.parentElement.className ===
-                    "textRedactor__content" ||
-                    _store.range.commonAncestorContainer.offsetParent._prevClass ===
-                    "textRedactor")
+              _store.range &&
+              (_store.range.commonAncestorContainer.parentElement.className ===
+                "textRedactor__content" ||
+                _store.range.commonAncestorContainer.offsetParent._prevClass ===
+                  "textRedactor")
             ) {
               _store.range.pasteHTML(link.outerHTML);
             }
@@ -640,16 +667,16 @@ export default {
           if (window.getSelection) {
             let range = document.createRange();
             range.setStart(
-                document.getElementsByClassName("textRedactor__content").item(0),
-                0
+              document.getElementsByClassName("textRedactor__content").item(0),
+              0
             );
             range.collapse(false);
             range.insertNode(link);
           } else if (document.selection && document.selection.createRange) {
             let range = document.createRange();
             range.setStart(
-                document.getElementsByClassName("textRedactor__content").item(0),
-                0
+              document.getElementsByClassName("textRedactor__content").item(0),
+              0
             );
             range.collapse(false);
             range.pasteHTML(link.outerHTML);
@@ -657,7 +684,7 @@ export default {
         }
       }
 
-      this.$store.commit('clear_url')
+      this.$store.commit("clear_url");
       this.saveDB = true;
       this.clearStateAfterSelect();
       setTimeout(() => {
@@ -667,20 +694,22 @@ export default {
     callCheckout(elem) {
       let data_component = factory.create(_store.name_component, {
         name: _store.name_component,
-        id: (_store.selectedComponent?.id) ? _store.selectedComponent.id : elem.id,
+        id: _store.selectedComponent?.id
+          ? _store.selectedComponent.id
+          : elem.id,
         index_questions: _store.counters.questions,
         index_image: _store.counters.image,
         index_auth: _store.counters.auth,
         index_nomenclature: _store.counters.nomenclature,
         src: elem?.full_path ? elem?.full_path : "",
-        nomenclatures_id: elem?.nomenclatures_id ?? []
+        nomenclatures_id: elem?.nomenclatures_id ?? [],
       });
 
-      console.log("data_component", data_component)
+      console.log("data_component", data_component);
 
       // QUESTIONS DATA ADD TO ARRAY BECAUSE NEED UNDO/REDO
-      if (_store.name_component === 'questions') {
-        this.$store.commit('add_questions_data', _store.selectedComponent)
+      if (_store.name_component === "questions") {
+        this.$store.commit("add_questions_data", _store.selectedComponent);
       }
 
       /* Undo/Redo memento manipulation */
@@ -704,13 +733,13 @@ export default {
     getStructureForInstance(data_component) {
       const instance = new this.componentLayout({
         store,
-        vuetify
+        vuetify,
       });
       const data = new Imported_component({
         index: _store.counters.layout,
         component: data_component,
       });
-      const params = Object.assign({}, {instance: instance}, {data: data});
+      const params = Object.assign({}, { instance: instance }, { data: data });
       return new Constructor_instance(params);
     },
     insertingComponent(data_component) {
@@ -726,8 +755,8 @@ export default {
         div2.style.minHeight = "24px";
 
         if (
-            _store.range &&
-            (this.checkIfTextEditor(_store.range.commonAncestorContainer))
+          _store.range &&
+          this.checkIfTextEditor(_store.range.commonAncestorContainer)
         ) {
           if (window.getSelection) {
             _store.range.insertNode(div);
@@ -735,16 +764,16 @@ export default {
             _store.range.insertNode(div2);
           } else if (document.selection && document.selection.createRange) {
             if (
-                _store.range &&
-                (_store.range.commonAncestorContainer.parentElement.className ===
-                    "textRedactor__content" ||
-                    _store.range.commonAncestorContainer.offsetParent._prevClass ===
-                    "textRedactor")
+              _store.range &&
+              (_store.range.commonAncestorContainer.parentElement.className ===
+                "textRedactor__content" ||
+                _store.range.commonAncestorContainer.offsetParent._prevClass ===
+                  "textRedactor")
             ) {
               this.htmlSelected =
-                  calledElem.instance.$el.nodeType == 3
-                      ? calledElem.instance.$el.innerHTML.data
-                      : calledElem.instance.$el.outerHTML;
+                calledElem.instance.$el.nodeType == 3
+                  ? calledElem.instance.$el.innerHTML.data
+                  : calledElem.instance.$el.outerHTML;
               _store.range.pasteHTML(div);
               _store.range.pasteHTML(this.htmlSelected);
               _store.range.pasteHTML(div2);
@@ -754,8 +783,8 @@ export default {
           if (window.getSelection) {
             let range = document.createRange();
             range.setStart(
-                document.getElementsByClassName("textRedactor__content").item(0),
-                0
+              document.getElementsByClassName("textRedactor__content").item(0),
+              0
             );
             range.collapse(false);
             range.insertNode(div);
@@ -764,14 +793,14 @@ export default {
           } else if (document.selection && document.selection.createRange) {
             let range = document.createRange();
             range.setStart(
-                document.getElementsByClassName("textRedactor__content").item(0),
-                0
+              document.getElementsByClassName("textRedactor__content").item(0),
+              0
             );
             range.collapse(false);
             this.htmlSelected =
-                calledElem.instance.$el.nodeType == 3
-                    ? calledElem.instance.$el.innerHTML.data
-                    : calledElem.instance.$el.outerHTML;
+              calledElem.instance.$el.nodeType == 3
+                ? calledElem.instance.$el.innerHTML.data
+                : calledElem.instance.$el.outerHTML;
             range.pasteHTML(div);
             range.pasteHTML(this.htmlSelected);
             range.pasteHTML(div2);
@@ -793,35 +822,32 @@ export default {
 
         /** Фильтруемся только по вопросам в статье, и переписываем индексы на корректные в соответствии с их положением в DOM **/
         let component = _store.list_components
-            .filter((elem) => {
-              const name = elem?.data?.component?.name
+          .filter((elem) => {
+            const name = elem?.data?.component?.name;
 
-              /** Если в переданном компоненте нет нужной структуры, пропускаем его **/
-              if (!name) {
-                console.warn("NOT VALID COMPONENT NAME ON FILTER CHANGE INDEX")
+            /** Если в переданном компоненте нет нужной структуры, пропускаем его **/
+            if (!name) {
+              console.warn("NOT VALID COMPONENT NAME ON FILTER CHANGE INDEX");
 
-                return
-              }
+              return;
+            }
 
-              //TODO
-              return (
-                  name === "question" ||
-                  name === "questions"
-              );
-            })
-            .filter((elem) => {
-              return elem?.data?.index == id;
-            });
+            //TODO
+            return name === "question" || name === "questions";
+          })
+          .filter((elem) => {
+            return elem?.data?.index == id;
+          });
 
         // console.log(block)
 
         if (component.length) {
-          let nameComponent = component[0]?.data?.component?.name
+          let nameComponent = component[0]?.data?.component?.name;
 
           /** Если в переданном компоненте нет нужной структуры, пропускаем его **/
           if (!nameComponent) {
-            console.warn("NOT VALID NAME ON CHANGE COUNTER QUESTION")
-            return
+            console.warn("NOT VALID NAME ON CHANGE COUNTER QUESTION");
+            return;
           }
 
           const key_data = `index_${nameComponent}`;
@@ -848,14 +874,16 @@ export default {
         // console.log(elem.data.index)
         // console.log(elem.instance.$data.index_component)
 
-        const currentDataComponent = elem?.data?.component?.name ? elem.data : elem
+        const currentDataComponent = elem?.data?.component?.name
+          ? elem.data
+          : elem;
 
-        const name = currentDataComponent?.component?.name
+        const name = currentDataComponent?.component?.name;
 
         /** Если в переданном компоненте нет нужной структуры, пропускаем его **/
         if (!name) {
-          console.warn("NOT VALID COMPONENT ON RESET COUNTERS")
-          return
+          console.warn("NOT VALID COMPONENT ON RESET COUNTERS");
+          return;
         }
 
         currentDataComponent.index = global_counter.counter_index;
@@ -864,7 +892,7 @@ export default {
         elem.instance.$data[key_data] = global_counter[key_data];
         console.log("block");
         const block = document.getElementById(
-            `component_wrapper-${elem.instance.$data.index_component}`
+          `component_wrapper-${elem.instance.$data.index_component}`
         );
         // console.log(block)
         if (block) {
@@ -895,17 +923,22 @@ export default {
 
         let index = _store.list_components.findIndex((elem) => {
           return (
-              elem.instance.$data.index_component === _store.deletedComponent
+            elem.instance.$data.index_component === _store.deletedComponent
           );
         });
         if (index !== -1) {
-          const currentComponent = _store.list_components[index]
+          const currentComponent = _store.list_components[index];
 
           //TODO
-          if (currentComponent?.data?.component?.name === 'questions' || currentComponent?.component?.name === 'questions') {
-            let question_index = _store.questions_data.findIndex(elem => {
-              return elem.id == currentComponent.instance.$data.question_data.id
-            })
+          if (
+            currentComponent?.data?.component?.name === "questions" ||
+            currentComponent?.component?.name === "questions"
+          ) {
+            let question_index = _store.questions_data.findIndex((elem) => {
+              return (
+                elem.id == currentComponent.instance.$data.question_data.id
+              );
+            });
             if (question_index !== -1) {
               _store.questions_data.splice(question_index, 1);
             }
@@ -915,9 +948,9 @@ export default {
 
           this.$nextTick(() => {
             const elem = document.getElementById(
-                `component_wrapper-${_store.deletedComponent}`
+              `component_wrapper-${_store.deletedComponent}`
             );
-            console.log(elem)
+            console.log(elem);
             elem.remove();
             this.$store.commit("delete_component_by_id", 0);
             this.resetCounter(_store.list_components);
@@ -942,7 +975,7 @@ export default {
     checkForStyles(html, icon) {
       if (icon.tag === "<u" || icon.tag === "<strike") {
         return (
-            html.includes("text-decoration-line") && html.includes(icon.styleName)
+          html.includes("text-decoration-line") && html.includes(icon.styleName)
         );
       } else return html.includes(icon.styleName);
     },
@@ -961,7 +994,10 @@ export default {
           html = container.innerHTML.replace(/<br>/g, "");
         }
         // SET SELECTED TEXT - TO CREATE URL
-        this.$store.commit('set_selected_text_url', window.getSelection().toString())
+        this.$store.commit(
+          "set_selected_text_url",
+          window.getSelection().toString()
+        );
       } else if (typeof document.selection != "undefined") {
         if (document.selection.type == "Text") {
           html = document.selection.createRange().htmlText.replace(/<br>/g, "");
@@ -987,29 +1023,29 @@ export default {
           parentHTML = parentElem.outerHTML;
         }
         if (
-            elem.className !== "textRedactor__content" &&
-            elem.className !== "textRedactor"
+          elem.className !== "textRedactor__content" &&
+          elem.className !== "textRedactor"
         ) {
           let grandParent = parentHTML
-              ? parentElem.parentElement.outerHTML
-              : elem.outerHTML;
+            ? parentElem.parentElement.outerHTML
+            : elem.outerHTML;
           styleAlign = this.getStyleAlign(grandParent, icons_arr[icon]);
         }
         icons_arr[icon].active =
-            this.checkForStyles(parentHTML, icons_arr[icon]) ||
-            this.checkByTag(parentHTML, icons_arr[icon]) ||
-            this.checkForStyles(styleAlign, icons_arr[icon]) ||
-            this.checkHTMLText(html, icons_arr[icon]) ||
-            this.checkForStyles(html, icons_arr[icon]);
+          this.checkForStyles(parentHTML, icons_arr[icon]) ||
+          this.checkByTag(parentHTML, icons_arr[icon]) ||
+          this.checkForStyles(styleAlign, icons_arr[icon]) ||
+          this.checkHTMLText(html, icons_arr[icon]) ||
+          this.checkForStyles(html, icons_arr[icon]);
       });
     },
     /* Get style name for aligners values */
     getStyleAlign(outerHTML, icon) {
       if (
-          icon.tag !== "<b" &&
-          icon.tag !== "<i" &&
-          icon.tag !== "<u" &&
-          icon.tag !== "<strike"
+        icon.tag !== "<b" &&
+        icon.tag !== "<i" &&
+        icon.tag !== "<u" &&
+        icon.tag !== "<strike"
       ) {
         return outerHTML.includes(icon.styleName) ? icon.styleName : "";
       } else return "";
@@ -1025,9 +1061,9 @@ export default {
     /* Function for get if we insert component into text-editor area */
     checkIfTextEditor(elem) {
       try {
-        return elem.closest('.textRedactor__content') !== null;
+        return elem.closest(".textRedactor__content") !== null;
       } catch (e) {
-        return false
+        return false;
       }
     },
 

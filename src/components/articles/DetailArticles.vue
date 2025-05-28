@@ -573,9 +573,9 @@ export default {
       name: {
         value: { required },
       },
-      short_header: {
-        value: { required },
-      },
+      // short_header: {
+      //   value: { required },
+      // },
     },
     validationGroup: ["newArticle.name.value"],
   },
