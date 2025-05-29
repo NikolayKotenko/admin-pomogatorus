@@ -514,6 +514,7 @@
         <v-btn color="red darken-1" text @click="resetFields"> Очистить</v-btn>
         <v-btn
           :disabled="computedValidations"
+          :loading="loadingUpdateCreateArticle"
           color="blue darken-1"
           text
           @click.prevent="onSubmit('next')"
@@ -532,6 +533,7 @@
           </v-btn>
           <v-btn
             color="blue darken-1"
+            :loading="loadingUpdateCreateArticle"
             text
             @click.prevent="saveDifferences('next')"
           >
@@ -629,6 +631,7 @@ export default {
 
     stateDropzone: false,
     dropzone_uploaded: [],
+    loadingUpdateCreateArticle: false,
   }),
   mounted() {
     // this.getDb()
@@ -790,9 +793,11 @@ export default {
       }, 500);
     },
     saveDifferences(action) {
+      this.loadingUpdateCreateArticle = true;
       this.$store
         .dispatch("updateArticle", { data: this.newArticle, isEditor: true })
         .then(() => {
+          this.loadingUpdateCreateArticle = false;
           if (action === "next") {
             this.$router.push({
               path: "/articles",

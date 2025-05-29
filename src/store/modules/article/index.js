@@ -675,7 +675,7 @@ export default {
     updateArticle({ dispatch, state }, { data, isEditor }) {
       return new Promise((resolve) => {
         state.loadingRequest = true;
-        // state.loadingArticle = true
+        // state.loadingArticle = true;
         const requestData = {};
         for (let key in data) {
           if (typeof data[key] === "object" && !Array.isArray(data[key])) {
@@ -715,7 +715,7 @@ export default {
           .then((response) => {
             //handle success
             state.loadingRequest = false;
-            // state.loadingArticle = false
+            // state.loadingArticle = false;
             dispatch("createRelationTagArticle", data.name.value).then(() => {
               resolve();
             });
@@ -724,7 +724,7 @@ export default {
           .catch((response) => {
             //handle error
             state.loadingRequest = false;
-            // state.loadingArticle = false
+            // state.loadingArticle = false;
             resolve();
             console.log(response.body);
           });
