@@ -277,9 +277,6 @@ export default {
       this.filters.name = value;
     },
 
-    getQuestions() {
-      this.$store.dispatch("setListQuestions");
-    },
     getConfigDate() {
       this.$store.dispatch("setListConfigDate");
     },

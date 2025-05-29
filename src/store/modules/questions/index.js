@@ -1,5 +1,5 @@
 import Request from "@/services/request";
-import {jsonParseDepth} from "@/helpers/jsonParseDepth";
+import { jsonParseDepth } from "@/helpers/jsonParseDepth";
 
 /* DEFAULT STATE */
 const defaultQuestion = {
@@ -231,7 +231,8 @@ export default {
 
         Request.get(
           `${this.state.BASE_URL}/entity/questions` +
-            Request.ConstructFilterQuery(data)
+            Request.ConstructFilterQuery(data) +
+            "&select[id,activity,name,title,state_detailed_response,state_attachment_response,created_at,value_type_answer,_all_tags,updated_at]"
         )
           .then((response) => {
             console.log(response);

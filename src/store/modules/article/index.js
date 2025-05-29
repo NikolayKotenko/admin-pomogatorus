@@ -438,7 +438,9 @@ export default {
     async setListArticles({ commit, state }) {
       return new Promise((resolve, reject) => {
         state.loadingList = true;
-        Request.get(`${this.state.BASE_URL}/entity/articles`)
+        Request.get(
+          `${this.state.BASE_URL}/entity/articles?select[id,name,created_at,updated_at]`
+        )
           .then((response) => {
             commit("set_list_articles", response.data);
             state.loadingList = false;
@@ -456,7 +458,8 @@ export default {
 
         Request.get(
           `${this.state.BASE_URL}/entity/questions` +
-            Request.ConstructFilterQuery(data)
+            Request.ConstructFilterQuery(data) +
+            "&select[id,name,activity,value_type_answer,title,id_type_answer,state_detailed_response]"
         )
           .then((response) => {
             console.log(response);
@@ -478,7 +481,8 @@ export default {
 
         Request.get(
           `${this.state.BASE_URL}/entity/articles` +
-            Request.ConstructFilterQuery(data)
+            Request.ConstructFilterQuery(data) +
+            "&select[id,name,code,activity,created_at,updated_at]"
         )
           .then((response) => {
             console.log(response.data);
@@ -647,11 +651,9 @@ export default {
           .then((response) => {
             //handle success
             state.loadingRequest = false;
-            dispatch("setListArticles").then(() => {
-              dispatch("createRelationTagArticle", data.name.value).then(() => {
-                // state.loadingArticle = false
-                resolve();
-              });
+            dispatch("createRelationTagArticle", data.name.value).then(() => {
+              // state.loadingArticle = false
+              resolve();
             });
             commit("change_id_newArticle", response.data.id);
           })
@@ -714,10 +716,8 @@ export default {
             //handle success
             state.loadingRequest = false;
             // state.loadingArticle = false
-            dispatch("setListArticles").then(() => {
-              dispatch("createRelationTagArticle", data.name.value).then(() => {
-                resolve();
-              });
+            dispatch("createRelationTagArticle", data.name.value).then(() => {
+              resolve();
             });
             console.log(response);
           })
@@ -826,7 +826,10 @@ export default {
     getListQuestions({ commit, state }, params) {
       return new Promise((resolve, reject) => {
         state.loadingModalList = true;
-        Request.get(`${this.state.BASE_URL}/entity/${params}`)
+        Request.get(
+          `${this.state.BASE_URL}/entity/${params}` +
+            "?select[id,name,activity,value_type_answer,title,id_type_answer,state_detailed_response]"
+        )
           .then((response) => {
             commit("change_list_questions", response.data);
             state.loadingModalList = false;

@@ -649,8 +649,9 @@ export default {
         }
       },
     },
-    filters: {
-      handler() {
+    "filters.tag": {
+      handler(v) {
+        if (!v.length) return;
         this.getFilteredQuestions();
       },
       deep: true,
