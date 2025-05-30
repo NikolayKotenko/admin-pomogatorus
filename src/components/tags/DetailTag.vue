@@ -98,10 +98,7 @@
                 :key="index"
                 class="dialog_dropzone_inputs"
               >
-                <v-img
-                  :src="$store.state.BASE_URL + item.full_path"
-                  contain
-                ></v-img>
+                <v-img :src="item.full_path" contain></v-img>
                 <span class="dialog_dropzone_inputs__label">
                   {{ item.filename }}</span
                 >
@@ -439,6 +436,7 @@ export default {
     sendingData(file, xhr, formData) {
       formData.append("uuid", file.upload.uuid);
       formData.append("id_tag", _store.tag.id);
+      formData.append("is_tag_cover", true);
     },
     async successData(file, response) {
       console.log("successData");
@@ -539,11 +537,11 @@ export default {
         }
       },
     },
-    "$store.state.TagsModule.tag.e_client_files": {
+    "$store.state.TagsModule.tag.tag_cover": {
       handler(newValue) {
-        if (!newValue) return false;
         this.dropzone_uploaded = [];
-        this.dropzone_uploaded = newValue;
+        if (!newValue) return false;
+        this.dropzone_uploaded.push(newValue);
       },
     },
     // 'dropzone_uploaded':{

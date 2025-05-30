@@ -18,7 +18,7 @@ export default {
       seo_title: null,
       seo_keywords: null,
       seo_description: null,
-      e_client_files: [],
+      tag_cover: null,
       created_at: null,
       updated_at: null,
     },
@@ -109,11 +109,11 @@ export default {
       }
     },
     async deleteFilesTethers({ dispatch }) {
-      if (!this.state.TagsModule.tag.e_client_files.length) return false;
+      if (!this.state.TagsModule.tag.tag_cover) return false;
 
       await dispatch(
         "deleteFileGeneral",
-        this.state.TagsModule.tag.e_client_files[0].id
+        this.state.TagsModule.tag.tag_cover.id
       );
     },
     async onSubmit({ commit, dispatch }) {
