@@ -144,6 +144,31 @@
               </TextAreaStyled>
             </div>
           </div>
+          <div class="question_settings mt-5">
+            <v-checkbox
+              v-model="newQuestion.state_detailed_response"
+              :loading="$store.state.QuestionsModule.loadingQuestion"
+              class="question_settings__checkbox"
+              hide-details
+              label="Допускается развернутый ответ"
+              @change="saveDBQuestion(newQuestion)"
+            ></v-checkbox>
+            <v-checkbox
+              v-model="newQuestion.state_attachment_response"
+              :loading="$store.state.QuestionsModule.loadingQuestion"
+              class="question_settings__checkbox"
+              hide-details
+              label="Возможность загружать pdf документы"
+              @change="saveDBQuestion(newQuestion)"
+            ></v-checkbox>
+            <v-checkbox
+              v-model.number="newQuestion.activity"
+              :false-value="0"
+              :true-value="1"
+              hide-details
+              label="Активность"
+            ></v-checkbox>
+          </div>
 
           <br />
           <!-- Tags Component -->
@@ -212,19 +237,6 @@
           </UniversalTags>
           <br />
 
-          <!-- AGENTS -->
-          <div class="question_main">
-            <div class="question_main_selector">
-              <span
-                :class="{ focused: agentFocused }"
-                class="question_main_selector__title"
-              >
-                Агенты
-              </span>
-              <AgentList @onFocus="onFocusFrom" @outFocus="outFocusFrom" />
-            </div>
-          </div>
-
           <!-- SELECTOR & INPUT'S -->
           <div class="question_main">
             <!--      Блок с выбором типа вопроса      -->
@@ -239,12 +251,6 @@
               <!--      Селектор типа вопроса        -->
               <v-select
                 v-model="newQuestion.id_type_answer.value"
-                :class="{
-                  invalidSelector:
-                    !newQuestion.id_type_answer.value &&
-                    $v.newQuestion.id_type_answer.$dirty &&
-                    !$v.newQuestion.id_type_answer.required,
-                }"
                 :items="getListTypesOfQuestions"
                 :loading="$store.state.QuestionsModule.loadingQuestion"
                 :menu-props="{ bottom: true, offsetY: true }"
@@ -261,17 +267,6 @@
                 @focus="onFocus(newQuestion.id_type_answer)"
                 @focusout="outFocus(newQuestion.id_type_answer)"
               ></v-select>
-              <!--      Текст валидации        -->
-              <small
-                v-if="
-                  !newQuestion.id_type_answer.value &&
-                  $v.newQuestion.id_type_answer.$dirty &&
-                  !$v.newQuestion.id_type_answer.required
-                "
-                style="color: lightcoral"
-              >
-                Поле обязательно для заполнения
-              </small>
             </div>
 
             <!--      Заполняемые пользователем поля      -->
@@ -481,30 +476,17 @@
             </div>
           </div>
 
-          <div class="question_settings">
-            <v-checkbox
-              v-model="newQuestion.state_detailed_response"
-              :loading="$store.state.QuestionsModule.loadingQuestion"
-              class="question_settings__checkbox"
-              hide-details
-              label="Допускается развернутый ответ"
-              @change="saveDBQuestion(newQuestion)"
-            ></v-checkbox>
-            <v-checkbox
-              v-model="newQuestion.state_attachment_response"
-              :loading="$store.state.QuestionsModule.loadingQuestion"
-              class="question_settings__checkbox"
-              hide-details
-              label="Возможность загружать pdf документы"
-              @change="saveDBQuestion(newQuestion)"
-            ></v-checkbox>
-            <v-checkbox
-              v-model.number="newQuestion.activity"
-              :false-value="0"
-              :true-value="1"
-              hide-details
-              label="Активность"
-            ></v-checkbox>
+          <!-- AGENTS -->
+          <div class="question_main">
+            <div class="question_main_selector">
+              <span
+                :class="{ focused: agentFocused }"
+                class="question_main_selector__title"
+              >
+                Агенты
+              </span>
+              <AgentList @onFocus="onFocusFrom" @outFocus="outFocusFrom" />
+            </div>
           </div>
         </div>
 
@@ -653,13 +635,13 @@ export default {
       // purpose_of_question: {
       //   value: {required}
       // },
-      id_type_answer: {
-        value: { required },
-      },
+      // id_type_answer: {
+      //   value: { required },
+      // },
     },
     validationGroup: [
       "newQuestion.name.value",
-      "newQuestion.id_type_answer.value",
+      // "newQuestion.id_type_answer.value",
     ],
     // 'newQuestion.purpose_of_question.value'
   },
@@ -710,7 +692,7 @@ export default {
       value_type_answer: "",
       _all_tags: [],
       mtomtags: [],
-      activity: 0,
+      activity: 1,
       name_param_env: "",
     },
     deleteModal: false,
@@ -727,6 +709,9 @@ export default {
       if (this.$route.params?.action === "create") {
         this.getDBQuestion();
       }
+    }
+    if (this.$route.params?.action === "create") {
+      this.$store.commit("clear_new_question");
     }
 
     /** Получаем список справочников **/
@@ -794,9 +779,9 @@ export default {
           this.$v.newQuestion.name.$dirty &&
           !this.$v.newQuestion.name.required) ||
         // (!this.newQuestion.purpose_of_question.value && this.$v.newQuestion.purpose_of_question.$dirty && !this.$v.newQuestion.purpose_of_question.required) ||
-        (!this.newQuestion.id_type_answer.value &&
-          this.$v.newQuestion.id_type_answer.$dirty &&
-          !this.$v.newQuestion.id_type_answer.required) ||
+        // (!this.newQuestion.id_type_answer.value &&
+        //   this.$v.newQuestion.id_type_answer.$dirty &&
+        //   !this.$v.newQuestion.id_type_answer.required) ||
         this.rangeError
       );
     },
@@ -1237,26 +1222,29 @@ export default {
         this.deleteStorage = false;
       }, 500);
     },
-    onSubmit() {
+    async onSubmit() {
       if (this.$v.$invalid) {
         this.$v.$touch();
         return;
       }
-      this.deleteDBQuestion(this.newQuestion).then(() => {
-        this.$store.dispatch("createQuestion", this.newQuestion).then(() => {
-          this.$store.dispatch("removeLocalStorage");
-          this.$router.push({
-            path: "/questions",
-          });
-        });
+      await this.deleteDBQuestion(this.newQuestion);
+      const response = await this.$store.dispatch(
+        "createQuestion",
+        this.newQuestion
+      );
+      if (response.codeResponse >= 400) return;
+
+      await this.$store.dispatch("removeLocalStorage");
+      //устанавливаем нужные квери
+      await this.$router.replace({
+        params: { action: "edit" },
+        query: { question_id: response.data.id },
       });
+      //обновляем страницу с кверями
+      await this.$router.go();
     },
-    saveDifferences() {
-      this.$store.dispatch("updateQuestion", this.newQuestion).then(() => {
-        this.$router.push({
-          path: "/questions",
-        });
-      });
+    async saveDifferences() {
+      await this.$store.dispatch("updateQuestion", this.newQuestion);
     },
     deleteQuestion() {
       this.$store.dispatch("deleteQuestion", this.newQuestion).then(() => {

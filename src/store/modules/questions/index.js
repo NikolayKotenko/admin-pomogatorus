@@ -29,6 +29,7 @@ const defaultQuestion = {
   value_type_answer: null,
   _all_tags: [],
   mtomtags: [],
+  m_to_m_tags_tech_task: [],
   activity: 0,
 };
 
@@ -167,11 +168,16 @@ export default {
       function setValueTypeAnswer(valueTypeAnswer) {
         state.newQuestion["value_type_answer"] = [];
 
+        if (!valueTypeAnswer) return;
+
         let parsed = jsonParseDepth(valueTypeAnswer);
         parsed.forEach((elem) => {
           state.newQuestion["value_type_answer"].push(new AnswerVariable(elem));
         });
       }
+    },
+    clear_new_question(state) {
+      state.newQuestion = defaultQuestion;
     },
 
     /* LOCAL_STORAGE */
@@ -217,8 +223,6 @@ export default {
         this.state.BASE_URL + "/entity/questions-list-config-date"
       )
         .then((response) => {
-          console.log("setListConfigDate response");
-          console.log(response);
           commit("set_list_config_date", response.data);
         })
         .catch((error) => {
@@ -373,60 +377,53 @@ export default {
       state.loadingQuestion = false;
     },
     async createQuestion({ dispatch, state }, data) {
-      return new Promise((resolve) => {
-        state.loadingRequest = true;
-        state.loadingQuestion = true;
-        let bodyFormData = {};
-        for (let key in data) {
-          if (
-            key === "state_attachment_response" ||
-            key === "state_detailed_response"
-          ) {
-            if (data[key]) {
-              bodyFormData[key] = "1";
-            } else bodyFormData[key] = "0";
-          } else if (typeof data[key] === "object") {
-            if (Array.isArray(data[key])) {
-              console.log(data[key]);
-              let arr = [];
-              data[key].forEach((elem) => {
-                if (elem.answer) {
-                  arr.push(elem);
-                }
-              });
-              bodyFormData[key] = JSON.stringify(arr);
-            } else {
-              if (data[key].value) {
-                bodyFormData[key] = data[key].value;
+      state.loadingRequest = true;
+      state.loadingQuestion = true;
+      let bodyFormData = {};
+      for (let key in data) {
+        if (
+          key === "state_attachment_response" ||
+          key === "state_detailed_response"
+        ) {
+          if (data[key]) {
+            bodyFormData[key] = "1";
+          } else bodyFormData[key] = "0";
+        } else if (typeof data[key] === "object") {
+          if (Array.isArray(data[key])) {
+            console.log(data[key]);
+            let arr = [];
+            data[key].forEach((elem) => {
+              if (elem.answer) {
+                arr.push(elem);
               }
-            }
-          } else bodyFormData[key] = data[key];
-        }
-        bodyFormData["name_param_env"] = "";
-        console.log(bodyFormData);
-
-        Request.post(`${this.state.BASE_URL}/entity/questions`, bodyFormData)
-          .then((response) => {
-            //handle success
-            state.loadingRequest = false;
-            dispatch("setListQuestions").then(() => {
-              dispatch("createRelationTagQuestion", data.name.value).then(
-                () => {
-                  state.loadingQuestion = false;
-                  resolve();
-                }
-              );
             });
-            console.log(response);
-          })
-          .catch((response) => {
-            //handle error
-            state.loadingRequest = false;
-            state.loadingQuestion = false;
-            resolve();
-            console.log(response.body);
-          });
-      });
+            bodyFormData[key] = JSON.stringify(arr);
+          } else {
+            if (data[key].value) {
+              bodyFormData[key] = data[key].value;
+            }
+          }
+        } else bodyFormData[key] = data[key];
+      }
+      bodyFormData["name_param_env"] = "";
+      console.log(bodyFormData);
+
+      const response = await Request.post(
+        `${this.state.BASE_URL}/entity/questions`,
+        bodyFormData
+      );
+      if (response.codeResponse >= 400) {
+        //handle error
+        state.loadingRequest = false;
+        state.loadingQuestion = false;
+        return response;
+      }
+      //handle success
+      state.loadingRequest = false;
+      await dispatch("setListQuestions");
+      await dispatch("createRelationTagQuestion", data.name.value);
+      state.loadingQuestion = false;
+      return response;
     },
     updateQuestion({ dispatch, state }, data) {
       return new Promise((resolve) => {

@@ -19,12 +19,12 @@
               <v-icon v-show="question.activity === 0" class="activity_icon"
                 >mdi-eye-off</v-icon
               >
-              <span
+              <a
                 class="questions_wrapper__item__top__title__name"
-                @click="onShowDetailQuestion(question)"
+                :href="'/questions/edit?question_id=' + question.id"
               >
-                {{ question.name }}
-              </span>
+                {{ question.name }}</a
+              >
               <span class="questions_wrapper__item__top__title__quantity">
                 [{{ computedAnswersCount(question) }}]
               </span>
@@ -289,13 +289,6 @@ export default {
         this.$store.dispatch("setFilteredListQuestions", this.filters);
       }, 500);
     },
-    onShowDetailQuestion(question) {
-      this.$router.push({
-        name: "DetailQuestion",
-        params: { action: "edit" },
-        query: { question_id: question.id },
-      });
-    },
     initializeQuery() {
       this.getFromQuery = true;
       if (Object.keys(this.$route.query).length) {
@@ -409,6 +402,10 @@ export default {
           &__quantity {
             color: lightcoral;
             transition: all 0.4s ease-in-out;
+          }
+
+          &__name {
+            text-decoration: none;
           }
         }
 

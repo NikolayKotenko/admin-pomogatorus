@@ -186,7 +186,7 @@ export default {
         code: DictionaryAttribute.code,
       });
       let response;
-      if (checkExist.codeResponse === 200) {
+      if (DictionaryAttribute.code && checkExist.codeResponse === 200) {
         response = await Request.put(
           this.state.BASE_URL +
             "/dictionary/dictionary-attributes/" +
