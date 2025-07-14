@@ -2,20 +2,29 @@
   <div class="questions">
     <div class="questions_wrapper universal_list">
       <div
-          v-for="(article, index) in $store.state.ArticleModule.listArticles"
-          :key="index"
-          class="questions_wrapper__item"
+        v-for="(article, index) in $store.state.ArticleModule.listArticles"
+        :key="index"
+        class="questions_wrapper__item"
       >
-        <div :class="{filterShow: show_filter}" class="questions_wrapper__item__top">
-          <div :class="{filterShow: show_filter}" class="questions_wrapper__item__top__title">
-            <div class="questions_wrapper__item__top__title__icon" @click="setVisible(article)">
-                <template v-if="article.activity === 0">
-                  <v-icon class="activity_icon">mdi-eye-off</v-icon>
-                </template>
+        <div
+          :class="{ filterShow: show_filter }"
+          class="questions_wrapper__item__top"
+        >
+          <div
+            :class="{ filterShow: show_filter }"
+            class="questions_wrapper__item__top__title"
+          >
+            <div
+              class="questions_wrapper__item__top__title__icon"
+              @click="setVisible(article)"
+            >
+              <template v-if="article.activity === 0">
+                <v-icon class="activity_icon">mdi-eye-off</v-icon>
+              </template>
 
-                <template v-else>
-                  <v-icon class="activity_icon">mdi-eye</v-icon>
-                </template>
+              <template v-else>
+                <v-icon class="activity_icon">mdi-eye</v-icon>
+              </template>
             </div>
             <span @click="onShowDetailArticle(article)">
               {{ article.name }}
@@ -25,12 +34,15 @@
           <div class="questions_wrapper__item__top__icons"></div>
         </div>
         <div class="questions_wrapper__item__bottom universal_date">
-          <div :class="{filterShow: show_filter}" class="questions_wrapper__item__bottom__date">
+          <div
+            :class="{ filterShow: show_filter }"
+            class="questions_wrapper__item__bottom__date"
+          >
             {{ article.created_at }}
           </div>
           <div
-              :class="{ filterShow: show_filter }"
-              class="questions_wrapper__item__bottom__date"
+            :class="{ filterShow: show_filter }"
+            class="questions_wrapper__item__bottom__date"
           >
             {{ article.updated_at }}
           </div>
@@ -38,14 +50,14 @@
       </div>
 
       <v-alert
-          v-if="
+        v-if="
           !$store.state.ArticleModule.loadingList &&
           ($store.state.ArticleModule.listArticles === null ||
             !$store.state.ArticleModule.listArticles.length)
         "
-          class="err-msg"
-          text
-          type="error"
+        class="err-msg"
+        text
+        type="error"
       >
         {{ computedErrMsg }}
       </v-alert>
@@ -53,21 +65,29 @@
     <v-sheet class="footer">
       <div class="footer_input">
         <InputStyled
-            :class="{ inputFocused: filterValueFocused }"
-            :data="filters.name"
-            :is-flat="true"
-            :is-solo="true"
-            :placeholder="'Поиск в выбранных разделах'"
-            @update-input="setName"
-            @on-focus="() => {onFocus()}"
-            @out-focus="() => {outFocus()}"
+          :class="{ inputFocused: filterValueFocused }"
+          :data="filters.name"
+          :is-flat="true"
+          :is-solo="true"
+          :placeholder="'Поиск в выбранных разделах'"
+          @update-input="setName"
+          @on-focus="
+            () => {
+              onFocus();
+            }
+          "
+          @out-focus="
+            () => {
+              outFocus();
+            }
+          "
         ></InputStyled>
       </div>
       <div class="footer_filter">
         <v-icon
-            :color="!!show_filter ? 'blue' : 'grey'"
-            x-large
-            @click="show_filter = !show_filter"
+          :color="!!show_filter ? 'blue' : 'grey'"
+          x-large
+          @click="show_filter = !show_filter"
         >
           mdi-filter-outline
         </v-icon>
@@ -76,29 +96,29 @@
 
     <!-- LOADER -->
     <v-overlay
-        :absolute="true"
-        :value="$store.state.QuestionsModule.loadingList || $store.state.ArticleModule.loadingList"
-        :z-index="207"
+      :absolute="true"
+      :value="
+        $store.state.QuestionsModule.loadingList ||
+        $store.state.ArticleModule.loadingList
+      "
+      :z-index="207"
     >
       <v-progress-circular
-          v-if="$store.state.QuestionsModule.loadingList || $store.state.ArticleModule.loadingList"
-          :indeterminate="true"
-          :size="70"
-          color="blue"
-          style="margin: auto"
-          width="4"
+        v-if="
+          $store.state.QuestionsModule.loadingList ||
+          $store.state.ArticleModule.loadingList
+        "
+        :indeterminate="true"
+        :size="70"
+        color="blue"
+        style="margin: auto"
+        width="4"
       ></v-progress-circular>
     </v-overlay>
 
-    <v-dialog
-        v-model="show_filter"
-        content-class="bottom_filters"
-    >
+    <v-dialog v-model="show_filter" content-class="bottom_filters">
       <transition appear name="slide-y-reverse-transition">
-        <v-sheet
-            v-show="show_filter"
-            class="text-center filter_modal"
-        >
+        <v-sheet v-show="show_filter" class="text-center filter_modal">
           <div class="filter_modal_header">
             <div class="filter_modal_header__close">
               <v-icon color="blue" x-large @click="show_filter = !show_filter">
@@ -108,25 +128,12 @@
           </div>
           <div class="filter_modal_filters">
             <div class="filter_modal_filters__item">
-              <div class="filter_modal_filters__item__title">
-                Активность:
-              </div>
+              <div class="filter_modal_filters__item__title">Активность:</div>
               <div class="filter_modal_filters__item__chips">
-                <v-radio-group
-                    v-model="filters.activity"
-                >
-                  <v-radio
-                      label="Активен"
-                      value="true"
-                  ></v-radio>
-                  <v-radio
-                      label="Не активен"
-                      value="false"
-                  ></v-radio>
-                  <v-radio
-                      :value="null"
-                      label="Все"
-                  ></v-radio>
+                <v-radio-group v-model="filters.activity">
+                  <v-radio label="Активен" value="true"></v-radio>
+                  <v-radio label="Не активен" value="false"></v-radio>
+                  <v-radio :value="null" label="Все"></v-radio>
                 </v-radio-group>
               </div>
             </div>
@@ -137,15 +144,15 @@
               <div class="filter_modal_filters__item__chips">
                 <v-chip-group v-model="filters.tag" column multiple>
                   <v-chip
-                      v-for="tag in $store.state.ArticleModule.listGeneralTags"
-                      :key="tag.id"
-                      :value="tag.code"
-                      color="#f2f5f7"
+                    v-for="tag in $store.state.ArticleModule.listGeneralTags"
+                    :key="tag.id"
+                    :value="tag.code"
+                    color="#f2f5f7"
                   >
                     <v-icon
-                        v-if="filters.tag.includes(tag.code)"
-                        color="grey darken-2"
-                        left
+                      v-if="filters.tag.includes(tag.code)"
+                      color="grey darken-2"
+                      left
                     >
                       mdi-check-bold
                     </v-icon>
@@ -164,11 +171,11 @@
               <div class="filter_modal_filters__item__chips">
                 <v-radio-group v-model="filters.updated_at">
                   <v-radio
-                      v-for="(variable, index) in $store.state.QuestionsModule
+                    v-for="(variable, index) in $store.state.QuestionsModule
                       .listConfigDate"
-                      :key="index"
-                      :label="variable.text"
-                      :value="variable.value"
+                    :key="index"
+                    :label="variable.text"
+                    :value="variable.value"
                   ></v-radio>
                 </v-radio-group>
               </div>
@@ -182,10 +189,11 @@
 
 <script>
 import InputStyled from "../components/common/InputStyled";
+import Request from "@/services/request";
 
 export default {
   name: "Articles.vue",
-  components: {InputStyled},
+  components: { InputStyled },
   data: () => ({
     show_filter: false,
     filterValueFocused: false,
@@ -218,22 +226,22 @@ export default {
   computed: {
     computedErrMsg() {
       return this.$store.state.ArticleModule.questionNotification
-          ? this.$store.state.ArticleModule.questionNotification
-          : "Ничего не найдено";
+        ? this.$store.state.ArticleModule.questionNotification
+        : "Ничего не найдено";
     },
   },
   methods: {
     setVisible(article) {
-      article.activity = article.activity === 0 ? 1 : 0
+      article.activity = article.activity === 0 ? 1 : 0;
 
-      this.saveArticle(article)
+      this.saveArticle(article);
     },
     setName(value) {
-      this.filters.name = value
+      this.filters.name = value;
     },
 
     saveArticle(article) {
-      this.$store.dispatch("updateArticle", {data: article, isEditor: false})
+      this.$store.dispatch("updateArticle", { data: article, isEditor: false });
     },
 
     changeQuery() {
@@ -250,14 +258,14 @@ export default {
       }
       this.$router.push({
         path: this.$route.path,
-        query: {...this.queryObject},
+        query: { ...this.queryObject },
       });
     },
     onShowDetailArticle(article) {
       this.$router.push({
         name: "DetailArticles",
-        params: {action: "edit"},
-        query: {article_id: article.id},
+        params: { action: "edit" },
+        query: { article_id: article.id },
       });
     },
     getConfigDate() {
@@ -269,7 +277,16 @@ export default {
     getFilteredArticles() {
       if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
       this.debounceTimeout = setTimeout(() => {
-        this.$store.dispatch("setFilteredListArticles", this.filters);
+        const selectQuery = [
+          "id",
+          "name",
+          "code",
+          "activity",
+          "created_at",
+          "updated_at",
+        ];
+        const query = Request.modifyQuery(this.filters, selectQuery);
+        this.$store.dispatch("setFilteredListArticles", query);
       }, 500);
     },
     initializeQuery() {
@@ -277,8 +294,8 @@ export default {
       if (Object.keys(this.$route.query).length) {
         for (let key in this.filters) {
           if (
-              Object.keys(this.$route.query).includes(key) &&
-              this.$route.query[key] !== null
+            Object.keys(this.$route.query).includes(key) &&
+            this.$route.query[key] !== null
           ) {
             if (key === "tag") {
               if (Array.isArray(this.$route.query[key])) {

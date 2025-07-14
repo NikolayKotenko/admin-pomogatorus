@@ -438,9 +438,9 @@ export default {
     async setListArticles({ commit, state }) {
       return new Promise((resolve, reject) => {
         state.loadingList = true;
-        Request.get(
-          `${this.state.BASE_URL}/entity/articles?select[id,name,created_at,updated_at]`
-        )
+        const selectQuery = ["id", "name", "created_at", "updated_at"];
+        const query = Request.modifyQuery([], selectQuery);
+        Request.get(`${this.state.BASE_URL}/entity/articles${query}`)
           .then((response) => {
             commit("set_list_articles", response.data);
             state.loadingList = false;
@@ -456,11 +456,17 @@ export default {
       return new Promise((resolve, reject) => {
         state.loadingList = true;
 
-        Request.get(
-          `${this.state.BASE_URL}/entity/questions` +
-            Request.ConstructFilterQuery(data) +
-            "&select[id,name,activity,value_type_answer,title,id_type_answer,state_detailed_response]"
-        )
+        const selectQuery = [
+          "id",
+          "name",
+          "activity",
+          "value_type_answer",
+          "title",
+          "id_type_answer",
+          "state_detailed_response",
+        ];
+        const query = Request.modifyQuery(data, selectQuery);
+        Request.get(`${this.state.BASE_URL}/entity/questions${query}`)
           .then((response) => {
             console.log(response);
             commit("set_list_questions", response.data);
@@ -475,15 +481,11 @@ export default {
           });
       });
     },
-    async setFilteredListArticles({ state, commit }, data) {
+    async setFilteredListArticles({ state, commit }, query) {
       return new Promise((resolve, reject) => {
         state.loadingList = true;
 
-        Request.get(
-          `${this.state.BASE_URL}/entity/articles` +
-            Request.ConstructFilterQuery(data) +
-            "&select[id,name,code,activity,created_at,updated_at]"
-        )
+        Request.get(`${this.state.BASE_URL}/entity/articles${query}`)
           .then((response) => {
             console.log(response.data);
             commit("set_list_articles", response.data);
@@ -503,7 +505,9 @@ export default {
     async getGeneralTagsArticle({ commit, state }) {
       return new Promise((resolve) => {
         state.tagsLoaded = true;
-        Request.get(`${this.state.BASE_URL}/dictionary/tags`)
+        const selectQuery = ["*"];
+        const query = Request.modifyQuery([], selectQuery);
+        Request.get(`${this.state.BASE_URL}/dictionary/tags${query}`)
           .then((response) => {
             state.tagsLoaded = false;
             commit("set_list_general_tags_article", response.data);
@@ -541,11 +545,9 @@ export default {
       });
     },
     createRelationTagArticle({ state }, name) {
+      console.log("TUTA?");
       return new Promise((resolve, reject) => {
         if (state.newArticle._all_tags.length) {
-          let finded = state.listArticles.filter((elem) => {
-            return elem.name === name;
-          });
           state.newArticle._all_tags.forEach((tag) => {
             let mtmIndex = state.newArticle.mtomtags.findIndex((elem) => {
               return elem.id_tag === tag.id;
@@ -553,7 +555,7 @@ export default {
             if (mtmIndex === -1) {
               Request.post(`${this.state.BASE_URL}/m-to-m/tags`, {
                 id_tag: tag.id,
-                id_article: finded[0].id,
+                id_article: state.newArticle.id,
               })
                 .then((response) => {
                   console.log(response);
@@ -592,9 +594,12 @@ export default {
     async getDetailArticleInfo({ commit, state }) {
       state.loadingInfoArticle = true;
       return new Promise((resolve, reject) => {
-        Request.get(
-          `${this.state.BASE_URL}/users/get-list-users?filter[codes_groups][]=experts`
-        )
+        const selects = ["*"];
+        const filters = {
+          codes_groups: ["experts"],
+        };
+        const query = Request.modifyQuery(filters, selects);
+        Request.get(`${this.state.BASE_URL}/users/get-list-users${query}`)
           .then((response) => {
             commit("set_some_info_article", response.data);
             state.loadingInfoArticle = false;
@@ -611,7 +616,9 @@ export default {
     async getDetailArticle({ commit, state }, id) {
       state.loadingArticle = true;
       return new Promise((resolve, reject) => {
-        Request.get(`${this.state.BASE_URL}/entity/articles/${id}`)
+        const selectQuery = ["*", "_all_tags", "e_client_files"];
+        const query = Request.modifyQuery([], selectQuery);
+        Request.get(`${this.state.BASE_URL}/entity/articles/${id}${query}`)
           .then((response) => {
             commit("set_new_article", response.data);
             state.loadingArticle = false;
@@ -651,6 +658,7 @@ export default {
           .then((response) => {
             //handle success
             state.loadingRequest = false;
+            console.log("TUTA11111");
             dispatch("createRelationTagArticle", data.name.value).then(() => {
               // state.loadingArticle = false
               resolve();
@@ -716,6 +724,7 @@ export default {
             //handle success
             state.loadingRequest = false;
             // state.loadingArticle = false;
+            console.log("TUTAA2222");
             dispatch("createRelationTagArticle", data.name.value).then(() => {
               resolve();
             });
@@ -789,8 +798,17 @@ export default {
         const { index, component } = params;
 
         state.loadingModalList = true;
+        const selects = [
+          "id",
+          "name",
+          "id_type_answer",
+          "activity",
+          "value_type_answer",
+          "state_detailed_response",
+        ];
+        const query = Request.modifyQuery([], selects);
         Request.get(
-          `${this.state.BASE_URL}/entity/${component.name}/${component.id}`
+          `${this.state.BASE_URL}/entity/${component.name}/${component.id}${query}`
         )
           .then((response) => {
             const data = response.data;
@@ -826,10 +844,18 @@ export default {
     getListQuestions({ commit, state }, params) {
       return new Promise((resolve, reject) => {
         state.loadingModalList = true;
-        Request.get(
-          `${this.state.BASE_URL}/entity/${params}` +
-            "?select[id,name,activity,value_type_answer,title,id_type_answer,state_detailed_response]"
-        )
+
+        const selects = [
+          "id",
+          "name",
+          "activity",
+          "value_type_answer",
+          "title",
+          "id_type_answer",
+          "state_detailed_response",
+        ];
+        const query = Request.modifyQuery([], selects);
+        Request.get(`${this.state.BASE_URL}/entity/${params}${query}`)
           .then((response) => {
             commit("change_list_questions", response.data);
             state.loadingModalList = false;
@@ -844,7 +870,9 @@ export default {
     getListNomenclature({ commit, state }, params) {
       return new Promise((resolve, reject) => {
         state.loadingModalList = true;
-        Request.get(`${this.state.BASE_URL}/entity/${params}`)
+        const selects = ["*", "_family"];
+        const query = Request.modifyQuery([], selects);
+        Request.get(`${this.state.BASE_URL}/entity/${params}${query}`)
           .then((response) => {
             commit("change_list_nomenclature", response.data);
             state.loadingModalList = false;

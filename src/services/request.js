@@ -80,9 +80,25 @@ export default class Request {
         }
       }
     }
+    // console.log("ConstructFilterQuery", result);
+    return result;
+  }
+  static ConstructSelectQuery(selects = []) {
+    let result = "";
+    selects.forEach((item) => {
+      result += "select[]=" + item + "&";
+    });
     result = result.slice(0, -1);
 
-    // console.log("ConstructFilterQuery", result);
-    return "?" + result;
+    // console.log("ConstructSelectQuery", result);
+    return result;
+  }
+
+  static modifyQuery(filters = [], selects = []) {
+    return (
+      "?" +
+      this.ConstructFilterQuery(filters) +
+      this.ConstructSelectQuery(selects)
+    );
   }
 }

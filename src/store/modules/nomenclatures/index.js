@@ -152,8 +152,10 @@ export default {
       commit("changeLoadingList", true);
 
       try {
+        const selectQuery = ["*", "_family"];
+        const query = Request.modifyQuery([], selectQuery);
         const result = await Request.get(
-          this.state.BASE_URL + "/entity/nomenclature"
+          this.state.BASE_URL + `/entity/nomenclature${query}`
         );
         commit("changeListEntries", result.data);
         const listEntries = this.state.NomenclaturesModule.listEntries;
@@ -170,22 +172,13 @@ export default {
       }
       commit("changeLoadingList", false);
     },
-    async getEntry(_, id) {
-      return await Request.get(
-        this.state.BASE_URL + "/entity/nomenclature/" + id
-      );
-    },
     async getListFamily({ commit }) {
+      const selects = ["*"];
+      const query = Request.modifyQuery([], selects);
       const response = await Request.get(
-        this.state.BASE_URL + "/dictionary/nomenclature-family"
+        this.state.BASE_URL + `/dictionary/nomenclature-family${query}`
       );
       commit("setListFamily", response.data);
-    },
-    async getListCharacteristic({ commit }) {
-      const response = await Request.get(
-        this.state.BASE_URL + "/dictionary/characteristic/nomenclature"
-      );
-      commit("setListCharacteristics", response.data);
     },
   },
   getters: {},

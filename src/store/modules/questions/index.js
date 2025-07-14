@@ -205,7 +205,20 @@ export default {
       return new Promise((resolve, reject) => {
         state.loadingList = true;
 
-        Request.get(`${this.state.BASE_URL}/entity/questions`)
+        const selectQuery = [
+          "id",
+          "activity",
+          "name",
+          "title",
+          "state_detailed_response",
+          "state_attachment_response",
+          "created_at",
+          "value_type_answer",
+          "_all_tags",
+          "updated_at",
+        ];
+        const query = Request.modifyQuery([], selectQuery);
+        Request.get(`${this.state.BASE_URL}/entity/questions` + query)
           .then((response) => {
             commit("set_list_questions", response.data);
             state.loadingList = false;
@@ -229,15 +242,24 @@ export default {
           console.log(error);
         });
     },
-    async setFilteredListQuestions({ state, commit }, data) {
+    async setFilteredListQuestions({ state, commit }, filterQuery) {
       return new Promise((resolve, reject) => {
         state.loadingList = true;
 
-        Request.get(
-          `${this.state.BASE_URL}/entity/questions` +
-            Request.ConstructFilterQuery(data) +
-            "&select[id,activity,name,title,state_detailed_response,state_attachment_response,created_at,value_type_answer,_all_tags,updated_at]"
-        )
+        const selectQuery = [
+          "id",
+          "activity",
+          "name",
+          "title",
+          "state_detailed_response",
+          "state_attachment_response",
+          "created_at",
+          "value_type_answer",
+          "_all_tags",
+          "updated_at",
+        ];
+        const query = Request.modifyQuery(filterQuery, selectQuery);
+        Request.get(`${this.state.BASE_URL}/entity/questions` + query)
           .then((response) => {
             console.log(response);
             commit("set_list_questions", response.data);
@@ -254,11 +276,12 @@ export default {
     },
 
     /* TAGS */
-    async getGeneralTagsQuestion({ commit, state }) {
+    async getGeneralTagsQuestion({ commit, state }, selectQuery) {
       return new Promise((resolve) => {
         state.tagsLoaded = true;
 
-        Request.get(`${this.state.BASE_URL}/dictionary/tags`)
+        const query = Request.modifyQuery([], selectQuery);
+        Request.get(`${this.state.BASE_URL}/dictionary/tags${query}`)
           .then((response) => {
             state.tagsLoaded = false;
             commit("set_list_general_tags_question", response.data);
@@ -362,16 +385,24 @@ export default {
     async getDetailQuestion({ commit, state, dispatch }, id) {
       state.loadingQuestion = true;
 
+      const selectsQuestions = [
+        "*",
+        "_all_tags",
+        "mtomtags",
+        "m_to_m_tags_tech_task",
+      ];
+      const queryQuestions = Request.modifyQuery([], selectsQuestions);
       const response = await Request.get(
-        `${this.state.BASE_URL}/entity/questions/${id}`
+        `${this.state.BASE_URL}/entity/questions/${id}${queryQuestions}`
       );
       commit("set_new_question", response.data);
 
-      const responseTags = await dispatch(
-        "getUniversalListTag",
-        "?filter[flag_engineering_system]=true",
-        { root: true }
-      );
+      const filters = { flag_engineering_system: true };
+      const selectsTags = ["*"];
+      const queryTags = Request.modifyQuery(filters, selectsTags);
+      const responseTags = await dispatch("getUniversalListTag", queryTags, {
+        root: true,
+      });
       commit("set_list_general_tags_question", responseTags.data);
 
       state.loadingQuestion = false;

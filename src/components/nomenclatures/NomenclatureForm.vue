@@ -1,6 +1,9 @@
 <template>
   <div class="detail_container">
     <v-container class="main_wrapper">
+      <p style="color: red">
+        Мы бросили этот функционал и сделали все в дереве номенклатуры
+      </p>
       <template v-if="$store.getters.stateEditCreate($route.query.action)">
         <v-text-field
           ref="nomenclature-name"
@@ -73,7 +76,7 @@
           Нужен компонент табличного вида на 2 колонки "ключ характеристики" - "значение"
           плюс снизу кнопка отрисовки новой характеристики
      -->
-      <Characteristics />
+      <!--      <Characteristics />-->
     </v-container>
     <footer class="detail_footer">
       <v-container>

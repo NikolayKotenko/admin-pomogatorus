@@ -167,9 +167,11 @@ export default {
     async getListEntries({ commit }, id) {
       commit("changeLoadingList", true);
 
+      const selects = ["*"];
+      const query = Request.modifyQuery([], selects);
       try {
         const result = await Request.get(
-          this.state.BASE_URL + "/dictionary/nomenclature-family"
+          this.state.BASE_URL + `/dictionary/nomenclature-family${query}`
         );
 
         commit("changeListEntries", result.data);

@@ -1,35 +1,40 @@
 <template>
   <div
-      :id="`component_wrapper-${index_component}`"
-      :data-id="getIdImage"
-      :data-src="shortPath"
-      class="componentArticle_wrapper image_wrapper component_container"
-      contenteditable="false"
-      data-name="image"
+    :id="`component_wrapper-${index_component}`"
+    :data-id="getIdImage"
+    :data-src="shortPath"
+    class="componentArticle_wrapper image_wrapper component_container"
+    contenteditable="false"
+    data-name="image"
   >
     <div
-        class="componentArticle_wrapper__admin_controls-header"
-        contenteditable="false"
+      class="componentArticle_wrapper__admin_controls-header"
+      contenteditable="false"
     >
       <CloseSVG
-          alt="close"
-          class="componentArticle_wrapper__admin_controls-header__img"
-          @click="deleteImage()"
+        alt="close"
+        class="componentArticle_wrapper__admin_controls-header__img"
+        @click="deleteImage()"
       />
     </div>
-    <img :alt="altName" :src="srcPath" :title="title" class="main_img inserted_image"/>
+    <img
+      :alt="altName"
+      :src="srcPath"
+      :title="title"
+      class="main_img inserted_image"
+    />
   </div>
 </template>
 
 <script>
 // import VueDraggableResizable from 'vue-draggable-resizable'
 import "vue-draggable-resizable/dist/VueDraggableResizable.css";
-import CloseSVG from "@/assets/svg/closeIcon.svg"
+import CloseSVG from "@/assets/svg/closeIcon.svg";
 
 export default {
   name: "ImageLayout",
   components: {
-    CloseSVG
+    CloseSVG,
     // VueDraggableResizable,
   },
   data: () => ({
@@ -51,7 +56,7 @@ export default {
       return this.data_image.full_path;
     },
     srcPath() {
-      return this.$store.state.BASE_URL + this.data_image?.full_path;
+      return this.data_image?.full_path;
     },
     altName() {
       return this.data_image?.alt;
@@ -60,8 +65,8 @@ export default {
       return this.data_image?.title;
     },
     getIdImage() {
-      return this.data_image?.id
-    }
+      return this.data_image?.id;
+    },
   },
   methods: {
     getData() {
@@ -85,7 +90,7 @@ export default {
     getWidthOfControls() {
       this.$nextTick(() => {
         const elem = document.getElementById(
-            `component_wrapper-${this.index_component}`
+          `component_wrapper-${this.index_component}`
         );
         if (elem) {
           this.controls_width = elem.getBoundingClientRect().width + 6;
@@ -97,7 +102,7 @@ export default {
     getHeightOfControls() {
       this.$nextTick(() => {
         const elem = document.getElementById(
-            `component_wrapper-${this.index_component}`
+          `component_wrapper-${this.index_component}`
         );
         if (elem) {
           this.controls_height = elem.getBoundingClientRect().height + 22;

@@ -90,10 +90,10 @@ export default {
       if (this.state.TagsModule.tag.flag_engineering_system === true)
         return false;
 
-      const arrMToMTags = await dispatch(
-        "getUniversalListMToMTags",
-        Request.ConstructFilterQuery({ id_tag: this.state.TagsModule.tag.id })
-      );
+      const selects = ["*"];
+      const filters = { id_tag: this.state.TagsModule.tag.id };
+      const query = Request.modifyQuery(filters, selects);
+      const arrMToMTags = await dispatch("getUniversalListMToMTags", query);
       if (arrMToMTags.codeResponse > 400) return false;
 
       const newArrIdsMToMTags = arrMToMTags.data
@@ -168,8 +168,10 @@ export default {
       commit("changeLoadingGeneral", true);
 
       try {
+        const selectQuery = ["*", "tag_cover"];
+        const query = Request.modifyQuery([], selectQuery);
         const result = await Request.get(
-          this.state.BASE_URL + "/dictionary/tags"
+          this.state.BASE_URL + `/dictionary/tags${query}`
         );
         commit("changeListTags", result.data);
         const listTags = this.state.TagsModule.listTags;

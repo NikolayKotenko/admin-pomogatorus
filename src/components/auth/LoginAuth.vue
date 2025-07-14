@@ -12,15 +12,15 @@
       v-if="isComponent"
     >
       <CloseSVG
-          class="componentArticle_wrapper__admin_controls-header__img"
-          alt="close"
-          @click="deleteQuestion()"
+        class="componentArticle_wrapper__admin_controls-header__img"
+        alt="close"
+        @click="deleteQuestion()"
       />
     </div>
     <v-container>
       <v-tabs v-model="tab" hide-slider centered>
         <v-tab :key="0" light>Авторизация</v-tab>
-<!--        <v-tab :key="1">Регистрация</v-tab>-->
+        <!--        <v-tab :key="1">Регистрация</v-tab>-->
         <!--Авторизация-->
         <v-tab-item :key="0">
           <v-form
@@ -33,28 +33,28 @@
             contenteditable="false"
           >
             <v-text-field
-                type="email"
-                ref="email_user"
-                v-model="email_user"
-                placeholder="Введите почту  *"
-                :rules="$store.state.emailRules"
-                single-line
-                required
-                :class="'required'"
-                :disabled="isComponent"
+              type="email"
+              ref="email_user"
+              v-model="email_user"
+              placeholder="Введите почту  *"
+              :rules="$store.state.emailRules"
+              single-line
+              required
+              :class="'required'"
+              :disabled="isComponent"
             ></v-text-field>
             <v-text-field
-                ref="password"
-                v-model="password"
-                :rules="passRules"
-                maxlength="4"
-                :type="passStateEye ? 'text' : 'password'"
-                placeholder="Введите код доступа *"
-                hint="4 символа"
-                counter
-                required
-                :class="'required field_password'"
-                :disabled="isComponent"
+              ref="password"
+              v-model="password"
+              :rules="passRules"
+              maxlength="4"
+              :type="passStateEye ? 'text' : 'password'"
+              placeholder="Введите код доступа *"
+              hint="4 символа"
+              counter
+              required
+              :class="'required field_password'"
+              :disabled="isComponent"
             >
               <template v-slot:append>
                 <v-tooltip bottom>
@@ -99,7 +99,7 @@
           </v-form>
         </v-tab-item>
         <!--Регистрация-->
-<!--        <v-tab-item :key="1">
+        <!--        <v-tab-item :key="1">
           <v-form
             v-model="valid"
             class="login"
@@ -157,12 +157,12 @@
 
 <script>
 import Logging from "@/services/logging";
-import CloseSVG from "@/assets/svg/closeIcon.svg"
+import CloseSVG from "@/assets/svg/closeIcon.svg";
 
 export default {
   name: "LoginAuth",
   components: {
-    CloseSVG
+    CloseSVG,
   },
   data() {
     return {
@@ -214,10 +214,10 @@ export default {
       this.loading = false;
     },
 
-    async localLoginUser(index_component){
-      if (this.$refs.email_user.validate(true) === false) return false
-      if (this.$refs.password.validate(true) === false) return false
-      if (this.valid === false) return false
+    async localLoginUser(index_component) {
+      if (this.$refs.email_user.validate(true) === false) return false;
+      if (this.$refs.password.validate(true) === false) return false;
+      if (this.valid === false) return false;
 
       this.loading = true;
       const res = await this.$store.dispatch("loginUser", {
@@ -235,18 +235,17 @@ export default {
         await this.$router.push({
           path: "/",
         });
-      }
-      else{
+      } else {
         const response = {
-          message: 'Нет доступа',
-          codeResponse: 403
-        }
+          message: "Нет доступа",
+          codeResponse: 403,
+        };
         this.alertCall(response);
       }
     },
-    async localCreateUser(index_component){
-      if (this.$refs.email_user.validate(true) === false) return false
-      if (this.valid === false) return false
+    async localCreateUser(index_component) {
+      if (this.$refs.email_user.validate(true) === false) return false;
+      if (this.valid === false) return false;
 
       this.loading = true;
       // Пытаемся создать пользователя
@@ -293,7 +292,7 @@ export default {
       const elem = document.getElementById(
         `component_wrapper-${this.index_component}`
       );
-      elem.remove();
+      // elem.remove();
       this.$store.dispatch("deleteComponent", this.index_component);
     },
     getWidthOfControls() {

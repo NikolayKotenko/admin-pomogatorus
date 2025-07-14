@@ -271,7 +271,7 @@ export default {
       return this.enabled === slot;
     },
     showDetail(object) {
-      if (object.e_question?.name) this.$emit("showModalAnswer", object);
+      if (object.name_question) this.$emit("showModalAnswer", object);
     },
     firstNameUser(row) {
       return row.user?.email
@@ -279,9 +279,7 @@ export default {
         : "Не зарегестрированный пользователь";
     },
     nameAnswer(row) {
-      return row.e_question?.name
-        ? row.e_question?.name
-        : "Ошибка в записи ответа";
+      return row.name_question ? row.name_question : "Ошибка в записи ответа";
     },
     isJson(str) {
       try {

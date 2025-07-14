@@ -388,8 +388,10 @@ export default {
     async getTreeOnMount({ rootState, commit }) {
       commit("change_loading", true);
 
+      const selects = ["*", "_family"];
+      const query = Request.modifyQuery([], selects);
       const { data } = await Request.get(
-        rootState.BASE_URL + "/entity/nomenclatures-tree"
+        rootState.BASE_URL + `/entity/nomenclatures-tree${query}`
       );
       commit("set_tree", data);
       commit("change_loading", false);
@@ -631,27 +633,15 @@ export default {
         commit("change_loading", false);
       }, 1000);
     },
-    async getCharacteristics({ rootState, commit }, idFamily) {
-      commit("change_loading", true);
-
-      const { data } = await Request.get(
-        rootState.BASE_URL +
-          "/dictionary/characteristic/nomenclature" +
-          Request.ConstructFilterQuery({
-            id_family: idFamily,
-          })
-      );
-      commit("set_list_characteristics_by_family", data);
-      commit("change_loading", false);
-    },
 
     async getMToMNomenclatureCharacteristics({ rootState, commit }, idFamily) {
       commit("change_loading", true);
 
+      const filters = { id_family: idFamily };
+      const selects = ["*", "_characteristic_nomenclature", "_family"];
+      const query = Request.modifyQuery(filters, selects);
       const { data } = await Request.get(
-        rootState.BASE_URL +
-          "/m-to-m/nomenclature-characteristics" +
-          Request.ConstructFilterQuery({ id_family: idFamily })
+        rootState.BASE_URL + `/m-to-m/nomenclature-characteristics${query}`
       );
       commit("set_list_mtom_nomenclatures_characteristics", data);
       commit("change_loading", false);
@@ -828,12 +818,11 @@ export default {
     async getNomenclatureByFamily({ rootState, commit }, idFamily) {
       commit("change_loading", true);
 
+      const filters = { id_family: idFamily };
+      const selects = ["*", "_family"];
+      const query = Request.modifyQuery(filters, selects);
       const { data } = await Request.get(
-        rootState.BASE_URL +
-          "/entity/nomenclature" +
-          Request.ConstructFilterQuery({
-            id_family: idFamily,
-          })
+        rootState.BASE_URL + `/entity/nomenclature${query}`
       );
       commit("set_list_nomenclature_by_family", data);
       commit("change_loading", false);

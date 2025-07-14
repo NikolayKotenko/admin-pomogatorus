@@ -360,7 +360,7 @@ export default {
           const IdImage = document.getElementById(
             `component_wrapper-${elem.index}`
           ).dataset.id;
-          data = Object.assign({}, { full_path: sub_url[1] }, { id: IdImage });
+          data = Object.assign({}, { full_path: full_url }, { id: IdImage });
         }
         /* Here change global counter of component in article */
         this.$store.commit("change_counter", {

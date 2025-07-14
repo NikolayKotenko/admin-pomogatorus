@@ -179,8 +179,10 @@ export default {
       commit("changeLoadingList", true);
 
       try {
+        const selectQuery = ["*", "groups"];
+        const query = Request.modifyQuery([], selectQuery);
         const result = await Request.get(
-          this.state.BASE_URL + "/users/get-list-users"
+          this.state.BASE_URL + `/users/get-list-users${query}`
         );
         commit("changeListEntries", result.data);
         const listEntries = this.state.UsersModule.listEntries;
@@ -196,11 +198,6 @@ export default {
         commit("change_notification_modal", e, { root: true });
       }
       commit("changeLoadingList", false);
-    },
-    async getEntry(_, id) {
-      return await Request.get(
-        this.state.BASE_URL + "/users/get-user-data/" + id
-      );
     },
     async getListGroups({ commit }) {
       const response = await Request.get(

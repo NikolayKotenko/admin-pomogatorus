@@ -1,5 +1,5 @@
 import Request from "../../../services/request";
-import {ObjectProperties} from "@/helpers/constructors";
+import { ObjectProperties } from "@/helpers/constructors";
 
 export default {
   namespaced: true,
@@ -38,7 +38,7 @@ export default {
       state.entry = object;
     },
     clearEntry(state) {
-      state.entry = new ObjectProperties()
+      state.entry = new ObjectProperties();
     },
     changeLoadingList(state, value) {
       state.loadingList = value;
@@ -118,8 +118,16 @@ export default {
       commit("changeLoadingList", true);
 
       try {
+        const selects = [
+          "*",
+          "d_property_objects",
+          "d_dictionaries",
+          "mtomtags",
+          "m_to_m_tags_tech_task",
+        ];
+        const query = Request.modifyQuery([], selects);
         const result = await Request.get(
-          this.state.BASE_URL + "/dictionary/object-properties"
+          this.state.BASE_URL + `/dictionary/object-properties${query}`
         );
         commit("changeListEntries", result.data);
         const listEntries = this.state.ObjectPropertiesModule.listEntries;
@@ -136,20 +144,17 @@ export default {
       }
       commit("changeLoadingList", false);
     },
-    async getEntry(_, code) {
-      return await Request.get(
-        this.state.BASE_URL + "/dictionary/object-properties/" + code
-      );
-    },
     async getInfoByEntry({ commit, dispatch }) {
       const responsePropertyObject = await Request.get(
         this.state.BASE_URL + "/dictionary/property-object"
       );
-      const responseTags = await dispatch(
-        "getUniversalListTag",
-        "?filter[flag_engineering_system]=true",
-        { root: true }
-      );
+
+      const selects = ["*"];
+      const filters = { flag_engineering_system: true };
+      const query = Request.modifyQuery(filters, selects);
+      const responseTags = await dispatch("getUniversalListTag", query, {
+        root: true,
+      });
       commit("setListPropertyObject", responsePropertyObject.data);
       commit("setListTags", responseTags.data);
     },

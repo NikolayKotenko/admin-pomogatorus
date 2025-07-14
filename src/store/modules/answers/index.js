@@ -87,12 +87,20 @@ export default {
         filter[`sort[${queryName}]`] = sort[queryName];
       }
 
-      console.log(filter);
+      const queryToString = new URLSearchParams(filter).toString();
+      const select = Request.ConstructSelectQuery([
+        "*",
+        "updated_at_public",
+        "e_client_files",
+        "user",
+      ]);
+      const query = `?${queryToString}&${select}`;
+      console.log("query", query);
 
       try {
         const result = await Request.get(
           this.state.BASE_URL + "/entity/answers",
-          filter
+          query
         );
         commit("changeListAnswers", result.data);
       } catch (e) {

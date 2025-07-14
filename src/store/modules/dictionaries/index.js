@@ -120,21 +120,21 @@ export default {
       commit("changeLoadingList", true);
 
       let code = "";
-      let query = "";
+      let filters = [];
       if (!!obj && !!obj.code) {
         code = obj.code;
       }
       if (!!obj && !!obj.query) {
-        query = obj.query;
+        filters = obj.query;
       }
 
-      // console.log('getListDick', code, query)
+      // console.log("getListDick", code, filters);
 
+      const selects = ["*"];
+      const query = Request.modifyQuery(filters, selects);
       try {
         const result = await Request.get(
-          this.state.BASE_URL +
-            "/dictionary/dictionaries" +
-            Request.ConstructFilterQuery(query)
+          this.state.BASE_URL + `/dictionary/dictionaries${query}`
         );
         commit("changeListEntries", result.data);
         const listEntries = this.state.DictionariesModule.listEntries;
@@ -155,28 +155,23 @@ export default {
       }
       commit("changeLoadingList", false);
     },
-    async getEntry(_, code) {
-      return await Request.get(
-        this.state.BASE_URL + "/dictionary/dictionaries/" + code
-      );
-    },
     async getListDictionaryAttribute(
       { commit, state },
       additionalQuery = null
     ) {
       commit("changeLoadingList", true);
 
-      const query = Request.ConstructFilterQuery({
+      const filters = {
         id_dictionary: state.entry.id,
         ...additionalQuery,
-      });
+      };
+      const selects = ["*"];
+      const query = Request.modifyQuery(filters, selects);
       const response = await Request.get(
-        this.state.BASE_URL + "/dictionary/dictionary-attributes" + query
+        this.state.BASE_URL + `/dictionary/dictionary-attributes${query}`
       );
       commit("setListAttributesByDictionary", response.data);
-
       commit("changeLoadingList", false);
-
       return response;
     },
     async createAttribute({ commit, dispatch }, DictionaryAttribute) {

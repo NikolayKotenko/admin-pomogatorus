@@ -281,7 +281,7 @@ export default {
       this.$store.dispatch("setListConfigDate");
     },
     getTags() {
-      this.$store.dispatch("getGeneralTagsQuestion");
+      this.$store.dispatch("getGeneralTagsQuestion", ["*"]);
     },
     getFilteredQuestions() {
       if (this.debounceTimeout) clearTimeout(this.debounceTimeout);

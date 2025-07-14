@@ -1,32 +1,41 @@
 <template>
-  <div :id="`component_wrapper-${index_component}`"
-       :data-id="dataId"
-       contenteditable="false"
-       data-name="nomenclature"
-       class="componentArticle_wrapper c-slider-wrapper component_container"
+  <div
+    :id="`component_wrapper-${index_component}`"
+    :data-id="dataId"
+    contenteditable="false"
+    data-name="nomenclature"
+    class="componentArticle_wrapper c-slider-wrapper component_container"
   >
     <div
-        class="componentArticle_wrapper__admin_controls-header"
-        contenteditable="false"
+      class="componentArticle_wrapper__admin_controls-header"
+      contenteditable="false"
     >
-
       <CloseSVG
-          alt="close"
-          class="componentArticle_wrapper__admin_controls-header__img"
-          @click="deleteNomenclature()"
+        alt="close"
+        class="componentArticle_wrapper__admin_controls-header__img"
+        @click="deleteNomenclature()"
       />
     </div>
 
-    <VueSlickCarousel v-if="nomenclatureList.length" v-bind="sliderOptions" @click.stop.prevent>
-      <div class="c-slide" v-for="(slide, index) in nomenclatureList" :key="index" :data-id="slide.id">
+    <VueSlickCarousel
+      v-if="nomenclatureList.length"
+      v-bind="sliderOptions"
+      @click.stop.prevent
+    >
+      <div
+        class="c-slide"
+        v-for="(slide, index) in nomenclatureList"
+        :key="index"
+        :data-id="slide.id"
+      >
         <div class="c-slider">
           <template v-if="slide.isLoading">
             <div class="c-slider__loader">
               <v-progress-circular
-                  v-if="slide.isLoading"
-                  :size="24"
-                  color="#539ee0"
-                  indeterminate
+                v-if="slide.isLoading"
+                :size="24"
+                color="#539ee0"
+                indeterminate
               ></v-progress-circular>
             </div>
           </template>
@@ -40,11 +49,14 @@
           <template v-else>
             <div class="c-slider__content">
               <template v-if="getPhoto(slide.data)">
-                <img :src="getPhoto(slide.data)" :alt="slide.data.name">
+                <img :src="getPhoto(slide.data)" :alt="slide.data.name" />
               </template>
 
               <template v-else>
-                <img :src="require('/src/assets/img/noImage.webp')" :alt="slide.data.name">
+                <img
+                  :src="require('/src/assets/img/noImage.webp')"
+                  :alt="slide.data.name"
+                />
               </template>
             </div>
 
@@ -53,18 +65,28 @@
 
               <div class="c-slider__info__wrapper">
                 <div class="c-slider__info__wrapper__left">
-                  <div v-for="(option, index) in cardFields" :key="index" class="c-slider__info__wrapper__left__options">
+                  <div
+                    v-for="(option, index) in cardFields"
+                    :key="index"
+                    class="c-slider__info__wrapper__left__options"
+                  >
                     <span class="c-slider-option">
-                      <span class="c-slider-option__label">{{ option.label }}: </span>
-                      <span class="c-slider-option__value">{{ slide.data[option.value] ? slide.data[option.value] : mockData[option.value]}}</span>
+                      <span class="c-slider-option__label"
+                        >{{ option.label }}:
+                      </span>
+                      <span class="c-slider-option__value">{{
+                        slide.data[option.value]
+                          ? slide.data[option.value]
+                          : mockData[option.value]
+                      }}</span>
                     </span>
                   </div>
                 </div>
 
                 <div class="c-slider__info__wrapper__right">
-                  <FavoriteSVG/>
-                  <CartSVG/>
-                  <ToolSVG/>
+                  <FavoriteSVG />
+                  <CartSVG />
+                  <ToolSVG />
                 </div>
               </div>
             </div>
@@ -78,15 +100,15 @@
 <script>
 import Request from "@/services/request";
 
-import VueSlickCarousel from 'vue-slick-carousel'
-import 'vue-slick-carousel/dist/vue-slick-carousel.css'
+import VueSlickCarousel from "vue-slick-carousel";
+import "vue-slick-carousel/dist/vue-slick-carousel.css";
 // optional style for arrows & dots
-import 'vue-slick-carousel/dist/vue-slick-carousel-theme.css'
+import "vue-slick-carousel/dist/vue-slick-carousel-theme.css";
 
-import FavoriteSVG from "@/assets/svg/favorite.svg"
-import CartSVG from "@/assets/svg/cart.svg"
-import ToolSVG from "@/assets/svg/tool.svg"
-import CloseSVG from "@/assets/svg/closeIcon.svg"
+import FavoriteSVG from "@/assets/svg/favorite.svg";
+import CartSVG from "@/assets/svg/cart.svg";
+import ToolSVG from "@/assets/svg/tool.svg";
+import CloseSVG from "@/assets/svg/closeIcon.svg";
 
 export default {
   name: "NomenclatureArticle",
@@ -95,7 +117,7 @@ export default {
     FavoriteSVG,
     CartSVG,
     ToolSVG,
-    CloseSVG
+    CloseSVG,
   },
   data: () => ({
     index_component: null,
@@ -106,56 +128,56 @@ export default {
     mockData: {
       montage: "настенный",
       fuel: "газ",
-      power: "10 кВт"
+      power: "10 кВт",
     },
     cardFields: [
       {
         label: "Монтаж",
-        value: "montage"
+        value: "montage",
       },
       {
         label: "Вид топлива",
-        value: "fuel"
+        value: "fuel",
       },
       {
         label: "Мощность",
-        value: "power"
+        value: "power",
       },
     ],
     sliderOptions: {
-      "dots": false,
-      "infinite": true,
-      "speed": 500,
-      "slidesToShow": 4,
-      "slidesToScroll": 4,
-      "initialSlide": 0,
-      "responsive": [
+      dots: false,
+      infinite: true,
+      speed: 500,
+      slidesToShow: 4,
+      slidesToScroll: 4,
+      initialSlide: 0,
+      responsive: [
         {
-          "breakpoint": 1024,
-          "settings": {
-            "slidesToShow": 3,
-            "slidesToScroll": 3,
-            "infinite": true,
-            "dots": true
-          }
+          breakpoint: 1024,
+          settings: {
+            slidesToShow: 3,
+            slidesToScroll: 3,
+            infinite: true,
+            dots: true,
+          },
         },
         {
-          "breakpoint": 600,
-          "settings": {
-            "slidesToShow": 2,
-            "slidesToScroll": 2,
-            "initialSlide": 2
-          }
+          breakpoint: 600,
+          settings: {
+            slidesToShow: 2,
+            slidesToScroll: 2,
+            initialSlide: 2,
+          },
         },
         {
-          "breakpoint": 480,
-          "settings": {
-            "slidesToShow": 1,
-            "slidesToScroll": 1
-          }
-        }
-      ]
-    }
+          breakpoint: 480,
+          settings: {
+            slidesToShow: 1,
+            slidesToScroll: 1,
+          },
+        },
+      ],
+    },
   }),
   computed: {
     dataId() {
@@ -164,53 +186,58 @@ export default {
     },
   },
   mounted() {
-    this.getData()
+    this.getData();
 
-    this.getNomenclatureInfo()
+    this.getNomenclatureInfo();
   },
   methods: {
     getData() {
       if (
-          Object.keys(this.$store.state.ArticleModule.selectedComponent).length
+        Object.keys(this.$store.state.ArticleModule.selectedComponent).length
       ) {
         this.index_nomenclature =
-            this.$store.state.ArticleModule.counters.nomenclature;
+          this.$store.state.ArticleModule.counters.nomenclature;
         this.index_component = this.$store.state.ArticleModule.counters.layout;
         this.nomenclature_data = Object.assign(
-            {},
-            this.$store.state.ArticleModule.selectedComponent
+          {},
+          this.$store.state.ArticleModule.selectedComponent
         );
 
-        this.nomenclatureList = this.nomenclature_data.nomenclatures_id.map(elem => {
-          return {id: elem, isLoading: true}
-        })
+        this.nomenclatureList = this.nomenclature_data.nomenclatures_id.map(
+          (elem) => {
+            return { id: elem, isLoading: true };
+          }
+        );
       }
     },
     getNomenclatureInfo() {
+      const selectQuery = ["*"];
+      const query = Request.modifyQuery([], selectQuery);
       this.nomenclatureList.forEach(async (elem) => {
         const result = await Request.get(
-            `${this.$store.state.BASE_URL}/entity/nomenclature/${elem.id}`
-        )
+          `${this.$store.state.BASE_URL}/entity/nomenclature/${elem.id}${query}`
+        );
 
-        elem.data = result?.data ?? null
-        elem.isLoading = false
-      })
+        elem.data = result?.data ?? null;
+        elem.isLoading = false;
+        console.log("this.nomenclatureList", this.nomenclatureList);
+      });
     },
     deleteNomenclature() {
       this.$store.dispatch("deleteComponent", this.index_component);
     },
 
     getPhoto(slide) {
-      const url = (slide?._family?.photos && slide?._family?.photos[0]) ?? null
+      const url = (slide?._family?.photos && slide?._family?.photos[0]) ?? null;
 
       if (url) {
         return this.$store.state.BASE_URL + url?.full_path;
       } else {
-        return null
+        return null;
       }
     },
-  }
-}
+  },
+};
 </script>
 
 <style lang="scss" scoped>

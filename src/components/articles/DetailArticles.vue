@@ -454,7 +454,7 @@
                 class="dialog_dropzone_inputs"
               >
                 <v-img
-                  :src="$store.state.BASE_URL + item.full_path"
+                  :src="item.full_path"
                   class="main_img"
                   contain
                   max-width="300px"

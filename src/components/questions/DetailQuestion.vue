@@ -941,8 +941,10 @@ export default {
     },
     /** @function - Получаем список справочников **/
     async getDictionaries() {
+      const selects = ["*", "d_dictionary_attributes"];
+      const query = Request.modifyQuery([], selects);
       const { data } = await Request.get(
-        this.$store.state.BASE_URL + "/dictionary/dictionaries"
+        this.$store.state.BASE_URL + "/dictionary/dictionaries" + query
       );
       /** Проставляем только те справочники у которых есть параметры для заполнения **/
       this.dictionariesList = data.filter(

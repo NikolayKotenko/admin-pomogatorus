@@ -84,9 +84,11 @@ export default new Vuex.Store({
       commit("changeLoadingAgents", true);
 
       try {
+        const filters = { is_agent: true };
+        const selects = ["*"];
+        const query = Request.modifyQuery(filters, selects);
         const result = await Request.get(
-          `${this.state.BASE_URL}/users/get-list-users`,
-          { "filter[is_agent]": true }
+          `${this.state.BASE_URL}/users/get-list-users` + query
         );
         commit("changeListAgents", result.data);
       } catch (e) {
