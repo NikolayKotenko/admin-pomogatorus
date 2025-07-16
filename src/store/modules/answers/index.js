@@ -93,9 +93,9 @@ export default {
         "updated_at_public",
         "e_client_files",
         "user",
+        "e_article",
       ]);
       const query = `?${queryToString}&${select}`;
-      console.log("query", query);
 
       try {
         const result = await Request.get(

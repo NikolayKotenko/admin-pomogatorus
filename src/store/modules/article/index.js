@@ -545,7 +545,6 @@ export default {
       });
     },
     createRelationTagArticle({ state }, name) {
-      console.log("TUTA?");
       return new Promise((resolve, reject) => {
         if (state.newArticle._all_tags.length) {
           state.newArticle._all_tags.forEach((tag) => {
@@ -616,7 +615,7 @@ export default {
     async getDetailArticle({ commit, state }, id) {
       state.loadingArticle = true;
       return new Promise((resolve, reject) => {
-        const selectQuery = ["*", "_all_tags", "e_client_files"];
+        const selectQuery = ["*", "_all_tags", "mtomtags", "e_client_files"];
         const query = Request.modifyQuery([], selectQuery);
         Request.get(`${this.state.BASE_URL}/entity/articles/${id}${query}`)
           .then((response) => {
@@ -658,7 +657,6 @@ export default {
           .then((response) => {
             //handle success
             state.loadingRequest = false;
-            console.log("TUTA11111");
             dispatch("createRelationTagArticle", data.name.value).then(() => {
               // state.loadingArticle = false
               resolve();
@@ -724,7 +722,6 @@ export default {
             //handle success
             state.loadingRequest = false;
             // state.loadingArticle = false;
-            console.log("TUTAA2222");
             dispatch("createRelationTagArticle", data.name.value).then(() => {
               resolve();
             });

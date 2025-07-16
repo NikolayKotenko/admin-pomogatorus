@@ -26,11 +26,13 @@ const defaultQuestion = {
   },
   state_detailed_response: 0,
   state_attachment_response: 0,
+  state_allow_attachments: 1,
   value_type_answer: null,
   _all_tags: [],
   mtomtags: [],
   m_to_m_tags_tech_task: [],
   activity: 0,
+  question_image_helper: null,
 };
 
 /* CONSTRUCTORS */
@@ -79,10 +81,12 @@ export default {
       },
       state_detailed_response: 0,
       state_attachment_response: 0,
+      state_allow_attachments: 1,
       value_type_answer: null,
       _all_tags: [],
       mtomtags: [],
       activity: 0,
+      question_image_helper: null,
     },
     nonEditState: {},
 
@@ -216,6 +220,7 @@ export default {
           "value_type_answer",
           "_all_tags",
           "updated_at",
+          "question_image_helper",
         ];
         const query = Request.modifyQuery([], selectQuery);
         Request.get(`${this.state.BASE_URL}/entity/questions` + query)
@@ -257,6 +262,7 @@ export default {
           "value_type_answer",
           "_all_tags",
           "updated_at",
+          "question_image_helper",
         ];
         const query = Request.modifyQuery(filterQuery, selectQuery);
         Request.get(`${this.state.BASE_URL}/entity/questions` + query)
@@ -390,6 +396,7 @@ export default {
         "_all_tags",
         "mtomtags",
         "m_to_m_tags_tech_task",
+        "question_image_helper",
       ];
       const queryQuestions = Request.modifyQuery([], selectsQuestions);
       const response = await Request.get(

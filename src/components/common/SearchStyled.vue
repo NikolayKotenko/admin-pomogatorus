@@ -85,8 +85,27 @@ export default {
       type: Boolean,
       default: true,
     },
+    isId: {
+      type: Number,
+      default: 0,
+    },
   },
   computed: {},
+  watch: {
+    isId: {
+      handler(val) {
+        this.localSearchInputSync = "";
+        this.localSelected = null;
+        if (!val) return;
+
+        const entry = this.isItems.find((item) => item.id === val);
+        if (!entry) return;
+
+        this.localSelected = entry;
+        this.localSearchInputSync = entry.name;
+      },
+    },
+  },
 };
 </script>
 

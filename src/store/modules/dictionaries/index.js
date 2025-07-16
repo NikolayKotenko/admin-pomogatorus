@@ -200,13 +200,11 @@ export default {
       commit("changeLoadingList", false);
       return response;
     },
-    async deleteAttribute({ commit, dispatch }, codeAttribute) {
+    async deleteAttribute({ commit, dispatch }, id) {
       commit("changeLoadingList", true);
 
       const response = await Request.delete(
-        this.state.BASE_URL +
-          "/dictionary/dictionary-attributes/" +
-          codeAttribute
+        this.state.BASE_URL + `/dictionary/dictionary-attributes/${id}`
       );
       await dispatch("getListDictionaryAttribute");
 

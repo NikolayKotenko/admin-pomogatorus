@@ -51,6 +51,7 @@
       </template>
       <template v-else>
         <SearchStyled
+          :is-id="$store.state.DictionariesModule.entry.id"
           :is-items="$store.state.DictionariesModule.listEntries"
           :is-item-text="'name'"
           :is-item-value="'code'"
@@ -501,7 +502,7 @@ export default {
     async deleteAttribute() {
       await this.$store.dispatch(
         "DictionariesModule/deleteAttribute",
-        this.editedItem.code
+        this.editedItem.id
       );
       this.dialogDelete = false;
     },
@@ -524,7 +525,7 @@ export default {
         .listAttributesByDictionary) {
         await this.$store.dispatch(
           "DictionariesModule/deleteAttribute",
-          obj.code
+          obj.id
         );
       }
 

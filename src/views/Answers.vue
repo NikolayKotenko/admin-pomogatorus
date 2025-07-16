@@ -194,7 +194,7 @@
           style="display: inline-flex; flex-wrap: nowrap; width: 100%"
         >
           <span class="text-h6" style="margin: auto">{{
-            detail.e_question.name
+            detail.name_question
           }}</span>
           <v-icon @click="$store.state.AnswersModule.showDetailAnswer = false"
             >mdi-close-thick</v-icon

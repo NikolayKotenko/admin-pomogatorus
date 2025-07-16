@@ -143,8 +143,49 @@
               >
               </TextAreaStyled>
             </div>
+
+            <!-- Поясняющая картинка -->
+            <div class="mt-3">
+              <v-btn
+                :disabled="$store.state.QuestionsModule.loadingQuestion"
+                @click="
+                  stateDropzone = true;
+                  insertDropzoneData();
+                "
+              >
+                Поясняющее изображение
+                <v-icon color="grey lighten-1" style="transform: rotate(45deg)"
+                  >mdi-paperclip</v-icon
+                >
+                [{{ dropzone_uploaded.length }}]
+              </v-btn>
+              <v-checkbox
+                v-model="stateAllowAttachments"
+                :loading="$store.state.QuestionsModule.loadingQuestion"
+                class="question_settings__checkbox mt-2"
+                hide-details
+                label="Возможность загружать файлы"
+                @change="saveDBQuestion(newQuestion)"
+              ></v-checkbox>
+              <v-checkbox
+                :disabled="!stateAllowAttachments"
+                v-model="newQuestion.state_attachment_response"
+                :loading="$store.state.QuestionsModule.loadingQuestion"
+                class="question_settings__checkbox"
+                hide-details
+                label="Возможность загружать pdf документы"
+                @change="saveDBQuestion(newQuestion)"
+              ></v-checkbox>
+            </div>
           </div>
           <div class="question_settings mt-5">
+            <v-checkbox
+              v-model.number="newQuestion.activity"
+              :false-value="0"
+              :true-value="1"
+              hide-details
+              label="Активность"
+            ></v-checkbox>
             <v-checkbox
               v-model="newQuestion.state_detailed_response"
               :loading="$store.state.QuestionsModule.loadingQuestion"
@@ -152,21 +193,6 @@
               hide-details
               label="Допускается развернутый ответ"
               @change="saveDBQuestion(newQuestion)"
-            ></v-checkbox>
-            <v-checkbox
-              v-model="newQuestion.state_attachment_response"
-              :loading="$store.state.QuestionsModule.loadingQuestion"
-              class="question_settings__checkbox"
-              hide-details
-              label="Возможность загружать pdf документы"
-              @change="saveDBQuestion(newQuestion)"
-            ></v-checkbox>
-            <v-checkbox
-              v-model.number="newQuestion.activity"
-              :false-value="0"
-              :true-value="1"
-              hide-details
-              label="Активность"
             ></v-checkbox>
           </div>
 
@@ -539,6 +565,104 @@
         </v-card>
       </v-dialog>
 
+      <v-dialog v-model="stateDropzone" max-width="600">
+        <v-card>
+          <v-card-title>
+            <span v-if="dropzone_uploaded.length === 0" class="text-h7"
+              >Загрузите изображение</span
+            >
+            <span v-else class="text-h7">Изображение уже загружено</span>
+          </v-card-title>
+          <v-card-text class="dialog_dropzone">
+            <div
+              v-show="dropzone_uploaded.length === 0"
+              class="dialog_dropzone_wrapper"
+            >
+              <vue-dropzone
+                id="dropzone"
+                ref="QuestionDropZone"
+                :options="options"
+                :useCustomSlot="true"
+                @vdropzone-success="successData"
+                @vdropzone-sending="sendingData"
+              >
+                <h3 class="dropzone-custom-title">
+                  <v-icon
+                    color="grey lighten-1"
+                    size="120"
+                    style="transform: rotate(45deg)"
+                  >
+                    mdi-paperclip
+                  </v-icon>
+                </h3>
+                <div class="subtitle" style="color: darkgrey">
+                  Для вставки изображения перетащите файл в зону или нажмите на
+                  скрепку
+                </div>
+              </vue-dropzone>
+            </div>
+            <template>
+              <div
+                v-for="(item, index) in dropzone_uploaded"
+                :key="index"
+                class="dialog_dropzone_inputs"
+              >
+                <v-img
+                  :src="item.full_path"
+                  class="main_img"
+                  contain
+                  max-width="300px"
+                ></v-img>
+                <span class="dialog_dropzone_inputs__label">
+                  {{ item.filename }}</span
+                >
+                <InputStyled
+                  :data="item.alt_image"
+                  :index-array="index"
+                  :is-disabled="$store.state.loadingRequestGeneral"
+                  :is-loading="$store.state.loadingRequestGeneral"
+                  :placeholder="'alt-наименование изображения'"
+                  @update-input="setAltImage"
+                />
+                <InputStyled
+                  :data="item.title_image"
+                  :index-array="index"
+                  :is-disabled="$store.state.loadingRequestGeneral"
+                  :is-loading="$store.state.loadingRequestGeneral"
+                  :placeholder="'подпись изображения'"
+                  @update-input="setTitleImage"
+                />
+              </div>
+            </template>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn
+              v-if="dropzone_uploaded.length"
+              :disabled="$store.state.loadingRequestGeneral"
+              :loading="$store.state.loadingRequestGeneral"
+              color="blue darken-1"
+              text
+              @click="removedFile()"
+            >
+              Очистить
+            </v-btn>
+            <v-spacer></v-spacer>
+            <v-btn
+              :disabled="$store.state.loadingRequestGeneral"
+              :loading="$store.state.loadingRequestGeneral"
+              color="green darken-1"
+              text
+              @click="
+                stateDropzone = false;
+                updateDropZoneImage();
+              "
+            >
+              Готово
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
       <!--  SNACKBAR -->
       <v-snackbar v-model="snackbar" :vertical="true" timeout="-1">
         <template v-if="snackbarValue === 0">
@@ -596,6 +720,8 @@ import { mapGetters } from "vuex";
 import QuestionTags from "./QuestionTags";
 import AgentList from "./AgentList";
 import EnvironmentsSelector from "../environments/environmentsSelector";
+import vue2Dropzone from "vue2-dropzone";
+import "vue2-dropzone/dist/vue2Dropzone.min.css";
 
 import {
   AnswerRangeMax,
@@ -626,6 +752,7 @@ export default {
     EnvironmentsSelector,
     AgentList,
     QuestionTags,
+    vueDropzone: vue2Dropzone,
   },
   validations: {
     newQuestion: {
@@ -661,6 +788,8 @@ export default {
     rangeError: false,
     agentFocused: false,
     envFocused: false,
+
+    state_allow_attachments: 1, //внутри объекта не работает computed и template поэтому дублирую
     newQuestion: {
       id: 1,
       name: {
@@ -689,16 +818,21 @@ export default {
       },
       state_detailed_response: 0,
       state_attachment_response: 0,
+      state_allow_attachments: 1, //дублирую вне объекта
       value_type_answer: "",
       _all_tags: [],
       mtomtags: [],
       activity: 1,
       name_param_env: "",
+      question_image_helper: null,
     },
     deleteModal: false,
     deleteStorage: false,
     snackbar: false,
     snackbarValue: 0,
+
+    stateDropzone: false,
+    dropzone_uploaded: [],
   }),
   mounted() {
     this.initializeQuery();
@@ -770,6 +904,14 @@ export default {
       },
       deep: true,
     },
+    "$store.state.QuestionsModule.newQuestion.question_image_helper": {
+      handler(newValue) {
+        this.dropzone_uploaded = [];
+        if (this.$route.params.action !== "create") {
+          this.dropzone_uploaded.push(newValue);
+        }
+      },
+    },
   },
   computed: {
     ...mapGetters(["getListTypesOfQuestions"]),
@@ -798,6 +940,28 @@ export default {
           this.newQuestion.id_type_answer.value === 7) &&
         !!this.newQuestion.id_type_answer.value
       );
+    },
+    stateAllowAttachments: {
+      get() {
+        return Boolean(this.state_allow_attachments);
+      },
+      set(val) {
+        this.state_allow_attachments = val;
+        this.newQuestion.state_allow_attachments = val;
+        if (val === false) {
+          this.newQuestion.state_attachment_response = false;
+        }
+      },
+    },
+    options() {
+      return {
+        url: this.$store.state.BASE_URL + "/entity/files",
+        destroyDropzone: false,
+        duplicateCheck: true,
+        headers: {
+          Authorization: this.$store.getters.getToken,
+        },
+      };
     },
   },
   methods: {
@@ -1288,6 +1452,53 @@ export default {
             answer.answer = 0;
           });
       }
+    },
+
+    /* DROPZONE */
+    insertDropzoneData() {
+      if (!this.stateDropzone) return;
+      if (!this.dropzone_uploaded.length) return;
+
+      this.$nextTick(() => {
+        this.$refs.QuestionDropZone.manuallyAddFile(
+          this.dropzone_uploaded[0],
+          this.dropzone_uploaded[0].full_path
+        );
+      });
+    },
+    sendingData(file, xhr, formData) {
+      this.$store.state.loadingRequestGeneral = true;
+      formData.append("uuid", file.upload.uuid);
+      formData.append("id_question_image_helper", this.newQuestion.id);
+    },
+    successData(file, response) {
+      const formatObj = Object.assign({}, response.data);
+      this.dropzone_uploaded.push(formatObj);
+      this.$store.state.loadingRequestGeneral = false;
+    },
+    async updateDropZoneImage() {
+      if (!this.dropzone_uploaded.length) return;
+
+      for (const item of this.dropzone_uploaded) {
+        await Request.put(
+          this.$store.state.BASE_URL + `/entity/files/${item.id}`,
+          item
+        );
+      }
+      await this.$store.dispatch("updateQuestion", this.newQuestion);
+    },
+    async removedFile() {
+      for (const item of this.dropzone_uploaded) {
+        await this.$store.dispatch("deleteFileGeneral", item.id);
+      }
+      this.dropzone_uploaded = [];
+      this.$refs.QuestionDropZone.removeAllFiles();
+    },
+    setAltImage(data) {
+      this.dropzone_uploaded[data.index].alt_image = data.value;
+    },
+    setTitleImage(data) {
+      this.dropzone_uploaded[data.index].title_image = data.value;
     },
   },
   beforeDestroy() {
