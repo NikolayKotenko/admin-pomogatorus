@@ -613,10 +613,10 @@
                   contain
                   max-width="300px"
                 ></v-img>
-                <span class="dialog_dropzone_inputs__label">
+                <span class="dialog_dropzone_inputs__label mb-5">
                   {{ item.filename }}</span
                 >
-                <InputStyled
+                <TextAreaStyled
                   :data="item.alt_image"
                   :index-array="index"
                   :is-disabled="$store.state.loadingRequestGeneral"
@@ -624,7 +624,8 @@
                   :placeholder="'alt-наименование изображения'"
                   @update-input="setAltImage"
                 />
-                <InputStyled
+                <section class="mb-5" />
+                <TextAreaStyled
                   :data="item.title_image"
                   :index-array="index"
                   :is-disabled="$store.state.loadingRequestGeneral"
