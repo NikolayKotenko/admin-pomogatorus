@@ -18,6 +18,7 @@ const defaultArticle = {
     value: "",
     focused: false,
   },
+
   target_button_placeholder: {
     value: "",
     focused: false,
@@ -26,6 +27,19 @@ const defaultArticle = {
     value: "",
     focused: false,
   },
+  target_main_text: {
+    value: "",
+    focused: false,
+  },
+  target_explanation: {
+    value: "",
+    focused: false,
+  },
+  target_call_to_action: {
+    value: "",
+    focused: false,
+  },
+
   preview: {
     value: "",
     focused: false,
@@ -72,6 +86,7 @@ export default {
         value: "",
         focused: false,
       },
+
       target_button_placeholder: {
         value: "",
         focused: false,
@@ -80,6 +95,19 @@ export default {
         value: "",
         focused: false,
       },
+      target_main_text: {
+        value: "",
+        focused: false,
+      },
+      target_explanation: {
+        value: "",
+        focused: false,
+      },
+      target_call_to_action: {
+        value: "",
+        focused: false,
+      },
+
       preview: {
         value: "",
         focused: false,
@@ -313,6 +341,9 @@ export default {
           key === "purpose_of_article" ||
           key === "target_button_placeholder" ||
           key === "target_button_url" ||
+          key === "target_main_text" ||
+          key === "target_explanation" ||
+          key === "target_call_to_action" ||
           key === "preview" ||
           key === "seo_description" ||
           key === "seo_keywords"

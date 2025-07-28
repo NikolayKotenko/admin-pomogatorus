@@ -298,39 +298,7 @@
           </div>
 
           <!--  Целевые действия -->
-          <div class="detail-wrapper__content__title__help">
-            <span
-              :class="{ focused: newArticle.target_button_placeholder.focused }"
-              class="detail-wrapper__content__title__help__title"
-            >
-              Плейсхолдер целевой кнопки
-            </span>
-            <TextAreaStyled
-              :class="{
-                inputFocused: newArticle.target_button_placeholder.focused,
-              }"
-              :data="newArticle.target_button_placeholder.value"
-              :is-flat="true"
-              :is-loading="$store.state.ArticleModule.loadingArticle"
-              :is-solo="true"
-              :placeholder="'Плейсхолдер целевой кнопки'"
-              :rows-count="'1'"
-              class="detail-wrapper__content__title__help__description"
-              @update-input="setTargetButtonPlaceholder"
-              @on-focus="
-                () => {
-                  onFocus(newArticle.target_button_placeholder);
-                }
-              "
-              @out-focus="
-                () => {
-                  outFocus(newArticle.target_button_placeholder);
-                }
-              "
-            ></TextAreaStyled>
-          </div>
-
-          <div class="detail-wrapper__content__title__help">
+          <div class="detail-wrapper__content__title__help mt-5">
             <span
               :class="{ focused: newArticle.target_button_url.focused }"
               class="detail-wrapper__content__title__help__title"
@@ -357,6 +325,130 @@
               @out-focus="
                 () => {
                   outFocus(newArticle.target_button_url);
+                }
+              "
+            ></TextAreaStyled>
+          </div>
+          <div class="detail-wrapper__content__title__help">
+            <span
+              :class="{ focused: newArticle.target_button_placeholder.focused }"
+              class="detail-wrapper__content__title__help__title"
+            >
+              Плейсхолдер целевой кнопки (текст внутри кнопки)
+            </span>
+            <TextAreaStyled
+              :class="{
+                inputFocused: newArticle.target_button_placeholder.focused,
+              }"
+              :data="newArticle.target_button_placeholder.value"
+              :is-flat="true"
+              :is-loading="$store.state.ArticleModule.loadingArticle"
+              :is-solo="true"
+              :placeholder="'Плейсхолдер целевой кнопки'"
+              :rows-count="'1'"
+              class="detail-wrapper__content__title__help__description"
+              @update-input="setTargetButtonPlaceholder"
+              @on-focus="
+                () => {
+                  onFocus(newArticle.target_button_placeholder);
+                }
+              "
+              @out-focus="
+                () => {
+                  outFocus(newArticle.target_button_placeholder);
+                }
+              "
+            ></TextAreaStyled>
+          </div>
+          <div class="detail-wrapper__content__title__help">
+            <span
+              :class="{ focused: newArticle.target_call_to_action.focused }"
+              class="detail-wrapper__content__title__help__title"
+            >
+              Призыв (верхний правый)
+            </span>
+            <TextAreaStyled
+              :class="{
+                inputFocused: newArticle.target_call_to_action.focused,
+              }"
+              :data="newArticle.target_call_to_action.value"
+              :is-flat="true"
+              :is-loading="$store.state.ArticleModule.loadingArticle"
+              :is-solo="true"
+              :placeholder="'Призыв'"
+              :rows-count="'1'"
+              class="detail-wrapper__content__title__help__description"
+              @update-input="setTargetCallToAction"
+              @on-focus="
+                () => {
+                  onFocus(newArticle.target_call_to_action);
+                }
+              "
+              @out-focus="
+                () => {
+                  outFocus(newArticle.target_call_to_action);
+                }
+              "
+            ></TextAreaStyled>
+          </div>
+          <div class="detail-wrapper__content__title__help">
+            <span
+              :class="{ focused: newArticle.target_main_text.focused }"
+              class="detail-wrapper__content__title__help__title"
+            >
+              Главный слоган (верхний левый)
+            </span>
+            <TextAreaStyled
+              :class="{
+                inputFocused: newArticle.target_main_text.focused,
+              }"
+              :data="newArticle.target_main_text.value"
+              :is-flat="true"
+              :is-loading="$store.state.ArticleModule.loadingArticle"
+              :is-solo="true"
+              :placeholder="'Главный слоган'"
+              :rows-count="'1'"
+              class="detail-wrapper__content__title__help__description"
+              @update-input="setTargetMainText"
+              @on-focus="
+                () => {
+                  onFocus(newArticle.target_main_text);
+                }
+              "
+              @out-focus="
+                () => {
+                  outFocus(newArticle.target_main_text);
+                }
+              "
+            ></TextAreaStyled>
+          </div>
+          <div class="detail-wrapper__content__title__help">
+            <span
+              :class="{ focused: newArticle.target_explanation.focused }"
+              class="detail-wrapper__content__title__help__title"
+            >
+              Пояснение (нижний левый)
+            </span>
+            <TextAreaStyled
+              :class="{
+                inputFocused: newArticle.target_explanation.focused,
+              }"
+              :data="newArticle.target_explanation.value"
+              :is-flat="true"
+              :is-loading="$store.state.ArticleModule.loadingArticle"
+              :is-solo="true"
+              :placeholder="'Пояснение'"
+              :rows-count="'1'"
+              class="detail-wrapper__content__title__help__description"
+              @update-input="setTargetExplanation"
+              @on-focus="
+                () => {
+                  onFocus(newArticle.target_explanation);
+                }
+              "
+              @out-focus="
+                () => {
+                  outFocus(newArticle.target_explanation);
                 }
               "
             ></TextAreaStyled>
@@ -596,6 +688,7 @@ export default {
         value: "",
         focused: false,
       },
+
       target_button_placeholder: {
         value: "",
         focused: false,
@@ -604,6 +697,19 @@ export default {
         value: "",
         focused: false,
       },
+      target_main_text: {
+        value: "",
+        focused: false,
+      },
+      target_explanation: {
+        value: "",
+        focused: false,
+      },
+      target_call_to_action: {
+        value: "",
+        focused: false,
+      },
+
       preview: {
         value: "",
         focused: false,
@@ -711,6 +817,7 @@ export default {
       this.newArticle.purpose_of_article.value = value;
       this.saveArticle(this.newArticle);
     },
+
     setTargetButtonPlaceholder(value) {
       this.newArticle.target_button_placeholder.value = value;
       this.saveArticle(this.newArticle);
@@ -719,6 +826,19 @@ export default {
       this.newArticle.target_button_url.value = value;
       this.saveArticle(this.newArticle);
     },
+    setTargetMainText(value) {
+      this.newArticle.target_main_text.value = value;
+      this.saveArticle(this.newArticle);
+    },
+    setTargetExplanation(value) {
+      this.newArticle.target_explanation.value = value;
+      this.saveArticle(this.newArticle);
+    },
+    setTargetCallToAction(value) {
+      this.newArticle.target_call_to_action.value = value;
+      this.saveArticle(this.newArticle);
+    },
+
     setPreview(value) {
       this.newArticle.preview.value = value;
       this.saveArticle(this.newArticle);
