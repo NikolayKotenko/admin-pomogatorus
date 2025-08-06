@@ -160,7 +160,7 @@
                 [{{ dropzone_uploaded.length }}]
               </v-btn>
               <v-checkbox
-                v-model="stateAllowAttachments"
+                v-model.number="stateAllowAttachments"
                 :loading="$store.state.QuestionsModule.loadingQuestion"
                 class="question_settings__checkbox mt-2"
                 hide-details
@@ -790,7 +790,6 @@ export default {
     agentFocused: false,
     envFocused: false,
 
-    state_allow_attachments: 1, //внутри объекта не работает computed и template поэтому дублирую
     newQuestion: {
       id: 1,
       name: {
@@ -819,7 +818,7 @@ export default {
       },
       state_detailed_response: 0,
       state_attachment_response: 0,
-      state_allow_attachments: 1, //дублирую вне объекта
+      state_allow_attachments: 1,
       value_type_answer: "",
       _all_tags: [],
       mtomtags: [],
@@ -944,13 +943,13 @@ export default {
     },
     stateAllowAttachments: {
       get() {
-        return Boolean(this.state_allow_attachments);
+        return +this.newQuestion.state_allow_attachments;
       },
       set(val) {
-        this.state_allow_attachments = val;
+        val = +val; // преобразуем в число
         this.newQuestion.state_allow_attachments = val;
-        if (val === false) {
-          this.newQuestion.state_attachment_response = false;
+        if (!val) {
+          this.newQuestion.state_attachment_response = 0;
         }
       },
     },
