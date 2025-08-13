@@ -353,12 +353,24 @@ export default {
         let data = elem.data;
         /* If component is image we get URL of img and title/alt */
         if (elem.component.name === "image") {
-          const url = document
-            .getElementById(`component_wrapper-${elem.index}`)
-            .getElementsByClassName("inserted_image")[0].src;
-          const IdImage = document.getElementById(
-            `component_wrapper-${elem.index}`
-          ).dataset.id;
+          const url = (function () {
+            let url = document.getElementById(
+              `component_wrapper-${elem.index}`
+            );
+            if (!url) return null;
+            url = url.getElementsByClassName("inserted_image");
+            if (!url) return null;
+            url = url[0].src;
+            return url;
+          })();
+          const IdImage = (function () {
+            let res = document.getElementById(
+              `component_wrapper-${elem.index}`
+            );
+            if (!res) return null;
+            res = res.dataset.id;
+            return res;
+          })();
           data = Object.assign({}, { orig_path: url }, { id: IdImage });
         }
         /* Here change global counter of component in article */
