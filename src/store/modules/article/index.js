@@ -626,7 +626,7 @@ export default {
       return new Promise((resolve, reject) => {
         const selects = ["*"];
         const filters = {
-          codes_groups: ["experts"],
+          codes_groups: ["experts"], //TODO теперь нет ключа codes_groups
         };
         const query = Request.modifyQuery(filters, selects);
         Request.get(`${this.state.BASE_URL}/users/get-list-users${query}`)

@@ -437,7 +437,7 @@ export default {
             });
             bodyFormData[key] = JSON.stringify(arr);
           } else {
-            if (data[key].value) {
+            if (data[key] && data[key].value) {
               bodyFormData[key] = data[key].value;
             }
           }

@@ -353,14 +353,13 @@ export default {
         let data = elem.data;
         /* If component is image we get URL of img and title/alt */
         if (elem.component.name === "image") {
-          const full_url = document
+          const url = document
             .getElementById(`component_wrapper-${elem.index}`)
             .getElementsByClassName("inserted_image")[0].src;
-          let sub_url = full_url.split(".com");
           const IdImage = document.getElementById(
             `component_wrapper-${elem.index}`
           ).dataset.id;
-          data = Object.assign({}, { full_path: full_url }, { id: IdImage });
+          data = Object.assign({}, { orig_path: url }, { id: IdImage });
         }
         /* Here change global counter of component in article */
         this.$store.commit("change_counter", {
@@ -701,7 +700,7 @@ export default {
         index_image: _store.counters.image,
         index_auth: _store.counters.auth,
         index_nomenclature: _store.counters.nomenclature,
-        src: elem?.full_path ? elem?.full_path : "",
+        src: elem?.orig_path ? elem?.orig_path : "",
         nomenclatures_id: elem?.nomenclatures_id ?? [],
       });
 

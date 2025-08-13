@@ -52,11 +52,11 @@ export default {
   },
   computed: {
     shortPath() {
-      if (!this.data_image || !this.data_image?.full_path) return null;
-      return this.data_image.full_path;
+      if (!this.data_image || !this.data_image?.orig_path) return null;
+      return this.data_image.orig_path;
     },
     srcPath() {
-      return this.data_image?.full_path;
+      return this.data_image?.orig_path;
     },
     altName() {
       return this.data_image?.alt;
