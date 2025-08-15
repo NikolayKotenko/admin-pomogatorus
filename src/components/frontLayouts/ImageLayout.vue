@@ -1,28 +1,76 @@
 <template>
   <div
-    :id="`component_wrapper-${index_component}`"
-    :data-id="getIdImage"
-    :data-src="shortPath"
-    class="componentArticle_wrapper image_wrapper component_container"
-    contenteditable="false"
-    data-name="image"
+      :id="`component_wrapper-${index_component}`"
+      :data-id="getIdImage"
+      :data-src="shortPath"
+      class="componentArticle_wrapper image_wrapper component_container"
+      contenteditable="false"
+      data-name="image"
   >
     <div
-      class="componentArticle_wrapper__admin_controls-header"
-      contenteditable="false"
+        class="componentArticle_wrapper__admin_controls-header"
+        contenteditable="false"
     >
+      <v-icon class="mr-1" color="yellow" small @click="openModal">mdi-pencil</v-icon>
+
       <CloseSVG
-        alt="close"
-        class="componentArticle_wrapper__admin_controls-header__img"
-        @click="deleteImage()"
+          alt="close"
+          class="componentArticle_wrapper__admin_controls-header__img"
+          @click="deleteImage()"
       />
     </div>
     <img
-      :alt="altName"
-      :src="srcPath"
-      :title="title"
-      class="main_img inserted_image"
+        :alt="altName"
+        :src="srcPath"
+        :title="title"
+        class="main_img inserted_image"
     />
+
+    <!--  Модалка для изменения alt и title  -->
+    <v-dialog
+        v-model="isOpenModal"
+        max-width="600"
+    >
+      <v-card>
+        <v-card-title>
+          <span class="text-h6" style="font-size: 0.8em !important"
+          >Изменение данных изображения</span
+          >
+        </v-card-title>
+        <v-card-text class="dialog_dropzone">
+          <div
+              class="dialog_dropzone_inputs"
+          >
+            <InputStyled
+                :data="modalAlt"
+                :placeholder="'alt-наименование изображения'"
+                @update-input="setAlt"
+            ></InputStyled>
+
+            <InputStyled
+                :data="modalTitle"
+                :placeholder="'подпись изображения'"
+                @update-input="setTitle"
+            ></InputStyled>
+          </div>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-btn color="blue darken-1" text @click="closeModal">
+            Назад
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+              color="green darken-1"
+              text
+              @click="saveChanges
+            "
+          >
+            Сохранить
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -30,10 +78,12 @@
 // import VueDraggableResizable from 'vue-draggable-resizable'
 import "vue-draggable-resizable/dist/VueDraggableResizable.css";
 import CloseSVG from "@/assets/svg/closeIcon.svg";
+import InputStyled from "../common/InputStyled";
 
 export default {
   name: "ImageLayout",
   components: {
+    InputStyled,
     CloseSVG,
     // VueDraggableResizable,
   },
@@ -46,6 +96,10 @@ export default {
     index_image: null,
     data_image: null,
     dataForRerender: {},
+
+    isOpenModal: false,
+    modalAlt: "",
+    modalTitle: ""
   }),
   mounted() {
     this.getData();
@@ -58,11 +112,21 @@ export default {
     srcPath() {
       return this.data_image?.orig_path;
     },
-    altName() {
-      return this.data_image?.alt;
+    altName: {
+      get() {
+        return this.data_image?.alt_image;
+      },
+      set(value) {
+        this.data_image.alt_image = value
+      },
     },
-    title() {
-      return this.data_image?.title;
+    title: {
+      get() {
+        return this.data_image?.title_image;
+      },
+      set(value) {
+        this.data_image.title_image = value
+      }
     },
     getIdImage() {
       return this.data_image?.id;
@@ -90,7 +154,7 @@ export default {
     getWidthOfControls() {
       this.$nextTick(() => {
         const elem = document.getElementById(
-          `component_wrapper-${this.index_component}`
+            `component_wrapper-${this.index_component}`
         );
         if (elem) {
           this.controls_width = elem.getBoundingClientRect().width + 6;
@@ -102,7 +166,7 @@ export default {
     getHeightOfControls() {
       this.$nextTick(() => {
         const elem = document.getElementById(
-          `component_wrapper-${this.index_component}`
+            `component_wrapper-${this.index_component}`
         );
         if (elem) {
           this.controls_height = elem.getBoundingClientRect().height + 22;
@@ -111,6 +175,30 @@ export default {
         }
       });
     },
+
+    setAlt(value) {
+      this.modalAlt = value
+    },
+    setTitle(value) {
+      this.modalTitle = value
+    },
+    openModal() {
+      this.isOpenModal = true
+
+      this.modalTitle = this.title
+      this.modalAlt = this.altName
+    },
+    closeModal() {
+      this.isOpenModal = false
+    },
+    saveChanges() {
+      this.altName = this.modalAlt
+      this.title = this.modalTitle
+
+      this.isOpenModal = false
+
+      this.$store.dispatch("save")
+    }
   },
 };
 </script>

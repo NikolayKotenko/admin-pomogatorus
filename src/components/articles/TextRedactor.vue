@@ -1,26 +1,26 @@
 <template>
   <div :class="{ disabled: !check_created_article }" class="textRedactor">
-    <HeaderBlock @callCheckout="callCheckout" @add-link="addLink" />
+    <HeaderBlock @callCheckout="callCheckout" @add-link="addLink"/>
 
     <div
-      ref="content"
-      :contenteditable="
+        ref="content"
+        :contenteditable="
         check_created_article && !$store.state.ArticleModule.startRender
       "
-      class="textRedactor__content"
-      spellcheck="false"
-      @input="
+        class="textRedactor__content"
+        spellcheck="false"
+        @input="
         onContentChange;
         preventStyles;
       "
-      @mouseup="onSelectionContent()"
-      @keyup.enter="preventStyles"
+        @mouseup="onSelectionContent()"
+        @keyup.enter="preventStyles"
     ></div>
 
     <!-- OVERLAYS -->
     <div
-      v-if="!check_created_article || $store.state.ArticleModule.startRender"
-      class="overlay"
+        v-if="!check_created_article || $store.state.ArticleModule.startRender"
+        class="overlay"
     ></div>
   </div>
 </template>
@@ -39,10 +39,7 @@ import LoginAuth from "../auth/LoginAuth";
 
 import titlesStore from "@/store/modules/article/index.js";
 import DataComponent from "../../services/article/dataComponent";
-import {
-  Constructor_instance,
-  Imported_component,
-} from "../../helpers/constructors";
+import {Constructor_instance, Imported_component,} from "../../helpers/constructors";
 
 import iconsModels from "../../models/iconsModels";
 
@@ -122,8 +119,8 @@ export default {
           });
 
           console.log(
-            "components_after_request",
-            _store.components_after_request
+              "components_after_request",
+              _store.components_after_request
           );
 
           /* Start render */
@@ -155,9 +152,9 @@ export default {
   computed: {
     check_created_article() {
       return (
-        this.newArticle.name.value !== ""
-        // &&
-        // this.newArticle.short_header.value !== ""
+          this.newArticle.name.value !== ""
+          // &&
+          // this.newArticle.short_header.value !== ""
       );
     },
     content: {
@@ -250,9 +247,9 @@ export default {
           // Don't allow deleting nodes
           if (!selection.anchorNode) return;
           if (
-            selection.anchorNode.textContent === "" &&
-            selection.anchorNode.className !== "textRedactor__content" &&
-            selection.anchorNode.isContentEditable
+              selection.anchorNode.textContent === "" &&
+              selection.anchorNode.className !== "textRedactor__content" &&
+              selection.anchorNode.isContentEditable
           ) {
             e.preventDefault();
             selection.anchorNode.parentNode.removeChild(selection.anchorNode);
@@ -267,7 +264,7 @@ export default {
       let arrComponentsData = [];
       /* Get all components from DOM by class identifier */
       const componentsNodes = document.getElementsByClassName(
-        "component_container"
+          "component_container"
       );
 
       console.log(componentsNodes);
@@ -296,7 +293,7 @@ export default {
             dataComponent.name = htmlCollection.dataset.name;
             /* Set uniq index_%component% */
             dataComponent[`index_${htmlCollection.dataset.name}`] =
-              counters[`index_${htmlCollection.dataset.name}`];
+                counters[`index_${htmlCollection.dataset.name}`];
             /* Set uniq data for specific component */
             if (htmlCollection.dataset.name === "questions") {
               dataComponent.id = htmlCollection.dataset.id;
@@ -319,10 +316,10 @@ export default {
             }
             /* Push to arr result */
             arrComponentsData.push(
-              new Imported_component({
-                index: index,
-                component: dataComponent,
-              })
+                new Imported_component({
+                  index: index,
+                  component: dataComponent,
+                })
             );
             /* Update global counters */
             counters[`index_${htmlCollection.dataset.name}`]++;
@@ -355,7 +352,7 @@ export default {
         if (elem.component.name === "image") {
           const url = (function () {
             let url = document.getElementById(
-              `component_wrapper-${elem.index}`
+                `component_wrapper-${elem.index}`
             );
             if (!url) return null;
             url = url.getElementsByClassName("inserted_image");
@@ -365,13 +362,21 @@ export default {
           })();
           const IdImage = (function () {
             let res = document.getElementById(
-              `component_wrapper-${elem.index}`
+                `component_wrapper-${elem.index}`
             );
             if (!res) return null;
             res = res.dataset.id;
             return res;
           })();
-          data = Object.assign({}, { orig_path: url }, { id: IdImage });
+
+          const alt = document
+              .getElementById(`component_wrapper-${elem.index}`)
+              .getElementsByClassName("inserted_image")[0].alt;
+
+          const title = document
+              .getElementById(`component_wrapper-${elem.index}`)
+              .getElementsByClassName("inserted_image")[0].title;
+          data = Object.assign({}, {orig_path: url}, {id: IdImage}, {title_image: title}, {alt_image: alt});
         }
         /* Here change global counter of component in article */
         this.$store.commit("change_counter", {
@@ -391,19 +396,19 @@ export default {
         }
 
         range.selectNode(
-          document.getElementById(`component_wrapper-${elem.index}`)
+            document.getElementById(`component_wrapper-${elem.index}`)
         );
         range.deleteContents();
         range.collapse(false);
         /* Constructor return our FullReady component to get mounted on DOM */
         _store.list_components[index] = this.getStructureForInstance(
-          elem.component
+            elem.component
         );
 
         /* Check if question is not active */
         if (
-          elem.component.name === "questions" ||
-          elem.component.name === "question"
+            elem.component.name === "questions" ||
+            elem.component.name === "question"
         ) {
           if (elem.data.activity !== 1) {
             console.log(elem.data.id, "Is not active => remove");
@@ -469,8 +474,8 @@ export default {
           componentsForRequest = restoredArr;
         } else {
           console.log(
-            "_store.components_after_request",
-            _store.components_after_request
+              "_store.components_after_request",
+              _store.components_after_request
           );
           componentsForRequest = _store.components_after_request;
         }
@@ -484,7 +489,7 @@ export default {
           /** Если структура не валидная, значит компонент поломан, исключаем **/
           if (!elem?.component?.name) {
             console.warn(
-              "NOT VALID `inserted_components` COMPONENT FROM BACKEND"
+                "NOT VALID `inserted_components` COMPONENT FROM BACKEND"
             );
             return;
           }
@@ -501,12 +506,12 @@ export default {
               });
             } else {
               promises.push(
-                this.$store.dispatch(`get_${elem.component.name}`, elem)
+                  this.$store.dispatch(`get_${elem.component.name}`, elem)
               );
             }
           } else {
             promises.push(
-              this.$store.dispatch(`get_${elem.component.name}`, elem)
+                this.$store.dispatch(`get_${elem.component.name}`, elem)
             );
           }
         });
@@ -543,7 +548,7 @@ export default {
 
         /* Get all components from DOM by class identifier */
         const componentsNodes = document.getElementsByClassName(
-          "component_container"
+            "component_container"
         );
 
         /* Check if components length from DB isn't equal components count by DOM */
@@ -552,35 +557,35 @@ export default {
 
           /** Фильтруем компоненты только по вопросам, и проверяем не удален ли вопрос в принципе из БД **/
           const arrIDs = _store.list_components
-            .filter((elem) => {
-              const name = elem?.data?.component?.name;
+              .filter((elem) => {
+                const name = elem?.data?.component?.name;
 
-              if (!name) {
-                console.warn(
-                  "NOT VALID COMPONENT NAME ON CHECK DELETED COMPONENTS"
-                );
+                if (!name) {
+                  console.warn(
+                      "NOT VALID COMPONENT NAME ON CHECK DELETED COMPONENTS"
+                  );
 
-                return false;
-              }
+                  return false;
+                }
 
-              //TODO
-              return name === "question" || name === "questions";
-            })
-            .map((i) => {
-              return i?.data?.component?.id ?? i?.component?.id;
-            });
+                //TODO
+                return name === "question" || name === "questions";
+              })
+              .map((i) => {
+                return i?.data?.component?.id ?? i?.component?.id;
+              });
 
           console.log(arrIDs);
 
           arrCollection.forEach((htmlCollection) => {
             if (
-              htmlCollection.dataset.name &&
-              htmlCollection.dataset.name === "questions"
+                htmlCollection.dataset.name &&
+                htmlCollection.dataset.name === "questions"
             ) {
               if (!arrIDs.includes(htmlCollection.dataset.id)) {
                 console.log(
-                  "Question which is deleted",
-                  htmlCollection.dataset.id
+                    "Question which is deleted",
+                    htmlCollection.dataset.id
                 );
                 let tmpStr = htmlCollection.id.match("-(.*)");
                 let index = tmpStr[tmpStr.length - 1];
@@ -589,11 +594,11 @@ export default {
                 if (index) {
                   let range = document.createRange();
                   console.log(
-                    "deleted html",
-                    document.getElementById(`component_wrapper-${index}`)
+                      "deleted html",
+                      document.getElementById(`component_wrapper-${index}`)
                   );
                   range.selectNode(
-                    document.getElementById(`component_wrapper-${index}`)
+                      document.getElementById(`component_wrapper-${index}`)
                   );
                   range.deleteContents();
                   range.collapse(false);
@@ -608,11 +613,11 @@ export default {
     checkTypeComponent(elem) {
       this.$store.commit("change_name_component", elem.component.name);
       const name = Object.prototype.hasOwnProperty.call(
-        elem.component,
-        "index_question"
+          elem.component,
+          "index_question"
       )
-        ? "question"
-        : elem.component.name;
+          ? "question"
+          : elem.component.name;
       this.$store.commit("change_counter", {
         name: elem.component.name,
         count: elem.component[`index_${name}`],
@@ -633,7 +638,7 @@ export default {
         /* IF WE DELETED COMPONENT BY KEYBOARD */
         _store.list_components.forEach((elem) => {
           const elem_content = document.getElementById(
-            `component_wrapper-${elem.instance.$data.index_component}`
+              `component_wrapper-${elem.instance.$data.index_component}`
           );
           if (!elem_content) {
             _store.deletedComponent = elem.instance.$data.index_component;
@@ -658,18 +663,18 @@ export default {
       } else {
         // IF we create link with new text
         if (
-          _store.range &&
-          this.checkIfTextEditor(_store.range.commonAncestorContainer)
+            _store.range &&
+            this.checkIfTextEditor(_store.range.commonAncestorContainer)
         ) {
           if (window.getSelection) {
             _store.range.insertNode(link);
           } else if (document.selection && document.selection.createRange) {
             if (
-              _store.range &&
-              (_store.range.commonAncestorContainer.parentElement.className ===
-                "textRedactor__content" ||
-                _store.range.commonAncestorContainer.offsetParent._prevClass ===
-                  "textRedactor")
+                _store.range &&
+                (_store.range.commonAncestorContainer.parentElement.className ===
+                    "textRedactor__content" ||
+                    _store.range.commonAncestorContainer.offsetParent._prevClass ===
+                    "textRedactor")
             ) {
               _store.range.pasteHTML(link.outerHTML);
             }
@@ -678,16 +683,16 @@ export default {
           if (window.getSelection) {
             let range = document.createRange();
             range.setStart(
-              document.getElementsByClassName("textRedactor__content").item(0),
-              0
+                document.getElementsByClassName("textRedactor__content").item(0),
+                0
             );
             range.collapse(false);
             range.insertNode(link);
           } else if (document.selection && document.selection.createRange) {
             let range = document.createRange();
             range.setStart(
-              document.getElementsByClassName("textRedactor__content").item(0),
-              0
+                document.getElementsByClassName("textRedactor__content").item(0),
+                0
             );
             range.collapse(false);
             range.pasteHTML(link.outerHTML);
@@ -706,14 +711,16 @@ export default {
       let data_component = factory.create(_store.name_component, {
         name: _store.name_component,
         id: _store.selectedComponent?.id
-          ? _store.selectedComponent.id
-          : elem.id,
+            ? _store.selectedComponent.id
+            : elem.id,
         index_questions: _store.counters.questions,
         index_image: _store.counters.image,
         index_auth: _store.counters.auth,
         index_nomenclature: _store.counters.nomenclature,
         src: elem?.orig_path ? elem?.orig_path : "",
         nomenclatures_id: elem?.nomenclatures_id ?? [],
+        alt: elem?.alt_image ? elem?.alt_image : "",
+        title: elem?.title_image ? elem?.title_image : ""
       });
 
       console.log("data_component", data_component);
@@ -750,7 +757,7 @@ export default {
         index: _store.counters.layout,
         component: data_component,
       });
-      const params = Object.assign({}, { instance: instance }, { data: data });
+      const params = Object.assign({}, {instance: instance}, {data: data});
       return new Constructor_instance(params);
     },
     insertingComponent(data_component) {
@@ -766,8 +773,8 @@ export default {
         div2.style.minHeight = "24px";
 
         if (
-          _store.range &&
-          this.checkIfTextEditor(_store.range.commonAncestorContainer)
+            _store.range &&
+            this.checkIfTextEditor(_store.range.commonAncestorContainer)
         ) {
           if (window.getSelection) {
             _store.range.insertNode(div);
@@ -775,16 +782,16 @@ export default {
             _store.range.insertNode(div2);
           } else if (document.selection && document.selection.createRange) {
             if (
-              _store.range &&
-              (_store.range.commonAncestorContainer.parentElement.className ===
-                "textRedactor__content" ||
-                _store.range.commonAncestorContainer.offsetParent._prevClass ===
-                  "textRedactor")
+                _store.range &&
+                (_store.range.commonAncestorContainer.parentElement.className ===
+                    "textRedactor__content" ||
+                    _store.range.commonAncestorContainer.offsetParent._prevClass ===
+                    "textRedactor")
             ) {
               this.htmlSelected =
-                calledElem.instance.$el.nodeType == 3
-                  ? calledElem.instance.$el.innerHTML.data
-                  : calledElem.instance.$el.outerHTML;
+                  calledElem.instance.$el.nodeType == 3
+                      ? calledElem.instance.$el.innerHTML.data
+                      : calledElem.instance.$el.outerHTML;
               _store.range.pasteHTML(div);
               _store.range.pasteHTML(this.htmlSelected);
               _store.range.pasteHTML(div2);
@@ -794,8 +801,8 @@ export default {
           if (window.getSelection) {
             let range = document.createRange();
             range.setStart(
-              document.getElementsByClassName("textRedactor__content").item(0),
-              0
+                document.getElementsByClassName("textRedactor__content").item(0),
+                0
             );
             range.collapse(false);
             range.insertNode(div);
@@ -804,14 +811,14 @@ export default {
           } else if (document.selection && document.selection.createRange) {
             let range = document.createRange();
             range.setStart(
-              document.getElementsByClassName("textRedactor__content").item(0),
-              0
+                document.getElementsByClassName("textRedactor__content").item(0),
+                0
             );
             range.collapse(false);
             this.htmlSelected =
-              calledElem.instance.$el.nodeType == 3
-                ? calledElem.instance.$el.innerHTML.data
-                : calledElem.instance.$el.outerHTML;
+                calledElem.instance.$el.nodeType == 3
+                    ? calledElem.instance.$el.innerHTML.data
+                    : calledElem.instance.$el.outerHTML;
             range.pasteHTML(div);
             range.pasteHTML(this.htmlSelected);
             range.pasteHTML(div2);
@@ -833,22 +840,22 @@ export default {
 
         /** Фильтруемся только по вопросам в статье, и переписываем индексы на корректные в соответствии с их положением в DOM **/
         let component = _store.list_components
-          .filter((elem) => {
-            const name = elem?.data?.component?.name;
+            .filter((elem) => {
+              const name = elem?.data?.component?.name;
 
-            /** Если в переданном компоненте нет нужной структуры, пропускаем его **/
-            if (!name) {
-              console.warn("NOT VALID COMPONENT NAME ON FILTER CHANGE INDEX");
+              /** Если в переданном компоненте нет нужной структуры, пропускаем его **/
+              if (!name) {
+                console.warn("NOT VALID COMPONENT NAME ON FILTER CHANGE INDEX");
 
-              return;
-            }
+                return;
+              }
 
-            //TODO
-            return name === "question" || name === "questions";
-          })
-          .filter((elem) => {
-            return elem?.data?.index == id;
-          });
+              //TODO
+              return name === "question" || name === "questions";
+            })
+            .filter((elem) => {
+              return elem?.data?.index == id;
+            });
 
         // console.log(block)
 
@@ -886,8 +893,8 @@ export default {
         // console.log(elem.instance.$data.index_component)
 
         const currentDataComponent = elem?.data?.component?.name
-          ? elem.data
-          : elem;
+            ? elem.data
+            : elem;
 
         const name = currentDataComponent?.component?.name;
 
@@ -903,7 +910,7 @@ export default {
         elem.instance.$data[key_data] = global_counter[key_data];
         console.log("block");
         const block = document.getElementById(
-          `component_wrapper-${elem.instance.$data.index_component}`
+            `component_wrapper-${elem.instance.$data.index_component}`
         );
         // console.log(block)
         if (block) {
@@ -934,7 +941,7 @@ export default {
 
         let index = _store.list_components.findIndex((elem) => {
           return (
-            elem.instance.$data.index_component === _store.deletedComponent
+              elem.instance.$data.index_component === _store.deletedComponent
           );
         });
         if (index !== -1) {
@@ -942,12 +949,12 @@ export default {
 
           //TODO
           if (
-            currentComponent?.data?.component?.name === "questions" ||
-            currentComponent?.component?.name === "questions"
+              currentComponent?.data?.component?.name === "questions" ||
+              currentComponent?.component?.name === "questions"
           ) {
             let question_index = _store.questions_data.findIndex((elem) => {
               return (
-                elem.id == currentComponent.instance.$data.question_data.id
+                  elem.id == currentComponent.instance.$data.question_data.id
               );
             });
             if (question_index !== -1) {
@@ -959,7 +966,7 @@ export default {
 
           this.$nextTick(() => {
             const elem = document.getElementById(
-              `component_wrapper-${_store.deletedComponent}`
+                `component_wrapper-${_store.deletedComponent}`
             );
             console.log(elem);
             elem.remove();
@@ -986,7 +993,7 @@ export default {
     checkForStyles(html, icon) {
       if (icon.tag === "<u" || icon.tag === "<strike") {
         return (
-          html.includes("text-decoration-line") && html.includes(icon.styleName)
+            html.includes("text-decoration-line") && html.includes(icon.styleName)
         );
       } else return html.includes(icon.styleName);
     },
@@ -1006,8 +1013,8 @@ export default {
         }
         // SET SELECTED TEXT - TO CREATE URL
         this.$store.commit(
-          "set_selected_text_url",
-          window.getSelection().toString()
+            "set_selected_text_url",
+            window.getSelection().toString()
         );
       } else if (typeof document.selection != "undefined") {
         if (document.selection.type == "Text") {
@@ -1034,29 +1041,29 @@ export default {
           parentHTML = parentElem.outerHTML;
         }
         if (
-          elem.className !== "textRedactor__content" &&
-          elem.className !== "textRedactor"
+            elem.className !== "textRedactor__content" &&
+            elem.className !== "textRedactor"
         ) {
           let grandParent = parentHTML
-            ? parentElem.parentElement.outerHTML
-            : elem.outerHTML;
+              ? parentElem.parentElement.outerHTML
+              : elem.outerHTML;
           styleAlign = this.getStyleAlign(grandParent, icons_arr[icon]);
         }
         icons_arr[icon].active =
-          this.checkForStyles(parentHTML, icons_arr[icon]) ||
-          this.checkByTag(parentHTML, icons_arr[icon]) ||
-          this.checkForStyles(styleAlign, icons_arr[icon]) ||
-          this.checkHTMLText(html, icons_arr[icon]) ||
-          this.checkForStyles(html, icons_arr[icon]);
+            this.checkForStyles(parentHTML, icons_arr[icon]) ||
+            this.checkByTag(parentHTML, icons_arr[icon]) ||
+            this.checkForStyles(styleAlign, icons_arr[icon]) ||
+            this.checkHTMLText(html, icons_arr[icon]) ||
+            this.checkForStyles(html, icons_arr[icon]);
       });
     },
     /* Get style name for aligners values */
     getStyleAlign(outerHTML, icon) {
       if (
-        icon.tag !== "<b" &&
-        icon.tag !== "<i" &&
-        icon.tag !== "<u" &&
-        icon.tag !== "<strike"
+          icon.tag !== "<b" &&
+          icon.tag !== "<i" &&
+          icon.tag !== "<u" &&
+          icon.tag !== "<strike"
       ) {
         return outerHTML.includes(icon.styleName) ? icon.styleName : "";
       } else return "";
