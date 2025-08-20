@@ -80,6 +80,16 @@ export default {
     }, 500);
   },
   watch: {
+    /** Через mapState не прокидывается и не реагирует **/
+    "$store.state.ArticleModule.isSaveArticle": {
+      handler() {
+        this.$nextTick(() => {
+          this.$store.commit("changeContent", this.content);
+          this.$store.commit("change_by_action_editor");
+        })
+      },
+      deep: true
+    },
     saveDB: {
       handler(v) {
         if (!this.geting_from_server && v) {

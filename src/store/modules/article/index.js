@@ -178,8 +178,16 @@ export default {
     /* NOMENCLATURE */
     list_nomenclature: [],
     nomenclature_data: [],
+
+    /** @property {Boolean} - переключаем этот булиан для того чтобы компонент TextRedactor засейвил свое состояние **/
+    isSaveArticle: false,
   },
   mutations: {
+    /* TOGGLE SAVE ARTICLE */
+    toggleSaveArticle(state) {
+      state.isSaveArticle = !state.isSaveArticle;
+    },
+
     /* LINK */
     change_link_selection(state, payload) {
       state.linkSelection = payload;

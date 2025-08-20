@@ -142,8 +142,8 @@ export default {
       this.getWidthOfControls();
     },
     async deleteImage() {
-      // await this.$store.dispatch('deleteFileGeneral', this.data_image.id);
       await this.$store.dispatch("deleteComponent", this.index_component);
+      await this.$store.dispatch('deleteFileGeneral', this.data_image.id); // Удаляем саму фотографию из хранилища
     },
     onResize: function (x, y, width, height) {
       this.x = x;
@@ -176,28 +176,43 @@ export default {
       });
     },
 
+    /**
+     * Проставляем alt для фотки
+     * **/
     setAlt(value) {
       this.modalAlt = value
     },
+    /**
+     * Проставляем title для фотки
+     * **/
     setTitle(value) {
       this.modalTitle = value
     },
+    /**
+     * Открываем модалку и прокидываем в локальные переменные для модалки данные из статьи
+     * **/
     openModal() {
       this.isOpenModal = true
 
       this.modalTitle = this.title
       this.modalAlt = this.altName
     },
+    /**
+     * Закрываем модалку
+     * **/
     closeModal() {
       this.isOpenModal = false
     },
+    /**
+     * Сохраняем alt и title в переменную связанную с версткой картинки, и прокидываем мутацию в стор, чтобы сработал вотчер в текстовом редакторе
+     * **/
     saveChanges() {
       this.altName = this.modalAlt
       this.title = this.modalTitle
 
       this.isOpenModal = false
 
-      this.$store.dispatch("save")
+      this.$store.commit("toggleSaveArticle")
     }
   },
 };
