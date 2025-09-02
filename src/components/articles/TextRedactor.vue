@@ -196,6 +196,115 @@ export default {
     },
   },
   methods: {
+    /**
+     * @function - метод для рендера компонентов картинок для скопированного HTML-текста
+     * @param eTarget {EventTarget} - передаем event.target из копипаста
+     * **/
+    onPasteImageComponent(eTarget) {
+      this.$nextTick(() => {
+        /**
+         * Достаем все картинки из вставляемого HTML по тэгу <img
+         * **/
+        const rawImages = this.getImageFromOnPaste(eTarget)
+
+        if (!rawImages.length) {
+          console.warn("CANT GET <img> FROM e.target")
+          return
+        }
+
+        /**
+         * Начинаем рендерить эти картинки в компоненты
+         * **/
+        for (const image of rawImages) {
+          /**
+           * Достаем все данные, которые доступны из HTML и из стора
+           * **/
+          const url = image.src ?? ""
+          const title = image.title ?? ""
+          const alt = image.alt ?? ""
+          const idImage = null // TODO: тут id из нашего хранилища фоток. Что делаем если вставляется HTML а там src с чужой фоткой? Догружаем на наш бэк?
+          const indexComponent = _store.counters.layout + 1
+          const width = image.width ?? ""
+          const height = image.height ?? ""
+
+          const data = Object.assign({}, {orig_path: url}, {id: idImage}, {title_image: title}, {alt_image: alt}, {height}, {width});
+
+          /**
+           * Проставляем все counter, чтобы редактор статей считал наши новые компоненты компонентами
+           * + делаем магию по проставлению данных в стор
+           * **/
+          this.$store.commit("change_counter", {
+            name: "layout",
+            count: indexComponent,
+          });
+          this.$store.commit("change_counter", {
+            name: "image",
+            count: _store.counters.image + 1,
+          });
+          this.$store.commit("change_name_component", "image");
+          this.$store.commit("changeSelectedObject", data);
+
+          /**
+           * Удаляем сырой HTML, который вставился из копипаста
+           * **/
+          let range = document.createRange();
+          range.selectNode(image);
+          range.deleteContents();
+          range.collapse(false);
+
+          /**
+           * Нагенериваем сущности необходимые для работы с компонентами
+           * **/
+          let data_component = factory.create(_store.name_component, {
+            name: _store.name_component,
+            id: null,
+            index_image: _store.counters.image,
+            src: url,
+            alt: alt,
+            title: title
+          });
+          /**
+           * Заполняем в стор наш новый компонент
+           * **/
+          _store.list_components[indexComponent] = this.getStructureForInstance(data_component);
+          /**
+           * Рендерим компонент
+           * **/
+          _store.list_components[indexComponent].instance.$mount();
+          /**
+           * Добавляем в DOM
+           * **/
+          range.insertNode(_store.list_components[indexComponent].instance.$el);
+
+          /**
+           * Очищаем стор
+           * **/
+          this.$store.commit("changeSelectedObject", {});
+        }
+      })
+
+      this.$nextTick(() => {
+        this.resetCounter(_store.list_components);
+        this.changeIndexQuestion();
+      });
+    },
+    /**
+     * @function - достаем из html все картинки
+     * @param html {HTMLElement} - весь div из event.target
+     * **/
+    getImageFromOnPaste(html) {
+      const childrenWithTag = html.getElementsByTagName("img");
+
+      return [...childrenWithTag] || []
+    },
+    /**
+     * @function - проверяем есть ли в тексте html тэги <img>
+     * @param text {String} - html конвертированный в обычный текст
+     * **/
+    isImageContains(text) {
+      return text.includes("<img")
+    },
+
     preventStyles() {
       let range = null;
       if (window.getSelection) {
@@ -241,11 +350,27 @@ export default {
     /** Функция отключает стили и отступы в скопированном тексте, оставляет чисто сырой текст **/
     preventInsertingStyles() {
       const _this = this;
-      this.$refs.content.onpaste = function (e) {
+      this.$refs.content.onpaste = (e) => {
+        /**
+         * Выключаем дефолтное поведение при копипасте
+         * **/
         e.preventDefault();
+
+        /**
+         * Преобразовываем скопированное в text
+         * После этого добавляем этот текст в HTML. Если скопировали вёрстку, то ее тоже необходимо добавить в DOM
+         * **/
         let text = (e.originalEvent || e).clipboardData.getData("text/plain");
-        // document.execCommand("insertHtml", false, _this.escapeText(text));
         document.execCommand("insertHtml", false, text);
+
+        /**
+         * Если есть картинка в тексте(HTML), то рендерим как картинку
+         * **/
+        if (_this.isImageContains(text)) {
+          // TODO: Не работает с другими компонентами
+          _this.onPasteImageComponent(e.target)
+        }
+
         _this.onContentChange();
       };
     },
@@ -360,33 +485,24 @@ export default {
         let data = elem.data;
         /* If component is image we get URL of img and title/alt */
         if (elem.component.name === "image") {
-          const url = (function () {
-            let url = document.getElementById(
-                `component_wrapper-${elem.index}`
-            );
-            if (!url) return null;
-            url = url.getElementsByClassName("inserted_image");
-            if (!url) return null;
-            url = url[0].src;
-            return url;
-          })();
-          const IdImage = (function () {
-            let res = document.getElementById(
-                `component_wrapper-${elem.index}`
-            );
-            if (!res) return null;
-            res = res.dataset.id;
-            return res;
-          })();
+          const htmlParent = document.getElementById(
+              `component_wrapper-${elem.index}`
+          )
 
-          const alt = document
-              .getElementById(`component_wrapper-${elem.index}`)
-              .getElementsByClassName("inserted_image")[0].alt;
+          if (!htmlParent) {
+            return
+          }
 
-          const title = document
-              .getElementById(`component_wrapper-${elem.index}`)
-              .getElementsByClassName("inserted_image")[0].title;
-          data = Object.assign({}, {orig_path: url}, {id: IdImage}, {title_image: title}, {alt_image: alt});
+          const htmlImage = htmlParent.getElementsByClassName("inserted_image")[0]
+
+          const url = htmlImage.src
+          const IdImage = htmlParent.dataset.id
+          const alt = htmlImage.alt;
+          const title = htmlImage.title;
+          const width = htmlImage.width;
+          const height = htmlImage.height;
+
+          data = Object.assign({}, {orig_path: url}, {id: IdImage}, {title_image: title}, {alt_image: alt}, {width}, {height});
         }
         /* Here change global counter of component in article */
         this.$store.commit("change_counter", {

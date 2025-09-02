@@ -21,8 +21,11 @@
     </div>
     <img
         :alt="altName"
+        :height="getHeight"
         :src="srcPath"
+        :style="getStyle"
         :title="title"
+        :width="getWidth"
         class="main_img inserted_image"
     />
 
@@ -131,9 +134,19 @@ export default {
     getIdImage() {
       return this.data_image?.id;
     },
+    getWidth() {
+      return this.data_image?.width ? `${this.data_image?.width}px` : "";
+    },
+    getHeight() {
+      return this.data_image?.height ? `${this.data_image?.height}` : "";
+    },
+    getStyle() {
+      return `width: ${this.getWidth}; height: ${this.getHeight}`
+    }
   },
   methods: {
     getData() {
+      console.log("this.$store.state.ArticleModule.selectedComponent", this.$store.state.ArticleModule.selectedComponent)
       this.data_image = this.$store.state.ArticleModule.selectedComponent;
       this.dataForRerender = this.$store.state.ArticleModule.selectedComponent;
       this.index_image = this.$store.state.ArticleModule.counters.image;
@@ -143,7 +156,9 @@ export default {
     },
     async deleteImage() {
       await this.$store.dispatch("deleteComponent", this.index_component);
-      await this.$store.dispatch('deleteFileGeneral', this.data_image.id); // Удаляем саму фотографию из хранилища
+      if (this.data_image.id) {
+        await this.$store.dispatch('deleteFileGeneral', this.data_image.id); // Удаляем саму фотографию из хранилища
+      }
     },
     onResize: function (x, y, width, height) {
       this.x = x;
