@@ -3,7 +3,7 @@
       :id="`component_wrapper-${index_component}`"
       :data-id="getIdImage"
       :data-src="shortPath"
-      class="componentArticle_wrapper image_wrapper component_container"
+      class="componentArticle_wrapper image_wrapper component_container no-padding"
       contenteditable="false"
       data-name="image"
   >

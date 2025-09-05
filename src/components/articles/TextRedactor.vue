@@ -198,14 +198,17 @@ export default {
   methods: {
     /**
      * @function - метод для рендера компонентов картинок для скопированного HTML-текста
-     * @param eTarget {EventTarget} - передаем event.target из копипаста
+     * @param id {String | Number} - передаем event.target из копипаста
      * **/
-    onPasteImageComponent(eTarget) {
+    onPasteImageComponent(id) {
       this.$nextTick(() => {
+        console.log("START CHANGE IMAGES FROM COPYPASTE")
         /**
          * Достаем все картинки из вставляемого HTML по тэгу <img
          * **/
-        const rawImages = this.getImageFromOnPaste(eTarget)
+        const rawImages = this.getImageFromOnPaste(id)
+
+        console.log("rawImages", rawImages)
 
         if (!rawImages.length) {
           console.warn("CANT GET <img> FROM e.target")
@@ -213,9 +216,18 @@ export default {
         }
 
         /**
+         * UNDO/REDO
+         * **/
+        if (!_store.txtDisplay.length) {
+          this.$store.commit("change_by_action_editor");
+        }
+
+        /**
          * Начинаем рендерить эти картинки в компоненты
          * **/
         for (const image of rawImages) {
+          console.log("image", image)
+
           /**
            * Достаем все данные, которые доступны из HTML и из стора
            * **/
@@ -223,7 +235,7 @@ export default {
           const title = image.title ?? ""
           const alt = image.alt ?? ""
           const idImage = null // TODO: тут id из нашего хранилища фоток. Что делаем если вставляется HTML а там src с чужой фоткой? Догружаем на наш бэк?
-          const indexComponent = _store.counters.layout + 1
+          const indexComponent = _store.counters.layout
           const width = image.width ?? ""
           const height = image.height ?? ""
 
@@ -263,10 +275,15 @@ export default {
             alt: alt,
             title: title
           });
+
           /**
            * Заполняем в стор наш новый компонент
            * **/
           _store.list_components[indexComponent] = this.getStructureForInstance(data_component);
+
+          console.log("_store.list_components[indexComponent]", _store.list_components[indexComponent])
+          console.log("indexComponent", indexComponent)
+
           /**
            * Рендерим компонент
            * **/
@@ -290,10 +307,11 @@ export default {
     },
     /**
      * @function - достаем из html все картинки
-     * @param html {HTMLElement} - весь div из event.target
+     * @param id {String | Number} - весь div из event.target
      * **/
-    getImageFromOnPaste(html) {
-      const childrenWithTag = html.getElementsByTagName("img");
+    getImageFromOnPaste(id) {
+      const div = document.getElementById(`inserted-html-${id}`);
+      const childrenWithTag = div.getElementsByTagName("img");
 
       return [...childrenWithTag] || []
     },
@@ -361,14 +379,23 @@ export default {
          * После этого добавляем этот текст в HTML. Если скопировали вёрстку, то ее тоже необходимо добавить в DOM
          * **/
         let text = (e.originalEvent || e).clipboardData.getData("text/plain");
-        document.execCommand("insertHtml", false, text);
 
         /**
          * Если есть картинка в тексте(HTML), то рендерим как картинку
          * **/
         if (_this.isImageContains(text)) {
+          const result = `<div id="inserted-html-${_store.counters.insertedHtml}"><div style="min-height: 24px"></div>${text}<div style="min-height: 24px"></div></div>`
+          document.execCommand("insertHtml", false, result);
+
           // TODO: Не работает с другими компонентами
-          _this.onPasteImageComponent(e.target)
+          _this.onPasteImageComponent(_store.counters.insertedHtml)
+
+          this.$store.commit("change_counter", {
+            name: "insertedHtml",
+            count: _store.counters.insertedHtml + 1,
+          });
+        } else {
+          document.execCommand("insertHtml", false, text);
         }
 
         _this.onContentChange();
@@ -767,6 +794,8 @@ export default {
               `component_wrapper-${elem.instance.$data.index_component}`
           );
           if (!elem_content) {
+            console.log("DELETEING elem", elem)
+            console.log("DELETEING instance", elem.instance)
             _store.deletedComponent = elem.instance.$data.index_component;
           }
         });

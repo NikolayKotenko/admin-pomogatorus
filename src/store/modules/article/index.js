@@ -150,6 +150,7 @@ export default {
       auth: 0,
       questions: 0,
       nomenclature: 0,
+      insertedHtml: 0,
     },
     selectComponent: {
       questions: false,
