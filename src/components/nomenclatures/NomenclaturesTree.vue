@@ -409,6 +409,22 @@
                 :is-loading="loading"
                 @update-input="setPropertyFamily({ key: 'seo_keywords', payload: $event });"
             />
+            <v-autocomplete
+              :disabled="$store.state.loadingRequestGeneral"
+              :items="$store.state.Brands.listBrands"
+              :loading="$store.state.loadingRequestGeneral"
+              class="mb-5"
+              dense
+              hide-details
+              item-text="name"
+              item-value="id"
+              :label="family?.brand?.name ? family?.brand?.name : 'Выберите бренд'"
+              outlined
+              return-object
+              :menu-props="{ maxHeight: '80vh' }"
+              @change="setPropertyFamily({ key: 'id_brand', payload: $event.id });"
+            >
+            </v-autocomplete>
             <DropzoneStyled
               :id-object="family.id"
               :photos-array="family.photos"
@@ -816,6 +832,7 @@ export default {
   async mounted() {
     await this.getTreeOnMount();
     await this.getDictionaryUnits();
+    await this.$store.dispatch("getListBrands", this.$route.params.id);
 
     this.$refs.treeView.updateAll(true);
   },
