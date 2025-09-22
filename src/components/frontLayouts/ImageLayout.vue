@@ -41,21 +41,71 @@
           >
         </v-card-title>
         <v-card-text class="dialog_dropzone">
-          <div
+          <v-form
+              ref="form"
+              v-model="isValid"
               class="dialog_dropzone_inputs"
           >
-            <InputStyled
-                :data="modalAlt"
-                :placeholder="'alt-наименование изображения'"
-                @update-input="setAlt"
-            ></InputStyled>
+            <div class="dialog_dropzone_wrapper">
+              <vue-dropzone
+                  v-if="!loading_dropzone"
+                  id="dropzone"
+                  ref="myVueDropzone"
+                  :options="options"
+                  :useCustomSlot="true"
+                  @vdropzone-success="successData"
+                  @vdropzone-sending="sendingData"
+              >
+                <h3 class="dropzone-custom-title">
+                  <v-icon
+                      color="grey lighten-1"
+                      size="120"
+                      style="transform: rotate(45deg)"
+                  >
+                    mdi-paperclip
+                  </v-icon>
+                </h3>
+                <div class="subtitle" style="color: darkgrey">
+                  Для вставки изображения перетащите файл в зону или нажмите на
+                  скрепку
+                </div>
+              </vue-dropzone>
+              <div
+                  v-if="dropzone_uploaded.length"
+                  class="dialog_dropzone_wrapper__upload"
+                  @click="triggerUpload()"
+              >
+                <v-icon
+                    color="grey lighten-1"
+                    size="60"
+                    style="transform: rotate(45deg)"
+                >mdi-paperclip
+                </v-icon>
+              </div>
+            </div>
+            <div
+                class="dialog_dropzone_inputs"
+            >
+              <InputStyled
+                  :data="modalAlt"
+                  :placeholder="'alt-наименование изображения'"
+                  @update-input="setAlt"
+              ></InputStyled>
 
-            <InputStyled
-                :data="modalTitle"
-                :placeholder="'подпись изображения'"
-                @update-input="setTitle"
-            ></InputStyled>
-          </div>
+              <InputStyled
+                  :data="modalTitle"
+                  :placeholder="'подпись изображения'"
+                  @update-input="setTitle"
+              ></InputStyled>
+
+              <InputStyled
+                  :current-rules="srcRule"
+                  :data="modalSrc"
+                  :placeholder="'src изображения'"
+                  @update-input="setSrc"
+              ></InputStyled>
+            </div>
+          </v-form>
         </v-card-text>
 
         <v-card-actions>
@@ -64,6 +114,7 @@
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn
+              :disabled="!isValid"
               color="green darken-1"
               text
               @click="saveChanges
@@ -78,8 +129,8 @@
 </template>
 
 <script>
-// import VueDraggableResizable from 'vue-draggable-resizable'
-import "vue-draggable-resizable/dist/VueDraggableResizable.css";
+import vue2Dropzone from "vue2-dropzone";
+import "vue2-dropzone/dist/vue2Dropzone.min.css";
 import CloseSVG from "@/assets/svg/closeIcon.svg";
 import InputStyled from "../common/InputStyled";
 
@@ -88,9 +139,14 @@ export default {
   components: {
     InputStyled,
     CloseSVG,
-    // VueDraggableResizable,
+    vueDropzone: vue2Dropzone,
   },
   data: () => ({
+    /* DROPZONE */
+    index_uploaded: 1,
+    dropzone_uploaded: [],
+    loading_dropzone: true,
+
     width: 0,
     height: 0,
     x: 0,
@@ -102,7 +158,13 @@ export default {
 
     isOpenModal: false,
     modalAlt: "",
-    modalTitle: ""
+    modalTitle: "",
+    modalSrc: "",
+    srcRule: [
+      v => !!v || 'Обязательно к заполнению',
+      v => /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(v) || 'Ссылка на изображение должна быть валидной',
+    ],
+    isValid: true
   }),
   mounted() {
     this.getData();
@@ -142,7 +204,19 @@ export default {
     },
     getStyle() {
       return `width: ${this.getWidth}; height: ${this.getHeight}`
-    }
+    },
+    options() {
+      return {
+        url: this.$store.state.BASE_URL + "/entity/files",
+        destroyDropzone: false,
+        duplicateCheck: true,
+        headers: {
+          Authorization: this.$store.getters.getToken,
+        },
+        uploadMultiple: false,
+        maxFiles: 1,
+      };
+    },
   },
   methods: {
     getData() {
@@ -191,6 +265,29 @@ export default {
       });
     },
 
+    successData(file, response) {
+      const formatObj = Object.assign({}, response.data);
+      this.dropzone_uploaded.push(formatObj);
+    },
+    sendingData(file, xhr, formData) {
+      formData.append("uuid", file.upload.uuid);
+      formData.append("id_article", this.$store.state.ArticleModule.newArticle.id);
+      formData.append("preview_image", 0);
+    },
+    triggerUpload() {
+      document.getElementById("dropzone").click();
+    },
+    async updateDropZoneImage() {
+      if (!this.dropzone_uploaded.length) return;
+
+      await Request.put(
+          this.$store.state.BASE_URL +
+          "/entity/files/" +
+          this.dropzone_uploaded[0].id,
+          this.dropzone_uploaded[0]
+      );
+    },
+
     /**
      * Проставляем alt для фотки
      * **/
@@ -204,6 +301,12 @@ export default {
       this.modalTitle = value
     },
     /**
+     * Проставляем title для фотки
+     * **/
+    setSrc(value) {
+      this.modalSrc = value
+    },
+    /**
      * Открываем модалку и прокидываем в локальные переменные для модалки данные из статьи
      * **/
     openModal() {
@@ -211,6 +314,7 @@ export default {
 
       this.modalTitle = this.title
       this.modalAlt = this.altName
+      this.modalSrc = this.srcPath
     },
     /**
      * Закрываем модалку
@@ -224,6 +328,7 @@ export default {
     saveChanges() {
       this.altName = this.modalAlt
       this.title = this.modalTitle
+      this.data_image.orig_path = this.modalSrc
 
       this.isOpenModal = false
 

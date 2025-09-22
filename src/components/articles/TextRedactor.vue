@@ -30,7 +30,6 @@ import Vue from "vue";
 import store from "@/store/index.js";
 import vuetify from "@/plugins/vuetify";
 
-// import vueCarousel from "@/plugins/vue-carousel";
 import HeaderBlock from "./HeaderBlock";
 import Question from "../frontLayouts/Question";
 import ImageLayout from "../frontLayouts/ImageLayout";
@@ -163,8 +162,6 @@ export default {
     check_created_article() {
       return (
           this.newArticle.name.value !== ""
-          // &&
-          // this.newArticle.short_header.value !== ""
       );
     },
     content: {
@@ -200,8 +197,8 @@ export default {
      * @function - метод для рендера компонентов картинок для скопированного HTML-текста
      * @param id {String | Number} - передаем event.target из копипаста
      * **/
-    onPasteImageComponent(id) {
-      this.$nextTick(() => {
+    async onPasteImageComponent(id) {
+      await this.$nextTick(() => {
         console.log("START CHANGE IMAGES FROM COPYPASTE")
         /**
          * Достаем все картинки из вставляемого HTML по тэгу <img
@@ -245,9 +242,11 @@ export default {
            * Проставляем все counter, чтобы редактор статей считал наши новые компоненты компонентами
            * + делаем магию по проставлению данных в стор
            * **/
+          console.log("indexComponent", indexComponent)
+
           this.$store.commit("change_counter", {
             name: "layout",
-            count: indexComponent,
+            count: indexComponent + 1,
           });
           this.$store.commit("change_counter", {
             name: "image",
@@ -281,9 +280,6 @@ export default {
            * **/
           _store.list_components[indexComponent] = this.getStructureForInstance(data_component);
 
-          console.log("_store.list_components[indexComponent]", _store.list_components[indexComponent])
-          console.log("indexComponent", indexComponent)
-
           /**
            * Рендерим компонент
            * **/
@@ -303,7 +299,13 @@ export default {
       this.$nextTick(() => {
         this.resetCounter(_store.list_components);
         this.changeIndexQuestion();
-      });
+
+        this.$store.commit("change_counter", {
+          name: "insertedHtml",
+          count: _store.counters.insertedHtml + 1,
+        });
+        this.onContentChange();
+      })
     },
     /**
      * @function - достаем из html все картинки
@@ -387,18 +389,11 @@ export default {
           const result = `<div id="inserted-html-${_store.counters.insertedHtml}"><div style="min-height: 24px"></div>${text}<div style="min-height: 24px"></div></div>`
           document.execCommand("insertHtml", false, result);
 
-          // TODO: Не работает с другими компонентами
           _this.onPasteImageComponent(_store.counters.insertedHtml)
-
-          this.$store.commit("change_counter", {
-            name: "insertedHtml",
-            count: _store.counters.insertedHtml + 1,
-          });
         } else {
           document.execCommand("insertHtml", false, text);
+          _this.onContentChange();
         }
-
-        _this.onContentChange();
       };
     },
     onkeydownInEditable() {
@@ -886,11 +881,15 @@ export default {
       }
 
       /* Undo/Redo memento manipulation */
-      if (!_store.txtDisplay.length)
+      if (!_store.txtDisplay.length) {
         this.$store.commit("change_by_action_editor");
+      }
+
+      console.log("counters", _store.counters)
 
       this.insertingComponent(data_component).then(() => {
         this.$nextTick(() => {
+          console.log("(_store.list_components", _store.list_components)
           this.resetCounter(_store.list_components);
           this.changeIndexQuestion();
         });
@@ -1005,14 +1004,11 @@ export default {
                 return;
               }
 
-              //TODO
               return name === "question" || name === "questions";
             })
             .filter((elem) => {
               return elem?.data?.index == id;
             });
-
-        // console.log(block)
 
         if (component.length) {
           let nameComponent = component[0]?.data?.component?.name;
@@ -1053,6 +1049,9 @@ export default {
 
         const name = currentDataComponent?.component?.name;
 
+        console.log("currentDataComponent", currentDataComponent)
+        console.log("name", name)
+
         /** Если в переданном компоненте нет нужной структуры, пропускаем его **/
         if (!name) {
           console.warn("NOT VALID COMPONENT ON RESET COUNTERS");
@@ -1064,10 +1063,11 @@ export default {
         currentDataComponent.component[key_data] = global_counter[key_data];
         elem.instance.$data[key_data] = global_counter[key_data];
         console.log("block");
+        console.log("elem.instance.$data.index_component", elem.instance.$data.index_component);
         const block = document.getElementById(
             `component_wrapper-${elem.instance.$data.index_component}`
         );
-        // console.log(block)
+        console.log(block)
         if (block) {
           block.id = `component_wrapper-${global_counter.counter_index}`;
           elem.instance.$data.index_component = global_counter.counter_index;
@@ -1080,6 +1080,8 @@ export default {
           global_counter.counter_index++;
         }
       });
+
+      console.log("final reset", _store.counters)
 
       this.$store.commit("change_counter", {
         name: "layout",
@@ -1102,7 +1104,6 @@ export default {
         if (index !== -1) {
           const currentComponent = _store.list_components[index];
 
-          //TODO
           if (
               currentComponent?.data?.component?.name === "questions" ||
               currentComponent?.component?.name === "questions"
@@ -1120,19 +1121,24 @@ export default {
           _store.list_components.splice(index, 1);
 
           this.$nextTick(() => {
-            const elem = document.getElementById(
-                `component_wrapper-${_store.deletedComponent}`
-            );
-            console.log(elem);
-            elem.remove();
-            this.$store.commit("delete_component_by_id", 0);
-            this.resetCounter(_store.list_components);
-            this.changeIndexQuestion();
+            try {
+              const elem = document.getElementById(
+                  `component_wrapper-${_store.deletedComponent}`
+              );
+              console.log(elem);
+              elem.remove();
+            } catch (e) {
+              console.warn("ALL IS BEING GOOD, component already deleted from HTML")
+            } finally {
+              this.$store.commit("delete_component_by_id", 0);
+              this.resetCounter(_store.list_components);
+              this.changeIndexQuestion();
 
-            this.saveDB = true;
-            setTimeout(() => {
-              this.saveDB = false;
-            }, 200);
+              this.saveDB = true;
+              setTimeout(() => {
+                this.saveDB = false;
+              }, 200);
+            }
           });
         }
       }
