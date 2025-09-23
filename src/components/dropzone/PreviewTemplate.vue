@@ -1,9 +1,9 @@
 <template>
-  <v-card class="wrapper">
+  <v-card class="wrapper preview-image-dropzone">
     <div data-dz-image>
       <img alt="" class="main_img image" data-dz-thumbnail/>
     </div>
-    <div class="menu">
+    <div v-if="isShowDelete" class="menu">
       <CloseSVG
           alt="close"
           class="dz_close"
@@ -20,6 +20,12 @@ import CloseSVG from "@/assets/svg/closeIcon.svg"
 
 export default {
   name: "PreviewTemplate",
+  props: {
+    isShowDelete: {
+      type: Boolean,
+      default: true
+    }
+  },
   components: {
     CloseSVG
   }

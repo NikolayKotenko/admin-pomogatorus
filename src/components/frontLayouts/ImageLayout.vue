@@ -48,7 +48,7 @@
           >
             <div class="dialog_dropzone_wrapper">
               <vue-dropzone
-                  v-if="!loading_dropzone"
+                  v-if="isDropzoneReady"
                   id="dropzone"
                   ref="myVueDropzone"
                   :options="options"
@@ -71,7 +71,6 @@
                 </div>
               </vue-dropzone>
               <div
-                  v-if="dropzone_uploaded.length"
                   class="dialog_dropzone_wrapper__upload"
                   @click="triggerUpload()"
               >
@@ -133,6 +132,9 @@ import vue2Dropzone from "vue2-dropzone";
 import "vue2-dropzone/dist/vue2Dropzone.min.css";
 import CloseSVG from "@/assets/svg/closeIcon.svg";
 import InputStyled from "../common/InputStyled";
+import Request from "@/services/request";
+import Vue from "vue";
+import PreviewTemplate from "../dropzone/PreviewTemplate";
 
 export default {
   name: "ImageLayout",
@@ -143,9 +145,9 @@ export default {
   },
   data: () => ({
     /* DROPZONE */
-    index_uploaded: 1,
-    dropzone_uploaded: [],
-    loading_dropzone: true,
+    local_dropzone_data: null,
+    isDropzoneReady: false,
+    previewHtml: null,
 
     width: 0,
     height: 0,
@@ -168,6 +170,17 @@ export default {
   }),
   mounted() {
     this.getData();
+
+    /** Прогружаем компонент с превью-изображением для дропзона **/
+    const ComponentClass = Vue.extend(PreviewTemplate);
+    const instance = new ComponentClass({
+      props: {
+        isShowDelete: false
+      }
+    });
+    instance.$mount();
+    this.previewHtml = instance.$el.outerHTML;
+    this.isDropzoneReady = true;
   },
   computed: {
     shortPath() {
@@ -210,17 +223,16 @@ export default {
         url: this.$store.state.BASE_URL + "/entity/files",
         destroyDropzone: false,
         duplicateCheck: true,
+        previewTemplate: this.previewHtml,
         headers: {
           Authorization: this.$store.getters.getToken,
         },
         uploadMultiple: false,
-        maxFiles: 1,
       };
     },
   },
   methods: {
     getData() {
-      console.log("this.$store.state.ArticleModule.selectedComponent", this.$store.state.ArticleModule.selectedComponent)
       this.data_image = this.$store.state.ArticleModule.selectedComponent;
       this.dataForRerender = this.$store.state.ArticleModule.selectedComponent;
       this.index_image = this.$store.state.ArticleModule.counters.image;
@@ -267,25 +279,50 @@ export default {
 
     successData(file, response) {
       const formatObj = Object.assign({}, response.data);
-      this.dropzone_uploaded.push(formatObj);
+      this.local_dropzone_data = formatObj
+      this.modalSrc = formatObj.full_path
+      this.modalTitle = formatObj.filename
+      this.modalAlt = formatObj.filename
     },
     sendingData(file, xhr, formData) {
       formData.append("uuid", file.upload.uuid);
       formData.append("id_article", this.$store.state.ArticleModule.newArticle.id);
       formData.append("preview_image", 0);
+
+      /**
+       * Удаляем из HTML старый компонент с предыдущей фотографией
+       * **/
+      const previewImages = document.getElementsByClassName('preview-image-dropzone')
+      if (previewImages.length) {
+        previewImages[0].remove()
+      }
     },
     triggerUpload() {
       document.getElementById("dropzone").click();
     },
     async updateDropZoneImage() {
-      if (!this.dropzone_uploaded.length) return;
+      if (this.data_image.id) {
+        await Request.put(
+            this.$store.state.BASE_URL +
+            "/entity/files/" +
+            this.data_image.id,
+            this.local_dropzone_data
+        );
+      }
+    },
+    /**
+     * Отображаем в дропзоне нашу фотографию
+     * **/
+    insertDropzoneData() {
+      this.$nextTick(() => {
+        let file = {size: null, name: this.title, type: "image/png"};
+        let url = this.modalSrc;
 
-      await Request.put(
-          this.$store.state.BASE_URL +
-          "/entity/files/" +
-          this.dropzone_uploaded[0].id,
-          this.dropzone_uploaded[0]
-      );
+        this.$refs.myVueDropzone.manuallyAddFile(
+            file,
+            url
+        );
+      });
     },
 
     /**
@@ -301,7 +338,7 @@ export default {
       this.modalTitle = value
     },
     /**
-     * Проставляем title для фотки
+     * Проставляем src для фотки
      * **/
     setSrc(value) {
       this.modalSrc = value
@@ -315,6 +352,9 @@ export default {
       this.modalTitle = this.title
       this.modalAlt = this.altName
       this.modalSrc = this.srcPath
+
+      /** Заставляем отобразиться фотку в дропзоне **/
+      this.insertDropzoneData()
     },
     /**
      * Закрываем модалку
@@ -323,16 +363,19 @@ export default {
       this.isOpenModal = false
     },
     /**
-     * Сохраняем alt и title в переменную связанную с версткой картинки, и прокидываем мутацию в стор, чтобы сработал вотчер в текстовом редакторе
+     * Сохраняем alt, src и title в переменную связанную с версткой картинки, и прокидываем мутацию в стор, чтобы сработал вотчер в текстовом редакторе
      * **/
     saveChanges() {
       this.altName = this.modalAlt
       this.title = this.modalTitle
       this.data_image.orig_path = this.modalSrc
 
-      this.isOpenModal = false
+      /** Обновляем данные по фотке в БД, и после этого сохраняем в текстовом редакторе **/
+      this.updateDropZoneImage().then(() => {
+        this.isOpenModal = false
 
-      this.$store.commit("toggleSaveArticle")
+        this.$store.commit("toggleSaveArticle")
+      })
     }
   },
 };
