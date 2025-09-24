@@ -94,6 +94,7 @@ export default {
         if (!this.geting_from_server && v) {
           console.log("save article");
           this.$store.commit("changeContent", this.content);
+          console.log("UNDO/REDO")
           this.$store.commit("change_by_action_editor");
         }
       },
@@ -151,6 +152,8 @@ export default {
 
             this.$store.commit("clear_list_components", []);
             this.$store.commit("change_start_render", false);
+            /* Reset Counters & Question number */
+            this.resetCounter(_store.list_components);
 
             console.log("AFTER CLEAR", _store.list_components);
           }
@@ -173,6 +176,7 @@ export default {
         return "";
       },
       set: function (val) {
+        console.log("set content")
         this.$refs.content.innerHTML = val;
       },
     },
@@ -408,9 +412,13 @@ export default {
               selection.anchorNode.className !== "textRedactor__content" &&
               selection.anchorNode.isContentEditable
           ) {
+            console.log("if delete")
+
             e.preventDefault();
             selection.anchorNode.parentNode.removeChild(selection.anchorNode);
             _this.onContentChange();
+          } else {
+            console.log("else delete")
           }
         }
       };
@@ -773,18 +781,23 @@ export default {
     },
 
     onContentChange() {
+      console.log("onContentChange")
       if (!_store.isChangedByAction) {
-        if (!_store.txtDisplay.length)
+        if (!_store.txtDisplay.length) {
+          console.log("UNDO/REDO")
           this.$store.commit("change_by_action_editor");
+        }
         if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
         this.debounceTimeout = setTimeout(() => {
           _store.content = this.content;
           /* Undo/Redo memento manipulation */
+          console.log("UNDO/REDO")
           this.$store.commit("change_by_action_editor");
         }, 600);
 
         /* IF WE DELETED COMPONENT BY KEYBOARD */
         _store.list_components.forEach((elem) => {
+          console.log("ELEM INSTANCE  onCOntentChange", elem.instance)
           const elem_content = document.getElementById(
               `component_wrapper-${elem.instance.$data.index_component}`
           );
@@ -873,8 +886,6 @@ export default {
         title: elem?.title_image ? elem?.title_image : ""
       });
 
-      console.log("data_component", data_component);
-
       // QUESTIONS DATA ADD TO ARRAY BECAUSE NEED UNDO/REDO
       if (_store.name_component === "questions") {
         this.$store.commit("add_questions_data", _store.selectedComponent);
@@ -882,20 +893,16 @@ export default {
 
       /* Undo/Redo memento manipulation */
       if (!_store.txtDisplay.length) {
+        console.log("UNDO/REDO")
         this.$store.commit("change_by_action_editor");
       }
 
-      console.log("counters", _store.counters)
-
       this.insertingComponent(data_component).then(() => {
         this.$nextTick(() => {
-          console.log("(_store.list_components", _store.list_components)
           this.resetCounter(_store.list_components);
           this.changeIndexQuestion();
         });
         this.saveDB = true;
-        // this.$store.commit("changeContent", this.content);
-        // this.$store.commit("change_by_action_editor");
         this.clearStateAfterSelect();
         setTimeout(() => {
           this.saveDB = false;
@@ -918,7 +925,10 @@ export default {
       return new Promise((resolve) => {
         const elem = this.getStructureForInstance(data_component);
         this.$store.commit("add_to_list_components", elem);
+        console.log("_store.counters.layout", _store.counters.layout)
+        console.log("_store.list_components", _store.list_components)
         const calledElem = _store.list_components[_store.counters.layout - 1];
+        console.log("calledElem insertingComponent", calledElem)
         calledElem.instance.$mount();
 
         const div = document.createElement("div");
@@ -1020,6 +1030,7 @@ export default {
           }
 
           const key_data = `index_${nameComponent}`;
+          console.log("component[0].instance", component[0].instance)
           component[0].instance.$data[key_data] = counter;
           counter++;
         }
@@ -1063,6 +1074,7 @@ export default {
         currentDataComponent.component[key_data] = global_counter[key_data];
         elem.instance.$data[key_data] = global_counter[key_data];
         console.log("block");
+        console.log("elem.instance", elem.instance);
         console.log("elem.instance.$data.index_component", elem.instance.$data.index_component);
         const block = document.getElementById(
             `component_wrapper-${elem.instance.$data.index_component}`
