@@ -515,6 +515,18 @@
                       :placeholder="'Ссылка на Я-маркет'"
                       @update-input="setPropertyNomenclature({ key: 'link_market', payload: $event });"
                   />
+                  <InputStyledSimple
+                      class="mb-5"
+                      :data="nomenclature.link_market_ozon"
+                      :placeholder="'Ссылка на Ozon'"
+                      @update-input="setPropertyNomenclature({ key: 'link_market_ozon', payload: $event });"
+                  />
+                  <InputStyledSimple
+                      class="mb-5"
+                      :data="nomenclature.link_market_lunda"
+                      :placeholder="'Ссылка на Lunda'"
+                      @update-input="setPropertyNomenclature({ key: 'link_market_lunda', payload: $event });"
+                  />
                 </v-expansion-panel-content>
               </v-expansion-panel>
 
