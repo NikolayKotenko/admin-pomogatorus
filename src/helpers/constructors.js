@@ -262,7 +262,9 @@ export function Nomenclature(
   seo_title = "",
   seo_description = "",
   seo_keywords = "",
-  link_market = ""
+  link_market = "",
+  link_market_ozon = "",
+  link_market_lunda = "",
 ) {
   this.id = id;
   this.name = name;
@@ -274,6 +276,8 @@ export function Nomenclature(
   this.seo_descriptionEditor = seo_description;
   this.seo_keywords = seo_keywords;
   this.link_market = link_market;
+  this.link_market_ozon = link_market_ozon,
+  this.link_market_lunda = link_market_lunda
 }
 
 export function ModifiedMtoMNomenclatureCharacteristics(
