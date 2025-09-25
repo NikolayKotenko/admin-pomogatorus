@@ -409,6 +409,22 @@
                 :is-loading="loading"
                 @update-input="setPropertyFamily({ key: 'seo_keywords', payload: $event });"
             />
+            <v-autocomplete
+              :disabled="$store.state.loadingRequestGeneral"
+              :items="$store.state.Brands.listBrands"
+              :loading="$store.state.loadingRequestGeneral"
+              class="mb-5"
+              dense
+              hide-details
+              item-text="name"
+              item-value="id"
+              :label="family?.brand?.name ? family?.brand?.name : 'Выберите бренд'"
+              outlined
+              return-object
+              :menu-props="{ maxHeight: '80vh' }"
+              @change="setPropertyFamily({ key: 'id_brand', payload: $event.id });"
+            >
+            </v-autocomplete>
             <DropzoneStyled
               :id-object="family.id"
               :photos-array="family.photos"
@@ -498,6 +514,18 @@
                       :data="nomenclature.link_market"
                       :placeholder="'Ссылка на Я-маркет'"
                       @update-input="setPropertyNomenclature({ key: 'link_market', payload: $event });"
+                  />
+                  <InputStyledSimple
+                      class="mb-5"
+                      :data="nomenclature.link_market_ozon"
+                      :placeholder="'Ссылка на Ozon'"
+                      @update-input="setPropertyNomenclature({ key: 'link_market_ozon', payload: $event });"
+                  />
+                  <InputStyledSimple
+                      class="mb-5"
+                      :data="nomenclature.link_market_lunda"
+                      :placeholder="'Ссылка на Lunda'"
+                      @update-input="setPropertyNomenclature({ key: 'link_market_lunda', payload: $event });"
                   />
                 </v-expansion-panel-content>
               </v-expansion-panel>
@@ -816,6 +844,7 @@ export default {
   async mounted() {
     await this.getTreeOnMount();
     await this.getDictionaryUnits();
+    await this.$store.dispatch("getListBrands", this.$route.params.id);
 
     this.$refs.treeView.updateAll(true);
   },

@@ -355,7 +355,9 @@ export default {
         payload.seo_title,
         payload.seo_description,
         payload.seo_keywords,
-        payload.link_market
+        payload.link_market,
+        payload.link_market_ozon,
+        payload.link_market_lunda
       );
     },
     set_property_nomenclature(state, obj = PropertyEntity) {
