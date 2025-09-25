@@ -849,7 +849,6 @@ export default {
         )
           .then((response) => {
             const data = response.data;
-            console.log("uploaded COMPONENT");
             commit("changeSelectedComponent", { data, index, component });
             state.loadingModalList = false;
             resolve();
