@@ -38,13 +38,14 @@
   border-radius: 5px;
   position: relative;
 
-  &__questionsModals{
-    .autocomplete_tags{
-      .v-chip--select{
-        margin: 4px 2px!important;
+  &__questionsModals {
+    .autocomplete_tags {
+      .v-chip--select {
+        margin: 4px 2px !important;
       }
     }
-    .chip_group{
+
+    .chip_group {
       height: 100px;
     }
   }
@@ -184,4 +185,8 @@
 
 ::v-deep .v-color-picker__color {
   border: 1px solid lightgrey !important;
+}
+
+.no-padding {
+  padding: 0 !important;
 }

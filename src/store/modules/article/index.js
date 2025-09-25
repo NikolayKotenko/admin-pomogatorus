@@ -150,6 +150,7 @@ export default {
       auth: 0,
       questions: 0,
       nomenclature: 0,
+      insertedHtml: 0,
     },
     selectComponent: {
       questions: false,
@@ -178,8 +179,16 @@ export default {
     /* NOMENCLATURE */
     list_nomenclature: [],
     nomenclature_data: [],
+
+    /** @property {Boolean} - переключаем этот булиан для того чтобы компонент TextRedactor засейвил свое состояние **/
+    isSaveArticle: false,
   },
   mutations: {
+    /* TOGGLE SAVE ARTICLE */
+    toggleSaveArticle(state) {
+      state.isSaveArticle = !state.isSaveArticle;
+    },
+
     /* LINK */
     change_link_selection(state, payload) {
       state.linkSelection = payload;
@@ -840,7 +849,6 @@ export default {
         )
           .then((response) => {
             const data = response.data;
-            console.log("uploaded COMPONENT");
             commit("changeSelectedComponent", { data, index, component });
             state.loadingModalList = false;
             resolve();

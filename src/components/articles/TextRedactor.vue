@@ -1,26 +1,26 @@
 <template>
   <div :class="{ disabled: !check_created_article }" class="textRedactor">
-    <HeaderBlock @callCheckout="callCheckout" @add-link="addLink" />
+    <HeaderBlock @callCheckout="callCheckout" @add-link="addLink"/>
 
     <div
-      ref="content"
-      :contenteditable="
+        ref="content"
+        :contenteditable="
         check_created_article && !$store.state.ArticleModule.startRender
       "
-      class="textRedactor__content"
-      spellcheck="false"
-      @input="
+        class="textRedactor__content"
+        spellcheck="false"
+        @input="
         onContentChange;
         preventStyles;
       "
-      @mouseup="onSelectionContent()"
-      @keyup.enter="preventStyles"
+        @mouseup="onSelectionContent()"
+        @keyup.enter="preventStyles"
     ></div>
 
     <!-- OVERLAYS -->
     <div
-      v-if="!check_created_article || $store.state.ArticleModule.startRender"
-      class="overlay"
+        v-if="!check_created_article || $store.state.ArticleModule.startRender"
+        class="overlay"
     ></div>
   </div>
 </template>
@@ -30,7 +30,6 @@ import Vue from "vue";
 import store from "@/store/index.js";
 import vuetify from "@/plugins/vuetify";
 
-// import vueCarousel from "@/plugins/vue-carousel";
 import HeaderBlock from "./HeaderBlock";
 import Question from "../frontLayouts/Question";
 import ImageLayout from "../frontLayouts/ImageLayout";
@@ -39,10 +38,7 @@ import LoginAuth from "../auth/LoginAuth";
 
 import titlesStore from "@/store/modules/article/index.js";
 import DataComponent from "../../services/article/dataComponent";
-import {
-  Constructor_instance,
-  Imported_component,
-} from "../../helpers/constructors";
+import {Constructor_instance, Imported_component,} from "../../helpers/constructors";
 
 import iconsModels from "../../models/iconsModels";
 
@@ -63,35 +59,76 @@ export default {
     selection: null,
 
     /* INSERT COMPONENTS */
+    /**
+     * @property {Boolean} - важный флаг при toggle которого происходит сохранение статьи (В будущем переписать на отдельный метод сохранения, хз почему он через вотчер работает)
+     * **/
     saveDB: false,
-    debounceTimeout: null,
+    /**
+     * @property {Boolean} - флаг, что сейчас идёт получения данных с бэкенда / рендеринг статьи
+     * **/
     geting_from_server: false,
+    debounceTimeout: null,
   }),
   mounted() {
+    /**
+     * GLOBAL NOTE INFO:
+     * Весь принцип рендеринга компонентов в следующем:
+     * 1. Получаем вёрстку с компонентами и текстом
+     * 2. По массиву компонентов, которые сохранены в БД мы понимаем сколько в статье должно быть компонентов и куда их врендерить
+     * 3. Если мы просто оставим "сырую" вёрстку из HTML с бэкенда - то мы не сможем работать с редактором! Будут отсутствовать функции удаления/добавления компонентов
+     * 4. Вставляем "сырую" вёрстку с бэка в наш content
+     * 5. Иттерируемся по компонентам и для каждого компонента удаляем HTML-элемент из DOM-дерева
+     * 6. Заместо обычного HTML вставляем в это место наш Vue-component с данными по нашему компоненту. Вмонтировываем его в VDOM
+     * 7. После этого, наш HTML синхронизирован с Vue-приложением и мы можем пользоваться редактором
+     * **/
+
+    /**
+     * Общие настройки по сбросу стилей и поведения редактора при вводе текста
+     * **/
     this.preventInsertingStyles();
     this.onkeydownInEditable();
+
+    /**
+     * ВАЖНО! Без таймаутов ничего не запустится. Нашему DOM-дерево надо дать время "прогреться" чтобы можно было работать с ним
+     * **/
     setTimeout(() => {
+      /** Вешаем на редактор событие по триггеру изменений **/
       this.$refs.content.addEventListener("input", this.onContentChange);
 
+      /**
+       * Самая важная часть при инициализации страницы
+       * **/
       this.initializeContent().then(() => {
         this.checkOnDeletedComponents();
         this.$nextTick(() => {
           this.resetCounter(_store.list_components);
           this.changeIndexQuestion();
+          this.onContentChange(true);
         });
       });
     }, 500);
   },
   watch: {
+    /** Через mapState не прокидывается и не реагирует **/
+    "$store.state.ArticleModule.isSaveArticle": {
+      handler() {
+        this.$nextTick(() => {
+          this.$store.commit("changeContent", this.content);
+          this.$store.commit("change_by_action_editor");
+        })
+      },
+      deep: true
+    },
+    /** Здесь триггерим сохранение статьи **/
     saveDB: {
       handler(v) {
         if (!this.geting_from_server && v) {
-          console.log("save article");
           this.$store.commit("changeContent", this.content);
           this.$store.commit("change_by_action_editor");
         }
       },
     },
+    /** Очищаем все данные по редактору **/
     deletedContent: {
       handler(v) {
         if (v) {
@@ -100,31 +137,34 @@ export default {
         }
       },
     },
+    /** Если в стор попал компонент, подлежащий удалению - то удаляем из HTML и стора **/
     "$store.state.ArticleModule.deletedComponent": {
       handler(v) {
         if (v) this.deletingComponent();
       },
     },
+    /** Если получили контент с бэкенда в сторе, то синхронизируем его со стором **/
     "$store.state.ArticleModule.content_from_server": {
       handler() {
         this.content = _store.content_from_server;
         this.$store.commit("changeContent", this.content);
       },
     },
+    /** Если получили информацию, что надо перерендерить весь редактор - то перерендериваем **/
     "$store.state.ArticleModule.startRender": {
       handler(v) {
         if (v) {
-          console.log("start rerender");
-          /* Only way to get time for procedure render DOM */
-          /* Change content on article by static HTML */
+          this.debugConsole("Начинаем ререндеринг статьи!")
+
+          /**
+           * ВАЖНО! Дожидаемся обновления HTML, чтобы синхронизировать все изменения со стором
+           * **/
           this.$nextTick(() => {
             this.content = _store.content_from_server;
           });
 
-          console.log(
-            "components_after_request",
-            _store.components_after_request
-          );
+          this.debugConsole(`Следующие компоненты подлежат перерендерингу.
+          _store.components_after_request: `, _store.components_after_request)
 
           /* Start render */
           if (_store.components_after_request.length) {
@@ -141,37 +181,58 @@ export default {
               });
             });
           } else {
-            console.log("EMPTY COMPONENTS");
-
+            this.debugWarning("Внимание! Компоненты для ререндеринга отсутствуют!")
             this.$store.commit("clear_list_components", []);
             this.$store.commit("change_start_render", false);
-
-            console.log("AFTER CLEAR", _store.list_components);
+            /* Reset Counters & Question number */
+            this.resetCounter(_store.list_components);
           }
         }
       },
     },
   },
   computed: {
+    /**
+     * Для включения дебаг режима - необходимо на странице с редактором добавить в URL &isDebug=true
+     *
+     * @function - проверка на наличие в роутере флага на дебаг режим
+     * @return {Boolean} - флаг, который отвечает что редактор в дебаг режиме
+     * @example
+     * // Returns true
+     * &isDebug=true
+     * **/
+    isDebugMode() {
+      return !!this.$route?.query?.isDebug
+    },
+
+    /**
+     * Проверяем заполнено ли название статьи. Если нет - то не даем изменять статью в редакторе
+     * **/
     check_created_article() {
       return (
-        this.newArticle.name.value !== ""
-        // &&
-        // this.newArticle.short_header.value !== ""
+          this.newArticle.name.value !== ""
       );
     },
+    /**
+     * Главный геттер/сеттер для всего контента в нашем редакторе
+     * **/
     content: {
       cache: false,
-      get: function () {
+      get() {
         if (this.$refs.content) {
           return this.$refs.content.innerHTML;
         }
         return "";
       },
-      set: function (val) {
+      set(val) {
         this.$refs.content.innerHTML = val;
       },
     },
+    /**
+     * Калькулируем на лету какой компонент подлежит рендерингу.
+     * Возвращает сущность Vue-компонента, которая потом попадёт в VDOM и ппотом в DOM-дерево!
+     * Поэтому ВАЖНО проставлять в store название компонента, который сейчас будет рендериться!
+     * **/
     componentLayout() {
       if (_store.name_component === "questions") {
         return Vue.extend(Question);
@@ -189,6 +250,171 @@ export default {
     },
   },
   methods: {
+    /**
+     * @function - метод для отладки значений в редакторе. Если включен режим дебага, то в консоль посыпятся логи
+     * **/
+    debugConsole(...args) {
+      if (this.isDebugMode) {
+        if (typeof args[0] === "string") {
+          const [title, ...rest] = args
+          console.log(`[DEBUG WARNING]: ${title}`, ...rest)
+        } else {
+          console.log(...args)
+        }
+      }
+    },
+    /**
+     * @function - метод для отладки значений в редакторе. Если включен режим дебага, то в консоль посыпятся варнинги
+     * **/
+    debugWarning(...args) {
+      if (this.isDebugMode) {
+        if (typeof args[0] === "string") {
+          const [title, ...rest] = args
+          console.warn(`[DEBUG WARNING]: ${title}`, ...rest)
+        } else {
+          console.warn(...args)
+        }
+      }
+    },
+
+    /**
+     * @function - метод для рендера компонентов картинок для скопированного HTML-текста
+     * @param id {String | Number} - передаем event.target из копипаста
+     * **/
+    async onPasteImageComponent(id) {
+      await this.$nextTick(() => {
+        this.debugConsole("Начинаем рендерить изображения из скопированного текста с HTML")
+        /**
+         * Достаем все картинки из вставляемого HTML по тэгу <img
+         * **/
+        const rawImages = this.getImageFromOnPaste(id)
+
+        if (!rawImages.length) {
+          this.debugWarning("Нет ни одного <img> в скопированном тексте")
+          return
+        }
+
+        this.debugConsole(`Полученные изображения из текста: `, rawImages)
+
+        /**
+         * UNDO/REDO
+         * **/
+        if (!_store.txtDisplay.length) {
+          this.$store.commit("change_by_action_editor");
+        }
+
+        /**
+         * Начинаем рендерить эти картинки в компоненты
+         * **/
+        for (const image of rawImages) {
+          this.debugConsole(`Изображение подготовлено к рендерингу.
+          image: `, image)
+
+          /**
+           * Достаем все данные, которые доступны из HTML и из стора
+           * **/
+          const url = image.src ?? ""
+          const title = image.title ?? ""
+          const alt = image.alt ?? ""
+          const idImage = null // TODO: тут id из нашего хранилища фоток. Что делаем если вставляется HTML а там src с чужой фоткой? Догружаем на наш бэк?
+          const indexComponent = _store.counters.layout
+          const width = image.width ?? ""
+          const height = image.height ?? ""
+
+          const data = Object.assign({}, {orig_path: url}, {id: idImage}, {title_image: title}, {alt_image: alt}, {height}, {width});
+
+          /**
+           * Проставляем все counter, чтобы редактор статей считал наши новые компоненты компонентами
+           * + делаем магию по проставлению данных в стор
+           * **/
+          this.$store.commit("change_counter", {
+            name: "layout",
+            count: indexComponent + 1,
+          });
+          this.$store.commit("change_counter", {
+            name: "image",
+            count: _store.counters.image + 1,
+          });
+          this.$store.commit("change_name_component", "image");
+          this.$store.commit("changeSelectedObject", data);
+
+          /**
+           * Удаляем сырой HTML, который вставился из копипаста
+           * **/
+          let range = document.createRange();
+          range.selectNode(image);
+          range.deleteContents();
+          range.collapse(false);
+
+          /**
+           * Нагенериваем сущности необходимые для работы с компонентами
+           * **/
+          let data_component = factory.create(_store.name_component, {
+            name: _store.name_component,
+            id: null,
+            index_image: _store.counters.image,
+            src: url,
+            alt: alt,
+            title: title
+          });
+
+          /**
+           * Заполняем в стор наш новый компонент
+           * **/
+          _store.list_components[indexComponent] = this.getStructureForInstance(data_component);
+
+          /**
+           * Рендерим компонент
+           * **/
+          _store.list_components[indexComponent].instance.$mount();
+          /**
+           * Добавляем в DOM
+           * **/
+          range.insertNode(_store.list_components[indexComponent].instance.$el);
+
+          /**
+           * Очищаем стор
+           * **/
+          this.$store.commit("changeSelectedObject", {});
+        }
+
+        this.debugConsole("Окончание рендеринга изображения в статью")
+      })
+
+      this.$nextTick(() => {
+        this.debugConsole("После рендеринга изображений подчищаем редактор для последующей работы")
+
+        this.resetCounter(_store.list_components);
+        this.changeIndexQuestion();
+
+        this.$store.commit("change_counter", {
+          name: "insertedHtml",
+          count: _store.counters.insertedHtml + 1,
+        });
+        this.onContentChange();
+      })
+    },
+    /**
+     * @function - достаем из html все картинки
+     * @param id {String | Number} - весь div из event.target
+     * **/
+    getImageFromOnPaste(id) {
+      const div = document.getElementById(`inserted-html-${id}`);
+      const childrenWithTag = div.getElementsByTagName("img");
+
+      return [...childrenWithTag] || []
+    },
+    /**
+     * @function - проверяем есть ли в тексте html тэги <img>
+     * @param text {String} - html конвертированный в обычный текст
+     * **/
+    isImageContains(text) {
+      return text.includes("<img")
+    },
+
+    /**
+     * @function - функция для того, чтобы в заголовках при нажатии на enter и других нажатий на клавиши не возникали лишние элементы в HTML
+     * **/
     preventStyles() {
       let range = null;
       if (window.getSelection) {
@@ -231,29 +457,69 @@ export default {
         return map[m];
       });
     },
-    /** Функция отключает стили и отступы в скопированном тексте, оставляет чисто сырой текст **/
+    /** Функция отключает дефолтное поведение при вставке текста в редактор **/
     preventInsertingStyles() {
       const _this = this;
-      this.$refs.content.onpaste = function (e) {
+      this.$refs.content.onpaste = (e) => {
+        /**
+         * Выключаем дефолтное поведение при копипасте
+         * **/
         e.preventDefault();
+
+        /**
+         * Преобразовываем скопированное в text
+         * **/
         let text = (e.originalEvent || e).clipboardData.getData("text/plain");
-        // document.execCommand("insertHtml", false, _this.escapeText(text));
-        document.execCommand("insertHtml", false, text);
-        _this.onContentChange();
+
+        /**
+         * Если есть картинка в тексте(HTML), то рендерим как картинку
+         * **/
+        if (_this.isImageContains(text)) {
+          /**
+           * Оборачиваем скопированный HTML в контейнер с отступами и стилями, которые добавляются во все встраиваемые компоненты редактора
+           * **/
+          const result = `<div id="inserted-html-${_store.counters.insertedHtml}"><div style="min-height: 24px"></div>${text}<div style="min-height: 24px"></div></div>`
+          /**
+           * ВАЖНО! Этот шаг обязательно должен быть, иначе на моменте работы с HTML наше DOM-дерево будет пустым и мы не сможем достать НИ-ЧЕ-ГО
+           * **/
+          document.execCommand("insertHtml", false, result);
+
+          /** Запускаем магию по встраиванию картинок из HTML-текста в редактор **/
+          _this.onPasteImageComponent(_store.counters.insertedHtml)
+        } else {
+          /**
+           * Дефолтное поведение - вставили в редактор и сохранили
+           * **/
+          document.execCommand("insertHtml", false, text);
+          _this.onContentChange();
+        }
       };
     },
+    /**
+     * Функция добавления логики на удаление выбранного текста
+     * Если на пути у кнопки удаления есть НАШ отрендеренный компонент -
+     * то удаляем выбранный компонент из наших сторов, чтобы он не рендерился и не создавал ошибок
+     * **/
     onkeydownInEditable() {
       const _this = this;
       this.$refs.content.onkeydown = function (e) {
         if (e.key === "Backspace" || e.key === "Delete" || e.key === "Paste") {
+          /**
+           * Получаем выбранный рейндж, либо он будет [] если пользователь ничего не выбирал
+           * **/
           const selection = window.getSelection();
-          // Don't allow deleting nodes
+          /**
+           * Не даём удалять наш компонент если нет anchorNode
+           * **/
           if (!selection.anchorNode) return;
           if (
-            selection.anchorNode.textContent === "" &&
-            selection.anchorNode.className !== "textRedactor__content" &&
-            selection.anchorNode.isContentEditable
+              selection.anchorNode.textContent === "" &&
+              selection.anchorNode.className !== "textRedactor__content" &&
+              selection.anchorNode.isContentEditable
           ) {
+            /**
+             * Если это действие происходит внутри нашего редактора и мы "удаляем" наш компонент, то удаляем из вёрстки
+             * **/
             e.preventDefault();
             selection.anchorNode.parentNode.removeChild(selection.anchorNode);
             _this.onContentChange();
@@ -262,20 +528,26 @@ export default {
       };
     },
 
-    /* CHECK OUT OF SYNC */
+    /**
+     * Хитрая штука, которая может достать компоненты из content даже если в list_components пустой массив
+     * Нужно для кейсов, когда может быть рассинхрон с компонентами и контентом
+     *
+     * @function - Функция, которая достает все элементы из верстки, которые могут быть отрендерены в нашем редакторе
+     * **/
     checkOutOfSync() {
       let arrComponentsData = [];
-      /* Get all components from DOM by class identifier */
+      /**
+       * Достаем все компоненты из DOM по нашему идентификатору
+       * **/
       const componentsNodes = document.getElementsByClassName(
-        "component_container"
+          "component_container"
       );
 
-      console.log(componentsNodes);
-
-      /* Check if components length from DB isn't equal components count by DOM */
+      /**
+       * Запускаем эту функцию только в том случае, если длина компонентов в вёрстке(DOM) не совпадает с list_components, полученных от бэкенда
+       * **/
       if (componentsNodes.length !== _store.list_components.length) {
-        console.log("start check out of sync");
-
+        this.debugWarning("Произошло несоответствие между компонентами в БД и компонентами в контенте \n Начата процедура получения данных из вёрстки")
         let arrCollection = [...componentsNodes];
 
         let counters = {
@@ -296,7 +568,7 @@ export default {
             dataComponent.name = htmlCollection.dataset.name;
             /* Set uniq index_%component% */
             dataComponent[`index_${htmlCollection.dataset.name}`] =
-              counters[`index_${htmlCollection.dataset.name}`];
+                counters[`index_${htmlCollection.dataset.name}`];
             /* Set uniq data for specific component */
             if (htmlCollection.dataset.name === "questions") {
               dataComponent.id = htmlCollection.dataset.id;
@@ -319,10 +591,10 @@ export default {
             }
             /* Push to arr result */
             arrComponentsData.push(
-              new Imported_component({
-                index: index,
-                component: dataComponent,
-              })
+                new Imported_component({
+                  index: parseInt(index),
+                  component: dataComponent,
+                })
             );
             /* Update global counters */
             counters[`index_${htmlCollection.dataset.name}`]++;
@@ -330,169 +602,195 @@ export default {
             dataComponent = {};
           }
         });
-        console.log("end restore components by html");
+
+        this.debugWarning(`Закончен процесс поиска компонентов в вёрстке.
+        arrComponentsData: `, arrComponentsData)
       }
-      /* Rewrite components data for next render function */
+
       return arrComponentsData;
     },
 
-    /* RENDER FUNCTIONALITY */
+    /**
+     * @function - основная функция по рендерингу компонентов внутри редактора
+     * **/
     renderFunc() {
-      console.log("nextTIck inserting");
+      this.debugConsole("Начинаем функцию рендеринга с подготовленными компонентами")
 
       let deletedIndexes = [];
 
+      /** Иттерируемся по массиву готовых к рендеру компонентов **/
       _store.list_components.forEach((elem, index) => {
-        // console.log("elemRender", elem)
+        this.debugConsole(`Подготовленный элемент к рендерингу. [index]: ${index}
+        elem: `, elem)
 
-        console.log("countInserted", index);
-        /** Function that change counter by @elem, and call prepare layout that we need **/
+        /** Метод по изменению counters и проставлению данных компонента в стор **/
         this.checkTypeComponent(elem);
 
-        /* Here we set data of component and manipulate by type component */
         let data = elem.data;
-        /* If component is image we get URL of img and title/alt */
+        /** Если наш компонент - изображение, то небходимо достать по нему данные из вёрстки **/
         if (elem.component.name === "image") {
-          const url = (function () {
-            let url = document.getElementById(
+          const htmlParent = document.getElementById(
               `component_wrapper-${elem.index}`
-            );
-            if (!url) return null;
-            url = url.getElementsByClassName("inserted_image");
-            if (!url) return null;
-            url = url[0].src;
-            return url;
-          })();
-          const IdImage = (function () {
-            let res = document.getElementById(
-              `component_wrapper-${elem.index}`
-            );
-            if (!res) return null;
-            res = res.dataset.id;
-            return res;
-          })();
-          data = Object.assign({}, { orig_path: url }, { id: IdImage });
+          )
+
+          if (!htmlParent) {
+            return
+          }
+
+          const htmlImage = htmlParent.getElementsByClassName("inserted_image")[0]
+
+          const url = htmlImage.src
+          const IdImage = htmlParent.dataset.id
+          const alt = htmlImage.alt;
+          const title = htmlImage.title;
+          const width = htmlImage.width;
+          const height = htmlImage.height;
+
+          data = Object.assign({}, {orig_path: url}, {id: IdImage}, {title_image: title}, {alt_image: alt}, {width}, {height});
         }
-        /* Here change global counter of component in article */
+        /** Меняем глобальный counter **/
         this.$store.commit("change_counter", {
           name: "layout",
           count: elem.index,
         });
-        /* Here we pass data to store, that can be getted from layout component */
+        /**
+         * ВАЖНО! На этом этапе обязательно передаем дату компонента в стор,
+         * т.к. в последующем когда компонент будет вмонтироваться, оттуда возьмется вся необходимая информация
+         * **/
         this.$store.commit("changeSelectedObject", data);
-        /* Now we get place on DOM in our contentEditable div to place HTML on article */
+
+        /** Начинаем ~МАГИЮ~ **/
         let range = document.createRange();
 
-        /** Если в DOM (JSON-контент всей статьи с бэкенда) нет нужного компонента - выходим **/
+        /** Если в DOM-дереве отсутствует компонент, который мы должны отрендерить, то выходим **/
         if (!document.getElementById(`component_wrapper-${elem.index}`)) {
-          console.warn("stop render - NO DOM element");
-
+          this.debugWarning(`Останавливаем рендеринг. Компонент отсутствует в DOM-дереве! [index]: ${index},
+          elem: `, elem)
           return;
         }
 
+        /**
+         * Выбираем из вёрстки наш компонент
+         * Удаляем его из DOM-дерева
+         * **/
         range.selectNode(
-          document.getElementById(`component_wrapper-${elem.index}`)
+            document.getElementById(`component_wrapper-${elem.index}`)
         );
         range.deleteContents();
         range.collapse(false);
-        /* Constructor return our FullReady component to get mounted on DOM */
+
+        /** Записываем в общий список компонентов - наш компонент подготовленный под единообразную структуру компонента **/
         _store.list_components[index] = this.getStructureForInstance(
-          elem.component
+            elem.component
         );
 
-        /* Check if question is not active */
+        /** Если рендерируемый компонент "не активен" (Убрана галка активности/видимости в админке) - удаляем его **/
         if (
-          elem.component.name === "questions" ||
-          elem.component.name === "question"
+            elem.component.name === "questions" ||
+            elem.component.name === "question"
         ) {
           if (elem.data.activity !== 1) {
-            console.log(elem.data.id, "Is not active => remove");
+            this.debugWarning(`Внимание! У вопроса скрыта видимость! Он не будет отображен в статье! [index]: ${index}, [ID-question]: ${elem.data.id}
+            elem: `, elem)
             deletedIndexes.push(index);
           }
         }
 
-        /* Start Vue Component lifecycle hook that provides us reactive $data and methods */
+        /**
+         * ВАЖНО! Обязательно заставляем наш компонент вмонтироваться в VDOM, иначе он будет недоступен для манипуляций
+         * **/
         _store.list_components[index].instance.$mount();
-        /* Place mounted component on DOM */
+        /**
+         * Вставляем наш VDOM в DOM-дерево заместо ранее удаленного компонента!
+         * Теперь это Vue-компонент, который реактивен и обладает всеми плюшками
+         * **/
         range.insertNode(_store.list_components[index].instance.$el);
 
-        /* Clear global store data for next circle */
+        /** Очищаем данные в сторе **/
         this.$store.commit("changeSelectedObject", {});
       });
 
+      /** Если в процессе рендеринга были найдены компоненты - которые подлежат удалению из вёрстки, то убираем их из общего стора **/
       if (deletedIndexes.length) {
-        console.log("Not active indexes", deletedIndexes);
+        this.debugWarning(`В процессе рендеринга были удалены индексы следующих компонентов: `, deletedIndexes)
         deletedIndexes.forEach((index) => {
           _store.list_components.splice(index, 1);
         });
       }
-      console.log("insertingDone");
+
+      this.debugConsole("Функция рендеринга с подготовленными компонентами успешно завершена")
     },
-    /* INITIALIZE DATA FROM BACK OR INDEXEDDB */
+    /**
+     * @function - Основной адаптер для рендера компонентов и контента в редакторе
+     * **/
     initializeContent() {
       return new Promise((resolve) => {
-        console.log("initialize");
+        this.debugConsole("Начало инициализации данных в редактор")
 
-        /* First we clean list_components on store */
+        /** Очищаем в сторе данные по компонентам **/
         this.$store.commit("clear_list_components", []);
 
-        /* If we have backendView component from API or UNDO/REDO start get data */
-        /* LOADERS & OVERLAY */
+        /**
+         *  Включаем оверлеи и заглушки на момент рендера
+         *  ВАЖНО! Оверлеи рендерятся "поверх" редактора, т.к. нам нужен элемент редактора в DOM
+         *  **/
         _store.loadingArticle = true;
         this.geting_from_server = true;
 
-        /* Set content from API or UNDO/REDO */
+        /** Присваиваем контент со стора, который туда попал из бэка, либо через UNDO/REDO **/
         this.content = _store.content_from_server;
 
         /** Если контента нет, то нет смысла рендерить компоненты **/
         if (!this.content) {
-          /* LOADERS & OVERLAY */
           _store.loadingArticle = false;
           this.geting_from_server = false;
 
-          console.warn("end render - NO CONTENT");
-          return;
+          this.debugWarning("Конец рендера, т.к. КОНТЕНТ - ОТСУТСТВУЕТ")
+          return resolve();
         }
 
+        /** Если есть несоответствие с компонентами в вёрстке и в БД, то получаем их из вёрстки **/
         let restoredArr = [];
         restoredArr = this.checkOutOfSync();
-
-        console.log("end check out of sync step");
-        console.log("restoredArr", restoredArr);
-
-        // console.log("_store.components_after_request", _store.components_after_request)
+        this.debugConsole("Конец проверки на несоответствие компонентов вёрстки и в БД")
 
         let componentsForRequest;
-
-        /** Если мы восстановили компоненты через верстку, идем по ним, если их в верстке нет, пробуем через JSON с бэкенда **/
+        /**
+         * Если мы восстановили компоненты через верстку, идем по ним, если их в верстке нет, пробуем через JSON с бэкенда
+         * ВАЖНО! Для редактора вёрстка важнее, чем то, что лежит в list_components, т.к. иначе будет fatal error если редактор не схавает вёрстку
+         * **/
         if (restoredArr.length) {
           componentsForRequest = restoredArr;
         } else {
-          console.log(
-            "_store.components_after_request",
-            _store.components_after_request
-          );
+          this.debugConsole(`Стартуем в обычном режиме - Берём компоненты с бэкенда.
+          _store.components_after_request: `, _store.components_after_request)
           componentsForRequest = _store.components_after_request;
         }
 
-        /* Requests for get data of list_components, that lay on Array<Promises> */
+        /**
+         * По каждому компоненту необходимо достать данные с бэкенда
+         * Запросы действуют для всех компонентов, кроме Изображений (по ним всё лежит в вёрстке)
+         * **/
         const promises = [];
         const questions_data = _store.questions_data;
-        console.log("Questions from BACKEND", questions_data);
+        this.debugConsole(`Компоненты вопросов, полученные от бэкенда.
+        questions_data: `, questions_data)
 
         componentsForRequest.forEach((elem) => {
           /** Если структура не валидная, значит компонент поломан, исключаем **/
           if (!elem?.component?.name) {
-            console.warn(
-              "NOT VALID `inserted_components` COMPONENT FROM BACKEND"
-            );
+            this.debugWarning(`Получен невалидный компонент по структуре: ${elem}`)
             return;
           }
 
+          /** Флоу для компонента вопроса **/
           if (elem.component.name === "questions") {
             let question = questions_data.filter((question) => {
               return question.id == elem.component.id;
             })[0];
+            /**
+             * Если все данные по компоненту вопроса уже есть с бэкенда, то не имеет смысл делать повторный запрос на бэк
+             * **/
             if (question) {
               this.$store.commit("changeSelectedComponent", {
                 data: question,
@@ -500,101 +798,110 @@ export default {
                 component: elem.component,
               });
             } else {
+              /**
+               * Если ничего нет, то добавляем в массив промисов, чтобы получить их
+               * **/
               promises.push(
-                this.$store.dispatch(`get_${elem.component.name}`, elem)
+                  this.$store.dispatch(`get_${elem.component.name}`, elem)
               );
             }
           } else {
+            /** Для всех остальных компонентов делаем через методы в сторе **/
             promises.push(
-              this.$store.dispatch(`get_${elem.component.name}`, elem)
+                this.$store.dispatch(`get_${elem.component.name}`, elem)
             );
           }
         });
 
-        /* As soon as Promises done, we start render */
+        /** Дожидаемся окончания ВСЕХ промисов на получение данных по компонентам **/
         Promise.allSettled(promises).finally(() => {
-          console.log("all promises done");
+          this.debugConsole(`Все запросы на получение данных - выполнены.
+           _store.list_components:`, _store.list_components)
 
-          console.log("_store.list_components", _store.list_components);
-
-          /* Sorting list_components for index, to get right structure on article */
+          /**
+           *  Отсортировываем компоненты по возрастанию по индексу
+           *  ВАЖНО! Без этого процесса могут быть критические последствия для рендера.
+           *  Идём сверху вниз, т.к. индекс - указывает на расположение компонента сверху вниз
+           * **/
           _store.list_components.sort((a, b) => {
             return a.index - b.index;
           });
 
-          /* $nextTick to be sure that content rendered on DOM */
+          /**
+           * ВАЖНО! $nextTick - ОБЯЗАТЕЛЕН! Без него возможно отставание DOM дерева с VDOM
+           * **/
           this.$nextTick(() => {
-            /* MAIN RENDER FUCNTION */
             this.renderFunc();
 
-            /* LOADERS & OVERLAY */
             _store.loadingArticle = false;
             this.geting_from_server = false;
 
-            console.log("ALL COMPONENTS ARE RENDERED");
+            this.debugConsole("Все компоненты успешно отрендерены")
             resolve();
           });
         });
       });
     },
+    /**
+     * С течением времени, некоторые из вопросов могут быть удалены из БД.
+     * Перестраховываемся и находим такие вопросы и удаляем из HTML
+     *
+     * @function - функция поиска удаленных вопросов из БД. Также вопросы которые не смогли отрендериться из-за отсутствия данных но которые остались в вёрстке
+     * **/
     checkOnDeletedComponents() {
       this.$nextTick(() => {
-        console.log("start check deleted question");
+        this.debugConsole("Начинаем проверять есть ли в статье удаленные вопросы, которые отсутствуют в БД")
 
-        /* Get all components from DOM by class identifier */
         const componentsNodes = document.getElementsByClassName(
-          "component_container"
+            "component_container"
         );
 
-        /* Check if components length from DB isn't equal components count by DOM */
+        /** Если в DOM-дереве компонентов не столько же сколько получили после рендера, то начинаем проверку **/
         if (componentsNodes.length !== _store.list_components.length) {
+          this.debugWarning(`Обнаружено расхождение в компонентах в вёрстке и в сторе: [componentsNodes]: ${componentsNodes.length} | [_store.list_components]: ${_store.list_components.length}`)
           let arrCollection = [...componentsNodes];
 
-          /** Фильтруем компоненты только по вопросам, и проверяем не удален ли вопрос в принципе из БД **/
+          /** Фильтруем компоненты только по вопросам, и достаем только их ID **/
           const arrIDs = _store.list_components
-            .filter((elem) => {
-              const name = elem?.data?.component?.name;
+              .filter((elem, index) => {
+                const name = elem?.data?.component?.name;
 
-              if (!name) {
-                console.warn(
-                  "NOT VALID COMPONENT NAME ON CHECK DELETED COMPONENTS"
-                );
+                if (!name) {
+                  this.debugWarning(`Получено невалидное наименование компонента при проверке удаленного вопроса! [index]: ${index}
+                  elem: elem`)
 
-                return false;
-              }
+                  return false;
+                }
+                return name === "question" || name === "questions";
+              })
+              .map((i) => {
+                return i?.data?.component?.id ?? i?.component?.id;
+              });
 
-              //TODO
-              return name === "question" || name === "questions";
-            })
-            .map((i) => {
-              return i?.data?.component?.id ?? i?.component?.id;
-            });
-
-          console.log(arrIDs);
 
           arrCollection.forEach((htmlCollection) => {
             if (
-              htmlCollection.dataset.name &&
-              htmlCollection.dataset.name === "questions"
+                htmlCollection.dataset.name &&
+                htmlCollection.dataset.name === "questions"
             ) {
+              /**
+               * Если ID вопроса из вёрстки отсутствует в массиве ids, который лежит в сторе,
+               * значит с бэка мы не получили инфы по этому вопросу, т.к. он удален из БД
+               * **/
               if (!arrIDs.includes(htmlCollection.dataset.id)) {
-                console.log(
-                  "Question which is deleted",
-                  htmlCollection.dataset.id
-                );
                 let tmpStr = htmlCollection.id.match("-(.*)");
                 let index = tmpStr[tmpStr.length - 1];
-                console.log(`index question on the page`, index);
+                this.debugWarning(`ID вопроса, который был удален: ${htmlCollection.dataset.id}`)
+                this.debugWarning(`Индекс удаленныго вопроса на странице [index]: ${index}`)
 
+                /** Если index найден и он есть в вёрстке, значит мы можем удалить его из DOM-дерево и он перестанет отображаться в статье **/
                 if (index) {
                   let range = document.createRange();
-                  console.log(
-                    "deleted html",
-                    document.getElementById(`component_wrapper-${index}`)
-                  );
-                  range.selectNode(
-                    document.getElementById(`component_wrapper-${index}`)
-                  );
+                  const elem = document.getElementById(`component_wrapper-${index}`);
+
+                  this.debugWarning(`Удалённый HTML: ${elem}`)
+
+                  range.selectNode(elem);
                   range.deleteContents();
                   range.collapse(false);
                 }
@@ -602,40 +909,65 @@ export default {
             }
           });
         }
-        console.log("ended check deleted question");
+        this.debugConsole("Окончание проверки на удаленные вопросы, которые отсутствуют в БД")
       });
     },
+    /**
+     * Наши компоненты работают со стором, поэтому для каждого из компонентов,
+     * который проходит процесс рендеринга - проставляем необходимые параметры в стор.
+     * Также изменяем counters для корректной работы с рендерингом
+     * **/
     checkTypeComponent(elem) {
       this.$store.commit("change_name_component", elem.component.name);
       const name = Object.prototype.hasOwnProperty.call(
-        elem.component,
-        "index_question"
+          elem.component,
+          "index_question"
       )
-        ? "question"
-        : elem.component.name;
+          ? "question"
+          : elem.component.name;
+
+      /** ВАЖНО! Обязательно изменение коунтера **/
       this.$store.commit("change_counter", {
         name: elem.component.name,
         count: elem.component[`index_${name}`],
       });
     },
 
-    onContentChange() {
+    /**
+     * Важная функция для синхронизации стора и UNDO/REDO
+     *
+     * @function - функция синхронизации стора и локальных переменных, срабатывающая при каждом изменении контента
+     * @param isMounted {Boolean} - необязательный флаг, используется только в mounted для корректной работы UNDO/REDO
+     * **/
+    onContentChange(isMounted = false) {
+      this.debugConsole("Произошло изменение контента!")
+
+      /** Если контент не меняется от действий UNDO/REDO **/
       if (!_store.isChangedByAction) {
-        if (!_store.txtDisplay.length)
+        /**
+         * Срабатывает только один раз, когда запускаем mounted редактора!
+         * ВАЖНО! Это необходимо для корректной работы UNDO/REDO
+         * **/
+        if (!_store.txtDisplay.length && !isMounted) {
           this.$store.commit("change_by_action_editor");
+        }
+
+        /** Все изменения делаем через debounce, чтобы не было миллионых срабатываний **/
         if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
         this.debounceTimeout = setTimeout(() => {
+          /** Изменяем контент в сторе, для сохранения. Также вызываем запись в UNDO/REDO **/
           _store.content = this.content;
-          /* Undo/Redo memento manipulation */
           this.$store.commit("change_by_action_editor");
         }, 600);
 
-        /* IF WE DELETED COMPONENT BY KEYBOARD */
-        _store.list_components.forEach((elem) => {
+        /** Чекаем если в процессе манипуляций с контентом был удалён наш Vue-компонент из вёрстки **/
+        _store.list_components.forEach((elem, index) => {
           const elem_content = document.getElementById(
-            `component_wrapper-${elem.instance.$data.index_component}`
+              `component_wrapper-${elem?.instance?.$data?.index_component}`
           );
           if (!elem_content) {
+            this.debugWarning(`В процессе изменения контента был удален компонент! [index]: ${index}
+            elem: `, elem)
             _store.deletedComponent = elem.instance.$data.index_component;
           }
         });
@@ -643,8 +975,11 @@ export default {
     },
 
     /* MANIPULATING WITH INSERTING COMPONENTS */
+    /**
+     * Функция добавления ссылок в редактор
+     * **/
     addLink() {
-      console.log(_store.linkSelection);
+      this.debugConsole("Добавляем ссылку в редактор!")
 
       const link = document.createElement("a");
       link.href = _store.urlValue;
@@ -652,24 +987,29 @@ export default {
       link.title = _store.urlText;
       link.target = "_blank";
 
+      /**
+       * Если мы хотим добавить ссылку на выделенный текст
+       * **/
       if (_store.linkSelection) {
-        // If we selected already exist text on editor
         _store.linkSelection.surroundContents(link);
       } else {
-        // IF we create link with new text
+        /** Если мы создаем ссылку с нуля и планируем её вставить внутри редактора **/
+        /** Делаем кучу проверок на доступность range и вставляем HTML нашей ссылки в выбранный range
+         *  Если нет range или это делается не внутри текстового редактора - то вставляем ссылку в начало редактора
+         * **/
         if (
-          _store.range &&
-          this.checkIfTextEditor(_store.range.commonAncestorContainer)
+            _store.range &&
+            this.checkIfTextEditor(_store.range.commonAncestorContainer)
         ) {
           if (window.getSelection) {
             _store.range.insertNode(link);
           } else if (document.selection && document.selection.createRange) {
             if (
-              _store.range &&
-              (_store.range.commonAncestorContainer.parentElement.className ===
-                "textRedactor__content" ||
-                _store.range.commonAncestorContainer.offsetParent._prevClass ===
-                  "textRedactor")
+                _store.range &&
+                (_store.range.commonAncestorContainer.parentElement.className ===
+                    "textRedactor__content" ||
+                    _store.range.commonAncestorContainer.offsetParent._prevClass ===
+                    "textRedactor")
             ) {
               _store.range.pasteHTML(link.outerHTML);
             }
@@ -678,16 +1018,16 @@ export default {
           if (window.getSelection) {
             let range = document.createRange();
             range.setStart(
-              document.getElementsByClassName("textRedactor__content").item(0),
-              0
+                document.getElementsByClassName("textRedactor__content").item(0),
+                0
             );
             range.collapse(false);
             range.insertNode(link);
           } else if (document.selection && document.selection.createRange) {
             let range = document.createRange();
             range.setStart(
-              document.getElementsByClassName("textRedactor__content").item(0),
-              0
+                document.getElementsByClassName("textRedactor__content").item(0),
+                0
             );
             range.collapse(false);
             range.pasteHTML(link.outerHTML);
@@ -695,6 +1035,7 @@ export default {
         }
       }
 
+      /** Очищаем данные в сторе и сохраняем текст статьи **/
       this.$store.commit("clear_url");
       this.saveDB = true;
       this.clearStateAfterSelect();
@@ -702,72 +1043,114 @@ export default {
         this.saveDB = false;
       });
     },
+
+    /**
+     * @function - функция которая запускает встраивание нового компонента в редактор
+     * @param elem {Object} - объект с определенной структурой, полученный из @/components/articles/HeaderBlock
+     * **/
     callCheckout(elem) {
+      /** Через фабрику создаем экземпляр данных для нашего будущего компонента из переданных значений из Хедера **/
       let data_component = factory.create(_store.name_component, {
         name: _store.name_component,
         id: _store.selectedComponent?.id
-          ? _store.selectedComponent.id
-          : elem.id,
+            ? _store.selectedComponent.id
+            : elem.id,
         index_questions: _store.counters.questions,
         index_image: _store.counters.image,
         index_auth: _store.counters.auth,
         index_nomenclature: _store.counters.nomenclature,
         src: elem?.orig_path ? elem?.orig_path : "",
         nomenclatures_id: elem?.nomenclatures_id ?? [],
+        alt: elem?.alt_image ? elem?.alt_image : "",
+        title: elem?.title_image ? elem?.title_image : ""
       });
 
-      console.log("data_component", data_component);
-
-      // QUESTIONS DATA ADD TO ARRAY BECAUSE NEED UNDO/REDO
+      /** Если вставляем компонент-вопроса то записываем все данные вопроса, чтобы не вызывать запрос на бэк **/
       if (_store.name_component === "questions") {
         this.$store.commit("add_questions_data", _store.selectedComponent);
       }
 
-      /* Undo/Redo memento manipulation */
-      if (!_store.txtDisplay.length)
+      /** UNDO/REDO **/
+      if (!_store.txtDisplay.length) {
         this.$store.commit("change_by_action_editor");
+      }
 
+      /** Основная ~Магия~ **/
       this.insertingComponent(data_component).then(() => {
+        /** Делаем общие штуки после каждого рендера, очищаем стор и проставляем индексы с counters и сохраняем статью **/
         this.$nextTick(() => {
           this.resetCounter(_store.list_components);
           this.changeIndexQuestion();
         });
         this.saveDB = true;
-        // this.$store.commit("changeContent", this.content);
-        // this.$store.commit("change_by_action_editor");
         this.clearStateAfterSelect();
         setTimeout(() => {
           this.saveDB = false;
         });
       });
     },
+
+    /**
+     * @function - метод получения необходимой структуры для работы с рендерингом компонентов
+     * **/
     getStructureForInstance(data_component) {
+      /**
+       * Внутрь instance, который будет лежать внутри переменной компонента обязательно кладём store и vuetify!
+       * Это нужно сделать, т.к. у наших вручную врендеренных компонентов отсутствует доступ к внешнему окружению Vue
+       * **/
       const instance = new this.componentLayout({
         store,
         vuetify,
       });
+      /** Конструктор с нужной структурой **/
       const data = new Imported_component({
         index: _store.counters.layout,
         component: data_component,
       });
-      const params = Object.assign({}, { instance: instance }, { data: data });
+      const params = Object.assign({}, {instance: instance}, {data: data});
       return new Constructor_instance(params);
     },
+
+    /**
+     * Вставляем наш Vue-компонент внутрь редактора с сохранением реактивности и всех плюшек Vue
+     * Также создаем оболочку над компонентом с отступами для отступов
+     *
+     * @function - функция по встраиванию в редактор Vue-компонента
+     * **/
     insertingComponent(data_component) {
       return new Promise((resolve) => {
+        this.debugConsole(`Начинаем встраивать компонент в HTML.
+        data_component: `, data_component)
+
         const elem = this.getStructureForInstance(data_component);
+
+        this.debugConsole(`Подготовленная структура из фабрик и конструкторов.
+        elem: `, elem)
+
         this.$store.commit("add_to_list_components", elem);
         const calledElem = _store.list_components[_store.counters.layout - 1];
+
+        this.debugConsole(`Компонент, полученный из стора перед mounted.
+        calledElem: `, calledElem)
+
         calledElem.instance.$mount();
 
+        /**
+         * Создаем отступы от компонента сверху и снизу от него
+         * **/
         const div = document.createElement("div");
         div.style.minHeight = "24px";
         const div2 = document.createElement("div");
         div2.style.minHeight = "24px";
 
+        /**
+         * Дефолтная работа с range по вставке HTML в область выбранную пользователем
+         * Если пользователь вставляет компонент не в редактора (например, нажал на инпут названия статьи и потом на вставку компонента в статью)
+         * То вставляем наш компонент в НАЧАЛО редактора
+         *  **/
         if (
-          _store.range &&
-          this.checkIfTextEditor(_store.range.commonAncestorContainer)
+            _store.range &&
+            this.checkIfTextEditor(_store.range.commonAncestorContainer)
         ) {
           if (window.getSelection) {
             _store.range.insertNode(div);
@@ -775,16 +1158,16 @@ export default {
             _store.range.insertNode(div2);
           } else if (document.selection && document.selection.createRange) {
             if (
-              _store.range &&
-              (_store.range.commonAncestorContainer.parentElement.className ===
-                "textRedactor__content" ||
-                _store.range.commonAncestorContainer.offsetParent._prevClass ===
-                  "textRedactor")
+                _store.range &&
+                (_store.range.commonAncestorContainer.parentElement.className ===
+                    "textRedactor__content" ||
+                    _store.range.commonAncestorContainer.offsetParent._prevClass ===
+                    "textRedactor")
             ) {
               this.htmlSelected =
-                calledElem.instance.$el.nodeType == 3
-                  ? calledElem.instance.$el.innerHTML.data
-                  : calledElem.instance.$el.outerHTML;
+                  calledElem.instance.$el.nodeType == 3
+                      ? calledElem.instance.$el.innerHTML.data
+                      : calledElem.instance.$el.outerHTML;
               _store.range.pasteHTML(div);
               _store.range.pasteHTML(this.htmlSelected);
               _store.range.pasteHTML(div2);
@@ -794,8 +1177,8 @@ export default {
           if (window.getSelection) {
             let range = document.createRange();
             range.setStart(
-              document.getElementsByClassName("textRedactor__content").item(0),
-              0
+                document.getElementsByClassName("textRedactor__content").item(0),
+                0
             );
             range.collapse(false);
             range.insertNode(div);
@@ -804,14 +1187,14 @@ export default {
           } else if (document.selection && document.selection.createRange) {
             let range = document.createRange();
             range.setStart(
-              document.getElementsByClassName("textRedactor__content").item(0),
-              0
+                document.getElementsByClassName("textRedactor__content").item(0),
+                0
             );
             range.collapse(false);
             this.htmlSelected =
-              calledElem.instance.$el.nodeType == 3
-                ? calledElem.instance.$el.innerHTML.data
-                : calledElem.instance.$el.outerHTML;
+                calledElem.instance.$el.nodeType == 3
+                    ? calledElem.instance.$el.innerHTML.data
+                    : calledElem.instance.$el.outerHTML;
             range.pasteHTML(div);
             range.pasteHTML(this.htmlSelected);
             range.pasteHTML(div2);
@@ -821,8 +1204,14 @@ export default {
       });
     },
 
+    /**
+     * Необходимо для правильного порядка номеров вопросов в статье. Если вставляем вопрос между 1-м и 3-м вопросом,
+     * То все индексы проставятся в порядке по возрастанию сверху вниз
+     *
+     * @function - функция по переопределению номера вопроса внутри статьи
+     * **/
     changeIndexQuestion() {
-      console.log("start changing index Question");
+      this.debugConsole("Начинаем проставлять индексы вопросам внутри статьи")
 
       let questions = [...document.getElementsByClassName("question_wrapper")];
       let counter = 1;
@@ -833,45 +1222,52 @@ export default {
 
         /** Фильтруемся только по вопросам в статье, и переписываем индексы на корректные в соответствии с их положением в DOM **/
         let component = _store.list_components
-          .filter((elem) => {
-            const name = elem?.data?.component?.name;
+            .filter((elem) => {
+              const name = elem?.data?.component?.name;
 
-            /** Если в переданном компоненте нет нужной структуры, пропускаем его **/
-            if (!name) {
-              console.warn("NOT VALID COMPONENT NAME ON FILTER CHANGE INDEX");
+              /** Если в переданном компоненте нет нужной структуры, пропускаем его **/
+              if (!name) {
+                this.debugWarning(`Получен невалидный компонент по структуре: ${elem}`)
 
-              return;
-            }
+                return;
+              }
 
-            //TODO
-            return name === "question" || name === "questions";
-          })
-          .filter((elem) => {
-            return elem?.data?.index == id;
-          });
-
-        // console.log(block)
+              return name === "question" || name === "questions";
+            })
+            .filter((elem) => {
+              return elem?.data?.index == id;
+            });
 
         if (component.length) {
           let nameComponent = component[0]?.data?.component?.name;
 
           /** Если в переданном компоненте нет нужной структуры, пропускаем его **/
           if (!nameComponent) {
-            console.warn("NOT VALID NAME ON CHANGE COUNTER QUESTION");
+            this.debugWarning(`Получен невалидный компонент по структуре: ${component[0]}`)
             return;
           }
 
+          /** Присваиваем index внутрь компонента, чтобы реактивность подхватила новое число **/
           const key_data = `index_${nameComponent}`;
           component[0].instance.$data[key_data] = counter;
           counter++;
         }
       });
-      console.log("ended index Question");
+      this.debugConsole("Проставление индексов вопросам окончено")
     },
 
+    /**
+     * В процессе рендеринга может быть ситация, когда компоненты начнут рендериться не по порядку.
+     * В таком случае необходимо обнулить и пересчитать все counters, участвующие в рендеринге
+     *
+     * @function - функция сбрасывания counters для корректной работы редактора
+     * **/
     resetCounter(array) {
-      console.log("start reset counters");
+      this.debugConsole("Начинаем сброс counters")
 
+      /**
+       * Общий стейт со всеми счётчиками
+       * **/
       const global_counter = {
         index_questions: 1,
         index_image: 1,
@@ -881,31 +1277,34 @@ export default {
       };
 
       array.forEach((elem) => {
-        console.log("resets id", elem);
-        // console.log(elem.data.index)
-        // console.log(elem.instance.$data.index_component)
+        this.debugConsole(`Сбрасываем компонент [index]: ${elem.data.index}, [index_component]: ${elem.instance.$data.index_component}
+        elem: `, elem)
 
         const currentDataComponent = elem?.data?.component?.name
-          ? elem.data
-          : elem;
+            ? elem.data
+            : elem;
 
         const name = currentDataComponent?.component?.name;
 
         /** Если в переданном компоненте нет нужной структуры, пропускаем его **/
         if (!name) {
-          console.warn("NOT VALID COMPONENT ON RESET COUNTERS");
+          this.debugWarning(`Получен невалидный компонент по структуре: ${currentDataComponent}`)
           return;
         }
 
+        /** Переприсваиваем индексы и счётчики в соответствии с нашим глобальным счётчиком **/
         currentDataComponent.index = global_counter.counter_index;
         const key_data = `index_${name}`;
         currentDataComponent.component[key_data] = global_counter[key_data];
         elem.instance.$data[key_data] = global_counter[key_data];
-        console.log("block");
         const block = document.getElementById(
-          `component_wrapper-${elem.instance.$data.index_component}`
+            `component_wrapper-${elem.instance.$data.index_component}`
         );
-        // console.log(block)
+
+        this.debugConsole(`Полученный HTML-элемент для обнуления счётчика. [index]: ${elem.instance.$data.index_component}, [newIndex]: ${currentDataComponent.index}
+        block: `, block)
+
+        /** Если такой элемент есть в DOM-дереве, то переприсваиваем ему id в соответствии с его счётчиком и индексом **/
         if (block) {
           block.id = `component_wrapper-${global_counter.counter_index}`;
           elem.instance.$data.index_component = global_counter.counter_index;
@@ -923,31 +1322,42 @@ export default {
         name: "layout",
         count: global_counter.counter_index - 1,
       });
-      console.log("end reset counters");
+
+      this.debugConsole(`Сброс counters окончен. Финальный результат счётчика: `, _store.counters)
     },
 
+    /**
+     * @function - функция удаления компонента из редактора
+     * **/
     deletingComponent() {
       if (_store.deletedComponent !== 0) {
-        /* Undo/Redo memento manipulation */
-        if (!_store.txtDisplay.length)
-          this.$store.commit("change_by_action_editor");
+        this.debugConsole(`Начинаем удаление компонента. [index]: ${_store.deletedComponent}`)
 
+        /** Undo/Redo **/
+        if (!_store.txtDisplay.length) {
+          this.$store.commit("change_by_action_editor");
+        }
+
+        /** Находим индекс внутри массива компонентов **/
         let index = _store.list_components.findIndex((elem) => {
           return (
-            elem.instance.$data.index_component === _store.deletedComponent
+              elem.instance.$data.index_component === _store.deletedComponent
           );
         });
+
         if (index !== -1) {
           const currentComponent = _store.list_components[index];
 
-          //TODO
+          /**
+           * Если удаляемый компонент - вопрос, то удаляем и из массива с данными по вопросам
+           * **/
           if (
-            currentComponent?.data?.component?.name === "questions" ||
-            currentComponent?.component?.name === "questions"
+              currentComponent?.data?.component?.name === "questions" ||
+              currentComponent?.component?.name === "questions"
           ) {
             let question_index = _store.questions_data.findIndex((elem) => {
               return (
-                elem.id == currentComponent.instance.$data.question_data.id
+                  elem.id == currentComponent.instance.$data.question_data.id
               );
             });
             if (question_index !== -1) {
@@ -955,27 +1365,44 @@ export default {
             }
           }
 
+          /** Удаляем из компонентов внутри стора **/
           _store.list_components.splice(index, 1);
 
+          /** Удаляем из вёрстки **/
           this.$nextTick(() => {
-            const elem = document.getElementById(
-              `component_wrapper-${_store.deletedComponent}`
-            );
-            console.log(elem);
-            elem.remove();
-            this.$store.commit("delete_component_by_id", 0);
-            this.resetCounter(_store.list_components);
-            this.changeIndexQuestion();
+            try {
+              const elem = document.getElementById(
+                  `component_wrapper-${_store.deletedComponent}`
+              );
 
-            this.saveDB = true;
-            setTimeout(() => {
-              this.saveDB = false;
-            }, 200);
+              this.debugConsole(`Удаляемый HTML: `, elem)
+
+              elem.remove();
+            } catch (e) {
+              this.debugWarning('Если это сообщение появилось, то значит компонент уже был удалён из HTML')
+            } finally {
+              /** Обнуляем счётчики, индексы и стор после удаления. Также сохраняем статью **/
+              this.$store.commit("delete_component_by_id", 0);
+              this.resetCounter(_store.list_components);
+              this.changeIndexQuestion();
+
+              this.saveDB = true;
+              setTimeout(() => {
+                this.saveDB = false;
+              }, 200);
+            }
           });
         }
       }
     },
 
+    /**
+     * Ниже методы для работы с иконками внутри @/components/articles/HeaderBlock
+     * А именно проверки для подсвечивания тэгов: Жирный, Курсивный, Тонкий текст и т.д.
+     * В общем, тут логика подсвечивания иконок в хедере.
+     * Если сюда полезете - проще будет созвониться и вместе раскурить это.
+     * НЕ советую тут что-то менять, хрен потом что-то починится
+     * **/
     /* BLOCK FOR CHECK ICONS FORMAT TEXT */
     checkHTMLText(html, icon) {
       return html.includes(icon.tag);
@@ -986,7 +1413,7 @@ export default {
     checkForStyles(html, icon) {
       if (icon.tag === "<u" || icon.tag === "<strike") {
         return (
-          html.includes("text-decoration-line") && html.includes(icon.styleName)
+            html.includes("text-decoration-line") && html.includes(icon.styleName)
         );
       } else return html.includes(icon.styleName);
     },
@@ -1006,8 +1433,8 @@ export default {
         }
         // SET SELECTED TEXT - TO CREATE URL
         this.$store.commit(
-          "set_selected_text_url",
-          window.getSelection().toString()
+            "set_selected_text_url",
+            window.getSelection().toString()
         );
       } else if (typeof document.selection != "undefined") {
         if (document.selection.type == "Text") {
@@ -1034,29 +1461,29 @@ export default {
           parentHTML = parentElem.outerHTML;
         }
         if (
-          elem.className !== "textRedactor__content" &&
-          elem.className !== "textRedactor"
+            elem.className !== "textRedactor__content" &&
+            elem.className !== "textRedactor"
         ) {
           let grandParent = parentHTML
-            ? parentElem.parentElement.outerHTML
-            : elem.outerHTML;
+              ? parentElem.parentElement.outerHTML
+              : elem.outerHTML;
           styleAlign = this.getStyleAlign(grandParent, icons_arr[icon]);
         }
         icons_arr[icon].active =
-          this.checkForStyles(parentHTML, icons_arr[icon]) ||
-          this.checkByTag(parentHTML, icons_arr[icon]) ||
-          this.checkForStyles(styleAlign, icons_arr[icon]) ||
-          this.checkHTMLText(html, icons_arr[icon]) ||
-          this.checkForStyles(html, icons_arr[icon]);
+            this.checkForStyles(parentHTML, icons_arr[icon]) ||
+            this.checkByTag(parentHTML, icons_arr[icon]) ||
+            this.checkForStyles(styleAlign, icons_arr[icon]) ||
+            this.checkHTMLText(html, icons_arr[icon]) ||
+            this.checkForStyles(html, icons_arr[icon]);
       });
     },
     /* Get style name for aligners values */
     getStyleAlign(outerHTML, icon) {
       if (
-        icon.tag !== "<b" &&
-        icon.tag !== "<i" &&
-        icon.tag !== "<u" &&
-        icon.tag !== "<strike"
+          icon.tag !== "<b" &&
+          icon.tag !== "<i" &&
+          icon.tag !== "<u" &&
+          icon.tag !== "<strike"
       ) {
         return outerHTML.includes(icon.styleName) ? icon.styleName : "";
       } else return "";
@@ -1069,7 +1496,12 @@ export default {
         return elem;
       }
     },
-    /* Function for get if we insert component into text-editor area */
+    
+    /**
+     * Проверяем вставляем ли мы что-то в пределах текстового редактора или нет
+     *
+     * @function - метод проверки является ли передаваемый элемент дочерним для текстового редактора
+     * **/
     checkIfTextEditor(elem) {
       try {
         return elem.closest(".textRedactor__content") !== null;

@@ -16,7 +16,7 @@ export default class DataComponent {
 
 class Element_nomenclature {
   constructor(data) {
-    const { name, id, index_nomenclature, nomenclatures_id} = data;
+    const { name, id, index_nomenclature, nomenclatures_id } = data;
 
     this.name = name;
     this.id = id;
@@ -37,12 +37,14 @@ class Element_question {
 
 class Element_image {
   constructor(data) {
-    const { name, src, index_image, id } = data;
+    const { name, src, index_image, id, alt, title } = data;
 
     this.id = id;
     this.name = name;
     this.src = src;
     this.index_image = index_image;
+    this.alt = alt;
+    this.title = title;
   }
 }
 
