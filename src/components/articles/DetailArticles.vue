@@ -1,6 +1,6 @@
 <template>
   <div class="detail_container">
-    <div class="detail-wrapper">
+    <div class="detail-wrapper detail-article">
       <v-form ref="form" class="form">
         <div class="detail-wrapper__content">
           <div class="detail-wrapper__content__title">
@@ -234,6 +234,28 @@
               </span>
               <v-autocomplete
                 v-model="newArticle.list_experts"
+                :disabled="$store.state.ArticleModule.loadingInfoArticle"
+                :items="$store.state.ArticleModule.listUsersByFilterExpert"
+                :loading="$store.state.ArticleModule.loadingInfoArticle"
+                :menu-props="{ bottom: true, offsetY: true }"
+                class="detail-wrapper__content__title__help__list_experts"
+                clearable
+                deletable-chips
+                item-text="email"
+                item-value="id"
+                label=""
+                multiple
+                small-chips
+                style="position: sticky; top: 0"
+              >
+              </v-autocomplete>
+            </div>
+            <div class="detail-wrapper__content__title__help">
+              <span class="detail-wrapper__content__title__help__title">
+                Авторы:
+              </span>
+              <v-autocomplete
+                v-model="newArticle.authors"
                 :disabled="$store.state.ArticleModule.loadingInfoArticle"
                 :items="$store.state.ArticleModule.listUsersByFilterExpert"
                 :loading="$store.state.ArticleModule.loadingInfoArticle"
@@ -728,6 +750,7 @@ export default {
       mtomtags: [],
       preview_image: [],
       list_experts: [],
+      authors: [],
     },
     deleteModal: false,
     deleteStorage: false,

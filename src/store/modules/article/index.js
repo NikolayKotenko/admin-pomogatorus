@@ -635,7 +635,8 @@ export default {
       return new Promise((resolve, reject) => {
         const selects = ["*"];
         const filters = {
-          codes_groups: ["experts"], //TODO теперь нет ключа codes_groups
+          confirmed_users: "true",
+          is_admin: "false",
         };
         const query = Request.modifyQuery(filters, selects);
         Request.get(`${this.state.BASE_URL}/users/get-list-users${query}`)

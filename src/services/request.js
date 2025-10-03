@@ -67,9 +67,9 @@ export default class Request {
   }
 
   //['id_tag': 1, 'id_prop': 2]
-  static ConstructFilterQuery(arrNameParam = []) {
+  static ConstructFilterQuery(obj = {}) {
     let result = "";
-    for (const [key, value] of Object.entries(arrNameParam)) {
+    for (const [key, value] of Object.entries(obj)) {
       if (value) {
         if (Array.isArray(value)) {
           value.forEach((item) => {
@@ -94,7 +94,7 @@ export default class Request {
     return result;
   }
 
-  static modifyQuery(filters = [], selects = []) {
+  static modifyQuery(filters = {}, selects = []) {
     return (
       "?" +
       this.ConstructFilterQuery(filters) +
