@@ -402,14 +402,8 @@ export default {
      * @param id {String | Number} - весь div из event.target
      * **/
     getImageFromOnPaste(id) {
-      console.log("ID HTMK", id)
-
-      // TODO: Обнулять id, внутри img убирать
       const div = document.getElementById(`inserted-html-${id}`);
       const childrenWithTag = div.getElementsByTagName("img");
-
-      console.log("div", div)
-      console.log("childrenWithTag", childrenWithTag)
 
       return [...childrenWithTag] || []
     },
@@ -1266,7 +1260,7 @@ export default {
     },
 
     /**
-     * @function - собираем каунтеры всех ранее вставленных изображений через html
+     * @function - собираем последний каунтер всех ранее вставленных изображений через html
      * **/
     getInsertedHtmlImageCounters() {
       const elements = [...document.getElementsByClassName("inserted-html-image-container")]
@@ -1279,9 +1273,6 @@ export default {
       })
 
       const lastCounter = arrIds.sort((a, b) => b - a)[0] ?? 0;
-
-      console.log("arrIds", arrIds)
-      console.log("lastCounter", lastCounter)
 
       this.$store.commit("change_counter", {
         name: "insertedHtml",
