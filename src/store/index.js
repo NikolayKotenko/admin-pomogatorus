@@ -98,6 +98,15 @@ export default new Vuex.Store({
 
       commit("changeLoadingAgents", false);
     },
+    uploadFileGeneral({ state }, params) {
+      state.loadingRequestGeneral = true;
+      const response = Request.uploadFile(
+        this.state.BASE_URL + "/entity/files",
+        params
+      );
+      state.loadingRequestGeneral = false;
+      return response;
+    },
     deleteFileGeneral({ state }, id) {
       state.loadingRequestGeneral = true;
       const response = Request.delete(

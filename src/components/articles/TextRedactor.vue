@@ -103,6 +103,7 @@ export default {
         this.$nextTick(() => {
           this.resetCounter(_store.list_components);
           this.changeIndexQuestion();
+          this.getInsertedHtmlImageCounters()
           this.onContentChange(true);
         });
       });
@@ -320,8 +321,9 @@ export default {
           const indexComponent = _store.counters.layout
           const width = image.width ?? ""
           const height = image.height ?? ""
+          const idArticle = _store.newArticle.id
 
-          const data = Object.assign({}, {orig_path: url}, {id: idImage}, {title_image: title}, {alt_image: alt}, {height}, {width});
+          const data = Object.assign({}, {orig_path: url}, {id: idImage}, {title_image: title}, {alt_image: alt}, {height}, {width}, {idArticle});
 
           /**
            * Проставляем все counter, чтобы редактор статей считал наши новые компоненты компонентами
@@ -355,7 +357,8 @@ export default {
             index_image: _store.counters.image,
             src: url,
             alt: alt,
-            title: title
+            title: title,
+            idArticle: idArticle
           });
 
           /**
@@ -399,8 +402,14 @@ export default {
      * @param id {String | Number} - весь div из event.target
      * **/
     getImageFromOnPaste(id) {
+      console.log("ID HTMK", id)
+
+      // TODO: Обнулять id, внутри img убирать
       const div = document.getElementById(`inserted-html-${id}`);
       const childrenWithTag = div.getElementsByTagName("img");
+
+      console.log("div", div)
+      console.log("childrenWithTag", childrenWithTag)
 
       return [...childrenWithTag] || []
     },
@@ -478,7 +487,7 @@ export default {
           /**
            * Оборачиваем скопированный HTML в контейнер с отступами и стилями, которые добавляются во все встраиваемые компоненты редактора
            * **/
-          const result = `<div id="inserted-html-${_store.counters.insertedHtml}"><div style="min-height: 24px"></div>${text}<div style="min-height: 24px"></div></div>`
+          const result = `<div id="inserted-html-${_store.counters.insertedHtml}" class="inserted-html-image-container"><div style="min-height: 24px"></div>${text}<div style="min-height: 24px"></div></div>`
           /**
            * ВАЖНО! Этот шаг обязательно должен быть, иначе на моменте работы с HTML наше DOM-дерево будет пустым и мы не сможем достать НИ-ЧЕ-ГО
            * **/
@@ -965,7 +974,7 @@ export default {
           const elem_content = document.getElementById(
               `component_wrapper-${elem?.instance?.$data?.index_component}`
           );
-          if (!elem_content) {
+          if (!elem_content && elem?.instance?.$data?.index_component) {
             this.debugWarning(`В процессе изменения контента был удален компонент! [index]: ${index}
             elem: `, elem)
             _store.deletedComponent = elem.instance.$data.index_component;
@@ -1257,6 +1266,29 @@ export default {
     },
 
     /**
+     * @function - собираем каунтеры всех ранее вставленных изображений через html
+     * **/
+    getInsertedHtmlImageCounters() {
+      const elements = [...document.getElementsByClassName("inserted-html-image-container")]
+      const arrIds = []
+
+      elements.forEach((elem) => {
+        let tmpStr = elem.id.split("-");
+        let id = tmpStr[tmpStr.length - 1];
+        arrIds.push(parseInt(id))
+      })
+
+      const lastCounter = arrIds.sort((a, b) => b - a)[0] ?? 0;
+
+      console.log("arrIds", arrIds)
+      console.log("lastCounter", lastCounter)
+
+      this.$store.commit("change_counter", {
+        name: "insertedHtml",
+        count: lastCounter + 1,
+      });
+    },
+    /**
      * В процессе рендеринга может быть ситация, когда компоненты начнут рендериться не по порядку.
      * В таком случае необходимо обнулить и пересчитать все counters, участвующие в рендеринге
      *
@@ -1277,7 +1309,7 @@ export default {
       };
 
       array.forEach((elem) => {
-        this.debugConsole(`Сбрасываем компонент [index]: ${elem.data.index}, [index_component]: ${elem.instance.$data.index_component}
+        this.debugConsole(`Сбрасываем компонент [index]: ${elem?.data?.index}, [index_component]: ${elem?.instance?.$data?.index_component}
         elem: `, elem)
 
         const currentDataComponent = elem?.data?.component?.name
@@ -1296,6 +1328,11 @@ export default {
         currentDataComponent.index = global_counter.counter_index;
         const key_data = `index_${name}`;
         currentDataComponent.component[key_data] = global_counter[key_data];
+
+        if (!elem?.instance?.$data) {
+          this.debugWarning(`Отсутствует валидная структура компонента!: [elem.instance.$data] ${elem?.instance?.$data}`)
+          return;
+        }
         elem.instance.$data[key_data] = global_counter[key_data];
         const block = document.getElementById(
             `component_wrapper-${elem.instance.$data.index_component}`
@@ -1496,7 +1533,7 @@ export default {
         return elem;
       }
     },
-    
+
     /**
      * Проверяем вставляем ли мы что-то в пределах текстового редактора или нет
      *

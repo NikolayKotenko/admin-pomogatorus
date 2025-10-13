@@ -7,8 +7,9 @@ export default class Request {
    * @param {String} url
    * @param {Object} params
    * @param {String} method
+   * @param {Boolean} isFormData
    */
-  static async request(url, params, method) {
+  static async request(url, params, method, isFormData = false) {
     let options = {
       method: method, // *GET, POST, PUT, DELETE, etc.
       mode: "cors", // no-cors, *cors, same-origin
@@ -19,14 +20,20 @@ export default class Request {
           process.env.NODE_ENV === "development"
             ? "666777"
             : "Bearer " + Vue.$cookies.get("accessToken"),
-        "Content-Type": "application/json",
       },
     };
+
+    /** Нужно для загрузки файла через formData, иначе все ломается к херам **/
+    if (!isFormData) {
+      options.headers["Content-Type"] = "application/json";
+    }
 
     if ("GET" === method) {
       if (params !== null) {
         url += "?" + new URLSearchParams(params).toString();
       }
+    } else if (isFormData) {
+      options.body = this.bodyFromData(params);
     } else {
       options.body = JSON.stringify(params); // body data type must match "Content-Type" header
     }
@@ -56,12 +63,20 @@ export default class Request {
     return this.request(url, params, "DELETE");
   }
 
+  static async uploadFile(url, params) {
+    return this.request(url, params, "POST", true);
+  }
+
   static bodyFromData(paramBody) {
     let bodyFormData = new FormData();
 
     for (const [key, value] of Object.entries(paramBody)) {
       console.log(`${key}: ${value}`);
-      bodyFormData.append(key, value);
+      if (key === "file") {
+        bodyFormData.append(key, value, "imageFromUrl.jpg");
+      } else {
+        bodyFormData.append(key, value);
+      }
     }
     return bodyFormData;
   }
@@ -83,6 +98,7 @@ export default class Request {
     // console.log("ConstructFilterQuery", result);
     return result;
   }
+
   static ConstructSelectQuery(selects = []) {
     let result = "";
     selects.forEach((item) => {
