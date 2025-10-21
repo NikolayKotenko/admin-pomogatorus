@@ -48,7 +48,7 @@
           >
             <div class="dialog_dropzone_wrapper">
               <vue-dropzone
-                  v-if="isDropzoneReady"
+                  v-if="isDropzoneReady && isOpenModal"
                   id="dropzone"
                   ref="myVueDropzone"
                   :options="options"
@@ -262,10 +262,12 @@ export default {
       this.getHeightOfControls();
       this.getWidthOfControls();
 
+      if (!this.data_image?.idArticle) {
+        console.warn("Отсутствует id статьи!")
+      }
+
       if (!this.data_image?.id && this.data_image?.idArticle) {
         this.uploadImageToServer()
-      } else {
-        console.warn("ID изображения уже присутствутет или Отсутствует id статьи!")
       }
     },
     async deleteImage() {
@@ -384,6 +386,8 @@ export default {
             file,
             url
         );
+
+        console.log("this.$refs.myVueDropzone", this.$refs.myVueDropzone)
       });
     },
 

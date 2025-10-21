@@ -642,14 +642,22 @@ export default {
 
           const htmlImage = htmlParent.getElementsByClassName("inserted_image")[0]
 
+          if (!htmlImage) {
+            this.debugWarning(`Внимание! У компонента изображения отсутствует <img> тэг! [index]: ${elem.index},
+            elem: `, elem)
+            deletedIndexes.push(index);
+            return;
+          }
+
           const url = htmlImage.src
           const IdImage = htmlParent.dataset.id
           const alt = htmlImage.alt;
           const title = htmlImage.title;
           const width = htmlImage.width;
           const height = htmlImage.height;
+          const idArticle = _store.newArticle.id
 
-          data = Object.assign({}, {orig_path: url}, {id: IdImage}, {title_image: title}, {alt_image: alt}, {width}, {height});
+          data = Object.assign({}, {orig_path: url}, {id: IdImage}, {title_image: title}, {alt_image: alt}, {width}, {height}, {idArticle});
         }
         /** Меняем глобальный counter **/
         this.$store.commit("change_counter", {
@@ -871,7 +879,7 @@ export default {
 
                 if (!name) {
                   this.debugWarning(`Получено невалидное наименование компонента при проверке удаленного вопроса! [index]: ${index}
-                  elem: elem`)
+                  elem: ${elem}`)
 
                   return false;
                 }
