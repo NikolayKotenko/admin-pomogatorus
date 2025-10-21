@@ -124,6 +124,24 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!--  Уведомлялка об ошибке  -->
+    <v-snackbar
+        v-model="snackbar"
+    >
+      {{ snackbarText }}
+
+      <template v-slot:action="{ attrs }">
+        <v-btn
+            color="red"
+            text
+            v-bind="attrs"
+            @click="snackbar = false"
+        >
+          Закрыть
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 </template>
 
@@ -148,6 +166,10 @@ export default {
     local_dropzone_data: null,
     isDropzoneReady: false,
     previewHtml: null,
+
+    /* SNACKBAR */
+    snackbarText: "",
+    snackbar: false,
 
     width: 0,
     height: 0,
@@ -239,12 +261,52 @@ export default {
       this.index_component = this.$store.state.ArticleModule.counters.layout;
       this.getHeightOfControls();
       this.getWidthOfControls();
+
+      if (!this.data_image?.id && this.data_image?.idArticle) {
+        this.uploadImageToServer()
+      } else {
+        console.warn("ID изображения уже присутствутет или Отсутствует id статьи!")
+      }
     },
     async deleteImage() {
       await this.$store.dispatch("deleteComponent", this.index_component);
       if (this.data_image.id) {
         await this.$store.dispatch('deleteFileGeneral', this.data_image.id); // Удаляем саму фотографию из хранилища
       }
+    },
+    async uploadImageToServer() {
+      const ourHostUrls = [
+        process.env.VUE_APP_BASEURL_DEV,
+        process.env.VUE_APP_BASEURL_PROD
+      ]
+
+      if (ourHostUrls.some((url) => this.srcPath.includes(url))) {
+        console.warn("Изображение уже загружено на наш сервер", this.srcPath)
+        return
+      }
+
+      let blob = null
+      try {
+        const response = await fetch(this.srcPath);
+        blob = await response.blob(); // Get the file data as a Blob
+      } catch (e) {
+        console.warn("Произошла ошибка при загрузке файла на сервер!", e.message)
+        this.snackbarText = `Произошла ошибка при загрузке файла на сервер!: ${e.message}`
+        this.snackbar = true
+      }
+
+      if (!blob) {
+        return
+      }
+
+      const {data} = await this.$store.dispatch('uploadFileGeneral', {
+        uuid: crypto.randomUUID(),
+        id_article: this.data_image.idArticle,
+        preview_image: 0,
+        file: blob
+      });
+
+      this.data_image.orig_path = data.orig_path
     },
     onResize: function (x, y, width, height) {
       this.x = x;
