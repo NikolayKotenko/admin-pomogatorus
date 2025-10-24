@@ -26,7 +26,22 @@
                 <v-icon class="activity_icon">mdi-eye</v-icon>
               </template>
             </div>
-            <span @click="onShowDetailArticle(article)">
+            
+            <span style="display: flex;" @click="onShowDetailArticle(article)">
+              <v-tooltip right>
+                <template v-slot:activator="{ on, attrs }">
+                  <p
+                    v-bind="attrs"
+                    v-on="on" 
+                    class="copy_article_id"
+                    @click.stop="copyArticleId(article.id)"
+                  >
+                    {{ `[${article.id}]` }}
+                  </p>
+                </template>
+                <span>Скопировать id статьи</span>
+              </v-tooltip>
+              
               {{ article.name }}
             </span>
             <span class="questions_wrapper__item__top__title__quantity"> </span>
@@ -326,6 +341,16 @@ export default {
     outFocus() {
       this.filterValueFocused = false;
     },
+    copyArticleId(id) {
+      navigator.clipboard.writeText(id).then(() => {
+        this.$store.commit('show_notification', {
+          text: 'ID скопирован',
+          type: 'success'
+        });
+      }).catch(err => {
+        console.error('Ошибка копирования:', err);
+      });
+    }
   },
 };
 </script>
