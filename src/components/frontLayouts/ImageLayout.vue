@@ -16,7 +16,7 @@
       <CloseSVG
           alt="close"
           class="componentArticle_wrapper__admin_controls-header__img"
-          @click="deleteImage()"
+          @click="deleteImage"
       />
     </div>
     <img
@@ -271,10 +271,10 @@ export default {
       }
     },
     async deleteImage() {
-      await this.$store.dispatch("deleteComponent", this.index_component);
       if (this.data_image.id) {
         await this.$store.dispatch('deleteFileGeneral', this.data_image.id); // Удаляем саму фотографию из хранилища
       }
+      await this.$store.dispatch("deleteComponent", this.index_component);
     },
     async uploadImageToServer() {
       const ourHostUrls = [
@@ -309,6 +309,7 @@ export default {
       });
 
       this.data_image.orig_path = data.orig_path
+      this.data_image.id = data.id
     },
     onResize: function (x, y, width, height) {
       this.x = x;
@@ -386,8 +387,6 @@ export default {
             file,
             url
         );
-
-        console.log("this.$refs.myVueDropzone", this.$refs.myVueDropzone)
       });
     },
 

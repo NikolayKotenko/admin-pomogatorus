@@ -105,6 +105,9 @@ export default {
           this.changeIndexQuestion();
           this.getInsertedHtmlImageCounters()
           this.onContentChange(true);
+
+          this.debugConsole(`Окончание рендеринга! Итоговый список компонентов list_components:`, _store.list_components)
+          this.debugConsole(`Окончание рендеринга! Итоговый список counters:`, _store.counters)
         });
       });
     }, 500);
@@ -637,6 +640,9 @@ export default {
           )
 
           if (!htmlParent) {
+            this.debugWarning(`Внимание! У компонента изображения отсутствует <component_wrapper-> тэг! [index]: ${elem.index},
+            elem: `, elem)
+            deletedIndexes.push(index);
             return
           }
 
@@ -646,6 +652,18 @@ export default {
             this.debugWarning(`Внимание! У компонента изображения отсутствует <img> тэг! [index]: ${elem.index},
             elem: `, elem)
             deletedIndexes.push(index);
+
+            /**
+             * Выбираем из вёрстки наш компонент
+             * Удаляем его из DOM-дерева
+             * Иначе будет ломаться логика рендера
+             * **/
+            let range = document.createRange();
+            range.selectNode(
+                document.getElementById(`component_wrapper-${elem.index}`)
+            );
+            range.deleteContents();
+            range.collapse(false);
             return;
           }
 
