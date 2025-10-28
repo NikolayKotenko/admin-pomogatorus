@@ -143,6 +143,35 @@
             </div>
             <div class="detail-wrapper__content__title__help">
               <span
+                :class="{ focused: newArticle.seo_title.focused }"
+                class="detail-wrapper__content__title__help__title"
+              >
+                SEO TITLE
+              </span>
+              <TextAreaStyled
+                :class="{ inputFocused: newArticle.seo_title.focused }"
+                :data="newArticle.seo_title.value"
+                :is-flat="true"
+                :is-loading="$store.state.ArticleModule.loadingArticle"
+                :is-solo="true"
+                :placeholder="'SEO-title для статьи'"
+                :rows-count="'1'"
+                class="detail-wrapper__content__title__help__description"
+                @update-input="setSeoTitle"
+                @on-focus="
+                  () => {
+                    onFocus(newArticle.seo_title);
+                  }
+                "
+                @out-focus="
+                  () => {
+                    outFocus(newArticle.seo_title);
+                  }
+                "
+              ></TextAreaStyled>
+            </div>
+            <div class="detail-wrapper__content__title__help">
+              <span
                 :class="{ focused: newArticle.seo_description.focused }"
                 class="detail-wrapper__content__title__help__title"
               >
@@ -736,6 +765,10 @@ export default {
         value: "",
         focused: false,
       },
+      seo_title: {
+        value: "",
+        focused: false,
+      },
       seo_description: {
         value: "",
         focused: false,
@@ -864,6 +897,10 @@ export default {
 
     setPreview(value) {
       this.newArticle.preview.value = value;
+      this.saveArticle(this.newArticle);
+    },
+    setSeoTitle(value) {
+      this.newArticle.seo_title.value = value;
       this.saveArticle(this.newArticle);
     },
     setSeoDescription(value) {

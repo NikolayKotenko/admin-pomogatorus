@@ -44,6 +44,10 @@ const defaultArticle = {
     value: "",
     focused: false,
   },
+  seo_title: {
+    value: "",
+    focused: false,
+  },
   seo_description: {
     value: "",
     focused: false,
@@ -109,6 +113,10 @@ export default {
       },
 
       preview: {
+        value: "",
+        focused: false,
+      },
+      seo_title: {
         value: "",
         focused: false,
       },
@@ -354,6 +362,7 @@ export default {
           key === "target_explanation" ||
           key === "target_call_to_action" ||
           key === "preview" ||
+          key === "seo_title" ||
           key === "seo_description" ||
           key === "seo_keywords"
         ) {
