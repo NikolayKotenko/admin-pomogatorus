@@ -816,7 +816,7 @@ export default {
       for (let i = 1; i < this.dropzone_uploaded.length + 1; i++) {
         this.$nextTick(() => {
           let template = document.getElementById(`close-${i}`);
-          if (template.click) {
+          if (template?.click) {
             template.click();
           }
         });
@@ -912,6 +912,10 @@ export default {
     },
     // if we want add after modal window
     initializeSelection(componentName) {
+      if (componentName === "image") {
+        this.loading_dropzone = false
+      }
+
       this.$store.commit("get_range", true);
       this.$store.commit("change_name_component", componentName);
       this.$store.commit("change_select_component", {
@@ -940,6 +944,7 @@ export default {
           this.clearDropZoneTemplate();
           this.dropzone_uploaded = [];
           this.index_uploaded = 1;
+          this.loading_dropzone = true
         }
       } else if (_store.name_component === "nomenclature") {
         /** NOMENCLATURE **/

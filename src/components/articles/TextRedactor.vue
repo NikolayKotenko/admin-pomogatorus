@@ -105,6 +105,9 @@ export default {
           this.changeIndexQuestion();
           this.getInsertedHtmlImageCounters()
           this.onContentChange(true);
+
+          this.debugConsole(`Окончание рендеринга! Итоговый список компонентов list_components:`, _store.list_components)
+          this.debugConsole(`Окончание рендеринга! Итоговый список counters:`, _store.counters)
         });
       });
     }, 500);
@@ -637,10 +640,32 @@ export default {
           )
 
           if (!htmlParent) {
+            this.debugWarning(`Внимание! У компонента изображения отсутствует <component_wrapper-> тэг! [index]: ${elem.index},
+            elem: `, elem)
+            deletedIndexes.push(index);
             return
           }
 
           const htmlImage = htmlParent.getElementsByClassName("inserted_image")[0]
+
+          if (!htmlImage) {
+            this.debugWarning(`Внимание! У компонента изображения отсутствует <img> тэг! [index]: ${elem.index},
+            elem: `, elem)
+            deletedIndexes.push(index);
+
+            /**
+             * Выбираем из вёрстки наш компонент
+             * Удаляем его из DOM-дерева
+             * Иначе будет ломаться логика рендера
+             * **/
+            let range = document.createRange();
+            range.selectNode(
+                document.getElementById(`component_wrapper-${elem.index}`)
+            );
+            range.deleteContents();
+            range.collapse(false);
+            return;
+          }
 
           const url = htmlImage.src
           const IdImage = htmlParent.dataset.id
@@ -648,8 +673,9 @@ export default {
           const title = htmlImage.title;
           const width = htmlImage.width;
           const height = htmlImage.height;
+          const idArticle = _store.newArticle.id
 
-          data = Object.assign({}, {orig_path: url}, {id: IdImage}, {title_image: title}, {alt_image: alt}, {width}, {height});
+          data = Object.assign({}, {orig_path: url}, {id: IdImage}, {title_image: title}, {alt_image: alt}, {width}, {height}, {idArticle});
         }
         /** Меняем глобальный counter **/
         this.$store.commit("change_counter", {
@@ -871,7 +897,7 @@ export default {
 
                 if (!name) {
                   this.debugWarning(`Получено невалидное наименование компонента при проверке удаленного вопроса! [index]: ${index}
-                  elem: elem`)
+                  elem: ${elem}`)
 
                   return false;
                 }
