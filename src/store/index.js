@@ -14,6 +14,7 @@ import NomenclaturesModule from "@/store/modules/nomenclatures";
 import FamiliesModule from "@/store/modules/families";
 import Brands from "@/store/modules/brands";
 import NomenclaturesTreeModule from "@/store/modules/nomenclatures-tree";
+import Companies from "@/store/modules/companies";
 
 Vue.use(Vuex);
 
@@ -196,5 +197,6 @@ export default new Vuex.Store({
     FamiliesModule,
     Brands,
     NomenclaturesTreeModule,
+    Companies,
   },
 });

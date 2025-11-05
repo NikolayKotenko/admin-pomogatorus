@@ -4,7 +4,7 @@
       <v-btn
           class="text-capitalize"
           color="green lighten-1"
-          @click="createCompany()"
+          @click="openCreateModal()"
       >
         <v-icon color="white" small>mdi-plus-circle-outline</v-icon>
         <span class="table-container-buttons__text">Добавить</span>
@@ -13,7 +13,7 @@
           :disabled="!selectedItems.length"
           class="text-capitalize"
           color="error"
-          @click="deleteCompany()"
+          @click="deleteSelected()"
       >
         <v-icon color="white" small>mdi-trash-can-outline</v-icon>
         <span class="table-container-buttons__text">Удалить выбранное</span>
@@ -45,7 +45,7 @@
           ></v-text-field>
         </div>
       </div>
-      <table class="table-container-wrapper-main ten_columns">
+      <table class="table-container-wrapper-main twelve_columns">
         <thead class="table-container-wrapper-main-header">
         <tr>
           <th class="table-container-wrapper-main-header__title">
@@ -97,30 +97,19 @@
                 @click="setSelect(row)"
             ></v-checkbox>
           </td>
-          <td>
-            {{ row.NAME }}
-          </td>
-          <td>
-            {{ row.ADDRESS }}
-          </td>
-          <td>
-            {{ row.DATE }}
-          </td>
-          <td>
-            {{ row.EMAIL }}
-          </td>
-          <td>
-            {{ row.TELEPHONE }}
-          </td>
-          <td>
-            {{ row.WEB }}
-          </td>
-          <td>
-            {{ row.INSTAGRAM }}
-          </td>
-          <td style="width: 100px">
+          <td>{{ row.name }}</td>
+          <td>{{ row.physical_address }}</td>
+          <td>{{ row.created_at }}</td>
+          <td>{{ row.email }}</td>
+          <td>{{ row.telephone }}</td>
+          <td>{{ row.site }}</td>
+          <td>{{ row.instagram }}</td>
+          <td>{{ row.lat || '—' }}</td>  <!-- после инстаграма -->
+          <td>{{ row.long || '—' }}</td>  <!-- после широты -->
+          <td style="width: 100px">  <!-- теперь логотип -->
             <img
-                :src="row.LOGO"
+                v-if="row.e_client_files && row.e_client_files[0]"
+                :src="row.e_client_files[0].path"
                 alt=""
                 class="main_img"
                 style="object-fit: contain; width: 100%; height: 100%"
@@ -183,50 +172,49 @@
           <span class="text-h5">{{ companyTitle }}</span>
         </v-card-title>
         <v-card-text>
-          <v-form v-model="valid">
+          <v-form v-model="valid" ref="form">
             <v-container>
               <v-row>
                 <v-col cols="12">
                   <v-text-field
-                      v-model="curCompany.NAME"
+                      v-model="curCompany.name"
                       :disabled="!editable"
                       :rules="nameRules"
                       clearable
-                      hide-details
                       label="Имя компании"
                       required
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12">
                   <v-text-field
-                      v-model="curCompany.ADDRESS"
+                      v-model="curCompany.physical_address"
                       :disabled="!editable"
                       clearable
                       hide-details
                       label="Адрес компании"
                   ></v-text-field>
                 </v-col>
+                <v-text-field
+                    v-model="curCompany.email"
+                    :disabled="!editable"
+                    :rules="emailRules"
+                    clearable
+                    label="Email"
+                    style="padding: 0 12px;"
+                ></v-text-field>
                 <v-col cols="12">
                   <v-text-field
-                      v-model="curCompany.EMAIL"
+                      v-model="curCompany.telephone"
                       :disabled="!editable"
+                      :rules="phoneRules"
                       clearable
-                      hide-details
-                      label="Email"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field
-                      v-model="curCompany.TELEPHONE"
-                      :disabled="!editable"
-                      clearable
-                      hide-details
+                      type="number"
                       label="Телефон компании"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12">
                   <v-text-field
-                      v-model="curCompany.WEB"
+                      v-model="curCompany.site"
                       :disabled="!editable"
                       clearable
                       hide-details
@@ -235,11 +223,57 @@
                 </v-col>
                 <v-col cols="12">
                   <v-text-field
-                      v-model="curCompany.INSTAGRAM"
+                      v-model="curCompany.instagram"
                       :disabled="!editable"
                       clearable
                       hide-details
                       label="Инстаграм компании"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12">
+                  <v-textarea
+                      v-model="curCompany.description"
+                      :disabled="!editable"
+                      clearable
+                      hide-details
+                      label="Описание компании"
+                      rows="3"
+                  ></v-textarea>
+                </v-col>
+                <v-col cols="12">
+                  <v-select
+                      v-model="curCompany.ids_brands"
+                      :items="listBrands"
+                      :disabled="!editable"
+                      item-text="name"
+                      item-value="id"
+                      label="Обслуживаемые бренды"
+                      multiple
+                      chips
+                      clearable
+                      hide-details
+                  ></v-select>
+                </v-col>
+                <v-col cols="6">
+                  <v-text-field
+                      v-model="curCompany.lat"
+                      :disabled="!editable"
+                      :rules="latRules"
+                      clearable
+                      label="Широта (Latitude)"
+                      type="number"
+                      step="0.000001"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="6">
+                  <v-text-field
+                      v-model="curCompany.long"
+                      :disabled="!editable"
+                      :rules="longRules"
+                      clearable
+                      label="Долгота (Longitude)"
+                      type="number"
+                      step="0.000001"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12">
@@ -261,7 +295,12 @@
           <v-btn color="blue darken-1" text @click="closeCard()">
             Закрыть
           </v-btn>
-          <v-btn color="blue darken-1" text @click="saveCreate()">
+          <v-btn 
+              color="blue darken-1" 
+              text 
+              :disabled="!valid || !editable"
+              @click="saveCreate()"
+          >
             Сохранить изменения
           </v-btn>
         </v-card-actions>
@@ -289,227 +328,145 @@
 </template>
 
 <script>
+import { mapState, mapActions, mapMutations } from "vuex";
+
 export default {
   name: "Companies",
   data: () => ({
     titles: [
-      {
-        ID: 1,
-        TEXT: "Имя компании",
-        VALUE: "name",
-      },
-      {
-        ID: 2,
-        TEXT: "Адрес компании",
-        VALUE: "address",
-      },
-      {
-        ID: 3,
-        TEXT: "Дата создания",
-        VALUE: "date",
-      },
-      {
-        ID: 4,
-        TEXT: "Email",
-        VALUE: "email",
-      },
-      {
-        ID: 5,
-        TEXT: "Телефон компании",
-        VALUE: "telephone",
-      },
-      {
-        ID: 6,
-        TEXT: "Сайт компании",
-        VALUE: "web",
-      },
-      {
-        ID: 7,
-        TEXT: "Инстаграм компании",
-        VALUE: "instagram",
-      },
-      {
-        ID: 8,
-        TEXT: "Логотип компании",
-        VALUE: "logo",
-      },
-    ],
-    listItems: [
-      {
-        ID: 1,
-        CODE: "GIDRUSS",
-        SELECTED: false,
-        NAME: "ГИДРУСС",
-        ADDRESS: "г. Челябинск, ул. Пушкина 12, оф.5",
-        DATE: "2021-01-17 10:08:00",
-        EMAIL: "gidruss@mail.ru",
-        TELEPHONE: "+7 (951) 212-06-88",
-        WEB: "https://gidruss.ru",
-        INSTAGRAM: "https://instagram.com/gidruss_officialdasdasda/sadasdasd",
-        LOGO: "https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png",
-      },
-      {
-        ID: 2,
-        CODE: "GIDRUSS",
-        SELECTED: false,
-        NAME: "ГИДРУСС",
-        ADDRESS: "г. Челябинск, ул. Пушкина 12, оф.5",
-        DATE: "2021-01-17 10:08:00",
-        EMAIL: "gidruss@mail.ru",
-        TELEPHONE: "+7 (951) 212-06-88",
-        WEB: "https://gidruss.ru",
-        INSTAGRAM: "https://instagram.com/gidruss_official",
-        LOGO: "https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png",
-      },
-      {
-        ID: 3,
-        CODE: "GIDRUSS",
-        SELECTED: false,
-        NAME: "ГИДРУСС",
-        ADDRESS: "г. Челябинск, ул. Пушкина 12, оф.5",
-        DATE: "2021-01-17 10:08:00",
-        EMAIL: "gidruss@mail.ru",
-        TELEPHONE: "+7 (951) 212-06-88",
-        WEB: "https://gidruss.ru",
-        INSTAGRAM: "https://instagram.com/gidruss_official",
-        LOGO: "https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png",
-      },
-      {
-        ID: 4,
-        CODE: "GIDRUSS",
-        SELECTED: false,
-        NAME: "ГИДРУСС",
-        ADDRESS: "г. Челябинск, ул. Пушкина 12, оф.5",
-        DATE: "2021-01-17 10:08:00",
-        EMAIL: "gidruss@mail.ru",
-        TELEPHONE: "+7 (951) 212-06-88",
-        WEB: "https://gidruss.ru",
-        INSTAGRAM: "https://instagram.com/gidruss_official",
-        LOGO: "https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png",
-      },
-      {
-        ID: 5,
-        CODE: "GIDRUSS",
-        SELECTED: false,
-        NAME: "ГИДРУСС",
-        ADDRESS: "г. Челябинск, ул. Пушкина 12, оф.5",
-        DATE: "2021-01-17 10:08:00",
-        EMAIL: "gidruss@mail.ru",
-        TELEPHONE: "+7 (951) 212-06-88",
-        WEB: "https://gidruss.ru",
-        INSTAGRAM: "https://instagram.com/gidruss_official",
-        LOGO: "https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png",
-      },
-      {
-        ID: 6,
-        CODE: "GIDRUSS",
-        SELECTED: false,
-        NAME: "ГИДРУСС",
-        ADDRESS: "г. Челябинск, ул. Пушкина 12, оф.5",
-        DATE: "2021-01-17 10:08:00",
-        EMAIL: "gidruss@mail.ru",
-        TELEPHONE: "+7 (951) 212-06-88",
-        WEB: "https://gidruss.ru",
-        INSTAGRAM: "https://instagram.com/gidruss_official",
-        LOGO: "https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png",
-      },
-      {
-        ID: 7,
-        CODE: "GIDRUSS",
-        SELECTED: false,
-        NAME: "ГИДРУСС",
-        ADDRESS: "г. Челябинск, ул. Пушкина 12, оф.5",
-        DATE: "2021-01-17 10:08:00",
-        EMAIL: "gidruss@mail.ru",
-        TELEPHONE: "+7 (951) 212-06-88",
-        WEB: "https://gidruss.ru",
-        INSTAGRAM: "https://instagram.com/gidruss_official",
-        LOGO: "https://gidruss.ru/local/templates/gidruss/static/i/logotop2.png",
-      },
+      { ID: 1, TEXT: "Имя компании", VALUE: "name" },
+      { ID: 2, TEXT: "Адрес компании", VALUE: "physical_address" },
+      { ID: 3, TEXT: "Дата создания", VALUE: "created_at" },
+      { ID: 4, TEXT: "Email", VALUE: "email" },
+      { ID: 5, TEXT: "Телефон компании", VALUE: "telephone" },
+      { ID: 6, TEXT: "Сайт компании", VALUE: "site" },
+      { ID: 7, TEXT: "Инстаграм компании", VALUE: "instagram" },
+      { ID: 8, TEXT: "Широта", VALUE: "lat" },
+      { ID: 9, TEXT: "Долгота", VALUE: "long" },
+      { ID: 10, TEXT: "Логотип компании", VALUE: "logo" },
     ],
     changeCount: [5, 10, 15, 20, 25],
     selectedCount: 10,
     page: 1,
     showCard: false,
-    curCompany: {},
-    companyTitle: "Новая кмопания",
+    companyTitle: "Новая компания",
     valid: false,
     nameRules: [
       (v) => !!v || "Обязательное поле",
-      (v) => v.length <= 30 || "Не должно содержать больше 30 символов",
+      (v) => !v || v.length <= 100 || "Не должно содержать больше 100 символов",
+    ],
+    emailRules: [
+      (v) => !v || /.+@.+\..+/.test(v) || "Некорректный email"
+    ],
+    latRules: [
+      (v) => !v || (v >= -90 && v <= 90) || "Широта от -90 до 90"
+    ],
+    longRules: [
+      (v) => !v || (v >= -180 && v <= 180) || "Долгота от -180 до 180"
+    ],
+    phoneRules: [
+      (v) => !v || /^[\d\s\-\+\(\)]+$/.test(v) || "Некорректный номер телефона"
     ],
     file: [],
-    // currentImage: undefined,
-    // previewImage: undefined,
-    // progress: 0,
-    // message: "",
-    imageInfos: [],
     delCard: false,
     editable: true,
     allSelected: false,
     selectedItems: [],
   }),
-  created() {
+  computed: {
+    ...mapState({
+      listItems: (state) => state.Companies.listCompanies,
+      deleteModal: (state) => state.Companies.deleteModal,
+      listBrands: (state) => state.Brands.listBrands,
+    }),
+    curCompany: {
+      get() {
+        return this.$store.state.Companies.company;
+      },
+      set(value) {
+        this.$store.commit("Companies/setCompanyData", value);
+      },
+    },
   },
-  computed: {},
-  watch: {},
+  created() {
+    this.loadCompanies();
+    this.$store.dispatch("getListBrands");
+  },
   methods: {
-    createCompany() {
-      for (let key in this.listItems[0]) {
-        if (key === "ID") {
-          this.curCompany["ID"] = this.listItems.length + 1;
-        } else {
-          this.curCompany[key] = "";
-        }
-      }
-      this.companyTitle = "Новая кмопания";
+    ...mapActions("Companies", [
+      "getListCompanies",
+      "createCompany",
+      "updateCompany",
+      "deleteCompany",
+      "clearCompany",
+    ]),
+    ...mapMutations("Companies", ["setCompanyData", "clearCompany"]),
+    
+    async loadCompanies() {
+      await this.getListCompanies();
+    },
+    
+    openCreateModal() {
+      this.clearCompany();
+      this.companyTitle = "Новая компания";
       this.showCard = true;
     },
+    
     onEditCard(row) {
-      for (let key in row) {
-        this.curCompany[key] = row[key];
-      }
-      this.companyTitle = row["NAME"];
+      this.setCompanyData({
+        id: row.id,
+        name: row.name,
+        physical_address: row.physical_address,
+        email: row.email,
+        telephone: row.telephone,
+        site: row.site,
+        instagram: row.instagram,
+        description: row.description,
+        lat: row.lat,
+        long: row.long,
+        ids_brands: row.ids_brands || [],
+        e_client_files: row.e_client_files || [],
+      });
+      this.companyTitle = row.name;
       this.showCard = true;
     },
+    
     onDelCard(row) {
       this.delCard = true;
-      this.companyTitle = row.NAME;
-      this.curCompany.ID = row.ID;
+      this.companyTitle = row.name;
+      this.setCompanyData({ id: row.id });
     },
-    deleteCard() {
-      let index = this.listItems.findIndex((i) => {
-        return i.ID === this.curCompany.ID;
-      });
-      if (index !== -1) this.listItems.splice(index, 1);
+    
+    async deleteCard() {
+      await this.deleteCompany();
+      await this.loadCompanies();
       this.delCard = false;
     },
+    
     onShowCard(row) {
-      for (let key in row) {
-        this.curCompany[key] = row[key];
-      }
-      this.companyTitle = row["NAME"];
+      this.onEditCard(row);
       this.editable = false;
-      this.showCard = true;
     },
+    
     closeCard() {
       this.showCard = false;
       this.editable = true;
+      this.clearCompany();
     },
-    saveCreate() {
-      if (this.listItems.map((elem) => elem.ID).includes(this.curCompany.ID)) {
-        this.listItems.map((elem) => {
-          if (elem.ID === this.curCompany.ID) {
-            for (let key in this.curCompany) {
-              elem[key] = this.curCompany[key];
-            }
-          }
-        });
+    
+    async saveCreate() {
+      if (!this.curCompany.name) return;
+
+      if (this.curCompany.id) {
+        await this.updateCompany();
       } else {
-        this.listItems.push(Object.assign({}, this.curCompany));
+        await this.createCompany();
       }
+
+      await this.loadCompanies();
       this.showCard = false;
     },
+    
     selectAll() {
       if (this.allSelected) {
         this.listItems.forEach((elem) => {
@@ -520,65 +477,37 @@ export default {
       } else {
         this.listItems.forEach((elem) => {
           elem.SELECTED = true;
-          this.selectedItems.push(elem.ID);
+          this.selectedItems.push(elem.id);
         });
         this.allSelected = true;
       }
     },
-    deleteCompany() {
-      if (this.selectedItems.length) {
-        this.selectedItems.forEach((id) => {
-          let index = this.listItems.findIndex((i) => {
-            return i.ID === id;
-          });
-          if (index !== -1) this.listItems.splice(index, 1);
-        });
+    
+    async deleteSelected() {
+      if (!this.selectedItems.length) return;
+
+      for (const id of this.selectedItems) {
+        this.setCompanyData({ id });
+        await this.deleteCompany();
       }
+
+      this.selectedItems = [];
+      await this.loadCompanies();
     },
+    
     setSelect(row) {
       if (row.SELECTED) {
-        this.selectedItems.push(row.ID);
+        this.selectedItems.push(row.id);
       } else {
-        let index = this.selectedItems.findIndex((i) => {
-          return i === row.ID;
-        });
+        const index = this.selectedItems.findIndex((i) => i === row.id);
         if (index !== -1) this.selectedItems.splice(index, 1);
       }
     },
-
-    /* Для добавления изображений */
-
-    /*    showLog(image) {
-      this.currentImage = image;
-      this.previewImage = URL.createObjectURL(this.currentImage);
-      this.progress = 0;
-      this.message = "";
-    }*/
-    /*upload() {
-      if (!this.currentImage) {
-        this.message = "Please select an Image!";
-        return;
-      }
-      this.progress = 0;
-      UploadService.upload(this.currentImage, (event) => {
-        this.progress = Math.round((100 * event.loaded) / event.total);
-      })
-          .then((response) => {
-            this.message = response.data.message;
-            return UploadService.getFiles();
-          })
-          .then((images) => {
-            this.imageInfos = images.data;
-          })
-          .catch((err) => {
-            this.progress = 0;
-            this.message = "Could not upload the image! " + err;
-            this.currentImage = undefined;
-          });
-    },*/
   },
 };
 </script>
+
+
 
 <style lang="scss" scoped>
 @import "src/assets/styles/table";

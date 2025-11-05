@@ -135,6 +135,22 @@
     minmax(170px, 3.33fr);
 }
 
+.twelve_columns {
+  grid-template-columns:
+    minmax(50px, 50px)         /* чекбокс */
+    minmax(120px, 1.67fr)      /* имя */
+    minmax(120px, 3.33fr)      /* адрес */
+    minmax(90px, 1.67fr)       /* дата */
+    minmax(120px, 2fr)         /* email */
+    minmax(120px, 2fr)         /* телефон */
+    minmax(120px, 2fr)         /* сайт */
+    minmax(160px, 3.33fr)      /* инстаграм */
+    minmax(100px, 1fr)         /* широта (lat) */
+    minmax(100px, 1fr)         /* долгота (long) */
+    minmax(100px, 1fr)         /* логотип */
+    minmax(170px, 3.33fr);     /* действия */
+}
+
 .loaderList {
   width: 100%;
   display: flex;
