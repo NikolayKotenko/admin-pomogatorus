@@ -820,7 +820,7 @@ export default {
     async getNomenclatureByFamily({ rootState, commit }, idFamily) {
       commit("change_loading", true);
 
-      const filters = { id_family: idFamily };
+      const filters = { ids_families: [idFamily] };
       const selects = ["*", "_family"];
       const query = Request.modifyQuery(filters, selects);
       const { data } = await Request.get(

@@ -15,13 +15,14 @@ import FamiliesModule from "@/store/modules/families";
 import Brands from "@/store/modules/brands";
 import NomenclaturesTreeModule from "@/store/modules/nomenclatures-tree";
 import Companies from "@/store/modules/companies";
+import Stocks from "@/store/modules/stocks";
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
     BASE_URL:
-      process.env.NODE_ENV !== "development"
+      process.env.NODE_ENV === "development"
         ? process.env.VUE_APP_BASEURL_DEV
         : process.env.VUE_APP_BASEURL_PROD,
     notification_modal: {
@@ -198,5 +199,6 @@ export default new Vuex.Store({
     Brands,
     NomenclaturesTreeModule,
     Companies,
+    Stocks,
   },
 });

@@ -5,6 +5,7 @@ import store from "../store/index";
 /* VIEWS */
 import Desktop from "../views/Desktop";
 import Companies from "../views/Companies";
+import Stocks from "../views/Stocks.vue";
 import Questions from "../views/Questions";
 import Articles from "../views/Articles";
 import Answers from "../views/Answers";
@@ -47,6 +48,16 @@ const routes = [
     meta: {
       title: "Компании",
       ru_name: "Компании",
+      requiresAuth: true,
+    },
+  },
+  {
+    path: "/stocks",
+    name: "Stocks",
+    component: Stocks,
+    meta: {
+      title: "Акции",
+      ru_name: "Акции",
       requiresAuth: true,
     },
   },

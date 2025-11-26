@@ -1,7 +1,7 @@
 import Request from "../../../services/request";
 
 export default {
-  // namespaced: true,
+  namespaced: true,
   state: {
     listBrands: [],
     deleteModal: false,

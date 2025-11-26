@@ -45,7 +45,7 @@
           ></v-text-field>
         </div>
       </div>
-      <table class="table-container-wrapper-main twelve_columns">
+      <table class="table-container-wrapper-main">
         <thead class="table-container-wrapper-main-header">
           <tr>
             <th class="table-container-wrapper-main-header__title">
@@ -97,22 +97,16 @@
                 @click="setSelect(row)"
               ></v-checkbox>
             </td>
+            <td>{{ row.activity ? "Да" : "Нет" }}</td>
+            <td>{{ row.purpose }}</td>
             <td>{{ row.name }}</td>
-            <td>{{ row.physical_address }}</td>
-            <td>{{ row.created_at }}</td>
-            <td>{{ row.email }}</td>
-            <td>{{ row.telephone }}</td>
-            <td>{{ row.site }}</td>
-            <td>{{ row.instagram }}</td>
-            <td>{{ row.lat || "—" }}</td>
-            <!-- после инстаграма -->
-            <td>{{ row.long || "—" }}</td>
-            <!-- после широты -->
-            <td style="width: 100px">
-              <!-- теперь логотип -->
+            <td>{{ row.description }}</td>
+            <td>{{ row._brands_names.join() }}</td>
+            <td>{{ row.end_date }}</td>
+            <td>
               <img
-                v-if="row.e_client_files && row.e_client_files[0]"
-                :src="row.e_client_files[0].path"
+                v-if="row._images && row._images[0]"
+                :src="row._images[0].thumb_path"
                 alt=""
                 class="main_img"
                 style="object-fit: contain; width: 100%; height: 100%"
@@ -135,14 +129,6 @@
               >
                 <v-icon color="white" small>mdi-trash-can</v-icon>
                 <span class="table-container-buttons__text">Удалить</span>
-              </v-btn>
-              <v-btn
-                class="text-capitalize"
-                color="orange lighten-1"
-                @click="onShowCard(row)"
-              >
-                <v-icon color="white" small>mdi-eye</v-icon>
-                <span class="table-container-buttons__text">Просмотр</span>
               </v-btn>
             </td>
           </tr>
@@ -172,122 +158,72 @@
     <v-dialog v-model="showCard" max-width="600">
       <v-card>
         <v-card-title>
-          <span class="text-h5">{{ companyTitle }}</span>
+          <span class="text-h5">{{ curEntry.name }}</span>
         </v-card-title>
         <v-card-text>
           <v-form v-model="valid" ref="form">
             <v-container>
               <v-row>
                 <v-col cols="12">
+                  <v-checkbox
+                    v-model="curEntry.activity"
+                    clearable
+                    hide-details
+                    label="Активность"
+                  ></v-checkbox>
+                  <br />
                   <v-text-field
-                    v-model="curCompany.name"
-                    :disabled="!editable"
+                    v-model="curEntry.purpose"
+                    clearable
+                    label="Цель"
+                  ></v-text-field>
+                  <v-text-field
+                    v-model="curEntry.name"
                     :rules="nameRules"
                     clearable
-                    label="Имя компании"
+                    label="Наименование"
                     required
                   ></v-text-field>
-                </v-col>
-                <v-col cols="12">
                   <v-text-field
-                    v-model="curCompany.physical_address"
-                    :disabled="!editable"
+                    v-model="curEntry.description"
                     clearable
-                    hide-details
-                    label="Адрес компании"
+                    label="Описание"
                   ></v-text-field>
-                </v-col>
-                <v-text-field
-                  v-model="curCompany.email"
-                  :disabled="!editable"
-                  :rules="emailRules"
-                  clearable
-                  label="Email"
-                  style="padding: 0 12px"
-                ></v-text-field>
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="curCompany.telephone"
-                    :disabled="!editable"
-                    :rules="phoneRules"
-                    clearable
-                    type="number"
-                    label="Телефон компании"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="curCompany.site"
-                    :disabled="!editable"
-                    clearable
-                    hide-details
-                    label="Сайт компании"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="curCompany.instagram"
-                    :disabled="!editable"
-                    clearable
-                    hide-details
-                    label="Инстаграм компании"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12">
-                  <v-textarea
-                    v-model="curCompany.description"
-                    :disabled="!editable"
-                    clearable
-                    hide-details
-                    label="Описание компании"
-                    rows="3"
-                  ></v-textarea>
-                </v-col>
-                <v-col cols="12">
                   <v-select
-                    v-model="curCompany.ids_brands"
+                    v-model="curEntry.ids_brands"
                     :items="listBrands"
-                    :disabled="!editable"
                     item-text="name"
                     item-value="id"
-                    label="Обслуживаемые бренды"
+                    label="Бренды"
                     multiple
                     chips
                     clearable
                     hide-details
                   ></v-select>
-                </v-col>
-                <v-col cols="6">
-                  <v-text-field
-                    v-model="curCompany.lat"
-                    :disabled="!editable"
-                    :rules="latRules"
-                    clearable
-                    label="Широта (Latitude)"
-                    type="number"
-                    step="0.000001"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="6">
-                  <v-text-field
-                    v-model="curCompany.long"
-                    :disabled="!editable"
-                    :rules="longRules"
-                    clearable
-                    label="Долгота (Longitude)"
-                    type="number"
-                    step="0.000001"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12">
+                  <br />
+                  <v-menu offset-y>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        v-model="curEntry.end_date"
+                        label="Дата окончания"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      v-model="curEntry.end_date"
+                      no-title
+                      first-day-of-week="1"
+                      locale="ru-RU"
+                    />
+                  </v-menu>
                   <v-file-input
                     v-model="file"
-                    :disabled="!editable"
                     accept="image/*"
                     clearable
-                    label="Логотип компании"
+                    label="Изображение"
                   ></v-file-input>
-                  <!-- @change="showLog(file)" -->
                 </v-col>
               </v-row>
             </v-container>
@@ -301,7 +237,7 @@
           <v-btn
             color="blue darken-1"
             text
-            :disabled="!valid || !editable"
+            :disabled="!valid"
             @click="saveCreate()"
           >
             Сохранить изменения
@@ -313,10 +249,10 @@
     <v-dialog v-model="delCard" max-width="600">
       <v-card>
         <v-card-title>
-          <span class="text-h5">Вы точно хотите удалить компанию?</span>
+          <span class="text-h5">Вы точно хотите удалить эту запись ?</span>
         </v-card-title>
         <v-card-text>
-          {{ companyTitle }} будет удалена из списка компаний со всеми данными
+          {{ curEntry.name }} будет удалена из списка компаний со всеми данными
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -331,141 +267,76 @@
 </template>
 
 <script>
-import { mapState, mapActions, mapMutations } from "vuex";
+import { mapActions, mapMutations, mapState } from "vuex";
 
 export default {
-  name: "Companies",
+  name: "Stocks",
   data: () => ({
     titles: [
-      { ID: 1, TEXT: "Имя компании", VALUE: "name" },
-      { ID: 2, TEXT: "Адрес компании", VALUE: "physical_address" },
-      { ID: 3, TEXT: "Дата создания", VALUE: "created_at" },
-      { ID: 4, TEXT: "Email", VALUE: "email" },
-      { ID: 5, TEXT: "Телефон компании", VALUE: "telephone" },
-      { ID: 6, TEXT: "Сайт компании", VALUE: "site" },
-      { ID: 7, TEXT: "Инстаграм компании", VALUE: "instagram" },
-      { ID: 8, TEXT: "Широта", VALUE: "lat" },
-      { ID: 9, TEXT: "Долгота", VALUE: "long" },
-      { ID: 10, TEXT: "Логотип компании", VALUE: "logo" },
+      { ID: 1, TEXT: "Активность", VALUE: "activity" },
+      { ID: 2, TEXT: "Цель акции", VALUE: "purpose" },
+      { ID: 3, TEXT: "Наименование", VALUE: "name" },
+      { ID: 4, TEXT: "Описание", VALUE: "description" },
+      { ID: 5, TEXT: "Брэнды", VALUE: "_brands_names" },
+      { ID: 6, TEXT: "Дата окончания", VALUE: "end_date" },
+      { ID: 7, TEXT: "Картинки", VALUE: "_images" },
     ],
     changeCount: [5, 10, 15, 20, 25],
     selectedCount: 10,
     page: 1,
+    selectedItems: [],
     showCard: false,
-    companyTitle: "Новая компания",
+    delCard: false,
     valid: false,
     nameRules: [
       (v) => !!v || "Обязательное поле",
       (v) => !v || v.length <= 100 || "Не должно содержать больше 100 символов",
     ],
-    emailRules: [(v) => !v || /.+@.+\..+/.test(v) || "Некорректный email"],
-    latRules: [(v) => !v || (v >= -90 && v <= 90) || "Широта от -90 до 90"],
-    longRules: [
-      (v) => !v || (v >= -180 && v <= 180) || "Долгота от -180 до 180",
-    ],
-    phoneRules: [
-      (v) => !v || /^[\d\s\-\+\(\)]+$/.test(v) || "Некорректный номер телефона",
-    ],
+    datePicker: false,
     file: [],
-    delCard: false,
-    editable: true,
-    allSelected: false,
-    selectedItems: [],
   }),
+  created() {
+    this.getListEntries();
+    this.getListBrands();
+  },
   computed: {
     ...mapState({
-      listItems: (state) => state.Companies.listCompanies,
-      deleteModal: (state) => state.Companies.deleteModal,
+      listItems: (state) => state.Stocks.listStocks,
       listBrands: (state) => state.Brands.listBrands,
     }),
-    curCompany: {
+    curEntry: {
       get() {
-        return this.$store.state.Companies.company;
+        return this.$store.state.Stocks.entry;
       },
       set(value) {
-        this.$store.commit("Companies/setCompanyData", value);
+        this.$store.commit("Stocks/setEntryData", value);
       },
     },
   },
-  created() {
-    this.loadCompanies();
-    this.$store.dispatch("getListBrands");
-  },
   methods: {
-    ...mapActions("Companies", [
-      "getListCompanies",
-      "createCompany",
-      "updateCompany",
-      "deleteCompany",
-      "clearCompany",
+    ...mapActions("Stocks", [
+      "getListEntries",
+      "createEntry",
+      "updateEntry",
+      "deleteEntry",
+      "clearEntry",
     ]),
-    ...mapMutations("Companies", ["setCompanyData", "clearCompany"]),
-
-    async loadCompanies() {
-      await this.getListCompanies();
-    },
-
+    ...mapActions("Brands", ["getListBrands"]),
+    ...mapMutations("Stocks", ["setEntryData", "clearEntry"]),
     openCreateModal() {
-      this.clearCompany();
-      this.companyTitle = "Новая компания";
+      this.clearEntry();
       this.showCard = true;
     },
+    async deleteSelected() {
+      if (!this.selectedItems.length) return;
 
-    onEditCard(row) {
-      this.setCompanyData({
-        id: row.id,
-        name: row.name,
-        physical_address: row.physical_address,
-        email: row.email,
-        telephone: row.telephone,
-        site: row.site,
-        instagram: row.instagram,
-        description: row.description,
-        lat: row.lat,
-        long: row.long,
-        ids_brands: row.ids_brands || [],
-        e_client_files: row.e_client_files || [],
-      });
-      this.companyTitle = row.name;
-      this.showCard = true;
-    },
-
-    onDelCard(row) {
-      this.delCard = true;
-      this.companyTitle = row.name;
-      this.setCompanyData({ id: row.id });
-    },
-
-    async deleteCard() {
-      await this.deleteCompany();
-      await this.loadCompanies();
-      this.delCard = false;
-    },
-
-    onShowCard(row) {
-      this.onEditCard(row);
-      this.editable = false;
-    },
-
-    closeCard() {
-      this.showCard = false;
-      this.editable = true;
-      this.clearCompany();
-    },
-
-    async saveCreate() {
-      if (!this.curCompany.name) return;
-
-      if (this.curCompany.id) {
-        await this.updateCompany();
-      } else {
-        await this.createCompany();
+      for (const id of this.selectedItems) {
+        this.setEntryData({ id });
+        await this.deleteEntry();
       }
-
-      await this.loadCompanies();
-      this.showCard = false;
+      this.selectedItems = [];
+      await this.getListEntries();
     },
-
     selectAll() {
       if (this.allSelected) {
         this.listItems.forEach((elem) => {
@@ -481,19 +352,6 @@ export default {
         this.allSelected = true;
       }
     },
-
-    async deleteSelected() {
-      if (!this.selectedItems.length) return;
-
-      for (const id of this.selectedItems) {
-        this.setCompanyData({ id });
-        await this.deleteCompany();
-      }
-
-      this.selectedItems = [];
-      await this.loadCompanies();
-    },
-
     setSelect(row) {
       if (row.SELECTED) {
         this.selectedItems.push(row.id);
@@ -502,10 +360,47 @@ export default {
         if (index !== -1) this.selectedItems.splice(index, 1);
       }
     },
+    onEditCard(row) {
+      this.setEntryData({
+        id: row.id,
+        name: row.name,
+        purpose: row.purpose,
+        description: row.description,
+        end_date: row.end_date,
+        activity: row.activity,
+        ids_families: row.ids_families,
+        ids_brands: row.ids_brands,
+      });
+      this.showCard = true;
+    },
+    onDelCard(row) {
+      this.delCard = true;
+      this.setEntryData({ id: row.id });
+    },
+    closeCard() {
+      this.showCard = false;
+      this.editable = true;
+      this.clearEntry();
+    },
+    async saveCreate() {
+      if (!this.curEntry.name) return;
+
+      if (this.curEntry.id) {
+        await this.updateEntry();
+      } else {
+        await this.createEntry();
+      }
+
+      await this.getListEntries();
+      this.showCard = false;
+    },
+    async deleteCard() {
+      await this.deleteEntry();
+      await this.getListEntries();
+      this.delCard = false;
+    },
   },
 };
 </script>
 
-<style lang="scss" scoped>
-@import "src/assets/styles/table";
-</style>
+<style scoped lang="scss"></style>
