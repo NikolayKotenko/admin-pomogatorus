@@ -799,7 +799,7 @@ export default {
     },
     async getNomenclaturesBySearch({ state, rootState, commit }, string) {
       if (!string) return false;
-      if (string.length <= 2) return false;
+      if (string.length <= 1) return false;
 
       const checkExist = state.listNomenclaturesBySearch.some(
         (elem) => elem.name === string
@@ -810,8 +810,14 @@ export default {
       state.debounceTimeout = setTimeout(async () => {
         commit("change_loading", true);
 
+        const filters = {
+          ids_families: [state.selectedLeafTree.id_family],
+          name: string,
+        };
+        const selects = ["*"];
+        const query = Request.modifyQuery(filters, selects);
         const { data } = await Request.get(
-          `${rootState.BASE_URL}/entity/nomenclature/search/{q}?q=${string}`
+          `${rootState.BASE_URL}/entity/nomenclature${query}`
         );
         commit("set_list_nomenclatures_by_search", data);
         commit("change_loading", false);
