@@ -1,5 +1,5 @@
 <template>
-  <div style="position: sticky; top: 50px; z-index: 9999">
+  <div style="position: sticky; top: 50px; z-index: 10">
     <v-app-bar app clipped-left color="#353e47" dark dense>
       <template v-if="drawer">
         <div
