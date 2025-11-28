@@ -103,6 +103,8 @@
           :items="listCharacteristicsFilteredByMToM"
           :loading="loading"
           :loading-text="'Загрузка данных'"
+          hide-default-footer
+          :items-per-page="-1"
         >
           <template v-slot:top>
             <v-card-title>{{
@@ -256,6 +258,7 @@
           :loading="loading"
           :loading-text="'Загрузка данных'"
           hide-default-footer
+          :items-per-page="-1"
         >
           <template v-slot:top>
             <v-card-title>{{ "Номенклатура семейства" }}</v-card-title>
@@ -300,7 +303,7 @@
                   </DropDownMenuStyled>
                 </th>
 
-                <th style="max-width: 40px">
+                <th style="max-width: 40px; background-color: #d3d3d347">
                   <TooltipStyled :title="'Добавить Номенклатуру'">
                     <v-btn
                       text
@@ -1502,19 +1505,39 @@ export default {
 </style>
 <style lang="scss">
 .nomenclatures-tree {
-  .v-data-table__wrapper {
-    overflow-x: unset;
-    overflow-y: unset;
-    width: min-content;
+  .table_container {
+    overflow-x: scroll;
+    .v-data-table__wrapper {
+      overflow-x: unset;
+      overflow-y: unset;
+      width: fit-content;
 
-    .v-data-table-header {
-      position: sticky;
-      top: 0;
-      z-index: 11;
-    }
-    .icon_slot {
-      width: auto;
-      min-width: 100px;
+      thead {
+        display: table;
+        width: 100%;
+        background: aliceblue;
+      }
+      tbody {
+        overflow-y: scroll;
+        max-height: 900px;
+        display: block;
+      }
+      th,
+      td {
+        max-width: 200px;
+        min-width: 200px;
+      }
+
+      .v-data-table-header {
+        // не работает с overflow любым у родителя
+        //position: sticky;
+        //top: 0;
+        //z-index: 11;
+      }
+      .icon_slot {
+        width: auto;
+        min-width: 100px;
+      }
     }
   }
 }
