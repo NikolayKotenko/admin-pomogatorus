@@ -10,6 +10,7 @@ export default {
       code: null,
       name: null,
       description: null,
+      aggregator: null,
       e_client_files: [],
     },
   },
@@ -33,6 +34,7 @@ export default {
         code: null,
         name: null,
         description: null,
+        aggregator: null,
         e_client_files: [],
       };
     },
@@ -54,7 +56,7 @@ export default {
     //     commit('changeListBrands', response.data)
     // },
     async getListBrands({ commit }, id) {
-      commit("changeLoadingGeneral", true);
+      commit("changeLoadingGeneral", true, { root: true });
 
       try {
         const selects = ["*", "e_client_files"];
@@ -75,22 +77,22 @@ export default {
         console.log(e);
         commit("change_notification_modal", e, { root: true });
       }
-      commit("changeLoadingGeneral", false);
+      commit("changeLoadingGeneral", false, { root: true });
     },
     async createBrand({ commit }) {
-      commit("changeLoadingGeneral", true);
+      commit("changeLoadingGeneral", true, { root: true });
       try {
         const response = await Request.post(
           this.state.BASE_URL + "/dictionary/brands",
           this.state.Brands.brand
         );
         commit("setBrand", response.data);
-        commit("changeLoadingGeneral", false);
+        commit("changeLoadingGeneral", false, { root: true });
         return response;
       } catch (e) {
         console.log(e);
         commit("change_notification_modal", e, { root: true });
-        commit("changeLoadingGeneral", false);
+        commit("changeLoadingGeneral", false, { root: true });
       }
     },
     async updateBrand({ commit }) {
@@ -110,7 +112,7 @@ export default {
       if (this.state.Brands.brand.name == null) return false;
 
       //START
-      commit("changeLoadingGeneral", true);
+      commit("changeLoadingGeneral", true, { root: true });
 
       let response = null;
       if (location.search.match("create")) {
@@ -122,10 +124,10 @@ export default {
       await dispatch("clearBrand");
       await dispatch("getListBrands", response.data.id);
       //END
-      commit("changeLoadingGeneral", false);
+      commit("changeLoadingGeneral", false, { root: true });
     },
     async deleteBrand({ commit, dispatch }) {
-      commit("changeLoadingGeneral", true);
+      commit("changeLoadingGeneral", true, { root: true });
 
       await Request.delete(
         this.state.BASE_URL + "/dictionary/brands/" + this.state.Brands.brand.id
@@ -134,7 +136,7 @@ export default {
       await dispatch("getListBrands");
 
       commit("clearBrand");
-      commit("changeLoadingGeneral", false);
+      commit("changeLoadingGeneral", false, { root: true });
       commit("deleteModalCommit", false);
     },
   },
