@@ -146,7 +146,7 @@
           <span>{{ item.text }}</span>
         </v-tooltip>
       </div>
-      <!-- Вставить заголовок -->
+      <!-- Вставить заголовок H2 -->
       <div class="header__elBlock right">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
@@ -163,6 +163,25 @@
           <span>Вставить заголовок</span>
         </v-tooltip>
       </div>
+
+      <!-- Вставить заголовок H3 -->
+      <div class="header__elBlock right">
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <v-icon
+                :color="icons_panel.formatBlockH3.active ? 'blue darken-4' : ''"
+                size="28"
+                v-bind="attrs"
+                @click="setH3()"
+                v-on="on"
+            >
+              mdi-format-header-3
+            </v-icon>
+          </template>
+          <span>Вставить подзаголовок</span>
+        </v-tooltip>
+      </div>
+      
       <!-- Вставить список -->
       <div class="header__elBlock right">
         <v-tooltip bottom>
@@ -865,6 +884,25 @@ export default {
         document.execCommand("formatBlock", false, "h2");
         _store.range.collapse(false);
         iconsModels.icons_panel.formatBlock.active = true;
+      }
+      this.$store.commit("get_range");
+    },
+    setH3() {
+      this.onAction("removeFormat");
+      if (_store.range.commonAncestorContainer.parentElement.tagName === "H3") {
+        document.execCommand("formatBlock", false, "p");
+        _store.range.collapse(false);
+        iconsModels.icons_panel.formatBlockH3.active = false;
+      } else if (
+          _store.range.commonAncestorContainer.parentElement.tagName === "DIV"
+      ) {
+        document.execCommand("formatBlock", false, "p");
+        _store.range.collapse(false);
+        iconsModels.icons_panel.formatBlockH3.active = false;
+      } else {
+        document.execCommand("formatBlock", false, "h3");
+        _store.range.collapse(false);
+        iconsModels.icons_panel.formatBlockH3.active = true;
       }
       this.$store.commit("get_range");
     },

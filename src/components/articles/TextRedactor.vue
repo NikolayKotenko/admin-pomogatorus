@@ -1503,6 +1503,17 @@ export default {
         if (!_store.range?.commonAncestorContainer?.parentElement) return;
 
         let elem = _store.range.commonAncestorContainer.parentElement;
+
+        // Явная проверка для заголовков H2 и H3
+        if (icon === 'formatBlock') {
+          icons_arr[icon].active = elem.tagName === 'H2';
+          return;
+        }
+        if (icon === 'formatBlockH3') {
+          icons_arr[icon].active = elem.tagName === 'H3';
+          return;
+        }
+
         // Global object
         let parentElem;
         // outerHTML

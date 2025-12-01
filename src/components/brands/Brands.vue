@@ -52,6 +52,19 @@
         @update-input="setBrandDescription"
       />
 
+      <InputStyled
+        :data="$store.state.Brands.brand.aggregator"
+        :is-disabled="
+          $store.state.loadingRequestGeneral ||
+          !$store.getters.stateEditCreate($route.query.action)
+        "
+        :is-outlined="true"
+        persistent-placeholder
+        :placeholder="'Ссылка на агрегатор запчастей'"
+        class="mb-5"
+        @update-input="setBrandAggregator"
+      />
+
       <v-btn
         :disabled="
           $store.state.loadingRequestGeneral || $route.query.action !== 'edit'
@@ -250,7 +263,7 @@ export default defineComponent({
     dropzone_uploaded: [],
   }),
   async mounted() {
-    await this.$store.dispatch("getListBrands", this.$route.params.id);
+    await this.$store.dispatch("Brands/getListBrands", this.$route.params.id);
     await this.$store.dispatch("setTitle", this.$store.state.Brands.brand.name);
   },
   computed: {
@@ -286,14 +299,14 @@ export default defineComponent({
     "$route.query.action": {
       handler(newValue) {
         if (newValue === "create") {
-          this.$store.dispatch("clearBrand");
+          this.$store.dispatch("Brands/clearBrand");
         }
       },
     },
     "$route.params.id": {
       handler(newValue) {
         if (!newValue) {
-          this.$store.dispatch("clearBrand");
+          this.$store.dispatch("Brands/clearBrand");
         }
       },
     },
@@ -312,6 +325,9 @@ export default defineComponent({
     setBrandDescription(value) {
       this.$store.state.Brands.brand.description = value;
     },
+    setBrandAggregator(value) {
+      this.$store.state.Brands.brand.aggregator = value;
+    },
     sendingData(file, xhr, formData) {
       formData.append("uuid", file.upload.uuid);
       formData.append("id_brand", _store.brand.id);
@@ -329,7 +345,7 @@ export default defineComponent({
         .catch(() => {});
     },
     async onSubmitLocal() {
-      await this.$store.dispatch("onSubmitBrands", {}, { root: true });
+      await this.$store.dispatch("Brands/onSubmitBrands", {}, { root: true });
       if (this.$route.query.action === "create") {
         await this.$router
           .replace({
@@ -383,7 +399,7 @@ export default defineComponent({
       this.dropzone_uploaded[data.index].title_image = data.value;
     },
     async deleteLocal() {
-      await this.$store.dispatch("deleteBrand");
+      await this.$store.dispatch("Brands/deleteBrand");
       await this.$router.push({ path: "/brands" }).catch(() => {});
     },
   },

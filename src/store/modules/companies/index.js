@@ -1,7 +1,7 @@
 import Request from "../../../services/request";
 
 export default {
-  namespaced: true,  // добавили namespace
+  namespaced: true,
   state: {
     listCompanies: [],
     deleteModal: false,
