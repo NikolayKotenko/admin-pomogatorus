@@ -54,6 +54,12 @@ export default {
       parentElem: "h2",
       styleName: "krkozybtra",
     },
+    formatBlockH3: {
+      active: false,
+      tag: "<h3",
+      parentElem: "h3",
+      styleName: "",
+    },
     insertUnorderedList: {
       active: false,
       tag: "<ul",
