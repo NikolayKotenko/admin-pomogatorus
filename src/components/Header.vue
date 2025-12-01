@@ -113,7 +113,6 @@
       app
       clipped
       color="#353e47"
-      style="z-index: 208 !important"
     >
       <div class="navigation_user">
         <v-list-item-avatar style="margin-left: 10px">

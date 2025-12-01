@@ -141,6 +141,7 @@
                           set_action_query('edit');
                           set_characteristic({
                             id: item._characteristic_nomenclature.id,
+                            sort: item._characteristic_nomenclature.sort,
                             name: item._characteristic_nomenclature.name,
                             code: item._characteristic_nomenclature.code,
                             description:
@@ -341,7 +342,12 @@
                   :open-on-hover="true"
                 >
                   <template #icon>
-                    <section>{{ item.name_char }}</section>
+                    <div class="wrapper_sort">
+                      <section>
+                        {{ item._characteristic_nomenclature.sort + "." }}&nbsp;
+                      </section>
+                      <section>{{ item.name_char }}</section>
+                    </div>
                   </template>
                   <template #content>
                     <section class="d-inline-flex">
@@ -375,6 +381,7 @@
                           set_action_query('edit');
                           set_characteristic({
                             id: item._characteristic_nomenclature.id,
+                            sort: item._characteristic_nomenclature.sort,
                             name: item._characteristic_nomenclature.name,
                             code: item._characteristic_nomenclature.code,
                             description:
@@ -866,7 +873,7 @@
         </v-card-title>
         <v-form
           ref="formCharacteristic"
-          class="container"
+          class="container form_add_edit_characteristic"
           v-model="valid"
           lazy-validation
         >
@@ -939,6 +946,16 @@
                 "
                 @click-clear="clear_characteristic"
               ></ComboboxStyled>
+            </v-col>
+            <v-col class="pb-0">
+              <InputStyledSimple
+                class="sort_input"
+                :type-data="'number'"
+                :data="characteristic.sort"
+                :placeholder="'Сортировка'"
+                :is-loading="loading"
+                @update-input="updateSort($event)"
+              />
             </v-col>
             <v-col cols="12">
               <VueEditor
@@ -1442,6 +1459,16 @@ export default {
     calcMargin(i) {
       return i * 60 + "px";
     },
+
+    async updateSort(characteristic) {
+      await this.setPropertyCharacteristic({
+        key: "sort",
+        payload: characteristic,
+      });
+      await this.getMToMNomenclatureCharacteristics(
+        this.selectedLeafTree.id_family
+      );
+    },
   },
   beforeRouteLeave: function (to, from, next) {
     this.close_dialog_delete_characteristic();
@@ -1519,7 +1546,7 @@ export default {
       }
       tbody {
         overflow-y: scroll;
-        max-height: 900px;
+        max-height: 650px;
         display: block;
       }
       th,
@@ -1537,8 +1564,22 @@ export default {
       .icon_slot {
         width: auto;
         min-width: 100px;
+        .wrapper_sort {
+          display: grid;
+          grid-template-columns: 20% 1fr;
+          align-items: center;
+        }
       }
     }
+  }
+}
+
+.form_add_edit_characteristic {
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
   }
 }
 </style>

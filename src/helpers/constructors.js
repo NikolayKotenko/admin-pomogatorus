@@ -185,6 +185,7 @@ export function NomenclaturesTreeLeaf(
 
 export function CharacteristicNomenclature(
   id = null,
+  sort = null,
   name = "",
   code = "",
   description = "",
@@ -195,6 +196,7 @@ export function CharacteristicNomenclature(
   dictionary = new Dictionary()
 ) {
   this.id = id;
+  this.sort = sort;
   this.name = name;
   this.code = code;
   this.descriptionEditor = description;
@@ -264,7 +266,7 @@ export function Nomenclature(
   seo_keywords = "",
   link_market = "",
   link_market_ozon = "",
-  link_market_lunda = "",
+  link_market_lunda = ""
 ) {
   this.id = id;
   this.name = name;
@@ -276,8 +278,8 @@ export function Nomenclature(
   this.seo_descriptionEditor = seo_description;
   this.seo_keywords = seo_keywords;
   this.link_market = link_market;
-  this.link_market_ozon = link_market_ozon,
-  this.link_market_lunda = link_market_lunda
+  (this.link_market_ozon = link_market_ozon),
+    (this.link_market_lunda = link_market_lunda);
 }
 
 export function ModifiedMtoMNomenclatureCharacteristics(
@@ -308,6 +310,7 @@ export function MtoMNomenclatureCharacteristics(
   this.value = value;
   this._characteristic_nomenclature = new CharacteristicNomenclature(
     _characteristic_nomenclature.id,
+    _characteristic_nomenclature.sort,
     _characteristic_nomenclature.name,
     _characteristic_nomenclature.code,
     _characteristic_nomenclature.description,
@@ -333,12 +336,12 @@ export function MtoMNomenclatureCharacteristics(
 }
 
 export function PropertyEntity(key = "", payload) {
-    this.key = key;
-    this.payload = payload;
+  this.key = key;
+  this.payload = payload;
 }
 
 export function Breadcrumb(text = "", disabled = false) {
-    this.text = text;
-    this.href = "#" + text;
-    this.disabled = disabled;
+  this.text = text;
+  this.href = "#" + text;
+  this.disabled = disabled;
 }

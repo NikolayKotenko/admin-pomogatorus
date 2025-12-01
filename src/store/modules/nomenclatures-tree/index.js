@@ -204,6 +204,7 @@ export default {
     set_characteristic(state, payload = new CharacteristicNomenclature()) {
       state.characteristic = new CharacteristicNomenclature(
         payload.id,
+        payload.sort,
         payload.name,
         payload.code,
         payload.description,
@@ -572,7 +573,7 @@ export default {
     },
 
     // Характеристики
-    setPropertyCharacteristic(
+    async setPropertyCharacteristic(
       { state, commit, dispatch },
       obj = new PropertyEntity()
     ) {
@@ -581,10 +582,7 @@ export default {
         new PropertyEntity(obj.key, obj.payload)
       );
 
-      if (state.debounceTimeout) clearTimeout(state.debounceTimeout);
-      state.debounceTimeout = setTimeout(async () => {
-        await dispatch("updateCharacteristic");
-      }, 1000);
+      return await dispatch("updateCharacteristic");
     },
     async openDialogCharacteristics({ commit, dispatch }) {
       commit("open_dialog_characteristics");
@@ -748,6 +746,7 @@ export default {
       commit("set_characteristic", response.data);
       commit("change_loading", false);
       commit("add_popup_notification", response.message);
+      return response;
     },
 
     async deleteCharacteristicByMtoM(
@@ -979,6 +978,11 @@ export default {
             // console.log("key", key);
             return !this.has(key) && this.add(key);
           }, new Set())
+          .sort(
+            (a, b) =>
+              a._characteristic_nomenclature.sort -
+              b._characteristic_nomenclature.sort
+          )
       );
 
       // return Object.groupBy(
