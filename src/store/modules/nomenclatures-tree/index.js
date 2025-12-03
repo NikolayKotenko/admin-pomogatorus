@@ -139,7 +139,8 @@ export default {
         payload.files,
         payload.seo_title,
         payload.seo_description,
-        payload.seo_keywords
+        payload.seo_keywords,
+        payload.ids_characteristics_public_display
       );
     },
     set_property_family(state, obj = PropertyEntity) {
@@ -441,7 +442,6 @@ export default {
         `${rootState.BASE_URL}/entity/nomenclatures-tree/${state.family.id}`,
         new NomenclaturesTreeLeaf(null, null, state.family.name)
       );
-      console.log("updateNameLeafTree", response);
 
       await dispatch("getTreeOnMount");
       commit("change_loading", false);
@@ -500,7 +500,8 @@ export default {
           response.data.files,
           response.data.seo_title,
           response.data.seo_description,
-          response.data.seo_keywords
+          response.data.seo_keywords,
+          response.data.ids_characteristics_public_display
         )
       );
       commit("change_loading", false);
@@ -545,10 +546,7 @@ export default {
     ) {
       commit("set_property_family", new PropertyEntity(obj.key, obj.payload));
 
-      if (state.debounceTimeout) clearTimeout(state.debounceTimeout);
-      return (state.debounceTimeout = setTimeout(async () => {
-        return await dispatch("updateFamily");
-      }, 1000));
+      return await dispatch("updateFamily");
     },
 
     /**
@@ -952,6 +950,20 @@ export default {
       if (!state.selectedLeafTree.children.length) return false;
 
       return true;
+    },
+    getStatePublicDisplayCharacteristic: (state) => (id_characteristic) => {
+      if (!state.selectedLeafTree._family) return true;
+      if (!state.selectedLeafTree._family.ids_characteristics_public_display)
+        return true;
+      if (
+        !state.selectedLeafTree._family.ids_characteristics_public_display
+          .length
+      )
+        return true;
+
+      return state.selectedLeafTree._family.ids_characteristics_public_display.some(
+        (item) => item === id_characteristic
+      );
     },
     lengthListNomenclatureByFamily(state) {
       return state.listNomenclatureByFamily.length;

@@ -179,7 +179,8 @@ export function NomenclaturesTreeLeaf(
     _family.files,
     _family.seo_title,
     _family.seo_description,
-    _family.seo_keywords
+    _family.seo_keywords,
+    _family.ids_characteristics_public_display
   );
 }
 
@@ -240,7 +241,8 @@ export function Family(
   files = null,
   seo_title = "",
   seo_description = "",
-  seo_keywords = ""
+  seo_keywords = "",
+  ids_characteristics_public_display = []
 ) {
   this.id = id;
   this.code = code;
@@ -253,6 +255,7 @@ export function Family(
   this.seo_description = seo_description;
   this.seo_descriptionEditor = seo_description;
   this.seo_keywords = seo_keywords;
+  this.ids_characteristics_public_display = ids_characteristics_public_display;
 }
 
 export function Nomenclature(
@@ -330,7 +333,8 @@ export function MtoMNomenclatureCharacteristics(
     _family.files,
     _family.seo_title,
     _family.seo_description,
-    _family.seo_keywords
+    _family.seo_keywords,
+    _family.ids_characteristics_public_display
   );
   this.name_char = _characteristic_nomenclature.name;
 }

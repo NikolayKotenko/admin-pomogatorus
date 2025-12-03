@@ -34,6 +34,7 @@
           :items="tree"
           item-key="name_leaf"
           ref="treeView"
+          open-all
         >
           <template v-slot:prepend="{ open, item }">
             <v-icon>{{ getIconRow(open, item) }}</v-icon>
@@ -71,11 +72,7 @@
                 :icon-text="'mdi-pencil'"
                 :text-tooltip="'Редактировать семейство'"
                 :is-disabled="loading"
-                @click-icon="
-                  set_action_query('edit');
-                  set_family(item._family);
-                  open_dialog_family(item.id_family);
-                "
+                @click-icon="setEditFamily(item)"
               />
               <IconTooltip
                 :icon-text="'mdi-delete-outline'"
@@ -329,7 +326,10 @@
           -->
           <template v-slot:item="{ item, index, headers }">
             <tr
-              v-if="item.required_fill_in_nomenclature"
+              v-if="
+                item.required_fill_in_nomenclature &&
+                getStatePublicDisplayCharacteristic(item.id_characteristic)
+              "
               :class="{
                 parentPropertyStyle: !item.required_fill_in_nomenclature,
               }"
@@ -346,7 +346,14 @@
                       <section>
                         {{ item._characteristic_nomenclature.sort + "." }}&nbsp;
                       </section>
-                      <section>{{ item.name_char }}</section>
+                      <section>
+                        {{ item.name_char }}
+                        <template
+                          v-if="item._characteristic_nomenclature.postfix"
+                        >
+                          ({{ item._characteristic_nomenclature.postfix }})
+                        </template>
+                      </section>
                     </div>
                   </template>
                   <template #content>
@@ -547,6 +554,22 @@
           </v-col>
 
           <v-col v-if="family.id && !responseByFamily.isError">
+            <v-autocomplete
+              v-model="family.ids_characteristics_public_display"
+              :disabled="$store.state.loadingRequestGeneral"
+              :items="listCharacteristicsFilteredByMToM"
+              :loading="$store.state.loadingRequestGeneral"
+              class="mb-10"
+              dense
+              multiple
+              hide-details
+              item-text="_characteristic_nomenclature.name"
+              item-value="_characteristic_nomenclature.id"
+              label="Выберите отображаемые характеристики"
+              outlined
+              :menu-props="{ maxHeight: '80vh' }"
+              @change="updateIdsCharacteristicsPublicDisplay($event)"
+            />
             <InputStyledSimple
               class="mb-5"
               :data="family.seo_title"
@@ -1192,6 +1215,7 @@ export default {
     await this.getDictionaryUnits();
     await this.$store.dispatch("getListBrands", this.$route.params.id);
 
+    await this.setSelectedFamilyAction(this.tree[0]);
     this.$refs.treeView.updateAll(true);
   },
   watch: {},
@@ -1228,6 +1252,7 @@ export default {
     ...mapGetters("NomenclaturesTreeModule", [
       "getStateSelectedFamily",
       "getStateExistChildren",
+      "getStatePublicDisplayCharacteristic",
       "lengthListNomenclatureByFamily",
       "listCharacteristicsFilteredByMToM",
       "getValueCharacteristicNomenclature",
@@ -1430,7 +1455,6 @@ export default {
     //Валидация
     async addCharacteristicToForm() {
       const stateValidation = this.$refs.formCharacteristic.validate();
-      console.log("stateValidation", stateValidation);
       if (!stateValidation) return false;
 
       const response = await this.setMToMCharacteristicsNomenclature({
@@ -1443,7 +1467,6 @@ export default {
     },
     updateCharacteristicInForm() {
       const stateValidation = this.$refs.formCharacteristic.validate();
-      console.log("stateValidation", stateValidation);
       if (!stateValidation) return false;
 
       this.getMToMNomenclatureCharacteristics(this.selectedLeafTree.id_family);
@@ -1468,6 +1491,29 @@ export default {
       await this.getMToMNomenclatureCharacteristics(
         this.selectedLeafTree.id_family
       );
+    },
+
+    setEditFamily(item) {
+      this.set_action_query("edit");
+      this.set_family(item._family);
+      this.open_dialog_family(item.id_family);
+      this.setSelectedFamilyAction(item);
+    },
+    async updateIdsCharacteristicsPublicDisplay(
+      idsCharacteristicsPublicDisplay
+    ) {
+      await this.setPropertyFamily({
+        key: "ids_characteristics_public_display",
+        payload: idsCharacteristicsPublicDisplay,
+      });
+      /*
+       * Костыль, но самое простое решение
+       * по факту только на фронте меняем чтобы вот этот геттер getStatePublicDisplayCharacteristic - триггернул
+       * и template - перерисовался
+       * Альтернатива только запрашивать целиком дерево и заменять selectedLeafTree
+       * */
+      this.selectedLeafTree._family.ids_characteristics_public_display =
+        idsCharacteristicsPublicDisplay;
     },
   },
   beforeRouteLeave: function (to, from, next) {
