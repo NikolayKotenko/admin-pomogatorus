@@ -344,7 +344,11 @@
                   <template #icon>
                     <div class="wrapper_sort">
                       <section>
-                        {{ item._characteristic_nomenclature.sort + "." }}&nbsp;
+                        {{
+                          item._characteristic_nomenclature.sort
+                            ? item._characteristic_nomenclature.sort + "."
+                            : "-"
+                        }}&nbsp;
                       </section>
                       <section>
                         {{ item.name_char }}

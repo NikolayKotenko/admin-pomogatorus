@@ -990,11 +990,18 @@ export default {
             // console.log("key", key);
             return !this.has(key) && this.add(key);
           }, new Set())
-          .sort(
-            (a, b) =>
-              a._characteristic_nomenclature.sort -
-              b._characteristic_nomenclature.sort
-          )
+          .sort((a, b) => {
+            const aSort = a._characteristic_nomenclature?.sort;
+            const bSort = b._characteristic_nomenclature?.sort;
+
+            // Если aSort null/undefined, помещаем в конец (возвращаем 1)
+            if (aSort == null) return 1;
+            // Если bSort null/undefined, помещаем в конец (возвращаем -1)
+            if (bSort == null) return -1;
+
+            // Обычная числовая сортировка
+            return aSort - bSort;
+          })
       );
 
       // return Object.groupBy(
