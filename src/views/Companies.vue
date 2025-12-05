@@ -19,7 +19,7 @@
         <span class="table-container-buttons__text">Удалить выбранное</span>
       </v-btn>
     </div>
-    <div class="table-container-wrapper">
+    <div class="table-container-wrapper companies">
       <div class="table-container-wrapper-header">
         <div class="table-container-wrapper-header__views">
           Показать
@@ -148,24 +148,6 @@
           </tr>
         </tbody>
       </table>
-      <div class="table-container-wrapper-footer">
-        <div class="table-container-wrapper-footer__counter">
-          <span>Показано от {{ 1 }} до {{ 5 }} из {{ 5 }} записей</span>
-        </div>
-        <div class="table-container-wrapper-footer__page">
-          <v-btn class="text-capitalize" elevation="0">
-            <v-icon small> mdi-chevron-left</v-icon>
-            <span>Предыдущая</span>
-          </v-btn>
-          <v-btn class="text-capitalize" elevation="0">
-            {{ 1 }}
-          </v-btn>
-          <v-btn class="text-capitalize" elevation="0">
-            <span>Следующая</span>
-            <v-icon small> mdi-chevron-right</v-icon>
-          </v-btn>
-        </div>
-      </div>
     </div>
 
     <!-- MODAL  -->
@@ -508,4 +490,8 @@ export default {
 
 <style lang="scss" scoped>
 @import "src/assets/styles/table";
+
+.table-container-wrapper.companies {
+  overflow: auto;
+}
 </style>

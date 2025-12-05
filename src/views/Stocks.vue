@@ -1,5 +1,5 @@
 <template>
-  <div class="table-container">
+  <div class="table-container stocks">
     <div class="table-container-buttons">
       <v-btn
         class="text-capitalize"
@@ -134,24 +134,6 @@
           </tr>
         </tbody>
       </table>
-      <div class="table-container-wrapper-footer">
-        <div class="table-container-wrapper-footer__counter">
-          <span>Показано от {{ 1 }} до {{ 5 }} из {{ 5 }} записей</span>
-        </div>
-        <div class="table-container-wrapper-footer__page">
-          <v-btn class="text-capitalize" elevation="0">
-            <v-icon small> mdi-chevron-left</v-icon>
-            <span>Предыдущая</span>
-          </v-btn>
-          <v-btn class="text-capitalize" elevation="0">
-            {{ 1 }}
-          </v-btn>
-          <v-btn class="text-capitalize" elevation="0">
-            <span>Следующая</span>
-            <v-icon small> mdi-chevron-right</v-icon>
-          </v-btn>
-        </div>
-      </div>
     </div>
 
     <!-- MODAL  -->
@@ -218,12 +200,122 @@
                       locale="ru-RU"
                     />
                   </v-menu>
-                  <v-file-input
-                    v-model="file"
-                    accept="image/*"
-                    clearable
-                    label="Изображение"
-                  ></v-file-input>
+
+                  <!-- DROPZONE -->
+                  <v-btn
+                    :disabled="$store.state.loadingRequestGeneral"
+                    @click="
+                      $refs.StockDropZone.removeAllFiles();
+                      stateDropzone = true;
+                      insertDropzoneData();
+                    "
+                  >
+                    Изображение
+                    <v-icon
+                      color="grey lighten-1"
+                      style="transform: rotate(45deg)"
+                      >mdi-paperclip</v-icon
+                    >
+                    [{{ dropzone_uploaded.length }}]
+                  </v-btn>
+                  <v-dialog
+                    v-model="stateDropzone"
+                    :eager="true"
+                    max-width="600"
+                  >
+                    <v-card>
+                      <v-card-title>
+                        <span v-if="!dropzone_uploaded.length" class="text-h7"
+                          >Загрузите изображение</span
+                        >
+                        <span v-else class="text-h7"
+                          >Изображение уже загружено</span
+                        >
+                      </v-card-title>
+                      <v-card-text class="dialog_dropzone">
+                        <div
+                          v-show="!dropzone_uploaded.length"
+                          class="dialog_dropzone_wrapper"
+                        >
+                          <vue-dropzone
+                            id="dropzone"
+                            ref="StockDropZone"
+                            :options="options"
+                            :useCustomSlot="true"
+                            @vdropzone-success="successData"
+                            @vdropzone-sending="sendingData"
+                          >
+                            <h3 class="dropzone-custom-title">
+                              <v-icon
+                                color="grey lighten-1"
+                                size="120"
+                                style="transform: rotate(45deg)"
+                              >
+                                mdi-paperclip
+                              </v-icon>
+                            </h3>
+                            <div class="subtitle" style="color: darkgrey">
+                              Для вставки изображения перетащите файл в зону или
+                              нажмите на скрепку
+                            </div>
+                          </vue-dropzone>
+                        </div>
+                        <template>
+                          <div
+                            v-for="(item, index) in dropzone_uploaded"
+                            :key="index"
+                            class="dialog_dropzone_inputs"
+                          >
+                            <v-img :src="item.full_path" contain></v-img>
+                            <span class="dialog_dropzone_inputs__label">
+                              {{ item.filename }}</span
+                            >
+                            <InputStyled
+                              :data="item.alt_image"
+                              :index-array="index"
+                              :is-disabled="$store.state.loadingRequestGeneral"
+                              :is-loading="$store.state.loadingRequestGeneral"
+                              :placeholder="'alt-наименование изображения'"
+                              @update-input="setAlt"
+                            />
+                            <InputStyled
+                              :data="item.title_image"
+                              :index-array="index"
+                              :is-disabled="$store.state.loadingRequestGeneral"
+                              :is-loading="$store.state.loadingRequestGeneral"
+                              :placeholder="'подпись изображения'"
+                              @update-input="setTitle"
+                            />
+                          </div>
+                        </template>
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-btn
+                          v-if="dropzone_uploaded.length"
+                          :disabled="$store.state.loadingRequestGeneral"
+                          :loading="$store.state.loadingRequestGeneral"
+                          color="blue darken-1"
+                          text
+                          @click="removedFile()"
+                        >
+                          Очистить
+                        </v-btn>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          :disabled="$store.state.loadingRequestGeneral"
+                          :loading="$store.state.loadingRequestGeneral"
+                          color="green darken-1"
+                          text
+                          @click="
+                            stateDropzone = false;
+                            updateDropZoneImage();
+                          "
+                        >
+                          Готово
+                        </v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
                 </v-col>
               </v-row>
             </v-container>
@@ -267,10 +359,18 @@
 </template>
 
 <script>
+import vue2Dropzone from "vue2-dropzone";
+import "vue2-dropzone/dist/vue2Dropzone.min.css";
 import { mapActions, mapMutations, mapState } from "vuex";
+import InputStyled from "@/components/common/InputStyled.vue";
+import Request from "@/services/request";
 
 export default {
   name: "Stocks",
+  components: {
+    InputStyled,
+    vueDropzone: vue2Dropzone,
+  },
   data: () => ({
     titles: [
       { ID: 1, TEXT: "Активность", VALUE: "activity" },
@@ -293,7 +393,8 @@ export default {
       (v) => !v || v.length <= 100 || "Не должно содержать больше 100 символов",
     ],
     datePicker: false,
-    file: [],
+    dropzone_uploaded: [],
+    stateDropzone: false,
   }),
   created() {
     this.getListEntries();
@@ -311,6 +412,17 @@ export default {
       set(value) {
         this.$store.commit("Stocks/setEntryData", value);
       },
+    },
+    options() {
+      return {
+        url: this.$store.state.BASE_URL + "/entity/files",
+        // url: 'https://httpbin.org/post',
+        destroyDropzone: false,
+        duplicateCheck: true,
+        headers: {
+          Authorization: this.$store.getters.getToken,
+        },
+      };
     },
   },
   methods: {
@@ -361,16 +473,7 @@ export default {
       }
     },
     onEditCard(row) {
-      this.setEntryData({
-        id: row.id,
-        name: row.name,
-        purpose: row.purpose,
-        description: row.description,
-        end_date: row.end_date,
-        activity: row.activity,
-        ids_families: row.ids_families,
-        ids_brands: row.ids_brands,
-      });
+      this.setEntryData(row);
       this.showCard = true;
     },
     onDelCard(row) {
@@ -399,8 +502,77 @@ export default {
       await this.getListEntries();
       this.delCard = false;
     },
+    insertDropzoneData() {
+      if (!this.stateDropzone) return;
+      if (!this.dropzone_uploaded.length) return;
+
+      this.$nextTick(() => {
+        this.$refs.StockDropZone.manuallyAddFile(
+          this.dropzone_uploaded[0],
+          this.dropzone_uploaded[0].full_path
+        );
+      });
+    },
+    /* DROPZONE */
+    sendingData(file, xhr, formData) {
+      formData.append("uuid", file.upload.uuid);
+      formData.append("id_stock", this.curEntry.id);
+    },
+    async successData(file, response) {
+      console.log("successData");
+      console.log(response);
+      const formatObj = Object.assign({}, response.data);
+      this.dropzone_uploaded.push(formatObj);
+
+      await this.$store.dispatch("onSubmit", {}, { root: true });
+      await this.$router
+        .replace({
+          path: this.$route.path,
+          query: this.$route.query,
+        })
+        .catch(() => {});
+    },
+    async updateDropZoneImage() {
+      if (!this.dropzone_uploaded.length) return;
+
+      await Request.put(
+        this.$store.state.BASE_URL +
+          "/entity/files/" +
+          this.dropzone_uploaded[0].id,
+        this.dropzone_uploaded[0]
+      );
+    },
+    async removedFile() {
+      if (!this.dropzone_uploaded.length) return false;
+
+      await this.$store.dispatch(
+        "deleteFileGeneral",
+        this.dropzone_uploaded[0].id
+      );
+      this.dropzone_uploaded = [];
+      this.$refs.StockDropZone.removeAllFiles();
+    },
+    setAlt(data) {
+      this.dropzone_uploaded[data.index].alt_image = data.value;
+    },
+    setTitle(data) {
+      this.dropzone_uploaded[data.index].title_image = data.value;
+    },
+  },
+  watch: {
+    "curEntry._images": {
+      handler(newValue) {
+        this.dropzone_uploaded = [];
+        if (!newValue) return false;
+        this.dropzone_uploaded = newValue;
+      },
+    },
   },
 };
 </script>
 
-<style scoped lang="scss"></style>
+<style lang="scss" scoped>
+.table-container-wrapper-main {
+  grid-template-columns: auto 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+}
+</style>
