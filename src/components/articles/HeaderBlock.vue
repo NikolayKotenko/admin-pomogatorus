@@ -732,12 +732,17 @@ export default {
     },
 
     showLinkSettings() {
-      if (window.getSelection().toString()) {
-        this.$store.commit("set_url_text", window.getSelection().toString());
-        this.$store.commit(
-            "change_link_selection",
-            window.getSelection().getRangeAt(0)
-        );
+      const selection = window.getSelection();
+      
+      if (selection.toString()) {
+        this.$store.commit("set_url_text", selection.toString());
+        this.$store.commit("change_link_selection", selection.getRangeAt(0));
+      } else {
+        this.$store.commit("change_link_selection", null);
+        
+        if (selection.rangeCount > 0) {
+          this.$store.commit("change_range", selection.getRangeAt(0));
+        }
       }
 
       this.$store.commit("change_select_component", {
@@ -745,6 +750,7 @@ export default {
         value: true,
       });
     },
+
     createLink() {
       this.$emit("add-link");
       this.closeModal("url");
