@@ -65,6 +65,20 @@
           </template>
           <span>Вставить изображение</span>
         </v-tooltip>
+        <!-- Quotatuon -->
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <v-icon
+                size="28"
+                v-bind="attrs"
+                @click="initializeSelection('quotation')"
+                v-on="on"
+            >
+              mdi-comment-quote
+            </v-icon>
+          </template>
+          <span>Вставить цитату</span>
+        </v-tooltip>
       </div>
       <!-- Undo/Redo -->
       <div class="header__elBlock right">
@@ -569,6 +583,8 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!--  Quotation  -->
   </div>
 </template>
 
