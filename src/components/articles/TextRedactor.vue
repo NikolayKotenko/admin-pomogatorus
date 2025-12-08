@@ -14,7 +14,7 @@
         preventStyles;
       "
         @mouseup="onSelectionContent()"
-        @keyup.enter="preventStyles"
+        @keyup.enter="preventStyles(); onSelectionContent()"
     ></div>
 
     <!-- OVERLAYS -->
