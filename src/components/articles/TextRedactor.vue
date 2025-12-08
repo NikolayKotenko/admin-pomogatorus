@@ -1026,41 +1026,33 @@ export default {
         /** Делаем кучу проверок на доступность range и вставляем HTML нашей ссылки в выбранный range
          *  Если нет range или это делается не внутри текстового редактора - то вставляем ссылку в начало редактора
          * **/
+        
+        // ИСПОЛЬЗУЕМ СОХРАНЕННЫЙ RANGE ИЗ СТОРА
         if (
-            _store.range &&
-            this.checkIfTextEditor(_store.range.commonAncestorContainer)
+          _store.range &&
+          this.checkIfTextEditor(_store.range.commonAncestorContainer)
         ) {
-          if (window.getSelection) {
+          // ПРОВЕРКА НА ВЛОЖЕННОСТЬ В ДРУГОЙ ТЕГ <a>
+          let container = _store.range.commonAncestorContainer;
+          const element = container.nodeType === Node.TEXT_NODE ? container.parentElement : container;
+          const parentLink = element.closest('a');
+          
+          if (parentLink) {
+            parentLink.parentNode.insertBefore(link, parentLink.nextSibling);
+            parentLink.parentNode.insertBefore(document.createTextNode(' '), link);
+          } else {
+            // ВСТАВКА ПО RANGE
             _store.range.insertNode(link);
-          } else if (document.selection && document.selection.createRange) {
-            if (
-                _store.range &&
-                (_store.range.commonAncestorContainer.parentElement.className ===
-                    "textRedactor__content" ||
-                    _store.range.commonAncestorContainer.offsetParent._prevClass ===
-                    "textRedactor")
-            ) {
-              _store.range.pasteHTML(link.outerHTML);
-            }
           }
         } else {
-          if (window.getSelection) {
-            let range = document.createRange();
-            range.setStart(
-                document.getElementsByClassName("textRedactor__content").item(0),
-                0
-            );
-            range.collapse(false);
-            range.insertNode(link);
-          } else if (document.selection && document.selection.createRange) {
-            let range = document.createRange();
-            range.setStart(
-                document.getElementsByClassName("textRedactor__content").item(0),
-                0
-            );
-            range.collapse(false);
-            range.pasteHTML(link.outerHTML);
-          }
+          // ВСТАВКА В НАЧАЛО РЕДАКТОРА
+          let range = document.createRange();
+          range.setStart(
+            document.getElementsByClassName("textRedactor__content").item(0),
+            0
+          );
+          range.collapse(false);
+          range.insertNode(link);
         }
       }
 
@@ -1072,6 +1064,7 @@ export default {
         this.saveDB = false;
       });
     },
+
 
     /**
      * @function - функция которая запускает встраивание нового компонента в редактор
