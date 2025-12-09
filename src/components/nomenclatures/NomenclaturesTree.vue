@@ -109,7 +109,7 @@
             }}</v-card-title>
           </template>
           <template v-slot:item="{ item }">
-            <tr v-if="item.id_family === selectedLeafTree.id_family">
+            <tr>
               <td>
                 <DropDownMenuStyled
                   :is-class="'reverseIconContent'"
@@ -326,10 +326,7 @@
           -->
           <template v-slot:item="{ item, index, headers }">
             <tr
-              v-if="
-                item.required_fill_in_nomenclature &&
-                getStatePublicDisplayCharacteristic(item.id_characteristic)
-              "
+              v-if="getStatePublicDisplayCharacteristic(item.id_characteristic)"
               :class="{
                 parentPropertyStyle: !item.required_fill_in_nomenclature,
               }"
@@ -1177,7 +1174,7 @@ export default {
       },
       { text: "Значение хар-ки", value: "value", align: "center" },
       {
-        text: "Обязательность заполнения в номенклатуре",
+        text: "Возможность изменения в номенклатуре",
         value: "nomenclature_filled",
         align: "center",
       },

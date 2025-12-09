@@ -10,6 +10,10 @@ const defaultArticle = {
     value: "",
     focused: false,
   },
+  code: {
+    value: "",
+    focused: false,
+  },
   short_header: {
     value: "",
     focused: false,
@@ -79,6 +83,10 @@ export default {
     newArticle: {
       id: 1,
       name: {
+        value: "",
+        focused: false,
+      },
+      code: {
         value: "",
         focused: false,
       },
@@ -354,6 +362,7 @@ export default {
       for (let key in result) {
         if (
           key === "name" ||
+          key === "code" ||
           key === "short_header" ||
           key === "purpose_of_article" ||
           key === "target_button_placeholder" ||
