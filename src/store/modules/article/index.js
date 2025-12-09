@@ -331,6 +331,9 @@ export default {
       const { name, value } = object;
       state.selectComponent[name] = value;
     },
+    change_range(state, range) {
+      state.range = range;
+    },
 
     /* MAIN ARTICLE */
     set_list_articles(state, result) {
