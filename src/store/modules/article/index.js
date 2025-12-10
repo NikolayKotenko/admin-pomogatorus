@@ -176,6 +176,7 @@ export default {
     selectedComponent: {},
     deletedComponent: 0,
     linkSelection: null,
+    editingLink: null,
 
     /* UNDO/REDO */
     questions_data: [],
@@ -407,6 +408,12 @@ export default {
     },
 
     /* INSERT COMPONENT */
+    setEditingLink(state, data) {
+      state.editingLink = data;
+    },
+    clearEditingLink(state) {
+      state.editingLink = null;
+    },
     remove_list_components(state, payload) {
       state.list_components.splice(payload, 1);
     },
