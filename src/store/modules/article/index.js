@@ -159,6 +159,7 @@ export default {
       questions: 0,
       nomenclature: 0,
       insertedHtml: 0,
+      citation: 0
     },
     selectComponent: {
       questions: false,
@@ -166,6 +167,7 @@ export default {
       auth: false,
       url: false,
       nomenclature: false,
+      citation: false
     },
     list_components: [],
     name_component: "",
@@ -187,6 +189,9 @@ export default {
     /* NOMENCLATURE */
     list_nomenclature: [],
     nomenclature_data: [],
+
+    /* CITATION */
+    editingCitation: null,
 
     /** @property {Boolean} - переключаем этот булиан для того чтобы компонент TextRedactor засейвил свое состояние **/
     isSaveArticle: false,
@@ -437,6 +442,12 @@ export default {
     },
     changeSelectedObject(state, value) {
       state.selectedComponent = value;
+    },
+    setEditingCitation(state, data) {
+      state.editingCitation = data;
+    },
+    clearEditingCitation(state) {
+      state.editingCitation = null;
     },
 
     /* CLEANER */
@@ -889,6 +900,30 @@ export default {
         state.loadingModalList = false;
         resolve();
       });
+    },
+    async get_citation({ commit }, elem) {
+      try {
+        // TODO: Раскомментируй когда бэк будет готов
+        // const result = await Request.get(
+        //   `${this.state.BASE_URL}/entity/citation/${elem.component.id}`
+        // );
+        // 
+        // commit("changeSelectedComponent", {
+        //   data: result.data, // Ожидается: {id, title, text, user_id}
+        //   index: elem.index,
+        //   component: elem.component,
+        // });
+        
+        // === ВРЕМЕННАЯ ЗАГЛУШКА (удалить когда бэк готов) ===
+        commit("changeSelectedComponent", {
+          data: elem.component, // Берём данные из HTML
+          index: elem.index,
+          component: elem.component,
+        });
+        
+      } catch (error) {
+        console.error('Ошибка получения цитаты:', error);
+      }
     },
     getListQuestions({ commit, state }, params) {
       return new Promise((resolve, reject) => {

@@ -34,6 +34,7 @@ import HeaderBlock from "./HeaderBlock";
 import Question from "../frontLayouts/Question";
 import ImageLayout from "../frontLayouts/ImageLayout";
 import NomenclatureArticle from "../frontLayouts/NomenclatureArticle";
+import CitatuonArticle from "../frontLayouts/CitatuonArticle";
 import LoginAuth from "../auth/LoginAuth";
 
 import titlesStore from "@/store/modules/article/index.js";
@@ -248,6 +249,9 @@ export default {
 
       if (_store.name_component === "nomenclature") {
         return Vue.extend(NomenclatureArticle);
+      }
+      if (_store.name_component === "citation") {
+        return Vue.extend(CitatuonArticle);
       }
 
       return Vue.extend(LoginAuth);
@@ -561,6 +565,7 @@ export default {
           index_questions: 1,
           index_auth: 1,
           index_nomenclature: 1,
+          index_citation: 1,
         };
 
         let dataComponent = {};
@@ -594,6 +599,8 @@ export default {
                   dataComponent.nomenclatures_id.push(slide.dataset.id);
                 });
               }
+            } else if (htmlCollection.dataset.name === "citation") {
+              dataComponent.id = htmlCollection.dataset.id;
             }
             /* Push to arr result */
             arrComponentsData.push(
@@ -834,6 +841,11 @@ export default {
                   this.$store.dispatch(`get_${elem.component.name}`, elem)
               );
             }
+          } else if (elem.component.name === "citation") {
+            /** Флоу для компонента цитаты (загрузка данных с бэка по ID) **/
+            promises.push(
+              this.$store.dispatch(`get_${elem.component.name}`, elem)
+            );
           } else {
             /** Для всех остальных компонентов делаем через методы в сторе **/
             promises.push(
@@ -1081,8 +1093,14 @@ export default {
         index_image: _store.counters.image,
         index_auth: _store.counters.auth,
         index_nomenclature: _store.counters.nomenclature,
+        index_citation: _store.counters.citation,
         src: elem?.orig_path ? elem?.orig_path : "",
         nomenclatures_id: elem?.nomenclatures_id ?? [],
+
+        citation_title: elem?.title ?? "",
+        citation_text: elem?.text ?? "",
+        citation_user_id: elem?.user_id ?? null,
+
         alt: elem?.alt_image ? elem?.alt_image : "",
         title: elem?.title_image ? elem?.title_image : ""
       });

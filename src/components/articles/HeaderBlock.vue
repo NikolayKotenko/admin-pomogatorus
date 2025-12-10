@@ -65,13 +65,13 @@
           </template>
           <span>Вставить изображение</span>
         </v-tooltip>
-        <!-- Quotatuon -->
+        <!-- Citatuon -->
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
                 size="28"
                 v-bind="attrs"
-                @click="initializeSelection('quotation')"
+                @click="initializeSelection('citation')"
                 v-on="on"
             >
               mdi-comment-quote
@@ -584,7 +584,81 @@
       </v-card>
     </v-dialog>
 
-    <!--  Quotation  -->
+    <!--  Citatuon  -->
+    <v-dialog
+      v-if="$store.state.ArticleModule.selectComponent.citation"
+      v-model="$store.state.ArticleModule.selectComponent.citation"
+      max-width="600"
+    >
+      <v-card>
+        <v-card-title>
+          <span class="text-h6" style="font-size: 0.8em !important; text-align: center; width: 100%">
+            {{ isEditingCitation ? 'Редактировать цитату' : 'Создать цитату' }}
+          </span>
+        </v-card-title>
+        
+        <v-card-text>
+          <!-- Заголовок -->
+          <v-text-field
+            v-model="citationForm.title"
+            label="Заголовок цитаты"
+            outlined
+            dense
+            placeholder="Например: О важности обучения"
+          />
+
+          <!-- Основной текст -->
+          <v-textarea
+            v-model="citationForm.text"
+            label="Текст цитаты"
+            outlined
+            rows="5"
+            placeholder="Введите текст цитаты..."
+          />
+
+          <!-- Селектор пользователей -->
+          <v-autocomplete
+            v-model="citationForm.user_id"
+            :disabled="$store.state.ArticleModule.loadingModalList"
+            :items="listUsers"
+            :loading="$store.state.ArticleModule.loadingModalList"
+            :menu-props="{ bottom: true, offsetY: true }"
+            clearable
+            item-text="user_fio"
+            item-value="id"
+            label="Автор цитаты"
+            outlined
+            dense
+            placeholder="Выберите автора"
+          >
+            <template v-slot:item="{ item }">
+              <div>
+                <span>{{ item.user_fio }}</span>
+                <span v-if="item.email" style="color: #999; font-size: 12px;">
+                  ({{ item.email }})
+                </span>
+              </div>
+            </template>
+          </v-autocomplete>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-btn color="blue darken-1" text @click="closeModal('citation')">
+            Назад
+          </v-btn>
+          <v-spacer />
+          <v-btn
+            :disabled="!citationForm.text || !citationForm.user_id"
+            :loading="savingCitation"
+            color="green darken-1"
+            text
+            @click="onSelectComponent()"
+          >
+            {{ isEditingCitation ? 'Сохранить' : 'Создать' }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -644,6 +718,17 @@ export default {
       },
     ],
     valid: false,
+
+    /* Citaion */
+    citationForm: {
+      title: '',
+      text: '',
+      user_id: null,
+      
+    },
+    isEditingCitation: false,
+    editingCitationIndex: null,
+    savingCitation: false
   }),
   created() {
     const ComponentClass = Vue.extend(PreviewTemplate);
@@ -681,6 +766,30 @@ export default {
           this.$store.dispatch("getListNomenclature", _store.name_component);
           // TODO: Тэги у номенклатуры
           // this.$store.dispatch("getGeneralTagsArticle");
+        }
+      },
+    },
+    "$store.state.ArticleModule.selectComponent.citation": {
+      handler(v) {
+        if (v) {
+          // Открылась модалка
+          const editingData = this.$store.state.ArticleModule.editingCitation;
+          
+          if (editingData) {
+            // Режим редактирования
+            this.isEditingCitation = true;
+            this.editingCitationIndex = editingData.index_component;
+            this.citationForm = {
+              id: editingData.id,
+              title: editingData.title,
+              text: editingData.text,
+              user_id: editingData.user_id,
+            };
+          }
+        } else {
+          // Закрылась модалка - очищаем всё
+          this.resetCitationForm();
+          this.$store.commit("clearEditingCitation"); // ← ДОБАВЬ ЭТО!
         }
       },
     },
@@ -731,6 +840,9 @@ export default {
             .map((elem) => elem.id)
             .includes(nomenclature.id);
       });
+    },
+    listUsers() {
+      return this.$store.state.ArticleModule.listUsersByFilterExpert || [];
     },
   },
   methods: {
@@ -1024,7 +1136,20 @@ export default {
         this.selectedNomenclature = [];
 
         this.$emit("callCheckout", elem);
-      } else {
+      } else if (_store.name_component === "citation") {
+        /** CITATION **/
+        
+        // Проверяем режим: редактирование или создание
+        if (this.isEditingCitation) {
+          this.updateCitation();
+        } else {
+          this.createCitation();
+        }
+
+        return;
+      } 
+
+      else {
         /** ALL **/
         this.$store.commit("change_counter", {
           name: "layout",
@@ -1037,7 +1162,115 @@ export default {
         this.$emit("callCheckout", elem);
       }
     },
+
+    /** CITATION METHODS **/
+    async createCitation() {
+      this.savingCitation = true;
+      
+      try {
+        // TODO: Раскомментируй когда будет готов endpoint
+        // const response = await Request.post(
+        //   `${this.$store.state.BASE_URL}/entity/citation`,
+        //   {
+        //     title: this.citationForm.title,
+        //     text: this.citationForm.text,
+        //     user_id: this.citationForm.user_id,
+        //   }
+        // );
+        // const citationId = response.data.id;
+        
+        // === ВРЕМЕННАЯ ЗАГЛУШКА ===
+        const citationId = new Date().valueOf();
+        
+        // Формируем объект для вставки
+        const elem = {
+          id: citationId,
+          title: this.citationForm.title,
+          text: this.citationForm.text,
+          user_id: this.citationForm.user_id,
+        };
+        
+        // Увеличиваем счётчики
+        this.$store.commit("change_counter", {
+          name: "layout",
+          count: _store.counters.layout + 1,
+        });
+        this.$store.commit("change_counter", {
+          name: "citation",
+          count: _store.counters.citation + 1,
+        });
+        
+        // Передаём данные в стор для компонента
+        this.$store.commit("changeSelectedObject", elem);
+        
+        // Вызываем вставку компонента в редактор
+        this.$emit("callCheckout", elem);
+        
+        // Очищаем форму и закрываем модалку
+        this.resetCitationForm();
+        this.closeModal('citation');
+        
+      } catch (error) {
+        console.error('Ошибка создания цитаты:', error);
+        // TODO: Можно добавить уведомление пользователю
+      } finally {
+        this.savingCitation = false;
+      }
+    },
+    async updateCitation() {
+      this.savingCitation = true;
+      
+      try {
+        // TODO: Раскомментируй когда будет готов endpoint
+        // await Request.put(
+        //   `${this.$store.state.BASE_URL}/entity/citation/${this.citationForm.id}`,
+        //   {
+        //     title: this.citationForm.title,
+        //     text: this.citationForm.text,
+        //     user_id: this.citationForm.user_id,
+        //   }
+        // );
+        
+        // Находим компонент в списке по индексу
+        const component = _store.list_components.find(
+          comp => comp.instance.$data.index_component === this.editingCitationIndex
+        );
+        
+        if (component) {
+          // Обновляем данные прямо в компоненте (реактивность сработает)
+          component.instance.$data.citation_data = {
+            id: this.citationForm.id,
+            title: this.citationForm.title,
+            text: this.citationForm.text,
+            user_id: this.citationForm.user_id,
+          };
+          
+          // Обновляем имя автора (пока заглушка)
+          component.instance.$data.author_name = `Автор #${this.citationForm.user_id}`;
+        }
+        
+        // Очищаем форму и закрываем модалку
+        this.resetCitationForm();
+        this.closeModal('citation');
+        
+      } catch (error) {
+        console.error('Ошибка обновления цитаты:', error);
+      } finally {
+        this.savingCitation = false;
+      }
+    },
+    resetCitationForm() {
+      this.citationForm = {
+        title: '',
+        text: '',
+        user_id: null,
+      };
+      this.isEditingCitation = false;
+      this.editingCitationIndex = null;
+    },
+
   },
+
   beforeDestroy() {
     window.removeEventListener("scroll", this.disableInput, true);
   },
