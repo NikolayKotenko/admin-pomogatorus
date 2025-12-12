@@ -51,7 +51,7 @@
 </template>
 
 <script>
-  import Request from "@/services/request";
+import Request from "@/services/request";
 import CloseSVG from "@/assets/svg/closeIcon.svg";
 
 export default {
@@ -66,64 +66,74 @@ export default {
     author_name: "",
     isLoading: false,
   }),
+  watch: {
+    '$store.state.ArticleModule.selectedComponent': {
+      handler(newVal) {
+        if (newVal && Object.keys(newVal).length && !this.citation_data.id) {
+          this.getData();
+        }
+      },
+      deep: true
+    }
+  },
+
   mounted() {
     this.getData();
   },
   methods: {
     getData() {
-  console.log('selectedComponent:', this.$store.state.ArticleModule.selectedComponent);
-  
-  if (Object.keys(this.$store.state.ArticleModule.selectedComponent).length) {
-    this.index_citation = this.$store.state.ArticleModule.counters.citation;
-    this.index_component = this.$store.state.ArticleModule.counters.layout;
-    
-    this.citation_data = Object.assign(
-      {},
-      this.$store.state.ArticleModule.selectedComponent
-    );
-    
-    console.log('citation_data:', this.citation_data);
+      if (Object.keys(this.$store.state.ArticleModule.selectedComponent).length) {
+        this.index_citation = this.$store.state.ArticleModule.counters.citation;
+        this.index_component = this.$store.state.ArticleModule.counters.layout;
+        
+        this.citation_data = Object.assign(
+          {},
+          this.$store.state.ArticleModule.selectedComponent
+        );
 
-    if (this.citation_data.user_id) {
-      this.getUserName();
-    }
-  }
-},
-
+        if (this.citation_data._uuid_user) {
+          this.getUserName();
+        }
+      }
+    },
 
     async getUserName() {
-      // TODO: Когда будет готов эндпоинт с user_id - раскомментировать
-      // this.isLoading = true;
-      // try {
-      //   const result = await Request.get(
-      //     `${this.$store.state.BASE_URL}/users/get-user-data/${this.citation_data.user_id}`
-      //   );
-      //   this.author_name = `${result.data.first_name} ${result.data.last_name}`;
-      // } catch (error) {
-      //   console.error('Ошибка получения автора:', error);
-      //   this.author_name = "Автор не найден";
-      // } finally {
-      //   this.isLoading = false;
-      // }
-
-      // Временная заглушка
-      this.author_name = `Автор #${this.citation_data.user_id}`;
+      this.isLoading = true;
+      
+      try {
+        const userSelectQuery = Request.ConstructSelectQuery([
+          'id',
+          'uuid',
+          'user_fio'
+        ]);
+        
+        const result = await Request.get(
+          `${this.$store.state.BASE_URL}/users/get-user-data/${this.citation_data._uuid_user}?${userSelectQuery}`
+        );
+        
+        this.author_name = result.data.user_fio || `Автор #${this.citation_data.id_user}`;
+        
+      } catch (error) {
+        console.error('Ошибка получения автора:', error);
+        this.author_name = `Автор #${this.citation_data.id_user}`;
+      } finally {
+        this.isLoading = false;
+      }
     },
 
     editCitation() {
-      // Открываем модалку для редактирования
       this.$store.commit("change_name_component", "citation");
       this.$store.commit("change_select_component", {
         name: "citation",
         value: true,
       });
       
-      // Передаём данные в стор для заполнения формы
       this.$store.commit("setEditingCitation", {
         id: this.citation_data.id,
         title: this.citation_data.title,
         text: this.citation_data.text,
-        user_id: this.citation_data.user_id,
+        id_user: this.citation_data.id_user,
+        _uuid_user: this.citation_data._uuid_user,
         index_component: this.index_component,
       });
     },
@@ -134,6 +144,7 @@ export default {
   },
 };
 </script>
+
 
 <style lang="scss" scoped>
 .citation-container {

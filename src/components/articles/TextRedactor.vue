@@ -1099,7 +1099,8 @@ export default {
 
         citation_title: elem?.title ?? "",
         citation_text: elem?.text ?? "",
-        citation_user_id: elem?.user_id ?? null,
+        citation_id_user: elem?.id_user ?? null, 
+        citation_uuid_user: elem?._uuid_user ?? null, 
 
         alt: elem?.alt_image ? elem?.alt_image : "",
         title: elem?.title_image ? elem?.title_image : ""

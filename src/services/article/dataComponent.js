@@ -61,13 +61,14 @@ class Element_auth {
 
 class Element_citation {
   constructor(data) {
-    const { name, id, index_citation, citation_title, citation_text, citation_user_id } = data;
+    const { name, id, index_citation, citation_title, citation_text, citation_id_user, citation__uuid_user } = data;
 
     this.name = name;
     this.id = id;
     this.index_citation = index_citation;
     this.title = citation_title;
     this.text = citation_text;
-    this.user_id = citation_user_id;
+    this.id_user = citation_id_user;
+    this.uuid_user = citation__uuid_user;
   }
 }

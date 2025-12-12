@@ -903,20 +903,17 @@ export default {
     },
     async get_citation({ commit }, elem) {
       try {
-        // TODO: Раскомментируй когда бэк будет готов
-        // const result = await Request.get(
-        //   `${this.state.BASE_URL}/entity/citation/${elem.component.id}`
-        // );
-        // 
-        // commit("changeSelectedComponent", {
-        //   data: result.data, // Ожидается: {id, title, text, user_id}
-        //   index: elem.index,
-        //   component: elem.component,
-        // });
+        const selectQuery = ['*'];
+        const query = Request.modifyQuery([], selectQuery);
         
-        // === ВРЕМЕННАЯ ЗАГЛУШКА (удалить когда бэк готов) ===
+        const citationId = parseInt(elem.component.id);
+        
+        const result = await Request.get(
+          `${this.state.BASE_URL}/entity/quotes/${citationId}${query}`
+        );
+        
         commit("changeSelectedComponent", {
-          data: elem.component, // Берём данные из HTML
+          data: result.data,
           index: elem.index,
           component: elem.component,
         });
@@ -925,6 +922,7 @@ export default {
         console.error('Ошибка получения цитаты:', error);
       }
     },
+
     getListQuestions({ commit, state }, params) {
       return new Promise((resolve, reject) => {
         state.loadingModalList = true;

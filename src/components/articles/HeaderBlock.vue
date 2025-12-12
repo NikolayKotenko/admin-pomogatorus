@@ -618,7 +618,7 @@
 
           <!-- Селектор пользователей -->
           <v-autocomplete
-            v-model="citationForm.user_id"
+            v-model="citationForm.id_user"
             :disabled="$store.state.ArticleModule.loadingModalList"
             :items="listUsers"
             :loading="$store.state.ArticleModule.loadingModalList"
@@ -648,7 +648,7 @@
           </v-btn>
           <v-spacer />
           <v-btn
-            :disabled="!citationForm.text || !citationForm.user_id"
+            :disabled="!citationForm.text || !citationForm.id_user"
             :loading="savingCitation"
             color="green darken-1"
             text
@@ -723,7 +723,8 @@ export default {
     citationForm: {
       title: '',
       text: '',
-      user_id: null,
+      id_user: null,
+      _uuid_user: null,
       
     },
     isEditingCitation: false,
@@ -772,26 +773,32 @@ export default {
     "$store.state.ArticleModule.selectComponent.citation": {
       handler(v) {
         if (v) {
-          // Открылась модалка
           const editingData = this.$store.state.ArticleModule.editingCitation;
           
           if (editingData) {
-            // Режим редактирования
             this.isEditingCitation = true;
             this.editingCitationIndex = editingData.index_component;
             this.citationForm = {
               id: editingData.id,
               title: editingData.title,
               text: editingData.text,
-              user_id: editingData.user_id,
+              id_user: editingData.id_user,
+              _uuid_user: editingData._uuid_user,  // ← добавь
             };
           }
         } else {
-          // Закрылась модалка - очищаем всё
           this.resetCitationForm();
-          this.$store.commit("clearEditingCitation"); // ← ДОБАВЬ ЭТО!
+          this.$store.commit("clearEditingCitation");
         }
       },
+    },
+    'citationForm.id_user'(newUserId) {
+      if (newUserId) {
+        const user = this.listUsers.find(u => u.id === newUserId)
+        this.citationForm._uuid_user = user?.uuid || null
+      } else {
+        this.citationForm._uuid_user = null
+      }
     },
     "filters.tag": {
       handler(v) {
@@ -1138,7 +1145,7 @@ export default {
         this.$emit("callCheckout", elem);
       } else if (_store.name_component === "citation") {
         /** CITATION **/
-        
+
         // Проверяем режим: редактирование или создание
         if (this.isEditingCitation) {
           this.updateCitation();
@@ -1168,26 +1175,24 @@ export default {
       this.savingCitation = true;
       
       try {
-        // TODO: Раскомментируй когда будет готов endpoint
-        // const response = await Request.post(
-        //   `${this.$store.state.BASE_URL}/entity/citation`,
-        //   {
-        //     title: this.citationForm.title,
-        //     text: this.citationForm.text,
-        //     user_id: this.citationForm.user_id,
-        //   }
-        // );
-        // const citationId = response.data.id;
+        const response = await Request.post(
+          `${this.$store.state.BASE_URL}/entity/quotes`,
+          {
+            title: this.citationForm.title,
+            text: this.citationForm.text,
+            id_user: this.citationForm.id_user,
+          }
+        );
         
-        // === ВРЕМЕННАЯ ЗАГЛУШКА ===
-        const citationId = new Date().valueOf();
+        const citationId = response.data.id;
         
         // Формируем объект для вставки
         const elem = {
           id: citationId,
           title: this.citationForm.title,
           text: this.citationForm.text,
-          user_id: this.citationForm.user_id,
+          id_user: this.citationForm.id_user,
+          _uuid_user: this.citationForm._uuid_user,
         };
         
         // Увеличиваем счётчики
@@ -1212,7 +1217,6 @@ export default {
         
       } catch (error) {
         console.error('Ошибка создания цитаты:', error);
-        // TODO: Можно добавить уведомление пользователю
       } finally {
         this.savingCitation = false;
       }
@@ -1221,15 +1225,14 @@ export default {
       this.savingCitation = true;
       
       try {
-        // TODO: Раскомментируй когда будет готов endpoint
-        // await Request.put(
-        //   `${this.$store.state.BASE_URL}/entity/citation/${this.citationForm.id}`,
-        //   {
-        //     title: this.citationForm.title,
-        //     text: this.citationForm.text,
-        //     user_id: this.citationForm.user_id,
-        //   }
-        // );
+        await Request.put(
+          `${this.$store.state.BASE_URL}/entity/quotes/${this.citationForm.id}`,
+          {
+            title: this.citationForm.title,
+            text: this.citationForm.text,
+            id_user: this.citationForm.id_user,
+          }
+        );
         
         // Находим компонент в списке по индексу
         const component = _store.list_components.find(
@@ -1242,11 +1245,12 @@ export default {
             id: this.citationForm.id,
             title: this.citationForm.title,
             text: this.citationForm.text,
-            user_id: this.citationForm.user_id,
+            id_user: this.citationForm.id_user,
+            _uuid_user: this.citationForm._uuid_user,
           };
           
-          // Обновляем имя автора (пока заглушка)
-          component.instance.$data.author_name = `Автор #${this.citationForm.user_id}`;
+          // Обновляем имя автора (вызываем метод для загрузки с бэка)
+          component.instance.getUserName();
         }
         
         // Очищаем форму и закрываем модалку
@@ -1261,13 +1265,15 @@ export default {
     },
     resetCitationForm() {
       this.citationForm = {
+        id: null,
         title: '',
         text: '',
-        user_id: null,
+        id_user: null,
+        _uuid_user: null,
       };
       this.isEditingCitation = false;
       this.editingCitationIndex = null;
-    },
+    }
 
   },
 
