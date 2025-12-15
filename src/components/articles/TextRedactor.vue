@@ -1335,6 +1335,7 @@ export default {
         index_auth: 1,
         counter_index: 1,
         index_nomenclature: 1,
+        index_citation: 1,
       };
 
       array.forEach((elem) => {
