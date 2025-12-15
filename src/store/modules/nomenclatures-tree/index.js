@@ -644,6 +644,41 @@ export default {
       commit("set_list_mtom_nomenclatures_characteristics", data);
       commit("change_loading", false);
     },
+    async setDefaultMToMCharacteristicsNomenclature(
+      { state, rootState, commit, dispatch, getters },
+      { id_characteristic, value }
+    ) {
+      if (!getters.lengthListNomenclatureByFamily) return;
+      commit("change_loading", true);
+
+      for (const item of state.listNomenclatureByFamily) {
+        const response = await Request.post(
+          rootState.BASE_URL + "/m-to-m/nomenclature-characteristics",
+          new MtoMNomenclatureCharacteristics(
+            null,
+            state.selectedLeafTree.id_family,
+            id_characteristic,
+            item.id,
+            value,
+            1,
+            1
+          )
+        );
+        if (response.codeResponse >= 400) {
+          commit("set_response_add_characteristic", response);
+          commit("change_loading", false);
+          commit("add_popup_notification", response.message);
+          return response;
+        }
+      }
+
+      await dispatch(
+        "getMToMNomenclatureCharacteristics",
+        state.selectedLeafTree.id_family
+      );
+      commit("change_loading", false);
+      commit("add_popup_notification", "Обновлена строчка номенклатуры");
+    },
     async setMToMCharacteristicsNomenclature(
       { state, rootState, commit, dispatch },
       {

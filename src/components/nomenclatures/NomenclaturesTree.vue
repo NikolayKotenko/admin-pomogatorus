@@ -117,14 +117,48 @@
                   :open-on-hover="true"
                 >
                   <template #icon>
-                    <section>{{ item.name_char }}</section>
+                    <div class="wrapper_sort">
+                      <template>
+                        {{
+                          item._characteristic_nomenclature.sort
+                            ? item._characteristic_nomenclature.sort + "."
+                            : "-"
+                        }}&nbsp;
+                      </template>
+                      <div
+                        class="d-flex align-center"
+                        style="grid-column-gap: 5px"
+                      >
+                        <v-icon x-small>{{
+                          item.id_family === selectedLeafTree.id_family
+                            ? "mdi-circle"
+                            : "mdi-circle-outline"
+                        }}</v-icon>
+                        <template>{{ item.name_char }}</template>
+                      </div>
+                      <template
+                        v-if="item._characteristic_nomenclature.postfix"
+                      >
+                        ({{ item._characteristic_nomenclature.postfix }})
+                      </template>
+                    </div>
                   </template>
                   <template #content>
                     <section class="d-inline-flex">
                       <IconTooltip
                         :icon-text="'mdi-delete-outline'"
-                        :text-tooltip="'Удалить Характеристику'"
-                        :is-disabled="loading"
+                        :text-tooltip="
+                          deniedAccessByDeleteCharacteristic(
+                            item.id_characteristic
+                          )
+                            ? 'Нельзя удалить характеристику, она задана в родителе'
+                            : 'Удалить Характеристику'
+                        "
+                        :is-disabled="
+                          deniedAccessByDeleteCharacteristic(
+                            item.id_characteristic
+                          ) || loading
+                        "
                         @click-icon="
                           set_characteristic(item._characteristic_nomenclature);
                           open_dialog_delete_characteristic();
@@ -182,9 +216,7 @@
                   :current-rules="$store.state.requiredFieldRules"
                   :is-hide-details="true"
                   :is-loading="loading"
-                  :is-disabled="
-                    loading || item.id_family !== selectedLeafTree.id_family
-                  "
+                  :is-disabled="true"
                   :is-return-object="false"
                   @update-input="
                     item.value = $event;
@@ -199,9 +231,7 @@
                   "
                   :id="item.id_characteristic"
                   :data="item.value"
-                  :is-disabled="
-                    loading || item.id_family !== selectedLeafTree.id_family
-                  "
+                  :is-disabled="true"
                   @change-input="
                     item.value = $event;
                     setMToMCharacteristicsNomenclature(item);
@@ -209,19 +239,17 @@
                 />
               </td>
 
-              <td>
-                <CheckboxStyled
-                  :is-hide-details="true"
-                  :state="item.required_fill_in_nomenclature"
-                  :is-disabled="
-                    loading || item.id_family !== selectedLeafTree.id_family
-                  "
-                  @change-event="
-                    item.required_fill_in_nomenclature = $event;
-                    setMToMCharacteristicsNomenclature(item);
-                  "
-                />
-              </td>
+              <!--              <td>-->
+              <!--                <CheckboxStyled-->
+              <!--                  :is-hide-details="true"-->
+              <!--                  :state="item.required_fill_in_nomenclature"-->
+              <!--                  :is-disabled="true"-->
+              <!--                  @change-event="-->
+              <!--                    item.required_fill_in_nomenclature = $event;-->
+              <!--                    setMToMCharacteristicsNomenclature(item);-->
+              <!--                  "-->
+              <!--                />-->
+              <!--              </td>-->
             </tr>
           </template>
           <template v-slot:foot>
@@ -265,6 +293,8 @@
             <thead class="v-data-table-header">
               <tr>
                 <th class="black--text">{{ selectedLeafTree.name_leaf }}</th>
+
+                <th class="text-center">по умолчанию</th>
 
                 <th v-for="item in headers" :key="item.id" class="text-center">
                   <DropDownMenuStyled
@@ -340,21 +370,29 @@
                 >
                   <template #icon>
                     <div class="wrapper_sort">
-                      <section>
+                      <template>
                         {{
                           item._characteristic_nomenclature.sort
                             ? item._characteristic_nomenclature.sort + "."
                             : "-"
                         }}&nbsp;
-                      </section>
-                      <section>
-                        {{ item.name_char }}
-                        <template
-                          v-if="item._characteristic_nomenclature.postfix"
-                        >
-                          ({{ item._characteristic_nomenclature.postfix }})
-                        </template>
-                      </section>
+                      </template>
+                      <div
+                        class="d-flex align-center"
+                        style="grid-column-gap: 5px"
+                      >
+                        <v-icon x-small>{{
+                          item.id_family === selectedLeafTree.id_family
+                            ? "mdi-circle"
+                            : "mdi-circle-outline"
+                        }}</v-icon>
+                        <template>{{ item.name_char }}</template>
+                      </div>
+                      <template
+                        v-if="item._characteristic_nomenclature.postfix"
+                      >
+                        ({{ item._characteristic_nomenclature.postfix }})
+                      </template>
                     </div>
                   </template>
                   <template #content>
@@ -412,6 +450,63 @@
                     </section>
                   </template>
                 </DropDownMenuStyled>
+              </td>
+
+              <!-- По умолчанию (заполняет слева направа ряд номенклатур) -->
+              <td>
+                <SelectStyled
+                  v-if="
+                    item._characteristic_nomenclature.type_characteristic
+                      .code === 'vybor-iz-spravocnika'
+                  "
+                  :items="
+                    item._characteristic_nomenclature.dictionary
+                      .d_dictionary_attributes
+                  "
+                  :item-text="'value'"
+                  :item-value="'value'"
+                  :placeholder="
+                    item._characteristic_nomenclature.dictionary.name
+                  "
+                  :current-rules="$store.state.requiredFieldRules"
+                  :is-hide-details="true"
+                  :is-loading="loading"
+                  :is-disabled="loading || !item.required_fill_in_nomenclature"
+                  :is-return-object="false"
+                  @update-input="
+                    setDefaultMToMCharacteristicsNomenclature({
+                      id_characteristic: item.id_characteristic,
+                      value: $event,
+                    })
+                  "
+                />
+                <InputStyledSimple
+                  v-if="
+                    item._characteristic_nomenclature.type_characteristic
+                      .code === 'stroka'
+                  "
+                  :is-disabled="loading || !item.required_fill_in_nomenclature"
+                  @change-input="
+                    setDefaultMToMCharacteristicsNomenclature({
+                      id_characteristic: item.id_characteristic,
+                      value: $event,
+                    })
+                  "
+                />
+                <InputStyledSimple
+                  v-if="
+                    item._characteristic_nomenclature.type_characteristic
+                      .code === 'cislo'
+                  "
+                  :type-data="'number'"
+                  :is-disabled="loading || !item.required_fill_in_nomenclature"
+                  @change-input="
+                    setDefaultMToMCharacteristicsNomenclature({
+                      id_characteristic: item.id_characteristic,
+                      value: $event,
+                    })
+                  "
+                />
               </td>
 
               <!-- Инпут value характеристики номенклатуры-->
@@ -1173,16 +1268,16 @@ export default {
         value: "name",
       },
       { text: "Значение хар-ки", value: "value", align: "center" },
-      {
-        text: "Возможность изменения в номенклатуре",
-        value: "nomenclature_filled",
-        align: "center",
-      },
-      {
-        text: "Обязательность заполнения *",
-        value: "required",
-        align: "center",
-      },
+      // {
+      //   text: "Возможность изменения в номенклатуре",
+      //   value: "nomenclature_filled",
+      //   align: "center",
+      // },
+      // {
+      //   text: "Обязательность заполнения *",
+      //   value: "required",
+      //   align: "center",
+      // },
     ],
     panel: [0],
 
@@ -1285,6 +1380,7 @@ export default {
       "setNomenclaturesByName",
       "setSelectedFamilyAction",
       "setMToMCharacteristicsNomenclature",
+      "setDefaultMToMCharacteristicsNomenclature",
       "getNomenclatureByFamily",
       "deleteNomenclatureByFamily",
       "updateCharacteristic",
@@ -1610,10 +1706,10 @@ export default {
       }
       .icon_slot {
         width: auto;
-        min-width: 100px;
+        min-width: 150px;
         .wrapper_sort {
           display: grid;
-          grid-template-columns: 20% 1fr;
+          grid-template-columns: 10% 1fr auto;
           align-items: center;
         }
       }
