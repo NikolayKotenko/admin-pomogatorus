@@ -114,6 +114,35 @@
 
             <div class="detail-wrapper__content__title__help">
               <span
+                :class="{ focused: newArticle.code.focused }"
+                class="detail-wrapper__content__title__help__title"
+              >
+                Код статьи (url)
+              </span>
+              <TextAreaStyled
+                :class="{ inputFocused: newArticle.code.focused }"
+                :data="newArticle.code.value"
+                :is-flat="true"
+                :is-loading="$store.state.ArticleModule.loadingArticle"
+                :is-solo="true"
+                :placeholder="'Код статьи (url)'"
+                :rows-count="'1'"
+                class="detail-wrapper__content__title__help__description"
+                @update-input="setCode"
+                @on-focus="
+                  () => {
+                    onFocus(newArticle.code);
+                  }
+                "
+                @out-focus="
+                  () => {
+                    outFocus(newArticle.code);
+                  }
+                "
+              ></TextAreaStyled>
+            </div>
+            <div class="detail-wrapper__content__title__help">
+              <span
                 :class="{ focused: newArticle.preview.focused }"
                 class="detail-wrapper__content__title__help__title"
               >
@@ -731,6 +760,10 @@ export default {
         value: "",
         focused: false,
       },
+      code: {
+        value: "",
+        focused: false,
+      },
       short_header: {
         value: "",
         focused: false,
@@ -895,6 +928,10 @@ export default {
       this.saveArticle(this.newArticle);
     },
 
+    setCode(value) {
+      this.newArticle.code.value = value;
+      this.saveArticle(this.newArticle);
+    },
     setPreview(value) {
       this.newArticle.preview.value = value;
       this.saveArticle(this.newArticle);

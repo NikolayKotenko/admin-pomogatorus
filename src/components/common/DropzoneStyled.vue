@@ -15,7 +15,7 @@
     <v-dialog v-model="$store.state.stateDropzoneModal" max-width="600">
       <v-card>
         <v-card-title>
-          <span v-if="!currentData.length" class="text-h7"
+          <span v-if="!currentData || !currentData.length" class="text-h7"
             >Загрузите изображение</span
           >
           <span v-else class="text-h7">Изображение уже загружено</span>
