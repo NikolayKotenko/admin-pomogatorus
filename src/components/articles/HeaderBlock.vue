@@ -739,6 +739,23 @@ export default {
     this.loading_dropzone = false;
   },
   watch: {
+    "$store.state.ArticleModule.selectComponent.url": {
+      handler(v) {
+        if (v) {
+          // Открылась модалка
+          const editingLink = this.$store.state.ArticleModule.editingLink;
+          
+          if (editingLink) {
+            // Режим редактирования - заполняем поля
+            this.$store.commit("set_url_text", editingLink.text);
+            this.$store.commit("set_url_value", editingLink.url);
+          }
+        } else {
+          // Закрылась модалка - очищаем
+          this.$store.commit("clearEditingLink");
+        }
+      },
+    },
     "$store.state.ArticleModule.selectComponent.questions": {
       handler(v) {
         this.$store.commit("clear_list_questions");
