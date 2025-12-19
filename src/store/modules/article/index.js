@@ -167,6 +167,7 @@ export default {
       questions: 0,
       nomenclature: 0,
       insertedHtml: 0,
+      citation: 0
     },
     selectComponent: {
       questions: false,
@@ -174,6 +175,7 @@ export default {
       auth: false,
       url: false,
       nomenclature: false,
+      citation: false
     },
     list_components: [],
     name_component: "",
@@ -184,6 +186,7 @@ export default {
     selectedComponent: {},
     deletedComponent: 0,
     linkSelection: null,
+    editingLink: null,
 
     /* UNDO/REDO */
     questions_data: [],
@@ -195,6 +198,9 @@ export default {
     /* NOMENCLATURE */
     list_nomenclature: [],
     nomenclature_data: [],
+
+    /* CITATION */
+    editingCitation: null,
 
     /** @property {Boolean} - переключаем этот булиан для того чтобы компонент TextRedactor засейвил свое состояние **/
     isSaveArticle: false,
@@ -416,6 +422,12 @@ export default {
     },
 
     /* INSERT COMPONENT */
+    setEditingLink(state, data) {
+      state.editingLink = data;
+    },
+    clearEditingLink(state) {
+      state.editingLink = null;
+    },
     remove_list_components(state, payload) {
       state.list_components.splice(payload, 1);
     },
@@ -446,6 +458,12 @@ export default {
     },
     changeSelectedObject(state, value) {
       state.selectedComponent = value;
+    },
+    setEditingCitation(state, data) {
+      state.editingCitation = data;
+    },
+    clearEditingCitation(state) {
+      state.editingCitation = null;
     },
 
     /* CLEANER */
@@ -899,6 +917,28 @@ export default {
         resolve();
       });
     },
+    async get_citation({ commit }, elem) {
+      try {
+        const selectQuery = ['*'];
+        const query = Request.modifyQuery([], selectQuery);
+        
+        const citationId = parseInt(elem.component.id);
+        
+        const result = await Request.get(
+          `${this.state.BASE_URL}/entity/quotes/${citationId}${query}`
+        );
+        
+        commit("changeSelectedComponent", {
+          data: result.data,
+          index: elem.index,
+          component: elem.component,
+        });
+        
+      } catch (error) {
+        console.error('Ошибка получения цитаты:', error);
+      }
+    },
+
     getListQuestions({ commit, state }, params) {
       return new Promise((resolve, reject) => {
         state.loadingModalList = true;

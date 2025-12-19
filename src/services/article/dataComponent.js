@@ -9,6 +9,8 @@ export default class DataComponent {
       data_component = new Element_auth(data);
     } else if (type === "nomenclature") {
       data_component = new Element_nomenclature(data);
+    } else if (type === "citation") {
+      data_component = new Element_citation(data);
     }
     return data_component;
   }
@@ -54,5 +56,19 @@ class Element_auth {
 
     this.name = name;
     this.index_auth = index_auth;
+  }
+}
+
+class Element_citation {
+  constructor(data) {
+    const { name, id, index_citation, citation_title, citation_text, citation_id_user, citation__uuid_user } = data;
+
+    this.name = name;
+    this.id = id;
+    this.index_citation = index_citation;
+    this.title = citation_title;
+    this.text = citation_text;
+    this.id_user = citation_id_user;
+    this.uuid_user = citation__uuid_user;
   }
 }

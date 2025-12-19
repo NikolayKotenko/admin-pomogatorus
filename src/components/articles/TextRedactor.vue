@@ -34,6 +34,7 @@ import HeaderBlock from "./HeaderBlock";
 import Question from "../frontLayouts/Question";
 import ImageLayout from "../frontLayouts/ImageLayout";
 import NomenclatureArticle from "../frontLayouts/NomenclatureArticle";
+import CitatuonArticle from "../frontLayouts/CitatuonArticle";
 import LoginAuth from "../auth/LoginAuth";
 
 import titlesStore from "@/store/modules/article/index.js";
@@ -94,6 +95,8 @@ export default {
     setTimeout(() => {
       /** Вешаем на редактор событие по триггеру изменений **/
       this.$refs.content.addEventListener("input", this.onContentChange);
+
+      this.$refs.content.addEventListener("dblclick", this.handleLinkDoubleClick);
 
       /**
        * Самая важная часть при инициализации страницы
@@ -248,6 +251,9 @@ export default {
 
       if (_store.name_component === "nomenclature") {
         return Vue.extend(NomenclatureArticle);
+      }
+      if (_store.name_component === "citation") {
+        return Vue.extend(CitatuonArticle);
       }
 
       return Vue.extend(LoginAuth);
@@ -561,6 +567,7 @@ export default {
           index_questions: 1,
           index_auth: 1,
           index_nomenclature: 1,
+          index_citation: 1,
         };
 
         let dataComponent = {};
@@ -594,6 +601,8 @@ export default {
                   dataComponent.nomenclatures_id.push(slide.dataset.id);
                 });
               }
+            } else if (htmlCollection.dataset.name === "citation") {
+              dataComponent.id = htmlCollection.dataset.id;
             }
             /* Push to arr result */
             arrComponentsData.push(
@@ -834,6 +843,11 @@ export default {
                   this.$store.dispatch(`get_${elem.component.name}`, elem)
               );
             }
+          } else if (elem.component.name === "citation") {
+            /** Флоу для компонента цитаты (загрузка данных с бэка по ID) **/
+            promises.push(
+              this.$store.dispatch(`get_${elem.component.name}`, elem)
+            );
           } else {
             /** Для всех остальных компонентов делаем через методы в сторе **/
             promises.push(
@@ -1008,7 +1022,34 @@ export default {
      * Функция добавления ссылок в редактор
      * **/
     addLink() {
-      this.debugConsole("Добавляем ссылку в редактор!")
+      // Проверяем режим редактирования
+      const editingLink = _store.editingLink;
+      
+      if (editingLink) {
+        /** РЕЖИМ РЕДАКТИРОВАНИЯ СУЩЕСТВУЮЩЕЙ ССЫЛКИ **/
+        this.debugConsole("Обновляем существующую ссылку:", editingLink);
+        
+        // Обновляем атрибуты существующей ссылки
+        editingLink.element.href = _store.urlValue;
+        editingLink.element.innerText = _store.urlText;
+        editingLink.element.title = _store.urlText;
+        
+        // Очищаем стор
+        this.$store.commit("clear_url");
+        this.$store.commit("clearEditingLink");
+        
+        // Сохраняем
+        this.saveDB = true;
+        this.clearStateAfterSelect();
+        setTimeout(() => {
+          this.saveDB = false;
+        });
+        
+        return; // Выходим, т.к. закончили редактирование
+      }
+      
+      /** РЕЖИМ СОЗДАНИЯ НОВОЙ ССЫЛКИ **/
+      this.debugConsole("Добавляем ссылку в редактор!");
 
       const link = document.createElement("a");
       link.href = _store.urlValue;
@@ -1023,9 +1064,6 @@ export default {
         _store.linkSelection.surroundContents(link);
       } else {
         /** Если мы создаем ссылку с нуля и планируем её вставить внутри редактора **/
-        /** Делаем кучу проверок на доступность range и вставляем HTML нашей ссылки в выбранный range
-         *  Если нет range или это делается не внутри текстового редактора - то вставляем ссылку в начало редактора
-         * **/
         
         // ИСПОЛЬЗУЕМ СОХРАНЕННЫЙ RANGE ИЗ СТОРА
         if (
@@ -1081,8 +1119,15 @@ export default {
         index_image: _store.counters.image,
         index_auth: _store.counters.auth,
         index_nomenclature: _store.counters.nomenclature,
+        index_citation: _store.counters.citation,
         src: elem?.orig_path ? elem?.orig_path : "",
         nomenclatures_id: elem?.nomenclatures_id ?? [],
+
+        citation_title: elem?.title ?? "",
+        citation_text: elem?.text ?? "",
+        citation_id_user: elem?.id_user ?? null, 
+        citation_uuid_user: elem?._uuid_user ?? null, 
+
         alt: elem?.alt_image ? elem?.alt_image : "",
         title: elem?.title_image ? elem?.title_image : ""
       });
@@ -1316,6 +1361,7 @@ export default {
         index_auth: 1,
         counter_index: 1,
         index_nomenclature: 1,
+        index_citation: 1,
       };
 
       array.forEach((elem) => {
@@ -1577,8 +1623,38 @@ export default {
       this.$store.commit("changeSelectedObject", {});
       this.$store.commit("changeInsertingComponents", false);
     },
+
+    /* Функция редактирования ссылки */
+    handleLinkDoubleClick(event) {
+    const target = event.target;
+    
+    // Проверяем что кликнули по ссылке
+    if (target.tagName === 'A') {
+      event.preventDefault(); // Не переходить по ссылке
+      event.stopPropagation(); // Не всплывать дальше
+      
+      this.debugConsole("Двойной клик по ссылке:", target);
+      
+      // Сохраняем ссылку в стор для редактирования
+      this.$store.commit("setEditingLink", {
+        element: target,
+        text: target.innerText,
+        url: target.href,
+      });
+      
+      // Открываем модалку
+      this.$store.commit("change_select_component", {
+        name: "url",
+        value: true,
+      });
+    }
+  },
   },
   beforeDestroy() {
+    if (this.$refs.content) {
+      this.$refs.content.removeEventListener("dblclick", this.handleLinkDoubleClick);
+    }
+  
     this.$store.commit("clean_store");
   },
 };
