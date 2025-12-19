@@ -890,6 +890,7 @@ export default {
         headers: {
           Authorization: this.$store.getters.getToken,
         },
+        acceptedFiles: "image/*,.svg",
       };
     },
   },

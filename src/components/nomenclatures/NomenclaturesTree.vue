@@ -1709,7 +1709,7 @@ export default {
         min-width: 150px;
         .wrapper_sort {
           display: grid;
-          grid-template-columns: 10% 1fr auto;
+          grid-template-columns: 15% 1fr auto;
           align-items: center;
         }
       }
