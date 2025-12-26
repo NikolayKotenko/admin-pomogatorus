@@ -159,7 +159,8 @@ export default {
       questions: 0,
       nomenclature: 0,
       insertedHtml: 0,
-      citation: 0
+      citation: 0,
+      specification: 0,
     },
     selectComponent: {
       questions: false,
@@ -167,7 +168,8 @@ export default {
       auth: false,
       url: false,
       nomenclature: false,
-      citation: false
+      citation: false,
+      specification: false,
     },
     list_components: [],
     name_component: "",
@@ -189,6 +191,9 @@ export default {
     /* NOMENCLATURE */
     list_nomenclature: [],
     nomenclature_data: [],
+
+    /* SPECIFICATION */
+    editingSpecification: null,
 
     /* CITATION */
     editingCitation: null,
@@ -448,6 +453,12 @@ export default {
     },
     clearEditingCitation(state) {
       state.editingCitation = null;
+    },
+    setEditingSpecification(state, data) {
+      state.editingSpecification = data;
+    },
+    clearEditingSpecification(state) {
+      state.editingSpecification = null;
     },
 
     /* CLEANER */

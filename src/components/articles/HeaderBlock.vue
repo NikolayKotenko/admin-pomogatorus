@@ -64,7 +64,21 @@
             </v-icon>
           </template>
           <span>Вставить изображение</span>
-        </v-tooltip>
+        </v-tooltip>  
+        <!-- Specifications -->
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <v-icon
+                size="28"
+                v-bind="attrs"
+                @click="initializeSelection('specification')"
+                v-on="on"
+            >
+              mdi-image-filter-center-focus
+            </v-icon>
+          </template>
+          <span>Вставить спецификацию</span>
+        </v-tooltip>  
         <!-- Citatuon -->
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
@@ -584,6 +598,43 @@
       </v-card>
     </v-dialog>
 
+    <!--  Specifications  -->
+    <v-dialog
+      v-if="$store.state.ArticleModule.selectComponent.specification"
+      v-model="$store.state.ArticleModule.selectComponent.specification"
+      width="900"
+    >
+      <v-card>
+        <v-card-title>
+          <span class="text-h6" style="font-size: 0.8em !important; text-align: center; width: 100%">
+            {{ isEditingCitation ? 'Редактировать спецификацию' : 'Создать спецификацию' }}
+          </span>
+        </v-card-title>
+        
+        <v-card-text>
+          <SpecificationEditor
+            ref="specEditor"
+            :initial-data="specificationData"
+            @specification-save="saveSpecification"
+          />
+        </v-card-text>
+
+        <v-card-actions>
+          <v-btn text @click="clearSpecification()">
+            Отмена
+          </v-btn>
+          <v-spacer />
+          <v-btn 
+            color="success" 
+            :disabled="!specificationData.imageUrl || specificationData.hotspots?.length === 0"
+            @click="insertSpecification"
+          >
+            Вставить и сохранить спецификацию 
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!--  Citatuon  -->
     <v-dialog
       v-if="$store.state.ArticleModule.selectComponent.citation"
@@ -678,6 +729,7 @@ import TextAreaStyled from "../common/TextAreaStyled";
 import _clone from "@/helpers/deepClone";
 import SearchStyled from "@/components/common/SearchStyled.vue";
 import ComboboxStyled from "@/components/common/ComboboxStyled.vue";
+import SpecificationEditor from "../frontLayouts/SpecificationEditor.vue";
 
 const _store = titlesStore.state;
 
@@ -689,6 +741,7 @@ export default {
     TextAreaStyled,
     InputStyled,
     vueDropzone: vue2Dropzone,
+    SpecificationEditor
   },
   data: () => ({
     /* DROPZONE */
@@ -729,7 +782,8 @@ export default {
     },
     isEditingCitation: false,
     editingCitationIndex: null,
-    savingCitation: false
+    savingCitation: false,
+    specificationData: {}
   }),
   created() {
     const ComponentClass = Vue.extend(PreviewTemplate);
@@ -994,6 +1048,26 @@ export default {
           this.dropzone_uploaded[0].id,
           this.dropzone_uploaded[0]
       );
+    },
+
+    /* SPECIFICATION */
+    saveSpecification (data) {
+      this.specificationData = data
+    },
+    
+    insertSpecification () {
+      if (!this.specificationData.imageUrl) {
+        this.$toast?.error('Сначала создайте спецификацию')
+        return
+      }
+      this.$emit('insert-specification', this.specificationData)
+      this.closeModal('specification')
+    },
+    
+    clearSpecification() {
+      this.$refs.specEditor?.clearAllData?.()
+      this.specificationData = {}
+      this.closeModal('specification')
     },
 
     /* ICONS */
