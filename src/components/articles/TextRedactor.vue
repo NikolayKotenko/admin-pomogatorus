@@ -35,6 +35,7 @@ import Question from "../frontLayouts/Question";
 import ImageLayout from "../frontLayouts/ImageLayout";
 import NomenclatureArticle from "../frontLayouts/NomenclatureArticle";
 import CitatuonArticle from "../frontLayouts/CitatuonArticle";
+import SpecificationArticle from "../frontLayouts/SpecificationArticle";
 import LoginAuth from "../auth/LoginAuth";
 
 import titlesStore from "@/store/modules/article/index.js";
@@ -252,6 +253,9 @@ export default {
       }
       if (_store.name_component === "citation") {
         return Vue.extend(CitatuonArticle);
+      }
+      if (_store.name_component === "specification") {
+        return Vue.extend(SpecificationArticle);
       }
 
       return Vue.extend(LoginAuth);
@@ -566,6 +570,7 @@ export default {
           index_auth: 1,
           index_nomenclature: 1,
           index_citation: 1,
+          index_specification: 1,
         };
 
         let dataComponent = {};
@@ -601,6 +606,8 @@ export default {
               }
             } else if (htmlCollection.dataset.name === "citation") {
               dataComponent.id = htmlCollection.dataset.id;
+            } else if (htmlCollection.dataset.name === "specification") {
+              dataComponent.imageId = htmlCollection.dataset.id;
             }
             /* Push to arr result */
             arrComponentsData.push(
@@ -1094,6 +1101,7 @@ export default {
         index_auth: _store.counters.auth,
         index_nomenclature: _store.counters.nomenclature,
         index_citation: _store.counters.citation,
+        index_specification: _store.counters.specification,
         src: elem?.orig_path ? elem?.orig_path : "",
         nomenclatures_id: elem?.nomenclatures_id ?? [],
 
@@ -1101,6 +1109,9 @@ export default {
         citation_text: elem?.text ?? "",
         citation_id_user: elem?.id_user ?? null, 
         citation_uuid_user: elem?._uuid_user ?? null, 
+
+        imageId: elem?.imageId ?? null,
+        imageUrl: elem?.imageUrl ?? "",
 
         alt: elem?.alt_image ? elem?.alt_image : "",
         title: elem?.title_image ? elem?.title_image : ""
@@ -1336,6 +1347,7 @@ export default {
         counter_index: 1,
         index_nomenclature: 1,
         index_citation: 1,
+        index_specification: 1,
       };
 
       array.forEach((elem) => {

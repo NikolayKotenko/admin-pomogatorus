@@ -64,6 +64,7 @@
           v-for="(spot, index) in hotspots"
           :key="spot.id"
           class="hotspot-dot"
+          :class="{ saved: spot.saved }"
           :style="{ left: spot.x + '%', top: spot.y + '%' }"
           @click.stop="editHotspot(index)"
         >
@@ -92,39 +93,62 @@
 
       <!-- Форма активной метки -->
       <div v-if="editedIndex !== null" class="edit-form mt-4 pa-4 border">
-        <h4>Метка {{ editedIndex + 1 }} ({{ hotspots[editedIndex].x }}%, {{ hotspots[editedIndex].y }}%)</h4>
-        <v-autocomplete
-          v-model="hotspots[editedIndex].productId"
-          :items="products"
-          item-text="name"
-          item-value="id"
-          label="Номенклатура"
-          clearable
-          class="mb-2"
-        />
-        <v-text-field
-          v-model="hotspots[editedIndex].name"
-          label="Название"
-          class="mb-2"
-        />
+      <h4>Метка {{ editedIndex + 1 }} ({{ hotspots[editedIndex].x }}%, {{ hotspots[editedIndex].y }}%)</h4>
+      
+      <v-autocomplete
+        v-model="hotspots[editedIndex].idsNomenclatures"
+        :items="products"
+        item-text="name"
+        item-value="id"
+        label="Номенклатура (можно выбрать несколько)"
+        clearable
+        multiple
+        chips
+        small-chips
+        deletable-chips
+        class="mb-2"
+      />
+      
+      <v-autocomplete
+        v-model="hotspots[editedIndex].idsFamilies"
+        :items="families"
+        item-text="name"
+        item-value="id"
+        label="Семейства (опционально)"
+        clearable
+        multiple
+        chips
+        small-chips
+        deletable-chips
+        class="mb-2"
+      />
+      
+      <div class="d-flex">
+        <v-btn 
+          small 
+          color="success" 
+          :disabled="(!hotspots[editedIndex].idsNomenclatures?.length && !hotspots[editedIndex].idsFamilies?.length) || hotspots[editedIndex].saved"
+          @click="saveCurrentHotspot"
+        >
+          {{ hotspots[editedIndex].saved ? 'Сохранено' : 'Сохранить метку' }}
+        </v-btn>
+        
+        <v-spacer />
+        
+        <v-btn 
+          v-if="hotspots[editedIndex].saved"
+          small 
+          color="warning" 
+          @click="editSavedHotspot(editedIndex)"
+        >
+          Редактировать
+        </v-btn>
+        
         <v-btn small color="error" @click="removeHotspot(editedIndex)">
           Удалить
         </v-btn>
       </div>
-
     </div>
-
-    <div v-if="dropzone_uploaded.length" class="mt-6 pa-4 border-top">
-      <v-divider class="mb-4"></v-divider>
-      <div class="d-flex justify-space-between">
-        <v-btn 
-          color="success" 
-          :disabled="!dropzone_uploaded.length || hotspots.length === 0"
-          @click="saveSpecificationData"
-        >
-          Сохранить [{{ hotspots.length }}] меток
-        </v-btn>
-      </div>
     </div>
   </div>
 </template>
@@ -132,11 +156,15 @@
 <script>
 import vue2Dropzone from "vue2-dropzone";
 import "vue2-dropzone/dist/vue2Dropzone.min.css";
+import Request from "@/services/request";
 
 export default {
   name: 'SpecificationEditor',
   components: { vueDropzone: vue2Dropzone },
-  props: { initialData: { type: Object, default: () => ({}) } },
+  props: { 
+    initialData: { type: Object, default: () => ({}) },
+    products: { type: Array, default: () => [] }
+  },
   data () {
     return {
       index_uploaded: 1,
@@ -147,7 +175,7 @@ export default {
       isAddingHotspot: false,
       editedIndex: null,
       imageLoaded: false,
-      products: []
+      families: []
     }
   },
   computed: {
@@ -174,7 +202,7 @@ export default {
       }]
       this.hotspots = this.initialData.hotspots || []
     }
-    this.loadProducts()
+    this.loadFamilies()
   },
   methods: {
     
@@ -215,38 +243,48 @@ export default {
       document.getElementById("specDropzone")?.click()
     },
 
-    // Хотспоты
+    // Грузим данные
     getImageUrl () {
       return this.dropzone_uploaded[0]?.url || ''
     },
-    loadProducts () {
-      this.products = [
-        { id: 1, name: 'Газовый котел Eco Life 4S' },
-        { id: 2, name: 'Водонагреватель Aqua Heat' },
-        { id: 3, name: 'Радиатор SteelRad 500' }
-      ]
+    async loadFamilies () {
+      try {
+        const selectQuery = Request.ConstructSelectQuery(['*']);
+        const response = await Request.get(
+          `${this.$store.state.BASE_URL}/dictionary/nomenclature-family?${selectQuery}`
+        );
+        this.families = response.data;
+      } catch (e) {
+        console.error('Ошибка загрузки семейств:', e);
+        this.families = [];
+      }
     },
+
+    // Редактирование хотспотов
+
     startAddHotspot () {
       this.isAddingHotspot = true
       this.editedIndex = null
     },
     onImageClick (e) {
-      if (!this.isAddingHotspot || !this.imageLoaded) return
+      if (!this.isAddingHotspot || !this.imageLoaded) return;
 
-      const rect = this.$refs.imageWrapper.getBoundingClientRect()
-      const xPercent = ((e.clientX - rect.left) / rect.width) * 100
-      const yPercent = ((e.clientY - rect.top) / rect.height) * 100
+      const rect = this.$refs.imageWrapper.getBoundingClientRect();
+      const xPercent = ((e.clientX - rect.left) / rect.width) * 100;
+      const yPercent = ((e.clientY - rect.top) / rect.height) * 100;
 
       this.hotspots.push({
         id: Date.now(),
         x: +xPercent.toFixed(2),
         y: +yPercent.toFixed(2),
-        productId: null,
-        name: ''  
-      })
+        idsNomenclatures: [],
+        idsFamilies: [],
+        saved: false,
+        specificationId: null
+      });
 
-      this.editedIndex = this.hotspots.length - 1
-      this.isAddingHotspot = false
+      this.editedIndex = this.hotspots.length - 1;
+      this.isAddingHotspot = false;
     },
     onImageLoad () {
       this.imageLoaded = true
@@ -262,18 +300,117 @@ export default {
       this.hotspots = []
       this.editedIndex = null
     },
+    editSavedHotspot (index) {
+      const hotspot = this.hotspots[index];
+      hotspot.saved = false;
+      this.editedIndex = index;
+    },
 
-    // Сохранение
-    saveSpecificationData () {
-      const data = {
-        id: this.dropzone_uploaded[0].id,
-        imageUrl: this.getImageUrl(),
-        title: this.dropzone_uploaded[0].title_image || 'Спецификация',
-        hotspots: this.hotspots
+    async saveHotspot (hotspot) {
+      try {
+        const response = await Request.post(
+          `${this.$store.state.BASE_URL}/m-to-m/nomenclatures-on-images`,
+          {
+            id_image: this.dropzone_uploaded[0].id,
+            ids_nomenclatures: hotspot.idsNomenclatures || [],
+            ids_families: hotspot.idsFamilies || [],
+            hotspot_x: Math.round(hotspot.x),
+            hotspot_y: Math.round(hotspot.y)
+          }
+        );
+        
+        if (response.data?.id) {
+          hotspot.specificationId = response.data.id;
+        }
+        
+        return true;
+      } catch (e) {
+        console.error('Ошибка сохранения метки:', e);
+        return false;
       }
-      this.$emit('specification-save', data) // ← ТОЛЬКО ЭТО
+    },
+    async updateHotspot (hotspot) {
+      try {
+        await Request.put(
+          `${this.$store.state.BASE_URL}/m-to-m/nomenclatures-on-images/${hotspot.specificationId}`,
+          {
+            id_image: this.dropzone_uploaded[0].id,
+            ids_nomenclatures: hotspot.idsNomenclatures || [],
+            ids_families: hotspot.idsFamilies || [],
+            hotspot_x: Math.round(hotspot.x),
+            hotspot_y: Math.round(hotspot.y)
+          }
+        );
+        
+        return true;
+      } catch (e) {
+        console.error('Ошибка обновления метки:', e);
+        return false;
+      }
+    },
+    async removeHotspot (index) {
+      const hotspot = this.hotspots[index];
+      
+      if (hotspot.saved && hotspot.specificationId) {
+        try {
+          await Request.delete(
+            `${this.$store.state.BASE_URL}/m-to-m/nomenclatures-on-images/${hotspot.specificationId}`
+          );
+          
+          this.$toast?.success('Метка удалена');
+        } catch (e) {
+          console.error('Ошибка удаления метки:', e);
+          this.$toast?.error('Ошибка удаления');
+          return;
+        }
+      }
+      
+      this.hotspots.splice(index, 1);
+      if (this.editedIndex === index) this.editedIndex = null;
+    },
+
+
+    async saveCurrentHotspot () {
+      if (this.editedIndex === null) return;
+      
+      const hotspot = this.hotspots[this.editedIndex];
+      
+      if (!hotspot.idsNomenclatures?.length && !hotspot.idsFamilies?.length) {
+        this.$toast?.error('Выберите хотя бы одну номенклатуру или семейство');
+        return;
+      }
+      
+      let saved = false;
+      
+      if (hotspot.specificationId) {
+        saved = await this.updateHotspot (hotspot);
+      } else {
+        saved = await this.saveHotspot (hotspot);
+      }
+      
+      if (saved) {
+        hotspot.saved = true;
+        this.$toast?.success('Метка сохранена');
+        this.editedIndex = null;
+      } else {
+        this.$toast?.error('Ошибка сохранения метки');
+      }
+    },
+
+    loadExistingSpecification (data) {
+      this.dropzone_uploaded = [{
+        id: data.imageId,
+        url: data.imageUrl,
+        filename: 'specification.jpg',
+        title_image: '',
+        index: 1
+      }];
+      
+      this.hotspots = data.hotspots || [];
+      this.imageLoaded = true;
     },
     
+    // Чистим
     clearAllData () {
       this.dropzone_uploaded = []
       this.hotspots = []
@@ -286,6 +423,7 @@ export default {
         this.$refs.myVueDropzone.dropzone.removeAllFiles(true)
       }
     },
+    
   }
 }
 </script>
@@ -322,5 +460,12 @@ export default {
 .hotspot-dot:hover {
   background: #ff5722;
   transform: translate(-50%, -50%) scale(1.1);
+}
+
+.hotspot-dot.saved {
+  background: #4caf50; /* зелёный для сохранённых */
+}
+.hotspot-dot:not(.saved) {
+  background: #ff9800; /* оранжевый для несохранённых */
 }
 </style>

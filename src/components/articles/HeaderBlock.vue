@@ -615,6 +615,7 @@
           <SpecificationEditor
             ref="specEditor"
             :initial-data="specificationData"
+            :products="listNomenclature"
             @specification-save="saveSpecification"
           />
         </v-card-text>
@@ -625,12 +626,13 @@
           </v-btn>
           <v-spacer />
           <v-btn 
+            v-if="!isEditingSpecification"
             color="success" 
-            :disabled="!specificationData.imageUrl || specificationData.hotspots?.length === 0"
+            :disabled="!$refs.specEditor || !$refs.specEditor.dropzone_uploaded.length"
             @click="insertSpecification"
           >
-            Вставить и сохранить спецификацию 
-          </v-btn>
+            Вставить спецификацию
+        </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -783,6 +785,10 @@ export default {
     isEditingCitation: false,
     editingCitationIndex: null,
     savingCitation: false,
+
+    /* Specification */
+    isEditingSpecification: false,
+    editingSpecificationIndex: null,
     specificationData: {}
   }),
   created() {
@@ -824,6 +830,34 @@ export default {
         }
       },
     },
+    "$store.state.ArticleModule.selectComponent.specification": {
+      async handler(isOpen) {
+        if (isOpen) {
+          this.$nextTick(() => {
+            window.addEventListener("scroll", this.disableInput, true);
+          });
+          
+          // Загружаем номенклатуру
+          if (!this.$store.state.ArticleModule.nomenclatures?.length) {
+            this.$store.dispatch("getListNomenclature", "nomenclature");
+          }
+          
+          // Чекаем режим редактирования
+          const editData = this.$store.state.ArticleModule.editingSpecification;
+          
+          if (editData?.imageId) {
+            // Ждём пока компонент точно отрендерится
+            await this.$nextTick();
+                        
+            if (this.$refs.specEditor) {
+              await this.loadSpecificationForEdit(editData);
+            }
+          }
+        } else {
+          window.removeEventListener("scroll", this.disableInput, true);
+        }
+      },
+    },
     "$store.state.ArticleModule.selectComponent.citation": {
       handler(v) {
         if (v) {
@@ -837,7 +871,7 @@ export default {
               title: editingData.title,
               text: editingData.text,
               id_user: editingData.id_user,
-              _uuid_user: editingData._uuid_user,  // ← добавь
+              _uuid_user: editingData._uuid_user,
             };
           }
         } else {
@@ -1056,13 +1090,67 @@ export default {
     },
     
     insertSpecification () {
-      if (!this.specificationData.imageUrl) {
-        this.$toast?.error('Сначала создайте спецификацию')
+      const imageId = this.$refs.specEditor.dropzone_uploaded[0]?.id;
+      const imageUrl = this.$refs.specEditor.dropzone_uploaded[0]?.url;
+      
+      if (!imageId) {
+        this.$toast?.error('Сначала загрузите изображение')
         return
       }
-      this.$emit('insert-specification', this.specificationData)
-      this.closeModal('specification')
+      
+      const elem = {
+        imageId: imageId,
+        imageUrl: imageUrl,
+      };
+      
+      this.$store.commit("change_counter", {
+        name: "layout",
+        count: _store.counters.layout + 1,
+      });
+      this.$store.commit("change_counter", {
+        name: "specification",
+        count: _store.counters.specification + 1,
+      });
+      
+      this.$store.commit("changeSelectedObject", elem);
+      
+      this.$emit("callCheckout", elem);
+      
+      this.closeModal('specification');
     },
+
+    async loadSpecificationForEdit(editData) {
+      this.isEditingSpecification = true;
+      this.editingSpecificationIndex = editData.index_component;
+      
+      try {
+        const selectQuery = Request.ConstructSelectQuery(['*']);
+        
+        const response = await Request.get(
+          `${this.$store.state.BASE_URL}/m-to-m/nomenclatures-on-images?${selectQuery}&filter[id_image]=${editData.imageId}`
+        );
+        
+        this.specificationData = {
+          imageId: editData.imageId,
+          imageUrl: editData.imageUrl,
+          hotspots: response.data.map(spec => ({
+            id: spec.id,
+            x: spec.hotspot_x,
+            y: spec.hotspot_y,
+            idsNomenclatures: spec.ids_nomenclatures || [],
+            idsFamilies: spec.ids_families || [],
+            saved: true,
+            specificationId: spec.id // 🔥 ID спецификации
+          }))
+        };
+        
+        this.$refs.specEditor.loadExistingSpecification(this.specificationData);
+        
+      } catch (error) {
+        console.error('❌ Ошибка:', error);
+      }
+    },
+
     
     clearSpecification() {
       this.$refs.specEditor?.clearAllData?.()
@@ -1228,7 +1316,47 @@ export default {
         }
 
         return;
-      } 
+      } else if (_store.name_component === "specification") {
+        /** SPECIFICATION **/
+        
+        const imageId = this.$refs.specEditor.dropzone_uploaded[0]?.id;
+        const imageUrl = this.$refs.specEditor.dropzone_uploaded[0]?.url;
+        
+        console.log('🔥 Вставка спецификации, imageId:', imageId, 'imageUrl:', imageUrl); // ДЕБАГ
+        
+        if (!imageId) {
+          this.$toast?.error('Загрузите изображение');
+          return;
+        }
+        
+        elem = {
+          imageId: imageId,
+          imageUrl: imageUrl,
+        };
+        
+        console.log('🔥 elem для callCheckout:', elem); 
+        
+        // Увеличиваем счётчики
+        this.$store.commit("change_counter", {
+          name: "layout",
+          count: _store.counters.layout + 1,
+        });
+        this.$store.commit("change_counter", {
+          name: "specification",
+          count: _store.counters.specification + 1,
+        });
+        
+        // Передаём данные в стор
+        this.$store.commit("changeSelectedObject", elem);
+        
+        // Вызываем вставку
+        this.$emit("callCheckout", elem);
+        
+        // Закрываем модалку
+        this.closeModal('specification');
+        
+        return;
+      }
 
       else {
         /** ALL **/
