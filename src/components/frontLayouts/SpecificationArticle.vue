@@ -144,6 +144,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+/* Важно: не трогаем общий css, только поведение слоёв в спецификации */
+.specification-container .specification-content,
+.specification-container .specification-image,
+.specification-container .specification-overlay {
+  pointer-events: none;
+}
+
 .specification-container {
   position: relative;
   padding: 0;
