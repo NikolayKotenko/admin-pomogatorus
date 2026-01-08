@@ -648,7 +648,7 @@
           </v-btn>
           <v-spacer />
           <v-btn
-            :disabled="!citationForm.text || !citationForm.id_user"
+            :disabled="!citationForm.text"
             :loading="savingCitation"
             color="green darken-1"
             text
@@ -1173,65 +1173,57 @@ export default {
     /** CITATION METHODS **/
     async createCitation() {
       this.savingCitation = true;
-      
+
       try {
+        const payload = {
+          title: this.citationForm.title,
+          text: this.citationForm.text,
+          ...(this.citationForm.id_user ? { id_user: this.citationForm.id_user } : {}),
+        };
+
         const response = await Request.post(
           `${this.$store.state.BASE_URL}/entity/quotes`,
-          {
-            title: this.citationForm.title,
-            text: this.citationForm.text,
-            id_user: this.citationForm.id_user,
-          }
+          payload
         );
-        
+
         const citationId = response.data.id;
-        
-        // Формируем объект для вставки
+
         const elem = {
           id: citationId,
           title: this.citationForm.title,
           text: this.citationForm.text,
-          id_user: this.citationForm.id_user,
-          _uuid_user: this.citationForm._uuid_user,
+          id_user: this.citationForm.id_user || null,
+          _uuid_user: this.citationForm._uuid_user || null,
         };
-        
-        // Увеличиваем счётчики
-        this.$store.commit("change_counter", {
-          name: "layout",
-          count: _store.counters.layout + 1,
-        });
-        this.$store.commit("change_counter", {
-          name: "citation",
-          count: _store.counters.citation + 1,
-        });
-        
-        // Передаём данные в стор для компонента
+
+        this.$store.commit("change_counter", { name: "layout", count: _store.counters.layout + 1 });
+        this.$store.commit("change_counter", { name: "citation", count: _store.counters.citation + 1 });
+
         this.$store.commit("changeSelectedObject", elem);
-        
-        // Вызываем вставку компонента в редактор
         this.$emit("callCheckout", elem);
-        
-        // Очищаем форму и закрываем модалку
+
         this.resetCitationForm();
         this.closeModal('citation');
-        
       } catch (error) {
         console.error('Ошибка создания цитаты:', error);
       } finally {
         this.savingCitation = false;
       }
     },
+
     async updateCitation() {
       this.savingCitation = true;
       
       try {
+        const payload = {
+          title: this.citationForm.title,
+          text: this.citationForm.text,
+          ...(this.citationForm.id_user ? { id_user: this.citationForm.id_user } : {}),
+        };
+
         await Request.put(
           `${this.$store.state.BASE_URL}/entity/quotes/${this.citationForm.id}`,
-          {
-            title: this.citationForm.title,
-            text: this.citationForm.text,
-            id_user: this.citationForm.id_user,
-          }
+          payload
         );
         
         // Находим компонент в списке по индексу
