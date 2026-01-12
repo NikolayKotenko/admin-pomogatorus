@@ -11,6 +11,8 @@ export default class DataComponent {
       data_component = new Element_nomenclature(data);
     } else if (type === "citation") {
       data_component = new Element_citation(data);
+    } else if (type === "specification") {
+      data_component = new Element_specification(data);
     }
     return data_component;
   }
@@ -70,5 +72,16 @@ class Element_citation {
     this.text = citation_text;
     this.id_user = citation_id_user;
     this.uuid_user = citation__uuid_user;
+  }
+}
+
+class Element_specification {
+  constructor(data) {
+    const { name, imageId, imageUrl, index_specification } = data;
+
+    this.name = name;
+    this.imageId = imageId;
+    this.imageUrl = imageUrl;
+    this.index_specification = index_specification;
   }
 }

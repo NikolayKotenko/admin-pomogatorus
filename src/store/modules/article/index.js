@@ -167,7 +167,8 @@ export default {
       questions: 0,
       nomenclature: 0,
       insertedHtml: 0,
-      citation: 0
+      citation: 0,
+      specification: 0,
     },
     selectComponent: {
       questions: false,
@@ -175,7 +176,8 @@ export default {
       auth: false,
       url: false,
       nomenclature: false,
-      citation: false
+      citation: false,
+      specification: false,
     },
     list_components: [],
     name_component: "",
@@ -198,6 +200,9 @@ export default {
     /* NOMENCLATURE */
     list_nomenclature: [],
     nomenclature_data: [],
+
+    /* SPECIFICATION */
+    editingSpecification: null,
 
     /* CITATION */
     editingCitation: null,
@@ -464,6 +469,12 @@ export default {
     },
     clearEditingCitation(state) {
       state.editingCitation = null;
+    },
+    setEditingSpecification(state, data) {
+      state.editingSpecification = data;
+    },
+    clearEditingSpecification(state) {
+      state.editingSpecification = null;
     },
 
     /* CLEANER */
@@ -938,6 +949,36 @@ export default {
         console.error('Ошибка получения цитаты:', error);
       }
     },
+
+    async get_specification({ commit }, elem) {
+      try {
+        const imageId = elem.component.imageId;
+        
+        if (!imageId) {
+          console.error('❌ imageId отсутствует!');
+          return;
+        }
+        
+        const selectQuery = Request.ConstructSelectQuery(['*']);
+        
+        const response = await Request.get(
+          `${this.state.BASE_URL}/entity/files/${imageId}?${selectQuery}`
+        );
+        
+        commit("changeSelectedComponent", {
+          data: {
+            imageId: imageId,
+            imageUrl: response.data.url || response.data.orig_path || '',
+          },
+          index: elem.index,
+          component: elem.component,
+        });
+      } catch (error) {
+        console.error('❌ Ошибка загрузки спецификации:', error);
+      }
+    },
+
+
 
     getListQuestions({ commit, state }, params) {
       return new Promise((resolve, reject) => {
