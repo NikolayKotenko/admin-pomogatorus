@@ -76,7 +76,7 @@
       <div class="controls mt-4">
         <v-btn
           color="primary"
-          :disabled="isAddingHotspot || !imageLoaded"
+          :disabled="isAddingHotspot || !imageLoaded || hasUnsavedHotspot"
           @click="startAddHotspot"
         >
           {{ isAddingHotspot ? 'Кликните по изображению...' : 'Добавить метку' }}
@@ -96,9 +96,23 @@
       <h4>Метка {{ editedIndex + 1 }} ({{ hotspots[editedIndex].x }}%, {{ hotspots[editedIndex].y }}%)</h4>
       
       <v-autocomplete
+        v-model="hotspots[editedIndex].idsFamilies"
+        :items="families"
+        item-text="name"
+        item-value="id"
+        label="Семейства (можно выбрать несколько)"
+        clearable
+        multiple
+        chips
+        small-chips
+        deletable-chips
+        class="mb-2"
+      />
+
+      <v-autocomplete
         v-model="hotspots[editedIndex].idsNomenclatures"
         :items="products"
-        item-text="name"
+        :item-text="getProductDisplayName"
         item-value="id"
         label="Номенклатура (можно выбрать несколько)"
         clearable
@@ -108,21 +122,7 @@
         deletable-chips
         class="mb-2"
       />
-      
-      <v-autocomplete
-        v-model="hotspots[editedIndex].idsFamilies"
-        :items="families"
-        item-text="name"
-        item-value="id"
-        label="Семейства (опционально)"
-        clearable
-        multiple
-        chips
-        small-chips
-        deletable-chips
-        class="mb-2"
-      />
-      
+            
       <div class="d-flex">
         <v-btn 
           small 
@@ -189,6 +189,9 @@ export default {
         acceptedFiles: 'image/*',
         addRemoveLinks: true
       }
+    },
+    hasUnsavedHotspot() {
+      return this.hotspots.some(h => !h.saved)
     }
   },
   mounted () {
@@ -260,6 +263,10 @@ export default {
       }
     },
 
+    getProductDisplayName(product) {
+      return `${product._family?.name || ''} ${product.name}`.trim()
+    },
+
     // Редактирование хотспотов
 
     startAddHotspot () {
@@ -309,13 +316,14 @@ export default {
     async saveHotspot (hotspot) {
       try {
         const response = await Request.post(
-          `${this.$store.state.BASE_URL}/m-to-m/nomenclatures-on-images`,
+          `${this.$store.state.BASE_URL}/entity/specifications`,
           {
             id_image: this.dropzone_uploaded[0].id,
             ids_nomenclatures: hotspot.idsNomenclatures || [],
             ids_families: hotspot.idsFamilies || [],
             hotspot_x: Math.round(hotspot.x),
-            hotspot_y: Math.round(hotspot.y)
+            hotspot_y: Math.round(hotspot.y),
+            quantity: 1
           }
         );
         
@@ -332,13 +340,14 @@ export default {
     async updateHotspot (hotspot) {
       try {
         await Request.put(
-          `${this.$store.state.BASE_URL}/m-to-m/nomenclatures-on-images/${hotspot.specificationId}`,
+          `${this.$store.state.BASE_URL}/entity/specifications/${hotspot.specificationId}`,
           {
             id_image: this.dropzone_uploaded[0].id,
             ids_nomenclatures: hotspot.idsNomenclatures || [],
             ids_families: hotspot.idsFamilies || [],
             hotspot_x: Math.round(hotspot.x),
-            hotspot_y: Math.round(hotspot.y)
+            hotspot_y: Math.round(hotspot.y),
+            quantity: 1
           }
         );
         
@@ -354,7 +363,7 @@ export default {
       if (hotspot.saved && hotspot.specificationId) {
         try {
           await Request.delete(
-            `${this.$store.state.BASE_URL}/m-to-m/nomenclatures-on-images/${hotspot.specificationId}`
+            `${this.$store.state.BASE_URL}/entity/specifications/${hotspot.specificationId}`
           );
           
           this.$toast?.success('Метка удалена');

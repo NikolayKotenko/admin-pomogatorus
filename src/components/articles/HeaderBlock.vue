@@ -603,12 +603,17 @@
       v-if="$store.state.ArticleModule.selectComponent.specification"
       v-model="$store.state.ArticleModule.selectComponent.specification"
       width="900"
+      persistent
     >
       <v-card>
         <v-card-title>
-          <span class="text-h6" style="font-size: 0.8em !important; text-align: center; width: 100%">
+          <span class="text-h6" style="font-size: 0.8em !important;">
             {{ isEditingCitation ? 'Редактировать спецификацию' : 'Создать спецификацию' }}
           </span>
+          <v-spacer />
+          <v-btn icon @click="clearSpecification()">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
         </v-card-title>
         
         <v-card-text>
@@ -625,14 +630,22 @@
             Отмена
           </v-btn>
           <v-spacer />
-          <v-btn 
-            v-if="!isEditingSpecification"
-            color="success" 
-            :disabled="!$refs.specEditor || !$refs.specEditor.dropzone_uploaded.length"
-            @click="insertSpecification"
-          >
-            Вставить спецификацию
-        </v-btn>
+                                                                                                                            <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <div v-bind="attrs" v-on="on" class="d-inline-block">
+                <v-btn 
+                  v-if="!isEditingSpecification"
+                  color="success" 
+                  :disabled="!canInsertSpecification"
+                  @click="insertSpecification"
+                >
+                  Вставить спецификацию
+                </v-btn>
+              </div>
+            </template>
+            <span>Сначала добавьте метку</span>
+          </v-tooltip>
+          
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -939,6 +952,26 @@ export default {
     listUsers() {
       return this.$store.state.ArticleModule.listUsersByFilterExpert || [];
     },
+    canInsertSpecification() {
+      const editor = this.$refs.specEditor
+      
+      if (!editor || !editor.dropzone_uploaded?.length || !editor.hotspots?.length) {
+        return false
+      }
+      
+      // Режим добавления активен
+      if (editor.isAddingHotspot) {
+        return false
+      }
+      
+      // Есть несохранённые метки
+      const hasUnsavedHotspot = editor.hotspots.some(h => !h.saved)
+      if (hasUnsavedHotspot) {
+        return false
+      }
+      
+      return true
+    }
   },
   methods: {
     setNomenclatureList(data) {
@@ -1127,7 +1160,7 @@ export default {
         const selectQuery = Request.ConstructSelectQuery(['*']);
         
         const response = await Request.get(
-          `${this.$store.state.BASE_URL}/m-to-m/nomenclatures-on-images?${selectQuery}&filter[id_image]=${editData.imageId}`
+          `${this.$store.state.BASE_URL}/entity/specifications?${selectQuery}&filter[id_image]=${editData.imageId}`
         );
         
         this.specificationData = {
@@ -1140,7 +1173,7 @@ export default {
             idsNomenclatures: spec.ids_nomenclatures || [],
             idsFamilies: spec.ids_families || [],
             saved: true,
-            specificationId: spec.id // 🔥 ID спецификации
+            specificationId: spec.id
           }))
         };
         
