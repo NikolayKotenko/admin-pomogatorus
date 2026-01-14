@@ -1125,6 +1125,7 @@ export default {
     insertSpecification () {
       const imageId = this.$refs.specEditor.dropzone_uploaded[0]?.id;
       const imageUrl = this.$refs.specEditor.dropzone_uploaded[0]?.url;
+      const imageUuid = this.$refs.specEditor.dropzone_uploaded[0]?.uuid;
       
       if (!imageId) {
         this.$toast?.error('Сначала загрузите изображение')
@@ -1134,6 +1135,7 @@ export default {
       const elem = {
         imageId: imageId,
         imageUrl: imageUrl,
+        imageUuid: imageUuid
       };
       
       this.$store.commit("change_counter", {
@@ -1166,6 +1168,7 @@ export default {
         this.specificationData = {
           imageId: editData.imageId,
           imageUrl: editData.imageUrl,
+          imageUuid: editData.imageUuid,
           hotspots: response.data.map(spec => ({
             id: spec.id,
             x: spec.hotspot_x,
@@ -1354,8 +1357,7 @@ export default {
         
         const imageId = this.$refs.specEditor.dropzone_uploaded[0]?.id;
         const imageUrl = this.$refs.specEditor.dropzone_uploaded[0]?.url;
-        
-        console.log('🔥 Вставка спецификации, imageId:', imageId, 'imageUrl:', imageUrl); // ДЕБАГ
+        const imageUuid = this.$refs.specEditor.dropzone_uploaded[0]?.uuid;
         
         if (!imageId) {
           this.$toast?.error('Загрузите изображение');
@@ -1365,6 +1367,7 @@ export default {
         elem = {
           imageId: imageId,
           imageUrl: imageUrl,
+          imageUuid: imageUuid
         };
         
         console.log('🔥 elem для callCheckout:', elem); 

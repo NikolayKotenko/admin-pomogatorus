@@ -199,6 +199,7 @@ export default {
       this.dropzone_uploaded = [{
         id: this.initialData.id,
         url: this.initialData.imageUrl,
+        uuid: this.initialData.imageUuid,
         filename: 'scheme.jpg',
         title_image: '',
         index: 1
@@ -410,6 +411,7 @@ export default {
       this.dropzone_uploaded = [{
         id: data.imageId,
         url: data.imageUrl,
+        uuid: data.imageUuid,
         filename: 'specification.jpg',
         title_image: '',
         index: 1

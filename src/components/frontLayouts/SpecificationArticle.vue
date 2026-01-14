@@ -2,6 +2,7 @@
   <div
     :id="`component_wrapper-${index_component}`"
     :data-id="specification_data.imageId"
+    :data-uuid="specification_data.imageUuid"
     contenteditable="false"
     data-name="specification"
     class="componentArticle_wrapper component_container specification-container"
@@ -132,6 +133,7 @@ export default {
       this.$store.commit("setEditingSpecification", {
         imageId: this.specification_data.imageId,
         imageUrl: this.specification_data.imageUrl,
+        imageUuid: this.specification_data.imageUuid,
         index_component: this.index_component,
       });
     },

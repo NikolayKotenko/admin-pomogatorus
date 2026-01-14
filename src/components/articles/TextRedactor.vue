@@ -1112,6 +1112,7 @@ export default {
 
         imageId: elem?.imageId ?? null,
         imageUrl: elem?.imageUrl ?? "",
+        imageUuid: elem?.imageUuid ?? null,
 
         alt: elem?.alt_image ? elem?.alt_image : "",
         title: elem?.title_image ? elem?.title_image : ""
