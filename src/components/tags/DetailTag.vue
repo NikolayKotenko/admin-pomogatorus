@@ -257,7 +257,7 @@
         class="mt-5 mb-5"
         @update-input="setTagTitle"
       />
-      <InputStyled
+      <TextAreaStyled
         :data="$store.state.TagsModule.tag.seo_description"
         :is-disabled="
           $store.state.loadingRequestGeneral ||
@@ -267,6 +267,8 @@
         persistent-placeholder
         :placeholder="'SEO-описание для тэга'"
         class="mb-5"
+        :rows-count="'1'"
+        :is-counter-char="true"
         @update-input="setTagDescription"
       />
       <InputStyled
@@ -386,11 +388,13 @@ import tagsStore from "@/store/modules/tags";
 import Request from "@/services/request";
 import InputStyled from "../common/InputStyled";
 import IconTooltip from "@/components/common/IconTooltip.vue";
+import TextAreaStyled from "@/components/common/TextAreaStyled.vue";
 
 const _store = tagsStore.state;
 
 export default {
   components: {
+    TextAreaStyled,
     IconTooltip,
     InputStyled,
     VueEditor,
