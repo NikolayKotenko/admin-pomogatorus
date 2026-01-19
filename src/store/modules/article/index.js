@@ -969,6 +969,7 @@ export default {
           data: {
             imageId: imageId,
             imageUrl: response.data.url || response.data.orig_path || '',
+            imageUuid: response.data.uuid
           },
           index: elem.index,
           component: elem.component,

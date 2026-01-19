@@ -76,7 +76,7 @@
       <div class="controls mt-4">
         <v-btn
           color="primary"
-          :disabled="isAddingHotspot || !imageLoaded"
+          :disabled="isAddingHotspot || !imageLoaded || hasUnsavedHotspot"
           @click="startAddHotspot"
         >
           {{ isAddingHotspot ? 'Кликните по изображению...' : 'Добавить метку' }}
@@ -96,9 +96,24 @@
       <h4>Метка {{ editedIndex + 1 }} ({{ hotspots[editedIndex].x }}%, {{ hotspots[editedIndex].y }}%)</h4>
       
       <v-autocomplete
+        v-model="hotspots[editedIndex].idsFamilies"
+        :items="families"
+        item-text="name"
+        item-value="id"
+        label="Семейства (можно выбрать несколько)"
+        clearable
+        multiple
+        chips
+        small-chips
+        deletable-chips
+        class="mb-2"
+        :disabled="hotspots[editedIndex].isLoading"
+      />
+
+      <v-autocomplete
         v-model="hotspots[editedIndex].idsNomenclatures"
         :items="products"
-        item-text="name"
+        :item-text="getProductDisplayName"
         item-value="id"
         label="Номенклатура (можно выбрать несколько)"
         clearable
@@ -107,43 +122,22 @@
         small-chips
         deletable-chips
         class="mb-2"
+        :disabled="hotspots[editedIndex].isLoading"
       />
-      
-      <v-autocomplete
-        v-model="hotspots[editedIndex].idsFamilies"
-        :items="families"
-        item-text="name"
-        item-value="id"
-        label="Семейства (опционально)"
-        clearable
-        multiple
-        chips
-        small-chips
-        deletable-chips
-        class="mb-2"
-      />
-      
+            
       <div class="d-flex">
         <v-btn 
           small 
           color="success" 
-          :disabled="(!hotspots[editedIndex].idsNomenclatures?.length && !hotspots[editedIndex].idsFamilies?.length) || hotspots[editedIndex].saved"
+          :disabled="!hasChanges(editedIndex) || hotspots[editedIndex].isLoading"
+          :loading="hotspots[editedIndex].isLoading"
           @click="saveCurrentHotspot"
         >
-          {{ hotspots[editedIndex].saved ? 'Сохранено' : 'Сохранить метку' }}
+          Сохранить изменения
         </v-btn>
         
         <v-spacer />
-        
-        <v-btn 
-          v-if="hotspots[editedIndex].saved"
-          small 
-          color="warning" 
-          @click="editSavedHotspot(editedIndex)"
-        >
-          Редактировать
-        </v-btn>
-        
+                
         <v-btn small color="error" @click="removeHotspot(editedIndex)">
           Удалить
         </v-btn>
@@ -189,6 +183,9 @@ export default {
         acceptedFiles: 'image/*',
         addRemoveLinks: true
       }
+    },
+    hasUnsavedHotspot() {
+      return this.hotspots.some(h => !h.saved)
     }
   },
   mounted () {
@@ -196,6 +193,7 @@ export default {
       this.dropzone_uploaded = [{
         id: this.initialData.id,
         url: this.initialData.imageUrl,
+        uuid: this.initialData.imageUuid,
         filename: 'scheme.jpg',
         title_image: '',
         index: 1
@@ -260,6 +258,10 @@ export default {
       }
     },
 
+    getProductDisplayName(product) {
+      return `${product._family?.name || ''} ${product.name}`.trim()
+    },
+
     // Редактирование хотспотов
 
     startAddHotspot () {
@@ -280,7 +282,9 @@ export default {
         idsNomenclatures: [],
         idsFamilies: [],
         saved: false,
-        specificationId: null
+        specificationId: null,
+        isLoading: false,
+        originalData: null
       });
 
       this.editedIndex = this.hotspots.length - 1;
@@ -290,8 +294,37 @@ export default {
       this.imageLoaded = true
     },
     editHotspot (index) {
-      this.editedIndex = index
+      const hotspot = this.hotspots[index];
+      
+      if (!hotspot.originalData && hotspot.saved) {
+        hotspot.originalData = {
+          idsNomenclatures: [...(hotspot.idsNomenclatures || [])],
+          idsFamilies: [...(hotspot.idsFamilies || [])]
+        };
+      }
+      
+      this.editedIndex = index;
     },
+    hasChanges(index) {
+      const hotspot = this.hotspots[index];
+      
+      if (!hotspot.saved) {
+        return (hotspot.idsNomenclatures?.length > 0 || hotspot.idsFamilies?.length > 0);
+      }
+      
+      if (!hotspot.originalData) return false;
+      
+      const nomenclaturesChanged = JSON.stringify([...(hotspot.idsNomenclatures || [])].sort()) !== 
+                                  JSON.stringify([...(hotspot.originalData.idsNomenclatures || [])].sort());
+      
+      const familiesChanged = JSON.stringify([...(hotspot.idsFamilies || [])].sort()) !== 
+                            JSON.stringify([...(hotspot.originalData.idsFamilies || [])].sort());
+      
+      return nomenclaturesChanged || familiesChanged;
+    },
+
+
+
     removeHotspot (index) {
       this.hotspots.splice(index, 1)
       if (this.editedIndex === index) this.editedIndex = null
@@ -300,22 +333,23 @@ export default {
       this.hotspots = []
       this.editedIndex = null
     },
-    editSavedHotspot (index) {
-      const hotspot = this.hotspots[index];
-      hotspot.saved = false;
-      this.editedIndex = index;
-    },
+    // editSavedHotspot (index) {
+    //   const hotspot = this.hotspots[index];
+    //   hotspot.saved = false;
+    //   this.editedIndex = index;
+    // },
 
     async saveHotspot (hotspot) {
       try {
         const response = await Request.post(
-          `${this.$store.state.BASE_URL}/m-to-m/nomenclatures-on-images`,
+          `${this.$store.state.BASE_URL}/entity/specifications`,
           {
             id_image: this.dropzone_uploaded[0].id,
             ids_nomenclatures: hotspot.idsNomenclatures || [],
             ids_families: hotspot.idsFamilies || [],
             hotspot_x: Math.round(hotspot.x),
-            hotspot_y: Math.round(hotspot.y)
+            hotspot_y: Math.round(hotspot.y),
+            quantity: 1
           }
         );
         
@@ -332,13 +366,14 @@ export default {
     async updateHotspot (hotspot) {
       try {
         await Request.put(
-          `${this.$store.state.BASE_URL}/m-to-m/nomenclatures-on-images/${hotspot.specificationId}`,
+          `${this.$store.state.BASE_URL}/entity/specifications/${hotspot.specificationId}`,
           {
             id_image: this.dropzone_uploaded[0].id,
             ids_nomenclatures: hotspot.idsNomenclatures || [],
             ids_families: hotspot.idsFamilies || [],
             hotspot_x: Math.round(hotspot.x),
-            hotspot_y: Math.round(hotspot.y)
+            hotspot_y: Math.round(hotspot.y),
+            quantity: 1
           }
         );
         
@@ -354,7 +389,7 @@ export default {
       if (hotspot.saved && hotspot.specificationId) {
         try {
           await Request.delete(
-            `${this.$store.state.BASE_URL}/m-to-m/nomenclatures-on-images/${hotspot.specificationId}`
+            `${this.$store.state.BASE_URL}/entity/specifications/${hotspot.specificationId}`
           );
           
           this.$toast?.success('Метка удалена');
@@ -380,16 +415,25 @@ export default {
         return;
       }
       
+      hotspot.isLoading = true;
       let saved = false;
       
       if (hotspot.specificationId) {
-        saved = await this.updateHotspot (hotspot);
+        saved = await this.updateHotspot(hotspot);
       } else {
-        saved = await this.saveHotspot (hotspot);
+        saved = await this.saveHotspot(hotspot);
       }
+      
+      hotspot.isLoading = false;
       
       if (saved) {
         hotspot.saved = true;
+        
+        hotspot.originalData = {
+          idsNomenclatures: [...(hotspot.idsNomenclatures || [])],
+          idsFamilies: [...(hotspot.idsFamilies || [])]
+        };
+        
         this.$toast?.success('Метка сохранена');
         this.editedIndex = null;
       } else {
@@ -401,12 +445,22 @@ export default {
       this.dropzone_uploaded = [{
         id: data.imageId,
         url: data.imageUrl,
+        uuid: data.imageUuid,
         filename: 'specification.jpg',
         title_image: '',
         index: 1
       }];
       
-      this.hotspots = data.hotspots || [];
+      // Добавляем originalData для каждой существующей метки
+      this.hotspots = (data.hotspots || []).map(h => ({
+        ...h,
+        isLoading: false,
+        originalData: {
+          idsNomenclatures: [...(h.idsNomenclatures || [])],
+          idsFamilies: [...(h.idsFamilies || [])]
+        }
+      }));
+      
       this.imageLoaded = true;
     },
     

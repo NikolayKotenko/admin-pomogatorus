@@ -2,6 +2,7 @@
   <div
     :id="`component_wrapper-${index_component}`"
     :data-id="specification_data.imageId"
+    :data-uuid="specification_data.imageUuid"
     contenteditable="false"
     data-name="specification"
     class="componentArticle_wrapper component_container specification-container"
@@ -42,7 +43,7 @@
           />
           <div class="specification-overlay">
             <v-icon color="white" size="20">mdi-image-filter-center-focus</v-icon>
-            <span>{{ hotspotsCount }} меток</span>
+            <span>Меток - {{ hotspotsCount }}</span>
           </div>
         </div>
       </template>
@@ -107,7 +108,7 @@ export default {
         const selectQuery = Request.ConstructSelectQuery(['*']);
         
         const result = await Request.get(
-          `${this.$store.state.BASE_URL}/m-to-m/nomenclatures-on-images?${selectQuery}&filter[id_image]=${this.specification_data.imageId}`
+          `${this.$store.state.BASE_URL}/entity/specifications?${selectQuery}&filter[id_image]=${this.specification_data.imageId}`
         );
         
         this.hotspotsCount = result.data?.length || 0;
@@ -132,6 +133,7 @@ export default {
       this.$store.commit("setEditingSpecification", {
         imageId: this.specification_data.imageId,
         imageUrl: this.specification_data.imageUrl,
+        imageUuid: this.specification_data.imageUuid,
         index_component: this.index_component,
       });
     },
@@ -165,6 +167,7 @@ export default {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     
     .specification-overlay {
+      margin: 20px;
       opacity: 1;
     }
   }

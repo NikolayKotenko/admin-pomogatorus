@@ -3,18 +3,18 @@
     <div id="header" class="textRedactor__header" style="">
       <!-- Вставить элемент в текст -->
       <div
-        class="header__elBlock right"
-        style="display: flex; align-items: center; column-gap: 10px !important"
+          class="header__elBlock right"
+          style="display: flex; align-items: center; column-gap: 10px !important"
       >
         <!-- Auth -->
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              :disabled="check_count_auth"
-              size="28"
-              v-bind="attrs"
-              @click="initialiseInserting('auth')"
-              v-on="on"
+                :disabled="check_count_auth"
+                size="28"
+                v-bind="attrs"
+                @click="initialiseInserting('auth')"
+                v-on="on"
             >
               mdi-account-key
             </v-icon>
@@ -25,11 +25,11 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              size="28"
-              style="padding-top: 2px"
-              v-bind="attrs"
-              @click="initializeSelection('questions')"
-              v-on="on"
+                size="28"
+                style="padding-top: 2px"
+                v-bind="attrs"
+                @click="initializeSelection('questions')"
+                v-on="on"
             >
               mdi-message-question
             </v-icon>
@@ -40,11 +40,11 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              size="28"
-              style="padding-top: 2px"
-              v-bind="attrs"
-              @click="initializeSelection('nomenclature')"
-              v-on="on"
+                size="28"
+                style="padding-top: 2px"
+                v-bind="attrs"
+                @click="initializeSelection('nomenclature')"
+                v-on="on"
             >
               mdi-hammer-wrench
             </v-icon>
@@ -55,16 +55,16 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              size="28"
-              v-bind="attrs"
-              @click="initializeSelection('image')"
-              v-on="on"
+                size="28"
+                v-bind="attrs"
+                @click="initializeSelection('image')"
+                v-on="on"
             >
               mdi-panorama
             </v-icon>
           </template>
           <span>Вставить изображение</span>
-        </v-tooltip>
+        </v-tooltip>  
         <!-- Specifications -->
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
@@ -78,15 +78,15 @@
             </v-icon>
           </template>
           <span>Вставить спецификацию</span>
-        </v-tooltip>
+        </v-tooltip>  
         <!-- Citatuon -->
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              size="28"
-              v-bind="attrs"
-              @click="initializeSelection('citation')"
-              v-on="on"
+                size="28"
+                v-bind="attrs"
+                @click="initializeSelection('citation')"
+                v-on="on"
             >
               mdi-comment-quote
             </v-icon>
@@ -99,14 +99,14 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              :disabled="
+                :disabled="
                 $store.state.ArticleModule.txtDisplay.length <= 1 ||
                 $store.state.ArticleModule.startRender
               "
-              size="28"
-              v-bind="attrs"
-              @click="onUndo()"
-              v-on="on"
+                size="28"
+                v-bind="attrs"
+                @click="onUndo()"
+                v-on="on"
             >
               mdi-undo
             </v-icon>
@@ -116,15 +116,15 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              :disabled="
+                :disabled="
                 $store.state.ArticleModule.txtDisplay.length ===
                   $store.state.ArticleModule.txtSave.length ||
                 $store.state.ArticleModule.startRender
               "
-              size="28"
-              v-bind="attrs"
-              @click="onRedo()"
-              v-on="on"
+                size="28"
+                v-bind="attrs"
+                @click="onRedo()"
+                v-on="on"
             >
               mdi-redo
             </v-icon>
@@ -135,17 +135,17 @@
       <!-- Жирный/курсив и т.д. -->
       <div class="header__elBlock">
         <v-tooltip
-          v-for="(item, index) in array_edit_content"
-          :key="index"
-          bottom
+            v-for="(item, index) in array_edit_content"
+            :key="index"
+            bottom
         >
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              :color="icons_panel[item.value].active ? 'blue darken-4' : ''"
-              size="28"
-              v-bind="attrs"
-              @click="onAction(item.value, icons_panel[item.value])"
-              v-on="on"
+                :color="icons_panel[item.value].active ? 'blue darken-4' : ''"
+                size="28"
+                v-bind="attrs"
+                @click="onAction(item.value, icons_panel[item.value])"
+                v-on="on"
             >
               {{ item.icon }}
             </v-icon>
@@ -156,17 +156,17 @@
       <!-- Форматирование -->
       <div class="header__elBlock right">
         <v-tooltip
-          v-for="(item, index) in array_align_content"
-          :key="index"
-          bottom
+            v-for="(item, index) in array_align_content"
+            :key="index"
+            bottom
         >
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              :color="icons_panel[item.value].active ? 'blue darken-4' : ''"
-              size="28"
-              v-bind="attrs"
-              @click="onAction(item.value, icons_panel[item.value])"
-              v-on="on"
+                :color="icons_panel[item.value].active ? 'blue darken-4' : ''"
+                size="28"
+                v-bind="attrs"
+                @click="onAction(item.value, icons_panel[item.value])"
+                v-on="on"
             >
               {{ item.icon }}
             </v-icon>
@@ -179,11 +179,11 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              :color="icons_panel.formatBlock.active ? 'blue darken-4' : ''"
-              size="28"
-              v-bind="attrs"
-              @click="setH2()"
-              v-on="on"
+                :color="icons_panel.formatBlock.active ? 'blue darken-4' : ''"
+                size="28"
+                v-bind="attrs"
+                @click="setH2()"
+                v-on="on"
             >
               mdi-format-header-2
             </v-icon>
@@ -197,11 +197,11 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              :color="icons_panel.formatBlockH3.active ? 'blue darken-4' : ''"
-              size="28"
-              v-bind="attrs"
-              @click="setH3()"
-              v-on="on"
+                :color="icons_panel.formatBlockH3.active ? 'blue darken-4' : ''"
+                size="28"
+                v-bind="attrs"
+                @click="setH3()"
+                v-on="on"
             >
               mdi-format-header-3
             </v-icon>
@@ -209,19 +209,19 @@
           <span>Вставить подзаголовок</span>
         </v-tooltip>
       </div>
-
+      
       <!-- Вставить список -->
       <div class="header__elBlock right">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              :color="
+                :color="
                 icons_panel.insertUnorderedList.active ? 'blue darken-4' : ''
               "
-              size="28"
-              v-bind="attrs"
-              @click="setBulletedList()"
-              v-on="on"
+                size="28"
+                v-bind="attrs"
+                @click="setBulletedList()"
+                v-on="on"
             >
               mdi-format-list-bulleted
             </v-icon>
@@ -231,13 +231,13 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              :color="
+                :color="
                 icons_panel.insertOrderedList.active ? 'blue darken-4' : ''
               "
-              size="28"
-              v-bind="attrs"
-              @click="setNumberedList()"
-              v-on="on"
+                size="28"
+                v-bind="attrs"
+                @click="setNumberedList()"
+                v-on="on"
             >
               mdi-format-list-numbered
             </v-icon>
@@ -250,10 +250,10 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              size="28"
-              v-bind="attrs"
-              @click="showLinkSettings"
-              v-on="on"
+                size="28"
+                v-bind="attrs"
+                @click="showLinkSettings"
+                v-on="on"
             >
               mdi-link-variant
             </v-icon>
@@ -266,10 +266,10 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              size="28"
-              v-bind="attrs"
-              @click="onAction('indent')"
-              v-on="on"
+                size="28"
+                v-bind="attrs"
+                @click="onAction('indent')"
+                v-on="on"
             >
               mdi-format-indent-increase
             </v-icon>
@@ -279,10 +279,10 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              size="28"
-              v-bind="attrs"
-              @click="onAction('outdent')"
-              v-on="on"
+                size="28"
+                v-bind="attrs"
+                @click="onAction('outdent')"
+                v-on="on"
             >
               mdi-format-indent-decrease
             </v-icon>
@@ -295,10 +295,10 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
-              size="28"
-              v-bind="attrs"
-              @click="onAction('removeFormat')"
-              v-on="on"
+                size="28"
+                v-bind="attrs"
+                @click="onAction('removeFormat')"
+                v-on="on"
             >
               mdi-format-clear
             </v-icon>
@@ -311,47 +311,47 @@
     <!-------- MODALS -------->
     <!--  Question  -->
     <v-dialog
-      v-model="$store.state.ArticleModule.selectComponent.questions"
-      content-class="textRedactor__questionsModals"
-      max-width="600"
+        v-model="$store.state.ArticleModule.selectComponent.questions"
+        content-class="textRedactor__questionsModals"
+        max-width="600"
     >
       <v-card>
         <v-card-title>
           <span
-            class="text-h6"
-            style="font-size: 0.8em !important; text-align: center; width: 100%"
-            >Какой вопрос?</span
+              class="text-h6"
+              style="font-size: 0.8em !important; text-align: center; width: 100%"
+          >Какой вопрос?</span
           >
         </v-card-title>
         <v-card-text id="questionSelector">
           <v-autocomplete
-            v-model="filters.tag"
-            :item-text="'name'"
-            :item-value="'code'"
-            :items="$store.state.ArticleModule.listGeneralTags"
-            :label="'#Отфильтровать по тегу или нескольким тегам'"
-            class="autocomplete_tags"
-            clearable
-            deletable-chips
-            dense
-            multiple
-            outlined
-            small-chips
+              v-model="filters.tag"
+              :item-text="'name'"
+              :item-value="'code'"
+              :items="$store.state.ArticleModule.listGeneralTags"
+              :label="'#Отфильтровать по тегу или нескольким тегам'"
+              class="autocomplete_tags"
+              clearable
+              deletable-chips
+              dense
+              multiple
+              outlined
+              small-chips
           ></v-autocomplete>
           <v-autocomplete
-            ref="selector"
-            v-model="$store.state.ArticleModule.selectedComponent"
-            :disabled="$store.state.ArticleModule.loadingModalList"
-            :items="listQuestions"
-            :loading="$store.state.ArticleModule.loadingModalList"
-            :menu-props="{ bottom: true, offsetY: true }"
-            clearable
-            item-text="name"
-            label="Выберите вопрос"
-            outlined
-            return-object
-            style="position: sticky; top: 0"
-            @click:clear="
+              ref="selector"
+              v-model="$store.state.ArticleModule.selectedComponent"
+              :disabled="$store.state.ArticleModule.loadingModalList"
+              :items="listQuestions"
+              :loading="$store.state.ArticleModule.loadingModalList"
+              :menu-props="{ bottom: true, offsetY: true }"
+              clearable
+              item-text="name"
+              label="Выберите вопрос"
+              outlined
+              return-object
+              style="position: sticky; top: 0"
+              @click:clear="
               $nextTick(() => {
                 $store.state.ArticleModule.selectedComponent = {};
               })
@@ -365,10 +365,10 @@
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn
-            :disabled="!check_selected_component"
-            color="green darken-1"
-            text
-            @click="onSelectComponent()"
+              :disabled="!check_selected_component"
+              color="green darken-1"
+              text
+              @click="onSelectComponent()"
           >
             Выбрать
           </v-btn>
@@ -378,33 +378,33 @@
 
     <!--  Nomenclature  -->
     <v-dialog
-      v-if="$store.state.ArticleModule.selectComponent.nomenclature"
-      v-model="$store.state.ArticleModule.selectComponent.nomenclature"
-      max-width="600"
+        v-if="$store.state.ArticleModule.selectComponent.nomenclature"
+        v-model="$store.state.ArticleModule.selectComponent.nomenclature"
+        max-width="600"
     >
       <v-card>
         <v-card-title>
           <span
-            class="text-h6"
-            style="font-size: 0.8em !important; text-align: center; width: 100%"
+              class="text-h6"
+              style="font-size: 0.8em !important; text-align: center; width: 100%"
           >
             Номенклатура
           </span>
         </v-card-title>
         <v-card-text id="nomenclatureSelector">
           <v-autocomplete
-            ref="nomenclature"
-            v-model="currentNomenclature"
-            :disabled="$store.state.ArticleModule.loadingModalList"
-            :items="$store.state.ArticleModule.list_nomenclature"
-            :loading="$store.state.ArticleModule.loadingModalList"
-            :menu-props="{ bottom: true, offsetY: true }"
-            clearable
-            item-text="name"
-            placeholder="Наименование"
-            return-object
-            style="position: sticky; top: 0"
-            @change="setNomenclatureList($event)"
+              ref="nomenclature"
+              v-model="currentNomenclature"
+              :disabled="$store.state.ArticleModule.loadingModalList"
+              :items="listNomenclature"
+              :loading="$store.state.ArticleModule.loadingModalList"
+              :menu-props="{ bottom: true, offsetY: true }"
+              clearable
+              item-text="name"
+              placeholder="Наименование"
+              return-object
+              style="position: sticky; top: 0"
+              @change="setNomenclatureList($event)"
           >
             <template v-slot:item="{ item }">
               <div>
@@ -420,10 +420,10 @@
           <div class="mt-1">
             <v-chip-group column>
               <v-chip
-                v-for="(item, index) in selectedNomenclature"
-                :key="index"
-                close
-                @click:close="removeNomenclature(item.id)"
+                  v-for="(item, index) in selectedNomenclature"
+                  :key="index"
+                  close
+                  @click:close="removeNomenclature(item.id)"
               >
                 <div class="nomenclature-chip">
                   <span>{{ item?.name }}</span>
@@ -442,10 +442,10 @@
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn
-            :disabled="!selectedNomenclature.length"
-            color="green darken-1"
-            text
-            @click="onSelectComponent()"
+              :disabled="!selectedNomenclature.length"
+              color="green darken-1"
+              text
+              @click="onSelectComponent()"
           >
             Выбрать
           </v-btn>
@@ -455,15 +455,15 @@
 
     <!--  Url  -->
     <v-dialog
-      v-if="$store.state.ArticleModule.selectComponent.url"
-      v-model="$store.state.ArticleModule.selectComponent.url"
-      max-width="600"
+        v-if="$store.state.ArticleModule.selectComponent.url"
+        v-model="$store.state.ArticleModule.selectComponent.url"
+        max-width="600"
     >
       <v-card>
         <v-card-title>
           <span
-            class="text-h6"
-            style="font-size: 0.8em !important; text-align: center; width: 100%"
+              class="text-h6"
+              style="font-size: 0.8em !important; text-align: center; width: 100%"
           >
             Ссылка
           </span>
@@ -471,21 +471,21 @@
         <v-card-text>
           <v-form v-model="valid">
             <InputStyled
-              :data="$store.state.ArticleModule.urlText"
-              :is-clearable="true"
-              :is-solo="true"
-              :placeholder="'Текст ссылки'"
-              class="mb-4"
-              @update-input="setUrlText"
+                :data="$store.state.ArticleModule.urlText"
+                :is-clearable="true"
+                :is-solo="true"
+                :placeholder="'Текст ссылки'"
+                class="mb-4"
+                @update-input="setUrlText"
             />
             <TextAreaStyled
-              :current-rules="emailRules"
-              :data="$store.state.ArticleModule.urlValue"
-              :is-clearable="true"
-              :is-required="true"
-              :is-solo="true"
-              :placeholder="'Адрес ссылки'"
-              @update-input="setUrlValue"
+                :current-rules="emailRules"
+                :data="$store.state.ArticleModule.urlValue"
+                :is-clearable="true"
+                :is-required="true"
+                :is-solo="true"
+                :placeholder="'Адрес ссылки'"
+                @update-input="setUrlValue"
             />
           </v-form>
         </v-card-text>
@@ -495,10 +495,10 @@
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn
-            :disabled="!check_can_create_url"
-            color="green darken-1"
-            text
-            @click="createLink()"
+              :disabled="!check_can_create_url"
+              color="green darken-1"
+              text
+              @click="createLink()"
           >
             Сохранить
           </v-btn>
@@ -508,31 +508,31 @@
 
     <!--  Image  -->
     <v-dialog
-      v-model="$store.state.ArticleModule.selectComponent.image"
-      max-width="600"
+        v-model="$store.state.ArticleModule.selectComponent.image"
+        max-width="600"
     >
       <v-card>
         <v-card-title>
           <span class="text-h6" style="font-size: 0.8em !important"
-            >Загрузите изображение</span
+          >Загрузите изображение</span
           >
         </v-card-title>
         <v-card-text class="dialog_dropzone">
           <div class="dialog_dropzone_wrapper">
             <vue-dropzone
-              v-if="!loading_dropzone"
-              id="dropzone"
-              ref="myVueDropzone"
-              :options="options"
-              :useCustomSlot="true"
-              @vdropzone-success="successData"
-              @vdropzone-sending="sendingData"
+                v-if="!loading_dropzone"
+                id="dropzone"
+                ref="myVueDropzone"
+                :options="options"
+                :useCustomSlot="true"
+                @vdropzone-success="successData"
+                @vdropzone-sending="sendingData"
             >
               <h3 class="dropzone-custom-title">
                 <v-icon
-                  color="grey lighten-1"
-                  size="120"
-                  style="transform: rotate(45deg)"
+                    color="grey lighten-1"
+                    size="120"
+                    style="transform: rotate(45deg)"
                 >
                   mdi-paperclip
                 </v-icon>
@@ -543,38 +543,38 @@
               </div>
             </vue-dropzone>
             <div
-              v-if="dropzone_uploaded.length"
-              class="dialog_dropzone_wrapper__upload"
-              @click="triggerUpload()"
+                v-if="dropzone_uploaded.length"
+                class="dialog_dropzone_wrapper__upload"
+                @click="triggerUpload()"
             >
               <v-icon
-                color="grey lighten-1"
-                size="60"
-                style="transform: rotate(45deg)"
-                >mdi-paperclip
+                  color="grey lighten-1"
+                  size="60"
+                  style="transform: rotate(45deg)"
+              >mdi-paperclip
               </v-icon>
             </div>
           </div>
           <template v-if="dropzone_uploaded.length">
             <div
-              v-for="(item, index) in dropzone_uploaded"
-              :key="index"
-              class="dialog_dropzone_inputs"
+                v-for="(item, index) in dropzone_uploaded"
+                :key="index"
+                class="dialog_dropzone_inputs"
             >
               <span class="dialog_dropzone_inputs__label">
                 [{{ index + 1 }}] {{ item.filename }}</span
               >
               <InputStyled
-                :data="item.alt_image"
-                :index-array="index"
-                :placeholder="'alt-наименование изображения'"
-                @update-input="setAlt"
+                  :data="item.alt_image"
+                  :index-array="index"
+                  :placeholder="'alt-наименование изображения'"
+                  @update-input="setAlt"
               ></InputStyled>
               <InputStyled
-                :data="item.title_image"
-                :index-array="index"
-                :placeholder="'подпись изображения'"
-                @update-input="setTitle"
+                  :data="item.title_image"
+                  :index-array="index"
+                  :placeholder="'подпись изображения'"
+                  @update-input="setTitle"
               ></InputStyled>
             </div>
           </template>
@@ -585,9 +585,9 @@
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn
-            color="green darken-1"
-            text
-            @click="
+              color="green darken-1"
+              text
+              @click="
               updateDropZoneImage();
               onSelectComponent();
             "
@@ -603,14 +603,19 @@
       v-if="$store.state.ArticleModule.selectComponent.specification"
       v-model="$store.state.ArticleModule.selectComponent.specification"
       width="900"
+      persistent
     >
       <v-card>
         <v-card-title>
-          <span class="text-h6" style="font-size: 0.8em !important; text-align: center; width: 100%">
+          <span class="text-h6" style="font-size: 0.8em !important;">
             {{ isEditingCitation ? 'Редактировать спецификацию' : 'Создать спецификацию' }}
           </span>
+          <v-spacer />
+          <v-btn icon @click="clearSpecification()">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
         </v-card-title>
-
+        
         <v-card-text>
           <SpecificationEditor
             ref="specEditor"
@@ -625,14 +630,22 @@
             Отмена
           </v-btn>
           <v-spacer />
-          <v-btn
-            v-if="!isEditingSpecification"
-            color="success"
-            :disabled="!$refs.specEditor || !$refs.specEditor.dropzone_uploaded.length"
-            @click="insertSpecification"
-          >
-            Вставить спецификацию
-        </v-btn>
+                                                                                                                            <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <div v-bind="attrs" v-on="on" class="d-inline-block">
+                <v-btn 
+                  v-if="!isEditingSpecification"
+                  color="success" 
+                  :disabled="!canInsertSpecification"
+                  @click="insertSpecification"
+                >
+                  Вставить спецификацию
+                </v-btn>
+              </div>
+            </template>
+            <span>Сначала добавьте метку</span>
+          </v-tooltip>
+          
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -645,14 +658,11 @@
     >
       <v-card>
         <v-card-title>
-          <span
-            class="text-h6"
-            style="font-size: 0.8em !important; text-align: center; width: 100%"
-          >
-            {{ isEditingCitation ? "Редактировать цитату" : "Создать цитату" }}
+          <span class="text-h6" style="font-size: 0.8em !important; text-align: center; width: 100%">
+            {{ isEditingCitation ? 'Редактировать цитату' : 'Создать цитату' }}
           </span>
         </v-card-title>
-
+        
         <v-card-text>
           <!-- Заголовок -->
           <v-text-field
@@ -690,7 +700,7 @@
             <template v-slot:item="{ item }">
               <div>
                 <span>{{ item.user_fio }}</span>
-                <span v-if="item.email" style="color: #999; font-size: 12px">
+                <span v-if="item.email" style="color: #999; font-size: 12px;">
                   ({{ item.email }})
                 </span>
               </div>
@@ -710,7 +720,7 @@
             text
             @click="onSelectComponent()"
           >
-            {{ isEditingCitation ? "Сохранить" : "Создать" }}
+            {{ isEditingCitation ? 'Сохранить' : 'Создать' }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -779,10 +789,11 @@ export default {
 
     /* Citaion */
     citationForm: {
-      title: "",
-      text: "",
+      title: '',
+      text: '',
       id_user: null,
       _uuid_user: null,
+      
     },
     isEditingCitation: false,
     editingCitationIndex: null,
@@ -801,23 +812,6 @@ export default {
     this.loading_dropzone = false;
   },
   watch: {
-    "$store.state.ArticleModule.selectComponent.url": {
-      handler(v) {
-        if (v) {
-          // Открылась модалка
-          const editingLink = this.$store.state.ArticleModule.editingLink;
-
-          if (editingLink) {
-            // Режим редактирования - заполняем поля
-            this.$store.commit("set_url_text", editingLink.text);
-            this.$store.commit("set_url_value", editingLink.url);
-          }
-        } else {
-          // Закрылась модалка - очищаем
-          this.$store.commit("clearEditingLink");
-        }
-      },
-    },
     "$store.state.ArticleModule.selectComponent.questions": {
       handler(v) {
         this.$store.commit("clear_list_questions");
@@ -830,10 +824,10 @@ export default {
           window.addEventListener("scroll", this.disableInput, true);
         });
         this.$store
-          .dispatch("getListQuestions", _store.name_component)
-          .then(() => {
-            this.getArrID();
-          });
+            .dispatch("getListQuestions", _store.name_component)
+            .then(() => {
+              this.getArrID();
+            });
         this.$store.dispatch("getGeneralTagsArticle");
       },
     },
@@ -855,19 +849,19 @@ export default {
           this.$nextTick(() => {
             window.addEventListener("scroll", this.disableInput, true);
           });
-
+          
           // Загружаем номенклатуру
           if (!this.$store.state.ArticleModule.nomenclatures?.length) {
             this.$store.dispatch("getListNomenclature", "nomenclature");
           }
-
+          
           // Чекаем режим редактирования
           const editData = this.$store.state.ArticleModule.editingSpecification;
-
+          
           if (editData?.imageId) {
             // Ждём пока компонент точно отрендерится
             await this.$nextTick();
-
+                        
             if (this.$refs.specEditor) {
               await this.loadSpecificationForEdit(editData);
             }
@@ -881,7 +875,7 @@ export default {
       handler(v) {
         if (v) {
           const editingData = this.$store.state.ArticleModule.editingCitation;
-
+          
           if (editingData) {
             this.isEditingCitation = true;
             this.editingCitationIndex = editingData.index_component;
@@ -899,12 +893,12 @@ export default {
         }
       },
     },
-    "citationForm.id_user"(newUserId) {
+    'citationForm.id_user'(newUserId) {
       if (newUserId) {
-        const user = this.listUsers.find((u) => u.id === newUserId);
-        this.citationForm._uuid_user = user?.uuid || null;
+        const user = this.listUsers.find(u => u.id === newUserId)
+        this.citationForm._uuid_user = user?.uuid || null
       } else {
-        this.citationForm._uuid_user = null;
+        this.citationForm._uuid_user = null
       }
     },
     "filters.tag": {
@@ -918,7 +912,7 @@ export default {
   computed: {
     isMobile() {
       return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
+          navigator.userAgent
       );
     },
     check_count_auth() {
@@ -947,17 +941,37 @@ export default {
         return !this.arrIds.includes(question.id) && question.activity === 1;
       });
     },
-    // listNomenclature() {
-    //   if (!_store.list_nomenclature.length) return [];
-    //   return _store.list_nomenclature.filter((nomenclature) => {
-    //     return !this.selectedNomenclature
-    //       .map((elem) => elem.id)
-    //       .includes(nomenclature.id);
-    //   });
-    // },
+    listNomenclature() {
+      if (!_store.list_nomenclature.length) return [];
+      return _store.list_nomenclature.filter((nomenclature) => {
+        return !this.selectedNomenclature
+            .map((elem) => elem.id)
+            .includes(nomenclature.id);
+      });
+    },
     listUsers() {
       return this.$store.state.ArticleModule.listUsersByFilterExpert || [];
     },
+    canInsertSpecification() {
+      const editor = this.$refs.specEditor
+      
+      if (!editor || !editor.dropzone_uploaded?.length || !editor.hotspots?.length) {
+        return false
+      }
+      
+      // Режим добавления активен
+      if (editor.isAddingHotspot) {
+        return false
+      }
+      
+      // Есть несохранённые метки
+      const hasUnsavedHotspot = editor.hotspots.some(h => !h.saved)
+      if (hasUnsavedHotspot) {
+        return false
+      }
+      
+      return true
+    }
   },
   methods: {
     setNomenclatureList(data) {
@@ -966,7 +980,7 @@ export default {
     },
     removeNomenclature(id) {
       const index = this.selectedNomenclature.findIndex(
-        (elem) => elem.id === id
+          (elem) => elem.id === id
       );
       if (index !== -1) {
         this.selectedNomenclature.splice(index, 1);
@@ -975,13 +989,13 @@ export default {
 
     showLinkSettings() {
       const selection = window.getSelection();
-
+      
       if (selection.toString()) {
         this.$store.commit("set_url_text", selection.toString());
         this.$store.commit("change_link_selection", selection.getRangeAt(0));
       } else {
         this.$store.commit("change_link_selection", null);
-
+        
         if (selection.rangeCount > 0) {
           this.$store.commit("change_range", selection.getRangeAt(0));
         }
@@ -1062,21 +1076,21 @@ export default {
       });
       if (index !== -1) {
         this.$store
-          .dispatch("deleteFile", this.dropzone_uploaded[index].id)
-          .then(() => {
-            this.dropzone_uploaded.splice(index, 1);
-            for (let i = 0; i < this.dropzone_uploaded.length; i++) {
-              const block = document.getElementById(
-                `close-${this.dropzone_uploaded[i].index}`
-              );
-              block.id = `close-${i + 1}`;
-              block.onclick = () => {
-                this.removedFile(i + 1);
-              };
-              this.dropzone_uploaded[i].index = i + 1;
-            }
-            this.index_uploaded = this.dropzone_uploaded.length + 1;
-          });
+            .dispatch("deleteFile", this.dropzone_uploaded[index].id)
+            .then(() => {
+              this.dropzone_uploaded.splice(index, 1);
+              for (let i = 0; i < this.dropzone_uploaded.length; i++) {
+                const block = document.getElementById(
+                    `close-${this.dropzone_uploaded[i].index}`
+                );
+                block.id = `close-${i + 1}`;
+                block.onclick = () => {
+                  this.removedFile(i + 1);
+                };
+                this.dropzone_uploaded[i].index = i + 1;
+              }
+              this.index_uploaded = this.dropzone_uploaded.length + 1;
+            });
       }
     },
     clearDropZoneTemplate() {
@@ -1096,10 +1110,10 @@ export default {
       if (!this.dropzone_uploaded.length) return;
 
       await Request.put(
-        this.$store.state.BASE_URL +
+          this.$store.state.BASE_URL +
           "/entity/files/" +
           this.dropzone_uploaded[0].id,
-        this.dropzone_uploaded[0]
+          this.dropzone_uploaded[0]
       );
     },
 
@@ -1107,21 +1121,23 @@ export default {
     saveSpecification (data) {
       this.specificationData = data
     },
-
+    
     insertSpecification () {
       const imageId = this.$refs.specEditor.dropzone_uploaded[0]?.id;
       const imageUrl = this.$refs.specEditor.dropzone_uploaded[0]?.url;
-
+      const imageUuid = this.$refs.specEditor.dropzone_uploaded[0]?.uuid;
+      
       if (!imageId) {
         this.$toast?.error('Сначала загрузите изображение')
         return
       }
-
+      
       const elem = {
         imageId: imageId,
         imageUrl: imageUrl,
+        imageUuid: imageUuid
       };
-
+      
       this.$store.commit("change_counter", {
         name: "layout",
         count: _store.counters.layout + 1,
@@ -1130,28 +1146,29 @@ export default {
         name: "specification",
         count: _store.counters.specification + 1,
       });
-
+      
       this.$store.commit("changeSelectedObject", elem);
-
+      
       this.$emit("callCheckout", elem);
-
+      
       this.closeModal('specification');
     },
 
     async loadSpecificationForEdit(editData) {
       this.isEditingSpecification = true;
       this.editingSpecificationIndex = editData.index_component;
-
+      
       try {
         const selectQuery = Request.ConstructSelectQuery(['*']);
-
+        
         const response = await Request.get(
-          `${this.$store.state.BASE_URL}/m-to-m/nomenclatures-on-images?${selectQuery}&filter[id_image]=${editData.imageId}`
+          `${this.$store.state.BASE_URL}/entity/specifications?${selectQuery}&filter[id_image]=${editData.imageId}`
         );
-
+        
         this.specificationData = {
           imageId: editData.imageId,
           imageUrl: editData.imageUrl,
+          imageUuid: editData.imageUuid,
           hotspots: response.data.map(spec => ({
             id: spec.id,
             x: spec.hotspot_x,
@@ -1159,18 +1176,18 @@ export default {
             idsNomenclatures: spec.ids_nomenclatures || [],
             idsFamilies: spec.ids_families || [],
             saved: true,
-            specificationId: spec.id // 🔥 ID спецификации
+            specificationId: spec.id
           }))
         };
-
+        
         this.$refs.specEditor.loadExistingSpecification(this.specificationData);
-
+        
       } catch (error) {
         console.error('❌ Ошибка:', error);
       }
     },
 
-
+    
     clearSpecification() {
       this.$refs.specEditor?.clearAllData?.()
       this.specificationData = {}
@@ -1197,7 +1214,7 @@ export default {
         _store.range.collapse(false);
         iconsModels.icons_panel.formatBlock.active = false;
       } else if (
-        _store.range.commonAncestorContainer.parentElement.tagName === "DIV"
+          _store.range.commonAncestorContainer.parentElement.tagName === "DIV"
       ) {
         document.execCommand("formatBlock", false, "p");
         _store.range.collapse(false);
@@ -1216,7 +1233,7 @@ export default {
         _store.range.collapse(false);
         iconsModels.icons_panel.formatBlockH3.active = false;
       } else if (
-        _store.range.commonAncestorContainer.parentElement.tagName === "DIV"
+          _store.range.commonAncestorContainer.parentElement.tagName === "DIV"
       ) {
         document.execCommand("formatBlock", false, "p");
         _store.range.collapse(false);
@@ -1243,10 +1260,10 @@ export default {
       this.debounceTimeout = setTimeout(() => {
         this.$store.commit("change_loading_modal_list", true);
         this.$store
-          .dispatch("setFilteredListQuestionsModal", this.filters)
-          .then(() => {
-            this.$store.commit("change_loading_modal_list", false);
-          });
+            .dispatch("setFilteredListQuestionsModal", this.filters)
+            .then(() => {
+              this.$store.commit("change_loading_modal_list", false);
+            });
       }, 500);
     },
     closeModal(name) {
@@ -1273,7 +1290,7 @@ export default {
     // if we want add after modal window
     initializeSelection(componentName) {
       if (componentName === "image") {
-        this.loading_dropzone = false;
+        this.loading_dropzone = false
       }
 
       this.$store.commit("get_range", true);
@@ -1304,7 +1321,7 @@ export default {
           this.clearDropZoneTemplate();
           this.dropzone_uploaded = [];
           this.index_uploaded = 1;
-          this.loading_dropzone = true;
+          this.loading_dropzone = true
         }
       } else if (_store.name_component === "nomenclature") {
         /** NOMENCLATURE **/
@@ -1317,8 +1334,8 @@ export default {
           count: _store.counters[_store.name_component] + 1,
         });
         elem.nomenclatures_id = this.selectedNomenclature
-          .slice()
-          .map((elem) => elem.id);
+            .slice()
+            .map((elem) => elem.id);
         elem.id = new Date().valueOf();
         this.$store.commit("changeSelectedObject", elem);
         this.selectedNomenclature = [];
@@ -1337,24 +1354,24 @@ export default {
         return;
       } else if (_store.name_component === "specification") {
         /** SPECIFICATION **/
-
+        
         const imageId = this.$refs.specEditor.dropzone_uploaded[0]?.id;
         const imageUrl = this.$refs.specEditor.dropzone_uploaded[0]?.url;
-
-        console.log('🔥 Вставка спецификации, imageId:', imageId, 'imageUrl:', imageUrl); // ДЕБАГ
-
+        const imageUuid = this.$refs.specEditor.dropzone_uploaded[0]?.uuid;
+        
         if (!imageId) {
           this.$toast?.error('Загрузите изображение');
           return;
         }
-
+        
         elem = {
           imageId: imageId,
           imageUrl: imageUrl,
+          imageUuid: imageUuid
         };
-
-        console.log('🔥 elem для callCheckout:', elem);
-
+        
+        console.log('🔥 elem для callCheckout:', elem); 
+        
         // Увеличиваем счётчики
         this.$store.commit("change_counter", {
           name: "layout",
@@ -1364,16 +1381,16 @@ export default {
           name: "specification",
           count: _store.counters.specification + 1,
         });
-
+        
         // Передаём данные в стор
         this.$store.commit("changeSelectedObject", elem);
-
+        
         // Вызываем вставку
         this.$emit("callCheckout", elem);
-
+        
         // Закрываем модалку
         this.closeModal('specification');
-
+        
         return;
       }
 
@@ -1394,7 +1411,7 @@ export default {
     /** CITATION METHODS **/
     async createCitation() {
       this.savingCitation = true;
-
+      
       try {
         const response = await Request.post(
           `${this.$store.state.BASE_URL}/entity/quotes`,
@@ -1404,9 +1421,9 @@ export default {
             id_user: this.citationForm.id_user,
           }
         );
-
+        
         const citationId = response.data.id;
-
+        
         // Формируем объект для вставки
         const elem = {
           id: citationId,
@@ -1415,7 +1432,7 @@ export default {
           id_user: this.citationForm.id_user,
           _uuid_user: this.citationForm._uuid_user,
         };
-
+        
         // Увеличиваем счётчики
         this.$store.commit("change_counter", {
           name: "layout",
@@ -1425,25 +1442,26 @@ export default {
           name: "citation",
           count: _store.counters.citation + 1,
         });
-
+        
         // Передаём данные в стор для компонента
         this.$store.commit("changeSelectedObject", elem);
-
+        
         // Вызываем вставку компонента в редактор
         this.$emit("callCheckout", elem);
-
+        
         // Очищаем форму и закрываем модалку
         this.resetCitationForm();
-        this.closeModal("citation");
+        this.closeModal('citation');
+        
       } catch (error) {
-        console.error("Ошибка создания цитаты:", error);
+        console.error('Ошибка создания цитаты:', error);
       } finally {
         this.savingCitation = false;
       }
     },
     async updateCitation() {
       this.savingCitation = true;
-
+      
       try {
         await Request.put(
           `${this.$store.state.BASE_URL}/entity/quotes/${this.citationForm.id}`,
@@ -1453,13 +1471,12 @@ export default {
             id_user: this.citationForm.id_user,
           }
         );
-
+        
         // Находим компонент в списке по индексу
         const component = _store.list_components.find(
-          (comp) =>
-            comp.instance.$data.index_component === this.editingCitationIndex
+          comp => comp.instance.$data.index_component === this.editingCitationIndex
         );
-
+        
         if (component) {
           // Обновляем данные прямо в компоненте (реактивность сработает)
           component.instance.$data.citation_data = {
@@ -1469,16 +1486,17 @@ export default {
             id_user: this.citationForm.id_user,
             _uuid_user: this.citationForm._uuid_user,
           };
-
+          
           // Обновляем имя автора (вызываем метод для загрузки с бэка)
           component.instance.getUserName();
         }
-
+        
         // Очищаем форму и закрываем модалку
         this.resetCitationForm();
-        this.closeModal("citation");
+        this.closeModal('citation');
+        
       } catch (error) {
-        console.error("Ошибка обновления цитаты:", error);
+        console.error('Ошибка обновления цитаты:', error);
       } finally {
         this.savingCitation = false;
       }
@@ -1486,14 +1504,15 @@ export default {
     resetCitationForm() {
       this.citationForm = {
         id: null,
-        title: "",
-        text: "",
+        title: '',
+        text: '',
         id_user: null,
         _uuid_user: null,
       };
       this.isEditingCitation = false;
       this.editingCitationIndex = null;
-    },
+    }
+
   },
 
   beforeDestroy() {
@@ -1517,7 +1536,7 @@ export default {
 }
 
 ::v-deep
-  .v-menu__content.theme--light.menuable__content__active.v-autocomplete__content {
+.v-menu__content.theme--light.menuable__content__active.v-autocomplete__content {
   max-width: 552px !important;
 }
 
