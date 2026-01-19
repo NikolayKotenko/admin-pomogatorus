@@ -107,6 +107,7 @@
         small-chips
         deletable-chips
         class="mb-2"
+        :disabled="hotspots[editedIndex].isLoading"
       />
 
       <v-autocomplete
@@ -121,29 +122,22 @@
         small-chips
         deletable-chips
         class="mb-2"
+        :disabled="hotspots[editedIndex].isLoading"
       />
             
       <div class="d-flex">
         <v-btn 
           small 
           color="success" 
-          :disabled="(!hotspots[editedIndex].idsNomenclatures?.length && !hotspots[editedIndex].idsFamilies?.length) || hotspots[editedIndex].saved"
+          :disabled="!hasChanges(editedIndex) || hotspots[editedIndex].isLoading"
+          :loading="hotspots[editedIndex].isLoading"
           @click="saveCurrentHotspot"
         >
-          {{ hotspots[editedIndex].saved ? 'Сохранено' : 'Сохранить метку' }}
+          Сохранить изменения
         </v-btn>
         
         <v-spacer />
-        
-        <v-btn 
-          v-if="hotspots[editedIndex].saved"
-          small 
-          color="warning" 
-          @click="editSavedHotspot(editedIndex)"
-        >
-          Редактировать
-        </v-btn>
-        
+                
         <v-btn small color="error" @click="removeHotspot(editedIndex)">
           Удалить
         </v-btn>
@@ -288,7 +282,9 @@ export default {
         idsNomenclatures: [],
         idsFamilies: [],
         saved: false,
-        specificationId: null
+        specificationId: null,
+        isLoading: false,
+        originalData: null
       });
 
       this.editedIndex = this.hotspots.length - 1;
@@ -298,8 +294,37 @@ export default {
       this.imageLoaded = true
     },
     editHotspot (index) {
-      this.editedIndex = index
+      const hotspot = this.hotspots[index];
+      
+      if (!hotspot.originalData && hotspot.saved) {
+        hotspot.originalData = {
+          idsNomenclatures: [...(hotspot.idsNomenclatures || [])],
+          idsFamilies: [...(hotspot.idsFamilies || [])]
+        };
+      }
+      
+      this.editedIndex = index;
     },
+    hasChanges(index) {
+      const hotspot = this.hotspots[index];
+      
+      if (!hotspot.saved) {
+        return (hotspot.idsNomenclatures?.length > 0 || hotspot.idsFamilies?.length > 0);
+      }
+      
+      if (!hotspot.originalData) return false;
+      
+      const nomenclaturesChanged = JSON.stringify([...(hotspot.idsNomenclatures || [])].sort()) !== 
+                                  JSON.stringify([...(hotspot.originalData.idsNomenclatures || [])].sort());
+      
+      const familiesChanged = JSON.stringify([...(hotspot.idsFamilies || [])].sort()) !== 
+                            JSON.stringify([...(hotspot.originalData.idsFamilies || [])].sort());
+      
+      return nomenclaturesChanged || familiesChanged;
+    },
+
+
+
     removeHotspot (index) {
       this.hotspots.splice(index, 1)
       if (this.editedIndex === index) this.editedIndex = null
@@ -308,11 +333,11 @@ export default {
       this.hotspots = []
       this.editedIndex = null
     },
-    editSavedHotspot (index) {
-      const hotspot = this.hotspots[index];
-      hotspot.saved = false;
-      this.editedIndex = index;
-    },
+    // editSavedHotspot (index) {
+    //   const hotspot = this.hotspots[index];
+    //   hotspot.saved = false;
+    //   this.editedIndex = index;
+    // },
 
     async saveHotspot (hotspot) {
       try {
@@ -390,16 +415,25 @@ export default {
         return;
       }
       
+      hotspot.isLoading = true;
       let saved = false;
       
       if (hotspot.specificationId) {
-        saved = await this.updateHotspot (hotspot);
+        saved = await this.updateHotspot(hotspot);
       } else {
-        saved = await this.saveHotspot (hotspot);
+        saved = await this.saveHotspot(hotspot);
       }
+      
+      hotspot.isLoading = false;
       
       if (saved) {
         hotspot.saved = true;
+        
+        hotspot.originalData = {
+          idsNomenclatures: [...(hotspot.idsNomenclatures || [])],
+          idsFamilies: [...(hotspot.idsFamilies || [])]
+        };
+        
         this.$toast?.success('Метка сохранена');
         this.editedIndex = null;
       } else {
@@ -417,7 +451,16 @@ export default {
         index: 1
       }];
       
-      this.hotspots = data.hotspots || [];
+      // Добавляем originalData для каждой существующей метки
+      this.hotspots = (data.hotspots || []).map(h => ({
+        ...h,
+        isLoading: false,
+        originalData: {
+          idsNomenclatures: [...(h.idsNomenclatures || [])],
+          idsFamilies: [...(h.idsFamilies || [])]
+        }
+      }));
+      
       this.imageLoaded = true;
     },
     
