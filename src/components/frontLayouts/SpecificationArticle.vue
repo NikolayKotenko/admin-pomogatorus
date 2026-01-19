@@ -138,9 +138,51 @@ export default {
       });
     },
 
-    deleteSpecification() {
+    async deleteSpecification() {
+      if (!confirm('Удалить спецификацию и все метки?')) {
+        return;
+      }
+
+      // Получаем все метки для этого изображения
+      try {
+        const selectQuery = Request.ConstructSelectQuery(['*']);
+        
+        const result = await Request.get(
+          `${this.$store.state.BASE_URL}/entity/specifications?${selectQuery}&filter[id_image]=${this.specification_data.imageId}`
+        );
+        
+        const specifications = result.data || [];
+        
+        if (specifications.length > 0) {
+          console.log(`Удаление ${specifications.length} меток...`);
+          
+          // Удаляем все метки
+          const deletePromises = specifications.map(spec =>
+            Request.delete(
+              `${this.$store.state.BASE_URL}/entity/specifications/${spec.id}`
+            ).catch(e => {
+              console.error(`Ошибка удаления метки ${spec.id}:`, e);
+              return { error: true, id: spec.id };
+            })
+          );
+          
+          const results = await Promise.all(deletePromises);
+          const failed = results.filter(r => r?.error);
+          
+          if (failed.length > 0) {
+            console.error(`Не удалось удалить ${failed.length} из ${specifications.length} меток`);
+          } else {
+            console.log(`Удалено ${specifications.length} меток`);
+          }
+        }
+      } catch (error) {
+        console.error('Ошибка при удалении меток спецификации:', error);
+      }
+      
+      // Удаляем компонент из статьи
       this.$store.dispatch("deleteComponent", this.index_component);
     },
+
   },
 };
 </script>
