@@ -53,6 +53,7 @@ export default {
         seo_title: null,
         seo_keywords: null,
         seo_description: null,
+        tag_cover: null,
         e_client_files: [],
         created_at: null,
         updated_at: null,
@@ -119,7 +120,6 @@ export default {
     async onSubmit({ commit, dispatch }) {
       if (this.state.TagsModule.tag.name == null) return false;
 
-      //START
       commit("changeLoadingGeneral", true);
 
       let response = null;
@@ -130,9 +130,8 @@ export default {
       }
       await dispatch("deleteMtoMTagTethers");
 
-      await dispatch("clearTag");
+      // Получаем список и текущий тег БЕЗ очистки
       await dispatch("getListTags", response.data.id);
-      //END
       commit("changeLoadingGeneral", false);
     },
     async createTag({ commit }) {

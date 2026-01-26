@@ -98,9 +98,11 @@
           v-if="hotspots.length"
           color="warning"
           class="ml-2"
+          :loading="isDeletingAll"
+          :disabled="isDeletingAll"
           @click="clearAllHotspots"
         >
-          Очистить ({{ hotspots.length }})
+          {{ isDeletingAll ? 'Удаление...' : `Очистить (${hotspots.length})` }}
         </v-btn>
       </div>
 
@@ -188,7 +190,8 @@ export default {
       editedIndex: null,
       imageLoaded: false,
       families: [],
-    };
+      isDeletingAll: false
+    }
   },
   computed: {
     dropzoneOptions() {
@@ -356,14 +359,54 @@ export default {
       return nomenclaturesChanged || familiesChanged;
     },
 
-    removeHotspot(index) {
-      this.hotspots.splice(index, 1);
-      if (this.editedIndex === index) this.editedIndex = null;
+
+
+    removeHotspot (index) {
+      this.hotspots.splice(index, 1)
+      if (this.editedIndex === index) this.editedIndex = null
     },
-    clearAllHotspots() {
+    async clearAllHotspots() {
+      if (!confirm(`Удалить все метки (${this.hotspots.length} шт.)?`)) {
+        return;
+      }
+
+      const savedHotspots = this.hotspots.filter(h => h.saved && h.specificationId);
+
+      if (savedHotspots.length === 0) {
+        this.hotspots = [];
+        this.editedIndex = null;
+        console.log('Метки очищены (несохранённые)');
+        return;
+      }
+
+      const deletePromises = savedHotspots.map(hotspot =>
+        Request.delete(
+          `${this.$store.state.BASE_URL}/entity/specifications/${hotspot.specificationId}`
+        ).catch(e => {
+          console.error(`Ошибка удаления метки ${hotspot.specificationId}:`, e);
+          return { error: true, id: hotspot.specificationId };
+        })
+      );
+
+      try {
+        const results = await Promise.all(deletePromises);
+
+        const failed = results.filter(r => r?.error);
+
+        if (failed.length > 0) {
+          console.error(`Не удалось удалить ${failed.length} из ${savedHotspots.length} меток`);
+        } else {
+          console.log(`Удалено ${savedHotspots.length} меток`);
+        }
+      } catch (e) {
+        console.error('Ошибка при массовом удалении:', e);
+      }
+
       this.hotspots = [];
       this.editedIndex = null;
     },
+
+
     // editSavedHotspot (index) {
     //   const hotspot = this.hotspots[index];
     //   hotspot.saved = false;
