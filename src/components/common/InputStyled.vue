@@ -124,13 +124,13 @@ export default {
     },
     currentData: {
       get() {
-        if (this.data) {
+        if (this.data !== undefined && this.data !== null) {
           return this.data
         }
         return this.internalData
       },
       set(value) {
-        if (!this.data) {
+        if (this.data === undefined || this.data === null) {
           this.internalData = value
         }
         if (this.indexArray !== undefined) {
@@ -141,6 +141,13 @@ export default {
         } else {
           this.$emit('update-input', value)
         }
+      }
+    }
+  },
+  watch: {
+    data(newValue) {
+      if (newValue === undefined || newValue === null || newValue === '') {
+        this.internalData = ''
       }
     }
   },
