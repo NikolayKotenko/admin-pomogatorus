@@ -1,26 +1,29 @@
 <template>
   <div :class="{ disabled: !check_created_article }" class="textRedactor">
-    <HeaderBlock @callCheckout="callCheckout" @add-link="addLink"/>
+    <HeaderBlock @callCheckout="callCheckout" @add-link="addLink" />
 
     <div
-        ref="content"
-        :contenteditable="
+      ref="content"
+      :contenteditable="
         check_created_article && !$store.state.ArticleModule.startRender
       "
-        class="textRedactor__content"
-        spellcheck="false"
-        @input="
+      class="textRedactor__content"
+      spellcheck="false"
+      @input="
         onContentChange;
         preventStyles;
       "
-        @mouseup="onSelectionContent()"
-        @keyup.enter="preventStyles(); onSelectionContent()"
+      @mouseup="onSelectionContent()"
+      @keyup.enter="
+        preventStyles();
+        onSelectionContent();
+      "
     ></div>
 
     <!-- OVERLAYS -->
     <div
-        v-if="!check_created_article || $store.state.ArticleModule.startRender"
-        class="overlay"
+      v-if="!check_created_article || $store.state.ArticleModule.startRender"
+      class="overlay"
     ></div>
   </div>
 </template>
@@ -40,7 +43,10 @@ import LoginAuth from "../auth/LoginAuth";
 
 import titlesStore from "@/store/modules/article/index.js";
 import DataComponent from "../../services/article/dataComponent";
-import {Constructor_instance, Imported_component,} from "../../helpers/constructors";
+import {
+  Constructor_instance,
+  Imported_component,
+} from "../../helpers/constructors";
 
 import iconsModels from "../../models/iconsModels";
 
@@ -97,7 +103,10 @@ export default {
       /** Вешаем на редактор событие по триггеру изменений **/
       this.$refs.content.addEventListener("input", this.onContentChange);
 
-      this.$refs.content.addEventListener("dblclick", this.handleLinkDoubleClick);
+      this.$refs.content.addEventListener(
+        "dblclick",
+        this.handleLinkDoubleClick
+      );
 
       /**
        * Самая важная часть при инициализации страницы
@@ -107,11 +116,17 @@ export default {
         this.$nextTick(() => {
           this.resetCounter(_store.list_components);
           this.changeIndexQuestion();
-          this.getInsertedHtmlImageCounters()
+          this.getInsertedHtmlImageCounters();
           this.onContentChange(true);
 
-          this.debugConsole(`Окончание рендеринга! Итоговый список компонентов list_components:`, _store.list_components)
-          this.debugConsole(`Окончание рендеринга! Итоговый список counters:`, _store.counters)
+          this.debugConsole(
+            `Окончание рендеринга! Итоговый список компонентов list_components:`,
+            _store.list_components
+          );
+          this.debugConsole(
+            `Окончание рендеринга! Итоговый список counters:`,
+            _store.counters
+          );
         });
       });
     }, 500);
@@ -123,9 +138,9 @@ export default {
         this.$nextTick(() => {
           this.$store.commit("changeContent", this.content);
           this.$store.commit("change_by_action_editor");
-        })
+        });
       },
-      deep: true
+      deep: true,
     },
     /** Здесь триггерим сохранение статьи **/
     saveDB: {
@@ -162,7 +177,7 @@ export default {
     "$store.state.ArticleModule.startRender": {
       handler(v) {
         if (v) {
-          this.debugConsole("Начинаем ререндеринг статьи!")
+          this.debugConsole("Начинаем ререндеринг статьи!");
 
           /**
            * ВАЖНО! Дожидаемся обновления HTML, чтобы синхронизировать все изменения со стором
@@ -171,8 +186,11 @@ export default {
             this.content = _store.content_from_server;
           });
 
-          this.debugConsole(`Следующие компоненты подлежат перерендерингу.
-          _store.components_after_request: `, _store.components_after_request)
+          this.debugConsole(
+            `Следующие компоненты подлежат перерендерингу.
+          _store.components_after_request: `,
+            _store.components_after_request
+          );
 
           /* Start render */
           if (_store.components_after_request.length) {
@@ -189,7 +207,9 @@ export default {
               });
             });
           } else {
-            this.debugWarning("Внимание! Компоненты для ререндеринга отсутствуют!")
+            this.debugWarning(
+              "Внимание! Компоненты для ререндеринга отсутствуют!"
+            );
             this.$store.commit("clear_list_components", []);
             this.$store.commit("change_start_render", false);
             /* Reset Counters & Question number */
@@ -210,16 +230,14 @@ export default {
      * &isDebug=true
      * **/
     isDebugMode() {
-      return !!this.$route?.query?.isDebug
+      return !!this.$route?.query?.isDebug;
     },
 
     /**
      * Проверяем заполнено ли название статьи. Если нет - то не даем изменять статью в редакторе
      * **/
     check_created_article() {
-      return (
-          this.newArticle.name.value !== ""
-      );
+      return this.newArticle.name.value !== "";
     },
     /**
      * Главный геттер/сеттер для всего контента в нашем редакторе
@@ -270,10 +288,10 @@ export default {
     debugConsole(...args) {
       if (this.isDebugMode) {
         if (typeof args[0] === "string") {
-          const [title, ...rest] = args
-          console.log(`[DEBUG WARNING]: ${title}`, ...rest)
+          const [title, ...rest] = args;
+          console.log(`[DEBUG WARNING]: ${title}`, ...rest);
         } else {
-          console.log(...args)
+          console.log(...args);
         }
       }
     },
@@ -283,10 +301,10 @@ export default {
     debugWarning(...args) {
       if (this.isDebugMode) {
         if (typeof args[0] === "string") {
-          const [title, ...rest] = args
-          console.warn(`[DEBUG WARNING]: ${title}`, ...rest)
+          const [title, ...rest] = args;
+          console.warn(`[DEBUG WARNING]: ${title}`, ...rest);
         } else {
-          console.warn(...args)
+          console.warn(...args);
         }
       }
     },
@@ -297,18 +315,20 @@ export default {
      * **/
     async onPasteImageComponent(id) {
       await this.$nextTick(() => {
-        this.debugConsole("Начинаем рендерить изображения из скопированного текста с HTML")
+        this.debugConsole(
+          "Начинаем рендерить изображения из скопированного текста с HTML"
+        );
         /**
          * Достаем все картинки из вставляемого HTML по тэгу <img
          * **/
-        const rawImages = this.getImageFromOnPaste(id)
+        const rawImages = this.getImageFromOnPaste(id);
 
         if (!rawImages.length) {
-          this.debugWarning("Нет ни одного <img> в скопированном тексте")
-          return
+          this.debugWarning("Нет ни одного <img> в скопированном тексте");
+          return;
         }
 
-        this.debugConsole(`Полученные изображения из текста: `, rawImages)
+        this.debugConsole(`Полученные изображения из текста: `, rawImages);
 
         /**
          * UNDO/REDO
@@ -321,22 +341,34 @@ export default {
          * Начинаем рендерить эти картинки в компоненты
          * **/
         for (const image of rawImages) {
-          this.debugConsole(`Изображение подготовлено к рендерингу.
-          image: `, image)
+          this.debugConsole(
+            `Изображение подготовлено к рендерингу.
+          image: `,
+            image
+          );
 
           /**
            * Достаем все данные, которые доступны из HTML и из стора
            * **/
-          const url = image.src ?? ""
-          const title = image.title ?? ""
-          const alt = image.alt ?? ""
-          const idImage = null // TODO: тут id из нашего хранилища фоток. Что делаем если вставляется HTML а там src с чужой фоткой? Догружаем на наш бэк?
-          const indexComponent = _store.counters.layout
-          const width = image.width ?? ""
-          const height = image.height ?? ""
-          const idArticle = _store.newArticle.id
+          const url = image.src ?? "";
+          const title = image.title ?? "";
+          const alt = image.alt ?? "";
+          const idImage = null; // TODO: тут id из нашего хранилища фоток. Что делаем если вставляется HTML а там src с чужой фоткой? Догружаем на наш бэк?
+          const indexComponent = _store.counters.layout;
+          const width = image.width ?? "";
+          const height = image.height ?? "";
+          const idArticle = _store.newArticle.id;
 
-          const data = Object.assign({}, {orig_path: url}, {id: idImage}, {title_image: title}, {alt_image: alt}, {height}, {width}, {idArticle});
+          const data = Object.assign(
+            {},
+            { orig_path: url },
+            { id: idImage },
+            { title_image: title },
+            { alt_image: alt },
+            { height },
+            { width },
+            { idArticle }
+          );
 
           /**
            * Проставляем все counter, чтобы редактор статей считал наши новые компоненты компонентами
@@ -371,13 +403,14 @@ export default {
             src: url,
             alt: alt,
             title: title,
-            idArticle: idArticle
+            idArticle: idArticle,
           });
 
           /**
            * Заполняем в стор наш новый компонент
            * **/
-          _store.list_components[indexComponent] = this.getStructureForInstance(data_component);
+          _store.list_components[indexComponent] =
+            this.getStructureForInstance(data_component);
 
           /**
            * Рендерим компонент
@@ -394,11 +427,13 @@ export default {
           this.$store.commit("changeSelectedObject", {});
         }
 
-        this.debugConsole("Окончание рендеринга изображения в статью")
-      })
+        this.debugConsole("Окончание рендеринга изображения в статью");
+      });
 
       this.$nextTick(() => {
-        this.debugConsole("После рендеринга изображений подчищаем редактор для последующей работы")
+        this.debugConsole(
+          "После рендеринга изображений подчищаем редактор для последующей работы"
+        );
 
         this.resetCounter(_store.list_components);
         this.changeIndexQuestion();
@@ -408,7 +443,7 @@ export default {
           count: _store.counters.insertedHtml + 1,
         });
         this.onContentChange();
-      })
+      });
     },
     /**
      * @function - достаем из html все картинки
@@ -418,14 +453,14 @@ export default {
       const div = document.getElementById(`inserted-html-${id}`);
       const childrenWithTag = div.getElementsByTagName("img");
 
-      return [...childrenWithTag] || []
+      return [...childrenWithTag] || [];
     },
     /**
      * @function - проверяем есть ли в тексте html тэги <img>
      * @param text {String} - html конвертированный в обычный текст
      * **/
     isImageContains(text) {
-      return text.includes("<img")
+      return text.includes("<img");
     },
 
     /**
@@ -494,14 +529,14 @@ export default {
           /**
            * Оборачиваем скопированный HTML в контейнер с отступами и стилями, которые добавляются во все встраиваемые компоненты редактора
            * **/
-          const result = `<div id="inserted-html-${_store.counters.insertedHtml}" class="inserted-html-image-container"><div style="min-height: 24px"></div>${text}<div style="min-height: 24px"></div></div>`
+          const result = `<div id="inserted-html-${_store.counters.insertedHtml}" class="inserted-html-image-container"><div style="min-height: 24px"></div>${text}<div style="min-height: 24px"></div></div>`;
           /**
            * ВАЖНО! Этот шаг обязательно должен быть, иначе на моменте работы с HTML наше DOM-дерево будет пустым и мы не сможем достать НИ-ЧЕ-ГО
            * **/
           document.execCommand("insertHtml", false, result);
 
           /** Запускаем магию по встраиванию картинок из HTML-текста в редактор **/
-          _this.onPasteImageComponent(_store.counters.insertedHtml)
+          _this.onPasteImageComponent(_store.counters.insertedHtml);
         } else {
           /**
            * Дефолтное поведение - вставили в редактор и сохранили
@@ -529,9 +564,9 @@ export default {
            * **/
           if (!selection.anchorNode) return;
           if (
-              selection.anchorNode.textContent === "" &&
-              selection.anchorNode.className !== "textRedactor__content" &&
-              selection.anchorNode.isContentEditable
+            selection.anchorNode.textContent === "" &&
+            selection.anchorNode.className !== "textRedactor__content" &&
+            selection.anchorNode.isContentEditable
           ) {
             /**
              * Если это действие происходит внутри нашего редактора и мы "удаляем" наш компонент, то удаляем из вёрстки
@@ -556,14 +591,16 @@ export default {
        * Достаем все компоненты из DOM по нашему идентификатору
        * **/
       const componentsNodes = document.getElementsByClassName(
-          "component_container"
+        "component_container"
       );
 
       /**
        * Запускаем эту функцию только в том случае, если длина компонентов в вёрстке(DOM) не совпадает с list_components, полученных от бэкенда
        * **/
       if (componentsNodes.length !== _store.list_components.length) {
-        this.debugWarning("Произошло несоответствие между компонентами в БД и компонентами в контенте \n Начата процедура получения данных из вёрстки")
+        this.debugWarning(
+          "Произошло несоответствие между компонентами в БД и компонентами в контенте \n Начата процедура получения данных из вёрстки"
+        );
         let arrCollection = [...componentsNodes];
 
         let counters = {
@@ -586,7 +623,7 @@ export default {
             dataComponent.name = htmlCollection.dataset.name;
             /* Set uniq index_%component% */
             dataComponent[`index_${htmlCollection.dataset.name}`] =
-                counters[`index_${htmlCollection.dataset.name}`];
+              counters[`index_${htmlCollection.dataset.name}`];
             /* Set uniq data for specific component */
             if (htmlCollection.dataset.name === "questions") {
               dataComponent.id = htmlCollection.dataset.id;
@@ -610,13 +647,14 @@ export default {
               dataComponent.id = htmlCollection.dataset.id;
             } else if (htmlCollection.dataset.name === "specification") {
               dataComponent.imageId = htmlCollection.dataset.id;
+              dataComponent.imageUuid = htmlCollection.dataset.uuid;
             }
             /* Push to arr result */
             arrComponentsData.push(
-                new Imported_component({
-                  index: parseInt(index),
-                  component: dataComponent,
-                })
+              new Imported_component({
+                index: parseInt(index),
+                component: dataComponent,
+              })
             );
             /* Update global counters */
             counters[`index_${htmlCollection.dataset.name}`]++;
@@ -625,8 +663,11 @@ export default {
           }
         });
 
-        this.debugWarning(`Закончен процесс поиска компонентов в вёрстке.
-        arrComponentsData: `, arrComponentsData)
+        this.debugWarning(
+          `Закончен процесс поиска компонентов в вёрстке.
+        arrComponentsData: `,
+          arrComponentsData
+        );
       }
 
       return arrComponentsData;
@@ -636,14 +677,19 @@ export default {
      * @function - основная функция по рендерингу компонентов внутри редактора
      * **/
     renderFunc() {
-      this.debugConsole("Начинаем функцию рендеринга с подготовленными компонентами")
+      this.debugConsole(
+        "Начинаем функцию рендеринга с подготовленными компонентами"
+      );
 
       let deletedIndexes = [];
 
       /** Иттерируемся по массиву готовых к рендеру компонентов **/
       _store.list_components.forEach((elem, index) => {
-        this.debugConsole(`Подготовленный элемент к рендерингу. [index]: ${index}
-        elem: `, elem)
+        this.debugConsole(
+          `Подготовленный элемент к рендерингу. [index]: ${index}
+        elem: `,
+          elem
+        );
 
         /** Метод по изменению counters и проставлению данных компонента в стор **/
         this.checkTypeComponent(elem);
@@ -652,21 +698,28 @@ export default {
         /** Если наш компонент - изображение, то небходимо достать по нему данные из вёрстки **/
         if (elem.component.name === "image") {
           const htmlParent = document.getElementById(
-              `component_wrapper-${elem.index}`
-          )
+            `component_wrapper-${elem.index}`
+          );
 
           if (!htmlParent) {
-            this.debugWarning(`Внимание! У компонента изображения отсутствует <component_wrapper-> тэг! [index]: ${elem.index},
-            elem: `, elem)
+            this.debugWarning(
+              `Внимание! У компонента изображения отсутствует <component_wrapper-> тэг! [index]: ${elem.index},
+            elem: `,
+              elem
+            );
             deletedIndexes.push(index);
-            return
+            return;
           }
 
-          const htmlImage = htmlParent.getElementsByClassName("inserted_image")[0]
+          const htmlImage =
+            htmlParent.getElementsByClassName("inserted_image")[0];
 
           if (!htmlImage) {
-            this.debugWarning(`Внимание! У компонента изображения отсутствует <img> тэг! [index]: ${elem.index},
-            elem: `, elem)
+            this.debugWarning(
+              `Внимание! У компонента изображения отсутствует <img> тэг! [index]: ${elem.index},
+            elem: `,
+              elem
+            );
             deletedIndexes.push(index);
 
             /**
@@ -676,22 +729,31 @@ export default {
              * **/
             let range = document.createRange();
             range.selectNode(
-                document.getElementById(`component_wrapper-${elem.index}`)
+              document.getElementById(`component_wrapper-${elem.index}`)
             );
             range.deleteContents();
             range.collapse(false);
             return;
           }
 
-          const url = htmlImage.src
-          const IdImage = htmlParent.dataset.id
+          const url = htmlImage.src;
+          const IdImage = htmlParent.dataset.id;
           const alt = htmlImage.alt;
           const title = htmlImage.title;
           const width = htmlImage.width;
           const height = htmlImage.height;
-          const idArticle = _store.newArticle.id
+          const idArticle = _store.newArticle.id;
 
-          data = Object.assign({}, {orig_path: url}, {id: IdImage}, {title_image: title}, {alt_image: alt}, {width}, {height}, {idArticle});
+          data = Object.assign(
+            {},
+            { orig_path: url },
+            { id: IdImage },
+            { title_image: title },
+            { alt_image: alt },
+            { width },
+            { height },
+            { idArticle }
+          );
         }
         /** Меняем глобальный counter **/
         this.$store.commit("change_counter", {
@@ -709,8 +771,11 @@ export default {
 
         /** Если в DOM-дереве отсутствует компонент, который мы должны отрендерить, то выходим **/
         if (!document.getElementById(`component_wrapper-${elem.index}`)) {
-          this.debugWarning(`Останавливаем рендеринг. Компонент отсутствует в DOM-дереве! [index]: ${index},
-          elem: `, elem)
+          this.debugWarning(
+            `Останавливаем рендеринг. Компонент отсутствует в DOM-дереве! [index]: ${index},
+          elem: `,
+            elem
+          );
           return;
         }
 
@@ -719,24 +784,27 @@ export default {
          * Удаляем его из DOM-дерева
          * **/
         range.selectNode(
-            document.getElementById(`component_wrapper-${elem.index}`)
+          document.getElementById(`component_wrapper-${elem.index}`)
         );
         range.deleteContents();
         range.collapse(false);
 
         /** Записываем в общий список компонентов - наш компонент подготовленный под единообразную структуру компонента **/
         _store.list_components[index] = this.getStructureForInstance(
-            elem.component
+          elem.component
         );
 
         /** Если рендерируемый компонент "не активен" (Убрана галка активности/видимости в админке) - удаляем его **/
         if (
-            elem.component.name === "questions" ||
-            elem.component.name === "question"
+          elem.component.name === "questions" ||
+          elem.component.name === "question"
         ) {
           if (elem.data.activity !== 1) {
-            this.debugWarning(`Внимание! У вопроса скрыта видимость! Он не будет отображен в статье! [index]: ${index}, [ID-question]: ${elem.data.id}
-            elem: `, elem)
+            this.debugWarning(
+              `Внимание! У вопроса скрыта видимость! Он не будет отображен в статье! [index]: ${index}, [ID-question]: ${elem.data.id}
+            elem: `,
+              elem
+            );
             deletedIndexes.push(index);
           }
         }
@@ -757,20 +825,25 @@ export default {
 
       /** Если в процессе рендеринга были найдены компоненты - которые подлежат удалению из вёрстки, то убираем их из общего стора **/
       if (deletedIndexes.length) {
-        this.debugWarning(`В процессе рендеринга были удалены индексы следующих компонентов: `, deletedIndexes)
+        this.debugWarning(
+          `В процессе рендеринга были удалены индексы следующих компонентов: `,
+          deletedIndexes
+        );
         deletedIndexes.forEach((index) => {
           _store.list_components.splice(index, 1);
         });
       }
 
-      this.debugConsole("Функция рендеринга с подготовленными компонентами успешно завершена")
+      this.debugConsole(
+        "Функция рендеринга с подготовленными компонентами успешно завершена"
+      );
     },
     /**
      * @function - Основной адаптер для рендера компонентов и контента в редакторе
      * **/
     initializeContent() {
       return new Promise((resolve) => {
-        this.debugConsole("Начало инициализации данных в редактор")
+        this.debugConsole("Начало инициализации данных в редактор");
 
         /** Очищаем в сторе данные по компонентам **/
         this.$store.commit("clear_list_components", []);
@@ -790,14 +863,16 @@ export default {
           _store.loadingArticle = false;
           this.geting_from_server = false;
 
-          this.debugWarning("Конец рендера, т.к. КОНТЕНТ - ОТСУТСТВУЕТ")
+          this.debugWarning("Конец рендера, т.к. КОНТЕНТ - ОТСУТСТВУЕТ");
           return resolve();
         }
 
         /** Если есть несоответствие с компонентами в вёрстке и в БД, то получаем их из вёрстки **/
         let restoredArr = [];
         restoredArr = this.checkOutOfSync();
-        this.debugConsole("Конец проверки на несоответствие компонентов вёрстки и в БД")
+        this.debugConsole(
+          "Конец проверки на несоответствие компонентов вёрстки и в БД"
+        );
 
         let componentsForRequest;
         /**
@@ -807,8 +882,11 @@ export default {
         if (restoredArr.length) {
           componentsForRequest = restoredArr;
         } else {
-          this.debugConsole(`Стартуем в обычном режиме - Берём компоненты с бэкенда.
-          _store.components_after_request: `, _store.components_after_request)
+          this.debugConsole(
+            `Стартуем в обычном режиме - Берём компоненты с бэкенда.
+          _store.components_after_request: `,
+            _store.components_after_request
+          );
           componentsForRequest = _store.components_after_request;
         }
 
@@ -818,13 +896,18 @@ export default {
          * **/
         const promises = [];
         const questions_data = _store.questions_data;
-        this.debugConsole(`Компоненты вопросов, полученные от бэкенда.
-        questions_data: `, questions_data)
+        this.debugConsole(
+          `Компоненты вопросов, полученные от бэкенда.
+        questions_data: `,
+          questions_data
+        );
 
         componentsForRequest.forEach((elem) => {
           /** Если структура не валидная, значит компонент поломан, исключаем **/
           if (!elem?.component?.name) {
-            this.debugWarning(`Получен невалидный компонент по структуре: ${elem}`)
+            this.debugWarning(
+              `Получен невалидный компонент по структуре: ${elem}`
+            );
             return;
           }
 
@@ -847,7 +930,7 @@ export default {
                * Если ничего нет, то добавляем в массив промисов, чтобы получить их
                * **/
               promises.push(
-                  this.$store.dispatch(`get_${elem.component.name}`, elem)
+                this.$store.dispatch(`get_${elem.component.name}`, elem)
               );
             }
           } else if (elem.component.name === "citation") {
@@ -858,15 +941,18 @@ export default {
           } else {
             /** Для всех остальных компонентов делаем через методы в сторе **/
             promises.push(
-                this.$store.dispatch(`get_${elem.component.name}`, elem)
+              this.$store.dispatch(`get_${elem.component.name}`, elem)
             );
           }
         });
 
         /** Дожидаемся окончания ВСЕХ промисов на получение данных по компонентам **/
         Promise.allSettled(promises).finally(() => {
-          this.debugConsole(`Все запросы на получение данных - выполнены.
-           _store.list_components:`, _store.list_components)
+          this.debugConsole(
+            `Все запросы на получение данных - выполнены.
+           _store.list_components:`,
+            _store.list_components
+          );
 
           /**
            *  Отсортировываем компоненты по возрастанию по индексу
@@ -886,7 +972,7 @@ export default {
             _store.loadingArticle = false;
             this.geting_from_server = false;
 
-            this.debugConsole("Все компоненты успешно отрендерены")
+            this.debugConsole("Все компоненты успешно отрендерены");
             resolve();
           });
         });
@@ -900,39 +986,43 @@ export default {
      * **/
     checkOnDeletedComponents() {
       this.$nextTick(() => {
-        this.debugConsole("Начинаем проверять есть ли в статье удаленные вопросы, которые отсутствуют в БД")
+        this.debugConsole(
+          "Начинаем проверять есть ли в статье удаленные вопросы, которые отсутствуют в БД"
+        );
 
         const componentsNodes = document.getElementsByClassName(
-            "component_container"
+          "component_container"
         );
 
         /** Если в DOM-дереве компонентов не столько же сколько получили после рендера, то начинаем проверку **/
         if (componentsNodes.length !== _store.list_components.length) {
-          this.debugWarning(`Обнаружено расхождение в компонентах в вёрстке и в сторе: [componentsNodes]: ${componentsNodes.length} | [_store.list_components]: ${_store.list_components.length}`)
+          this.debugWarning(
+            `Обнаружено расхождение в компонентах в вёрстке и в сторе: [componentsNodes]: ${componentsNodes.length} | [_store.list_components]: ${_store.list_components.length}`
+          );
           let arrCollection = [...componentsNodes];
 
           /** Фильтруем компоненты только по вопросам, и достаем только их ID **/
           const arrIDs = _store.list_components
-              .filter((elem, index) => {
-                const name = elem?.data?.component?.name;
+            .filter((elem, index) => {
+              const name = elem?.data?.component?.name;
 
-                if (!name) {
-                  this.debugWarning(`Получено невалидное наименование компонента при проверке удаленного вопроса! [index]: ${index}
-                  elem: ${elem}`)
+              if (!name) {
+                this
+                  .debugWarning(`Получено невалидное наименование компонента при проверке удаленного вопроса! [index]: ${index}
+                  elem: ${elem}`);
 
-                  return false;
-                }
-                return name === "question" || name === "questions";
-              })
-              .map((i) => {
-                return i?.data?.component?.id ?? i?.component?.id;
-              });
-
+                return false;
+              }
+              return name === "question" || name === "questions";
+            })
+            .map((i) => {
+              return i?.data?.component?.id ?? i?.component?.id;
+            });
 
           arrCollection.forEach((htmlCollection) => {
             if (
-                htmlCollection.dataset.name &&
-                htmlCollection.dataset.name === "questions"
+              htmlCollection.dataset.name &&
+              htmlCollection.dataset.name === "questions"
             ) {
               /**
                * Если ID вопроса из вёрстки отсутствует в массиве ids, который лежит в сторе,
@@ -941,15 +1031,21 @@ export default {
               if (!arrIDs.includes(htmlCollection.dataset.id)) {
                 let tmpStr = htmlCollection.id.match("-(.*)");
                 let index = tmpStr[tmpStr.length - 1];
-                this.debugWarning(`ID вопроса, который был удален: ${htmlCollection.dataset.id}`)
-                this.debugWarning(`Индекс удаленныго вопроса на странице [index]: ${index}`)
+                this.debugWarning(
+                  `ID вопроса, который был удален: ${htmlCollection.dataset.id}`
+                );
+                this.debugWarning(
+                  `Индекс удаленныго вопроса на странице [index]: ${index}`
+                );
 
                 /** Если index найден и он есть в вёрстке, значит мы можем удалить его из DOM-дерево и он перестанет отображаться в статье **/
                 if (index) {
                   let range = document.createRange();
-                  const elem = document.getElementById(`component_wrapper-${index}`);
+                  const elem = document.getElementById(
+                    `component_wrapper-${index}`
+                  );
 
-                  this.debugWarning(`Удалённый HTML: ${elem}`)
+                  this.debugWarning(`Удалённый HTML: ${elem}`);
 
                   range.selectNode(elem);
                   range.deleteContents();
@@ -959,7 +1055,9 @@ export default {
             }
           });
         }
-        this.debugConsole("Окончание проверки на удаленные вопросы, которые отсутствуют в БД")
+        this.debugConsole(
+          "Окончание проверки на удаленные вопросы, которые отсутствуют в БД"
+        );
       });
     },
     /**
@@ -970,11 +1068,11 @@ export default {
     checkTypeComponent(elem) {
       this.$store.commit("change_name_component", elem.component.name);
       const name = Object.prototype.hasOwnProperty.call(
-          elem.component,
-          "index_question"
+        elem.component,
+        "index_question"
       )
-          ? "question"
-          : elem.component.name;
+        ? "question"
+        : elem.component.name;
 
       /** ВАЖНО! Обязательно изменение коунтера **/
       this.$store.commit("change_counter", {
@@ -990,7 +1088,7 @@ export default {
      * @param isMounted {Boolean} - необязательный флаг, используется только в mounted для корректной работы UNDO/REDO
      * **/
     onContentChange(isMounted = false) {
-      this.debugConsole("Произошло изменение контента!")
+      this.debugConsole("Произошло изменение контента!");
 
       /** Если контент не меняется от действий UNDO/REDO **/
       if (!_store.isChangedByAction) {
@@ -1013,11 +1111,14 @@ export default {
         /** Чекаем если в процессе манипуляций с контентом был удалён наш Vue-компонент из вёрстки **/
         _store.list_components.forEach((elem, index) => {
           const elem_content = document.getElementById(
-              `component_wrapper-${elem?.instance?.$data?.index_component}`
+            `component_wrapper-${elem?.instance?.$data?.index_component}`
           );
           if (!elem_content && elem?.instance?.$data?.index_component) {
-            this.debugWarning(`В процессе изменения контента был удален компонент! [index]: ${index}
-            elem: `, elem)
+            this.debugWarning(
+              `В процессе изменения контента был удален компонент! [index]: ${index}
+            elem: `,
+              elem
+            );
             _store.deletedComponent = elem.instance.$data.index_component;
           }
         });
@@ -1031,30 +1132,30 @@ export default {
     addLink() {
       // Проверяем режим редактирования
       const editingLink = _store.editingLink;
-      
+
       if (editingLink) {
         /** РЕЖИМ РЕДАКТИРОВАНИЯ СУЩЕСТВУЮЩЕЙ ССЫЛКИ **/
         this.debugConsole("Обновляем существующую ссылку:", editingLink);
-        
+
         // Обновляем атрибуты существующей ссылки
         editingLink.element.href = _store.urlValue;
         editingLink.element.innerText = _store.urlText;
         editingLink.element.title = _store.urlText;
-        
+
         // Очищаем стор
         this.$store.commit("clear_url");
         this.$store.commit("clearEditingLink");
-        
+
         // Сохраняем
         this.saveDB = true;
         this.clearStateAfterSelect();
         setTimeout(() => {
           this.saveDB = false;
         });
-        
+
         return; // Выходим, т.к. закончили редактирование
       }
-      
+
       /** РЕЖИМ СОЗДАНИЯ НОВОЙ ССЫЛКИ **/
       this.debugConsole("Добавляем ссылку в редактор!");
 
@@ -1071,7 +1172,7 @@ export default {
         _store.linkSelection.surroundContents(link);
       } else {
         /** Если мы создаем ссылку с нуля и планируем её вставить внутри редактора **/
-        
+
         // ИСПОЛЬЗУЕМ СОХРАНЕННЫЙ RANGE ИЗ СТОРА
         if (
           _store.range &&
@@ -1079,12 +1180,18 @@ export default {
         ) {
           // ПРОВЕРКА НА ВЛОЖЕННОСТЬ В ДРУГОЙ ТЕГ <a>
           let container = _store.range.commonAncestorContainer;
-          const element = container.nodeType === Node.TEXT_NODE ? container.parentElement : container;
-          const parentLink = element.closest('a');
-          
+          const element =
+            container.nodeType === Node.TEXT_NODE
+              ? container.parentElement
+              : container;
+          const parentLink = element.closest("a");
+
           if (parentLink) {
             parentLink.parentNode.insertBefore(link, parentLink.nextSibling);
-            parentLink.parentNode.insertBefore(document.createTextNode(' '), link);
+            parentLink.parentNode.insertBefore(
+              document.createTextNode(" "),
+              link
+            );
           } else {
             // ВСТАВКА ПО RANGE
             _store.range.insertNode(link);
@@ -1110,7 +1217,6 @@ export default {
       });
     },
 
-
     /**
      * @function - функция которая запускает встраивание нового компонента в редактор
      * @param elem {Object} - объект с определенной структурой, полученный из @/components/articles/HeaderBlock
@@ -1120,8 +1226,8 @@ export default {
       let data_component = factory.create(_store.name_component, {
         name: _store.name_component,
         id: _store.selectedComponent?.id
-            ? _store.selectedComponent.id
-            : elem.id,
+          ? _store.selectedComponent.id
+          : elem.id,
         index_questions: _store.counters.questions,
         index_image: _store.counters.image,
         index_auth: _store.counters.auth,
@@ -1133,15 +1239,15 @@ export default {
 
         citation_title: elem?.title ?? "",
         citation_text: elem?.text ?? "",
-        citation_id_user: elem?.id_user ?? null, 
-        citation_uuid_user: elem?._uuid_user ?? null, 
+        citation_id_user: elem?.id_user ?? null,
+        citation_uuid_user: elem?._uuid_user ?? null,
 
         imageId: elem?.imageId ?? null,
         imageUrl: elem?.imageUrl ?? "",
         imageUuid: elem?.imageUuid ?? null,
 
         alt: elem?.alt_image ? elem?.alt_image : "",
-        title: elem?.title_image ? elem?.title_image : ""
+        title: elem?.title_image ? elem?.title_image : "",
       });
 
       /** Если вставляем компонент-вопроса то записываем все данные вопроса, чтобы не вызывать запрос на бэк **/
@@ -1186,7 +1292,7 @@ export default {
         index: _store.counters.layout,
         component: data_component,
       });
-      const params = Object.assign({}, {instance: instance}, {data: data});
+      const params = Object.assign({}, { instance: instance }, { data: data });
       return new Constructor_instance(params);
     },
 
@@ -1198,19 +1304,28 @@ export default {
      * **/
     insertingComponent(data_component) {
       return new Promise((resolve) => {
-        this.debugConsole(`Начинаем встраивать компонент в HTML.
-        data_component: `, data_component)
+        this.debugConsole(
+          `Начинаем встраивать компонент в HTML.
+        data_component: `,
+          data_component
+        );
 
         const elem = this.getStructureForInstance(data_component);
 
-        this.debugConsole(`Подготовленная структура из фабрик и конструкторов.
-        elem: `, elem)
+        this.debugConsole(
+          `Подготовленная структура из фабрик и конструкторов.
+        elem: `,
+          elem
+        );
 
         this.$store.commit("add_to_list_components", elem);
         const calledElem = _store.list_components[_store.counters.layout - 1];
 
-        this.debugConsole(`Компонент, полученный из стора перед mounted.
-        calledElem: `, calledElem)
+        this.debugConsole(
+          `Компонент, полученный из стора перед mounted.
+        calledElem: `,
+          calledElem
+        );
 
         calledElem.instance.$mount();
 
@@ -1228,8 +1343,8 @@ export default {
          * То вставляем наш компонент в НАЧАЛО редактора
          *  **/
         if (
-            _store.range &&
-            this.checkIfTextEditor(_store.range.commonAncestorContainer)
+          _store.range &&
+          this.checkIfTextEditor(_store.range.commonAncestorContainer)
         ) {
           if (window.getSelection) {
             _store.range.insertNode(div);
@@ -1237,16 +1352,16 @@ export default {
             _store.range.insertNode(div2);
           } else if (document.selection && document.selection.createRange) {
             if (
-                _store.range &&
-                (_store.range.commonAncestorContainer.parentElement.className ===
-                    "textRedactor__content" ||
-                    _store.range.commonAncestorContainer.offsetParent._prevClass ===
-                    "textRedactor")
+              _store.range &&
+              (_store.range.commonAncestorContainer.parentElement.className ===
+                "textRedactor__content" ||
+                _store.range.commonAncestorContainer.offsetParent._prevClass ===
+                  "textRedactor")
             ) {
               this.htmlSelected =
-                  calledElem.instance.$el.nodeType == 3
-                      ? calledElem.instance.$el.innerHTML.data
-                      : calledElem.instance.$el.outerHTML;
+                calledElem.instance.$el.nodeType == 3
+                  ? calledElem.instance.$el.innerHTML.data
+                  : calledElem.instance.$el.outerHTML;
               _store.range.pasteHTML(div);
               _store.range.pasteHTML(this.htmlSelected);
               _store.range.pasteHTML(div2);
@@ -1256,8 +1371,8 @@ export default {
           if (window.getSelection) {
             let range = document.createRange();
             range.setStart(
-                document.getElementsByClassName("textRedactor__content").item(0),
-                0
+              document.getElementsByClassName("textRedactor__content").item(0),
+              0
             );
             range.collapse(false);
             range.insertNode(div);
@@ -1266,14 +1381,14 @@ export default {
           } else if (document.selection && document.selection.createRange) {
             let range = document.createRange();
             range.setStart(
-                document.getElementsByClassName("textRedactor__content").item(0),
-                0
+              document.getElementsByClassName("textRedactor__content").item(0),
+              0
             );
             range.collapse(false);
             this.htmlSelected =
-                calledElem.instance.$el.nodeType == 3
-                    ? calledElem.instance.$el.innerHTML.data
-                    : calledElem.instance.$el.outerHTML;
+              calledElem.instance.$el.nodeType == 3
+                ? calledElem.instance.$el.innerHTML.data
+                : calledElem.instance.$el.outerHTML;
             range.pasteHTML(div);
             range.pasteHTML(this.htmlSelected);
             range.pasteHTML(div2);
@@ -1290,7 +1405,7 @@ export default {
      * @function - функция по переопределению номера вопроса внутри статьи
      * **/
     changeIndexQuestion() {
-      this.debugConsole("Начинаем проставлять индексы вопросам внутри статьи")
+      this.debugConsole("Начинаем проставлять индексы вопросам внутри статьи");
 
       let questions = [...document.getElementsByClassName("question_wrapper")];
       let counter = 1;
@@ -1301,28 +1416,32 @@ export default {
 
         /** Фильтруемся только по вопросам в статье, и переписываем индексы на корректные в соответствии с их положением в DOM **/
         let component = _store.list_components
-            .filter((elem) => {
-              const name = elem?.data?.component?.name;
+          .filter((elem) => {
+            const name = elem?.data?.component?.name;
 
-              /** Если в переданном компоненте нет нужной структуры, пропускаем его **/
-              if (!name) {
-                this.debugWarning(`Получен невалидный компонент по структуре: ${elem}`)
+            /** Если в переданном компоненте нет нужной структуры, пропускаем его **/
+            if (!name) {
+              this.debugWarning(
+                `Получен невалидный компонент по структуре: ${elem}`
+              );
 
-                return;
-              }
+              return;
+            }
 
-              return name === "question" || name === "questions";
-            })
-            .filter((elem) => {
-              return elem?.data?.index == id;
-            });
+            return name === "question" || name === "questions";
+          })
+          .filter((elem) => {
+            return elem?.data?.index == id;
+          });
 
         if (component.length) {
           let nameComponent = component[0]?.data?.component?.name;
 
           /** Если в переданном компоненте нет нужной структуры, пропускаем его **/
           if (!nameComponent) {
-            this.debugWarning(`Получен невалидный компонент по структуре: ${component[0]}`)
+            this.debugWarning(
+              `Получен невалидный компонент по структуре: ${component[0]}`
+            );
             return;
           }
 
@@ -1332,21 +1451,23 @@ export default {
           counter++;
         }
       });
-      this.debugConsole("Проставление индексов вопросам окончено")
+      this.debugConsole("Проставление индексов вопросам окончено");
     },
 
     /**
      * @function - собираем последний каунтер всех ранее вставленных изображений через html
      * **/
     getInsertedHtmlImageCounters() {
-      const elements = [...document.getElementsByClassName("inserted-html-image-container")]
-      const arrIds = []
+      const elements = [
+        ...document.getElementsByClassName("inserted-html-image-container"),
+      ];
+      const arrIds = [];
 
       elements.forEach((elem) => {
         let tmpStr = elem.id.split("-");
         let id = tmpStr[tmpStr.length - 1];
-        arrIds.push(parseInt(id))
-      })
+        arrIds.push(parseInt(id));
+      });
 
       const lastCounter = arrIds.sort((a, b) => b - a)[0] ?? 0;
 
@@ -1362,7 +1483,7 @@ export default {
      * @function - функция сбрасывания counters для корректной работы редактора
      * **/
     resetCounter(array) {
-      this.debugConsole("Начинаем сброс counters")
+      this.debugConsole("Начинаем сброс counters");
 
       /**
        * Общий стейт со всеми счётчиками
@@ -1378,18 +1499,23 @@ export default {
       };
 
       array.forEach((elem) => {
-        this.debugConsole(`Сбрасываем компонент [index]: ${elem?.data?.index}, [index_component]: ${elem?.instance?.$data?.index_component}
-        elem: `, elem)
+        this.debugConsole(
+          `Сбрасываем компонент [index]: ${elem?.data?.index}, [index_component]: ${elem?.instance?.$data?.index_component}
+        elem: `,
+          elem
+        );
 
         const currentDataComponent = elem?.data?.component?.name
-            ? elem.data
-            : elem;
+          ? elem.data
+          : elem;
 
         const name = currentDataComponent?.component?.name;
 
         /** Если в переданном компоненте нет нужной структуры, пропускаем его **/
         if (!name) {
-          this.debugWarning(`Получен невалидный компонент по структуре: ${currentDataComponent}`)
+          this.debugWarning(
+            `Получен невалидный компонент по структуре: ${currentDataComponent}`
+          );
           return;
         }
 
@@ -1399,16 +1525,21 @@ export default {
         currentDataComponent.component[key_data] = global_counter[key_data];
 
         if (!elem?.instance?.$data) {
-          this.debugWarning(`Отсутствует валидная структура компонента!: [elem.instance.$data] ${elem?.instance?.$data}`)
+          this.debugWarning(
+            `Отсутствует валидная структура компонента!: [elem.instance.$data] ${elem?.instance?.$data}`
+          );
           return;
         }
         elem.instance.$data[key_data] = global_counter[key_data];
         const block = document.getElementById(
-            `component_wrapper-${elem.instance.$data.index_component}`
+          `component_wrapper-${elem.instance.$data.index_component}`
         );
 
-        this.debugConsole(`Полученный HTML-элемент для обнуления счётчика. [index]: ${elem.instance.$data.index_component}, [newIndex]: ${currentDataComponent.index}
-        block: `, block)
+        this.debugConsole(
+          `Полученный HTML-элемент для обнуления счётчика. [index]: ${elem.instance.$data.index_component}, [newIndex]: ${currentDataComponent.index}
+        block: `,
+          block
+        );
 
         /** Если такой элемент есть в DOM-дереве, то переприсваиваем ему id в соответствии с его счётчиком и индексом **/
         if (block) {
@@ -1429,7 +1560,10 @@ export default {
         count: global_counter.counter_index - 1,
       });
 
-      this.debugConsole(`Сброс counters окончен. Финальный результат счётчика: `, _store.counters)
+      this.debugConsole(
+        `Сброс counters окончен. Финальный результат счётчика: `,
+        _store.counters
+      );
     },
 
     /**
@@ -1437,7 +1571,9 @@ export default {
      * **/
     deletingComponent() {
       if (_store.deletedComponent !== 0) {
-        this.debugConsole(`Начинаем удаление компонента. [index]: ${_store.deletedComponent}`)
+        this.debugConsole(
+          `Начинаем удаление компонента. [index]: ${_store.deletedComponent}`
+        );
 
         /** Undo/Redo **/
         if (!_store.txtDisplay.length) {
@@ -1447,7 +1583,7 @@ export default {
         /** Находим индекс внутри массива компонентов **/
         let index = _store.list_components.findIndex((elem) => {
           return (
-              elem.instance.$data.index_component === _store.deletedComponent
+            elem.instance.$data.index_component === _store.deletedComponent
           );
         });
 
@@ -1458,12 +1594,12 @@ export default {
            * Если удаляемый компонент - вопрос, то удаляем и из массива с данными по вопросам
            * **/
           if (
-              currentComponent?.data?.component?.name === "questions" ||
-              currentComponent?.component?.name === "questions"
+            currentComponent?.data?.component?.name === "questions" ||
+            currentComponent?.component?.name === "questions"
           ) {
             let question_index = _store.questions_data.findIndex((elem) => {
               return (
-                  elem.id == currentComponent.instance.$data.question_data.id
+                elem.id == currentComponent.instance.$data.question_data.id
               );
             });
             if (question_index !== -1) {
@@ -1478,14 +1614,16 @@ export default {
           this.$nextTick(() => {
             try {
               const elem = document.getElementById(
-                  `component_wrapper-${_store.deletedComponent}`
+                `component_wrapper-${_store.deletedComponent}`
               );
 
-              this.debugConsole(`Удаляемый HTML: `, elem)
+              this.debugConsole(`Удаляемый HTML: `, elem);
 
               elem.remove();
             } catch (e) {
-              this.debugWarning('Если это сообщение появилось, то значит компонент уже был удалён из HTML')
+              this.debugWarning(
+                "Если это сообщение появилось, то значит компонент уже был удалён из HTML"
+              );
             } finally {
               /** Обнуляем счётчики, индексы и стор после удаления. Также сохраняем статью **/
               this.$store.commit("delete_component_by_id", 0);
@@ -1519,7 +1657,7 @@ export default {
     checkForStyles(html, icon) {
       if (icon.tag === "<u" || icon.tag === "<strike") {
         return (
-            html.includes("text-decoration-line") && html.includes(icon.styleName)
+          html.includes("text-decoration-line") && html.includes(icon.styleName)
         );
       } else return html.includes(icon.styleName);
     },
@@ -1539,8 +1677,8 @@ export default {
         }
         // SET SELECTED TEXT - TO CREATE URL
         this.$store.commit(
-            "set_selected_text_url",
-            window.getSelection().toString()
+          "set_selected_text_url",
+          window.getSelection().toString()
         );
       } else if (typeof document.selection != "undefined") {
         if (document.selection.type == "Text") {
@@ -1557,12 +1695,12 @@ export default {
         let elem = _store.range.commonAncestorContainer.parentElement;
 
         // Явная проверка для заголовков H2 и H3
-        if (icon === 'formatBlock') {
-          icons_arr[icon].active = elem.tagName === 'H2';
+        if (icon === "formatBlock") {
+          icons_arr[icon].active = elem.tagName === "H2";
           return;
         }
-        if (icon === 'formatBlockH3') {
-          icons_arr[icon].active = elem.tagName === 'H3';
+        if (icon === "formatBlockH3") {
+          icons_arr[icon].active = elem.tagName === "H3";
           return;
         }
 
@@ -1578,29 +1716,29 @@ export default {
           parentHTML = parentElem.outerHTML;
         }
         if (
-            elem.className !== "textRedactor__content" &&
-            elem.className !== "textRedactor"
+          elem.className !== "textRedactor__content" &&
+          elem.className !== "textRedactor"
         ) {
           let grandParent = parentHTML
-              ? parentElem.parentElement.outerHTML
-              : elem.outerHTML;
+            ? parentElem.parentElement.outerHTML
+            : elem.outerHTML;
           styleAlign = this.getStyleAlign(grandParent, icons_arr[icon]);
         }
         icons_arr[icon].active =
-            this.checkForStyles(parentHTML, icons_arr[icon]) ||
-            this.checkByTag(parentHTML, icons_arr[icon]) ||
-            this.checkForStyles(styleAlign, icons_arr[icon]) ||
-            this.checkHTMLText(html, icons_arr[icon]) ||
-            this.checkForStyles(html, icons_arr[icon]);
+          this.checkForStyles(parentHTML, icons_arr[icon]) ||
+          this.checkByTag(parentHTML, icons_arr[icon]) ||
+          this.checkForStyles(styleAlign, icons_arr[icon]) ||
+          this.checkHTMLText(html, icons_arr[icon]) ||
+          this.checkForStyles(html, icons_arr[icon]);
       });
     },
     /* Get style name for aligners values */
     getStyleAlign(outerHTML, icon) {
       if (
-          icon.tag !== "<b" &&
-          icon.tag !== "<i" &&
-          icon.tag !== "<u" &&
-          icon.tag !== "<strike"
+        icon.tag !== "<b" &&
+        icon.tag !== "<i" &&
+        icon.tag !== "<u" &&
+        icon.tag !== "<strike"
       ) {
         return outerHTML.includes(icon.styleName) ? icon.styleName : "";
       } else return "";
@@ -1639,35 +1777,38 @@ export default {
 
     /* Функция редактирования ссылки */
     handleLinkDoubleClick(event) {
-    const target = event.target;
-    
-    // Проверяем что кликнули по ссылке
-    if (target.tagName === 'A') {
-      event.preventDefault(); // Не переходить по ссылке
-      event.stopPropagation(); // Не всплывать дальше
-      
-      this.debugConsole("Двойной клик по ссылке:", target);
-      
-      // Сохраняем ссылку в стор для редактирования
-      this.$store.commit("setEditingLink", {
-        element: target,
-        text: target.innerText,
-        url: target.href,
-      });
-      
-      // Открываем модалку
-      this.$store.commit("change_select_component", {
-        name: "url",
-        value: true,
-      });
-    }
-  },
+      const target = event.target;
+
+      // Проверяем что кликнули по ссылке
+      if (target.tagName === "A") {
+        event.preventDefault(); // Не переходить по ссылке
+        event.stopPropagation(); // Не всплывать дальше
+
+        this.debugConsole("Двойной клик по ссылке:", target);
+
+        // Сохраняем ссылку в стор для редактирования
+        this.$store.commit("setEditingLink", {
+          element: target,
+          text: target.innerText,
+          url: target.href,
+        });
+
+        // Открываем модалку
+        this.$store.commit("change_select_component", {
+          name: "url",
+          value: true,
+        });
+      }
+    },
   },
   beforeDestroy() {
     if (this.$refs.content) {
-      this.$refs.content.removeEventListener("dblclick", this.handleLinkDoubleClick);
+      this.$refs.content.removeEventListener(
+        "dblclick",
+        this.handleLinkDoubleClick
+      );
     }
-  
+
     this.$store.commit("clean_store");
   },
 };
