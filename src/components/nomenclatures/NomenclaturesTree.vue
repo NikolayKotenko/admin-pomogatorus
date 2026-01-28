@@ -1309,7 +1309,7 @@ export default {
   async mounted() {
     await this.getTreeOnMount();
     await this.getDictionaryUnits();
-    await this.$store.dispatch("getListBrands", this.$route.params.id);
+    await this.$store.dispatch("Brands/getListBrands", this.$route.params.id);
 
     await this.setSelectedFamilyAction(this.tree[0]);
     this.$refs.treeView.updateAll(true);

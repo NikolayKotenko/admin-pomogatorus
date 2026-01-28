@@ -16,7 +16,7 @@ export default {
   },
   mutations: {
     changeListBrands(state, array) {
-      state.listTags = [];
+      state.listBrands = [];
       if (Array.isArray(array)) {
         state.listBrands = array;
       } else {
