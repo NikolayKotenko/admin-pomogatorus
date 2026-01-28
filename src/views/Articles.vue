@@ -27,23 +27,27 @@
               </template>
             </div>
             
-            <span style="display: flex;" @click="onShowDetailArticle(article)">
-              <v-tooltip right>
-                <template v-slot:activator="{ on, attrs }">
-                  <p
-                    v-bind="attrs"
-                    v-on="on" 
-                    class="copy_article_id"
-                    @click.stop="copyArticleId(article.id)"
-                  >
-                    {{ `[${article.id}]` }}
-                  </p>
-                </template>
-                <span>Скопировать id статьи</span>
-              </v-tooltip>
-              
+            <v-tooltip right>
+              <template v-slot:activator="{ on, attrs }">
+                <p
+                  v-bind="attrs"
+                  v-on="on" 
+                  class="copy_article_id"
+                  @click="copyArticleId(article.id)"
+                >
+                  {{ `[${article.id}]` }}
+                </p>
+              </template>
+              <span>Скопировать id статьи</span>
+            </v-tooltip>
+            
+            <router-link
+              :to="getArticleLink(article)"
+              style="display: flex; text-decoration: none; color: inherit; flex: 1;"
+              @click="onShowDetailArticle(article)"
+            >
               {{ article.name }}
-            </span>
+            </router-link>
             <span class="questions_wrapper__item__top__title__quantity"> </span>
           </div>
           <div class="questions_wrapper__item__top__icons"></div>
@@ -276,12 +280,15 @@ export default {
         query: { ...this.queryObject },
       });
     },
-    onShowDetailArticle(article) {
-      this.$router.push({
+    getArticleLink(article) {
+      return {
         name: "DetailArticles",
         params: { action: "edit" },
         query: { article_id: article.id },
-      });
+      };
+    },
+    onShowDetailArticle(article) {
+      this.$router.push(this.getArticleLink(article));
     },
     getConfigDate() {
       this.$store.dispatch("setListConfigDate");
@@ -342,7 +349,7 @@ export default {
       this.filterValueFocused = false;
     },
     copyArticleId(id) {
-      navigator.clipboard.writeText(id).then(() => {
+      navigator.clipboard.writeText('id-article-' + id).then(() => {
         this.$store.commit('show_notification', {
           text: 'ID скопирован',
           type: 'success'
@@ -387,6 +394,9 @@ export default {
         &__title {
           color: #539ee0;
           transition: all 0.4s ease-in-out;
+          display: flex;
+          align-items: center;
+          gap: 8px;
 
           &__quantity {
             color: lightcoral;
