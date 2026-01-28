@@ -686,7 +686,6 @@ export default {
         const selects = ["*"];
         const filters = {
           confirmed_users: "true",
-          is_admin: "false",
         };
         const query = Request.modifyQuery(filters, selects);
         Request.get(`${this.state.BASE_URL}/users/get-list-users${query}`)

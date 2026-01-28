@@ -690,7 +690,7 @@
             :loading="$store.state.ArticleModule.loadingModalList"
             :menu-props="{ bottom: true, offsetY: true }"
             clearable
-            item-text="user_fio"
+            :item-text="userDisplayName"
             item-value="id"
             label="Автор цитаты"
             outlined
@@ -962,6 +962,11 @@ export default {
         parts.push(nomenclature.name);
         
         return parts.join(' ');
+      };
+    },
+    userDisplayName() {
+      return (user) => {
+        return user.user_fio + (user.email ? ` (${user.email})` : '');
       };
     },
 
