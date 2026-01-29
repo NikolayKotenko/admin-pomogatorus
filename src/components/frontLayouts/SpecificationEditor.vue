@@ -21,7 +21,11 @@
           </v-icon>
         </h3>
         <div class="subtitle" style="color: darkgrey">
-          Загрузите схему для спецификации (1 изображение)
+          Загрузите схему для спецификации (1 изображение) размером 810px х
+          455px
+        </div>
+        <div class="subtitle" style="color: red" v-if="invalidWidthHeight">
+          Cхема должна быть размером: 810px (ширина) х 455px (высота)
         </div>
       </vue-dropzone>
 
@@ -62,13 +66,11 @@
       <div ref="imageWrapper" class="diagram-wrapper" @click="onImageClick">
         Необходимый размер изображения - 810х455
         <img
-          :src="getImageUrl()"
+          :src="dropzone_uploaded[0].url"
           class="diagram-image"
           :style="isAddingHotspot ? 'cursor: crosshair;' : ''"
           alt="Схема спецификации"
           @load="onImageLoad"
-          width="810"
-          height="455"
         />
         <!-- Метки -->
         <div
@@ -76,7 +78,7 @@
           :key="spot.id"
           class="hotspot-dot"
           :class="{ saved: spot.saved }"
-          :style="{ left: spot.x + '%', top: spot.y + '%' }"
+          :style="{ left: spot.x + 'px', top: spot.y + 'px' }"
           @click.stop="editHotspot(index)"
         >
           {{ index + 1 }}
@@ -102,7 +104,7 @@
           :disabled="isDeletingAll"
           @click="clearAllHotspots"
         >
-          {{ isDeletingAll ? 'Удаление...' : `Очистить (${hotspots.length})` }}
+          {{ isDeletingAll ? "Удаление..." : `Очистить (${hotspots.length})` }}
         </v-btn>
       </div>
 
@@ -190,8 +192,9 @@ export default {
       editedIndex: null,
       imageLoaded: false,
       families: [],
-      isDeletingAll: false
-    }
+      isDeletingAll: false,
+      invalidWidthHeight: false,
+    };
   },
   computed: {
     dropzoneOptions() {
@@ -228,6 +231,12 @@ export default {
   methods: {
     // Дропзона
     sendingData(file, xhr, formData) {
+      // if (file.width !== 810 && file.height !== 455) {
+      //   console.log("NE PRAVILNO");
+      //   this.invalidWidthHeight = true;
+      //   return;
+      // }
+      console.log("sendingData", { file, xhr, formData });
       formData.append("uuid", file.upload.uuid);
       formData.append(
         "id_article",
@@ -235,7 +244,9 @@ export default {
       );
     },
     successData(file, response) {
+      console.log("successData file", { file: file, response: response });
       const formatObj = Object.assign({}, response.data);
+      console.log("formatObj", formatObj);
       formatObj.index = this.index_uploaded;
       this.index_uploaded++;
       this.dropzone_uploaded = [formatObj];
@@ -272,7 +283,7 @@ export default {
 
     // Грузим данные
     getImageUrl() {
-      return this.dropzone_uploaded[0]?.url || "";
+      return this.dropzone_uploaded[0]?.orig_path || "";
     },
     async loadFamilies() {
       try {
@@ -301,13 +312,19 @@ export default {
       if (!this.isAddingHotspot || !this.imageLoaded) return;
 
       const rect = this.$refs.imageWrapper.getBoundingClientRect();
-      const xPercent = ((e.clientX - rect.left) / rect.width) * 100;
-      const yPercent = ((e.clientY - rect.top) / rect.height) * 100;
+
+      const xPixel = e.clientX - rect.left;
+      const yPixel = e.clientY - rect.top;
+      console.log("Координаты в пикселях:", {
+        xPixel: Math.round(xPixel),
+        yPixel: Math.round(yPixel),
+        rect,
+      });
 
       this.hotspots.push({
         id: Date.now(),
-        x: +xPercent.toFixed(2),
-        y: +yPercent.toFixed(2),
+        x: Math.round(xPixel), // или просто число Math.round(xPixel)
+        y: Math.round(yPixel), // или просто число Math.round(yPixel)
         idsNomenclatures: [],
         idsFamilies: [],
         saved: false,
@@ -359,30 +376,30 @@ export default {
       return nomenclaturesChanged || familiesChanged;
     },
 
-
-
-    removeHotspot (index) {
-      this.hotspots.splice(index, 1)
-      if (this.editedIndex === index) this.editedIndex = null
+    removeHotspot(index) {
+      this.hotspots.splice(index, 1);
+      if (this.editedIndex === index) this.editedIndex = null;
     },
     async clearAllHotspots() {
       if (!confirm(`Удалить все метки (${this.hotspots.length} шт.)?`)) {
         return;
       }
 
-      const savedHotspots = this.hotspots.filter(h => h.saved && h.specificationId);
+      const savedHotspots = this.hotspots.filter(
+        (h) => h.saved && h.specificationId
+      );
 
       if (savedHotspots.length === 0) {
         this.hotspots = [];
         this.editedIndex = null;
-        console.log('Метки очищены (несохранённые)');
+        console.log("Метки очищены (несохранённые)");
         return;
       }
 
-      const deletePromises = savedHotspots.map(hotspot =>
+      const deletePromises = savedHotspots.map((hotspot) =>
         Request.delete(
           `${this.$store.state.BASE_URL}/entity/specifications/${hotspot.specificationId}`
-        ).catch(e => {
+        ).catch((e) => {
           console.error(`Ошибка удаления метки ${hotspot.specificationId}:`, e);
           return { error: true, id: hotspot.specificationId };
         })
@@ -391,21 +408,22 @@ export default {
       try {
         const results = await Promise.all(deletePromises);
 
-        const failed = results.filter(r => r?.error);
+        const failed = results.filter((r) => r?.error);
 
         if (failed.length > 0) {
-          console.error(`Не удалось удалить ${failed.length} из ${savedHotspots.length} меток`);
+          console.error(
+            `Не удалось удалить ${failed.length} из ${savedHotspots.length} меток`
+          );
         } else {
           console.log(`Удалено ${savedHotspots.length} меток`);
         }
       } catch (e) {
-        console.error('Ошибка при массовом удалении:', e);
+        console.error("Ошибка при массовом удалении:", e);
       }
 
       this.hotspots = [];
       this.editedIndex = null;
     },
-
 
     // editSavedHotspot (index) {
     //   const hotspot = this.hotspots[index];
@@ -515,6 +533,7 @@ export default {
     },
 
     loadExistingSpecification(data) {
+      console.log("loadExistingSpecification", data);
       this.dropzone_uploaded = [
         {
           id: data.imageId,
@@ -562,6 +581,8 @@ export default {
   position: relative;
   display: inline-block;
   max-width: 100%;
+  //max-width: 810px;
+  //max-height: 455px;
 }
 .diagram-image {
   max-width: 100%;
