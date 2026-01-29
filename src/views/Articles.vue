@@ -21,7 +21,6 @@
               <template v-if="article.activity === 0">
                 <v-icon class="activity_icon">mdi-eye-off</v-icon>
               </template>
-
               <template v-else>
                 <v-icon class="activity_icon">mdi-eye</v-icon>
               </template>
@@ -52,21 +51,30 @@
           </div>
           <div class="questions_wrapper__item__top__icons"></div>
         </div>
-        <div class="questions_wrapper__item__bottom universal_date">
-          <div
-            :class="{ filterShow: show_filter }"
-            class="questions_wrapper__item__bottom__date"
-          >
-            {{ article.created_at }}
+        
+        <div class="questions_wrapper__item__bottom">
+          <div class="questions_wrapper__item__bottom__analytics">
+            <span>Просмотры: {{ article.views || 0 }}</span>
+            <span>Лайки: {{ article.likes || 0 }}</span>
+            <span>Дизлайки: {{ article.dislikes || 0 }}</span>
           </div>
-          <div
-            :class="{ filterShow: show_filter }"
-            class="questions_wrapper__item__bottom__date"
-          >
-            {{ article.updated_at }}
+          <div class="questions_wrapper__item__bottom__dates">
+            <div
+              :class="{ filterShow: show_filter }"
+              class="questions_wrapper__item__bottom__date"
+            >
+              {{ article.created_at }}
+            </div>
+            <div
+              :class="{ filterShow: show_filter }"
+              class="questions_wrapper__item__bottom__date"
+            >
+              {{ article.updated_at }}
+            </div>
           </div>
         </div>
       </div>
+
 
       <v-alert
         v-if="
@@ -306,6 +314,9 @@ export default {
           "activity",
           "created_at",
           "updated_at",
+          "views",
+          "likes",
+          "dislikes"
         ];
         const query = Request.modifyQuery(this.filters, selectQuery);
         this.$store.dispatch("setFilteredListArticles", query);
@@ -425,8 +436,26 @@ export default {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 12px;
+        font-size: 0.75em;
         padding-top: 2px;
+        min-height: 18px;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+
+        &__analytics {
+          display: flex;
+          gap: 12px;
+          color: #539ee0;
+          
+          span {
+            font-size: 1em;
+          }
+        }
+
+        &__dates {
+          display: flex;
+          gap: 8px;
+        }
 
         &__date {
           color: #7c8c99;
@@ -436,8 +465,16 @@ export default {
           color: #cad5de;
         }
       }
+
+      &:hover {
+        .questions_wrapper__item__bottom {
+          opacity: 1;
+        }
+      }
     }
   }
+
+
 
   .footer {
     border-top: 3px solid darkgray;
