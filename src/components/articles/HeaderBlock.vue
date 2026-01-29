@@ -400,7 +400,7 @@
               :loading="$store.state.ArticleModule.loadingModalList"
               :menu-props="{ bottom: true, offsetY: true }"
               clearable
-              item-text="name"
+              :item-text="nomenclatureDisplayName"
               placeholder="Наименование"
               return-object
               style="position: sticky; top: 0"
@@ -408,12 +408,16 @@
           >
             <template v-slot:item="{ item }">
               <div>
-                <span>{{ item?.name }}</span>
+                <span v-if="item?._family?.brand?.name">{{ item._family.brand.name }} - </span>
                 <span v-if="item?._family?.name">
-                  -
                   {{ item?._family?.name }}
                 </span>
+                <span> - {{ item?.name }}</span>
+                
               </div>
+            </template>
+            <template v-slot:selection="{ item }">
+              <span>{{ nomenclatureDisplayName(item) }}</span>
             </template>
           </v-autocomplete>
 
@@ -426,11 +430,7 @@
                   @click:close="removeNomenclature(item.id)"
               >
                 <div class="nomenclature-chip">
-                  <span>{{ item?.name }}</span>
-                  <span v-if="item?._family?.name">
-                    -
-                    {{ item?._family?.name }}
-                  </span>
+                  {{ nomenclatureDisplayName(item) }}
                 </div>
               </v-chip>
             </v-chip-group>
@@ -690,7 +690,7 @@
             :loading="$store.state.ArticleModule.loadingModalList"
             :menu-props="{ bottom: true, offsetY: true }"
             clearable
-            item-text="user_fio"
+            :item-text="userDisplayName"
             item-value="id"
             label="Автор цитаты"
             outlined
@@ -949,6 +949,27 @@ export default {
             .includes(nomenclature.id);
       });
     },
+    nomenclatureDisplayName() {
+      return (nomenclature) => {
+        const parts = [];
+        
+        if (nomenclature._family.brand?.name) {
+          parts.push(nomenclature._family.brand.name);
+        }
+        
+        parts.push(nomenclature._family.name);
+        
+        parts.push(nomenclature.name);
+        
+        return parts.join(' ');
+      };
+    },
+    userDisplayName() {
+      return (user) => {
+        return user.user_fio + (user.email ? ` (${user.email})` : '');
+      };
+    },
+
     listUsers() {
       return this.$store.state.ArticleModule.listUsersByFilterExpert || [];
     },

@@ -321,7 +321,7 @@
                 class="detail-wrapper__content__title__help__list_experts"
                 clearable
                 deletable-chips
-                item-text="email"
+                :item-text="userDisplayName"
                 item-value="id"
                 label=""
                 multiple
@@ -891,6 +891,11 @@ export default {
           Authorization: this.$store.getters.getToken,
         },
         acceptedFiles: "image/*,.svg",
+      };
+    },
+    userDisplayName() {
+      return (user) => {
+        return user.user_fio + (user.email ? ` (${user.email})` : '');
       };
     },
   },
