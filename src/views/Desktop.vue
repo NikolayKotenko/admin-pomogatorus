@@ -5,6 +5,9 @@
 <script>
 export default {
   name: "Desktop",
+  mounted() {
+    this.$router.push("/articles");
+  },
 };
 </script>
 
