@@ -21,48 +21,60 @@
               <template v-if="article.activity === 0">
                 <v-icon class="activity_icon">mdi-eye-off</v-icon>
               </template>
-
               <template v-else>
                 <v-icon class="activity_icon">mdi-eye</v-icon>
               </template>
             </div>
             
-            <span style="display: flex;" @click="onShowDetailArticle(article)">
-              <v-tooltip right>
-                <template v-slot:activator="{ on, attrs }">
-                  <p
-                    v-bind="attrs"
-                    v-on="on" 
-                    class="copy_article_id"
-                    @click.stop="copyArticleId(article.id)"
-                  >
-                    {{ `[${article.id}]` }}
-                  </p>
-                </template>
-                <span>Скопировать id статьи</span>
-              </v-tooltip>
-              
+            <v-tooltip right>
+              <template v-slot:activator="{ on, attrs }">
+                <p
+                  v-bind="attrs"
+                  v-on="on" 
+                  class="copy_article_id"
+                  @click="copyArticleId(article.id)"
+                >
+                  {{ `[${article.id}]` }}
+                </p>
+              </template>
+              <span>Скопировать id статьи</span>
+            </v-tooltip>
+            
+            <router-link
+              :to="getArticleLink(article)"
+              style="display: flex; text-decoration: none; color: inherit; flex: 1;"
+              @click="onShowDetailArticle(article)"
+            >
               {{ article.name }}
-            </span>
+            </router-link>
             <span class="questions_wrapper__item__top__title__quantity"> </span>
           </div>
           <div class="questions_wrapper__item__top__icons"></div>
         </div>
-        <div class="questions_wrapper__item__bottom universal_date">
-          <div
-            :class="{ filterShow: show_filter }"
-            class="questions_wrapper__item__bottom__date"
-          >
-            {{ article.created_at }}
+        
+        <div class="questions_wrapper__item__bottom">
+          <div class="questions_wrapper__item__bottom__analytics">
+            <span>Просмотры: {{ article.views || 0 }}</span>
+            <span>Лайки: {{ article.likes || 0 }}</span>
+            <span>Дизлайки: {{ article.dislikes || 0 }}</span>
           </div>
-          <div
-            :class="{ filterShow: show_filter }"
-            class="questions_wrapper__item__bottom__date"
-          >
-            {{ article.updated_at }}
+          <div class="questions_wrapper__item__bottom__dates">
+            <div
+              :class="{ filterShow: show_filter }"
+              class="questions_wrapper__item__bottom__date"
+            >
+              {{ article.created_at }}
+            </div>
+            <div
+              :class="{ filterShow: show_filter }"
+              class="questions_wrapper__item__bottom__date"
+            >
+              {{ article.updated_at }}
+            </div>
           </div>
         </div>
       </div>
+
 
       <v-alert
         v-if="
@@ -276,12 +288,15 @@ export default {
         query: { ...this.queryObject },
       });
     },
-    onShowDetailArticle(article) {
-      this.$router.push({
+    getArticleLink(article) {
+      return {
         name: "DetailArticles",
         params: { action: "edit" },
         query: { article_id: article.id },
-      });
+      };
+    },
+    onShowDetailArticle(article) {
+      this.$router.push(this.getArticleLink(article));
     },
     getConfigDate() {
       this.$store.dispatch("setListConfigDate");
@@ -299,6 +314,9 @@ export default {
           "activity",
           "created_at",
           "updated_at",
+          "views",
+          "likes",
+          "dislikes"
         ];
         const query = Request.modifyQuery(this.filters, selectQuery);
         this.$store.dispatch("setFilteredListArticles", query);
@@ -342,7 +360,7 @@ export default {
       this.filterValueFocused = false;
     },
     copyArticleId(id) {
-      navigator.clipboard.writeText(id).then(() => {
+      navigator.clipboard.writeText('id-article-' + id).then(() => {
         this.$store.commit('show_notification', {
           text: 'ID скопирован',
           type: 'success'
@@ -387,6 +405,9 @@ export default {
         &__title {
           color: #539ee0;
           transition: all 0.4s ease-in-out;
+          display: flex;
+          align-items: center;
+          gap: 8px;
 
           &__quantity {
             color: lightcoral;
@@ -415,8 +436,26 @@ export default {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 12px;
+        font-size: 0.75em;
         padding-top: 2px;
+        min-height: 18px;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+
+        &__analytics {
+          display: flex;
+          gap: 12px;
+          color: #539ee0;
+          
+          span {
+            font-size: 1em;
+          }
+        }
+
+        &__dates {
+          display: flex;
+          gap: 8px;
+        }
 
         &__date {
           color: #7c8c99;
@@ -426,8 +465,16 @@ export default {
           color: #cad5de;
         }
       }
+
+      &:hover {
+        .questions_wrapper__item__bottom {
+          opacity: 1;
+        }
+      }
     }
   }
+
+
 
   .footer {
     border-top: 3px solid darkgray;

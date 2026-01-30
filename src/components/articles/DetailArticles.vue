@@ -299,7 +299,7 @@
                 class="detail-wrapper__content__title__help__list_experts"
                 clearable
                 deletable-chips
-                item-text="email"
+                :item-text="userDisplayName"
                 item-value="id"
                 label=""
                 multiple
@@ -626,6 +626,7 @@
                 class="dialog_dropzone_inputs"
               >
                 <v-img
+                  v-if="item.preview_image === true"
                   :src="item.full_path"
                   class="main_img"
                   contain
@@ -703,14 +704,24 @@
           <v-btn color="red darken-1" text @click="deleteModal = true">
             Удалить
           </v-btn>
-          <v-btn
-            color="blue darken-1"
-            :loading="loadingUpdateCreateArticle"
-            text
-            @click.prevent="saveDifferences('next')"
-          >
-            Закончить работу
-          </v-btn>
+          <section>
+            <v-btn
+              color="green darken-1"
+              text
+              @click="initialSaveArticle"
+            >
+              Сохранить изменения
+            </v-btn>
+            <v-btn
+              color="blue darken-1"
+              :loading="loadingUpdateCreateArticle"
+              text
+              @click.prevent="saveDifferences('next')"
+            >
+              Закончить работу
+            </v-btn>
+          </section>
+          
         </template>
       </template>
     </footer>
