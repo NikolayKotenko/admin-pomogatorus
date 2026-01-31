@@ -816,7 +816,7 @@ export default {
       handler(v) {
         this.$store.commit("clear_list_questions");
         this.$store.commit("clear_list_general_tags_article");
-        this.filters.tag = [];
+        // this.filters.tag = [];
 
         if (!v) return;
 
@@ -829,6 +829,11 @@ export default {
               this.getArrID();
             });
         this.$store.dispatch("getGeneralTagsArticle");
+        this.$nextTick(() => {
+          if (this.filters.tag && this.filters.tag.length) {
+            this.getFilteredQuestions();
+          }
+        });
       },
     },
     "$store.state.ArticleModule.selectComponent.nomenclature": {

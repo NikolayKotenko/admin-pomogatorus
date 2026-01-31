@@ -15,7 +15,9 @@
       "
         @mouseup="onSelectionContent()"
         @keyup.enter="preventStyles(); onSelectionContent()"
-    ></div>
+    >
+      <p v-if="!check_created_article" style="font-size: 20px; color: #777777">Для начала работы введите название и URL статьи</p>
+    </div>
 
     <!-- OVERLAYS -->
     <div
@@ -218,7 +220,7 @@ export default {
      * **/
     check_created_article() {
       return (
-          this.newArticle.name.value !== ""
+          this.newArticle.name.value && this.newArticle.code.value !== ""
       );
     },
     /**
