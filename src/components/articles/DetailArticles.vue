@@ -537,17 +537,21 @@
         <!-- LOADER -->
         <v-overlay
           :absolute="true"
-          :value="$store.state.ArticleModule.loadingArticle"
+          :value="showOverlay"
           :z-index="2"
         >
-          <v-progress-circular
-            v-if="$store.state.ArticleModule.loadingArticle"
-            :indeterminate="true"
-            :size="70"
-            color="blue"
-            style="margin: auto"
-            width="4"
-          ></v-progress-circular>
+          <section style="display: flex; flex-direction: column;">
+            <v-progress-circular
+              v-if="showOverlay"
+              :indeterminate="true"
+              :size="70"
+              color="blue"
+              style="margin: auto"
+              width="4"
+            ></v-progress-circular>
+            <h3>Загружаемся...</h3>
+          </section>
+          
         </v-overlay>
       </v-form>
 
@@ -838,6 +842,7 @@ export default {
     stateDropzone: false,
     dropzone_uploaded: [],
     loadingUpdateCreateArticle: false,
+    minimumLoadingTime: true
   }),
   mounted() {
     // this.getDb()
@@ -848,6 +853,10 @@ export default {
         // this.getDBQuestion()
       }
     }
+    
+    setTimeout(() => {  // это конечно же костыль, но лучшего я не нашел
+      this.minimumLoadingTime = false
+    }, 3000)
   },
   watch: {
     "$store.state.ArticleModule.newArticle.id": {
@@ -909,6 +918,9 @@ export default {
         return user.user_fio + (user.email ? ` (${user.email})` : '');
       };
     },
+    showOverlay() {
+      return this.$store.state.ArticleModule.loadingArticle || this.minimumLoadingTime
+    }
   },
   methods: {
     setName(value) {
