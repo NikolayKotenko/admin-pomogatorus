@@ -709,21 +709,36 @@
             Удалить
           </v-btn>
           <section>
-            <v-btn
-              color="green darken-1"
-              text
-              @click="initialSaveArticle"
-            >
-              Сохранить изменения
-            </v-btn>
-            <v-btn
-              color="blue darken-1"
-              :loading="loadingUpdateCreateArticle"
-              text
-              @click.prevent="saveDifferences('next')"
-            >
-              Закончить работу
-            </v-btn>
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  color="green darken-1"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="initialSaveArticle"
+                >
+                  Сохранить изменения
+                </v-btn>
+              </template>
+              <span>Сохранить статью без выхода к списку</span>
+            </v-tooltip>
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  color="blue darken-1"
+                  :loading="loadingUpdateCreateArticle"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                  @click.prevent="closeArticle"
+                >
+                  Закрыть
+                </v-btn>
+              </template>
+              <span>Перейти к списку статей без сохранения</span>
+            </v-tooltip>
+            
           </section>
           
         </template>
@@ -1050,6 +1065,11 @@ export default {
             });
           }
         });
+    },
+    closeArticle() {
+      this.$router.push({
+        path: "/articles"
+      })
     },
     async deleteArticle() {
       await this.removeFilesArticle();
