@@ -537,17 +537,21 @@
         <!-- LOADER -->
         <v-overlay
           :absolute="true"
-          :value="$store.state.ArticleModule.loadingArticle"
+          :value="showOverlay"
           :z-index="2"
         >
-          <v-progress-circular
-            v-if="$store.state.ArticleModule.loadingArticle"
-            :indeterminate="true"
-            :size="70"
-            color="blue"
-            style="margin: auto"
-            width="4"
-          ></v-progress-circular>
+          <section style="display: flex; flex-direction: column;">
+            <v-progress-circular
+              v-if="showOverlay"
+              :indeterminate="true"
+              :size="70"
+              color="blue"
+              style="margin: auto"
+              width="4"
+            ></v-progress-circular>
+            <h3>Загружаемся...</h3>
+          </section>
+          
         </v-overlay>
       </v-form>
 
@@ -705,21 +709,36 @@
             Удалить
           </v-btn>
           <section>
-            <v-btn
-              color="green darken-1"
-              text
-              @click="initialSaveArticle"
-            >
-              Сохранить изменения
-            </v-btn>
-            <v-btn
-              color="blue darken-1"
-              :loading="loadingUpdateCreateArticle"
-              text
-              @click.prevent="saveDifferences('next')"
-            >
-              Закончить работу
-            </v-btn>
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  color="green darken-1"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="initialSaveArticle"
+                >
+                  Сохранить изменения
+                </v-btn>
+              </template>
+              <span>Сохранить статью без выхода к списку</span>
+            </v-tooltip>
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  color="blue darken-1"
+                  :loading="loadingUpdateCreateArticle"
+                  text
+                  v-bind="attrs"
+                  v-on="on"
+                  @click.prevent="closeArticle"
+                >
+                  Закрыть
+                </v-btn>
+              </template>
+              <span>Перейти к списку статей без сохранения</span>
+            </v-tooltip>
+            
           </section>
           
         </template>
@@ -838,6 +857,7 @@ export default {
     stateDropzone: false,
     dropzone_uploaded: [],
     loadingUpdateCreateArticle: false,
+    minimumLoadingTime: true
   }),
   mounted() {
     // this.getDb()
@@ -848,6 +868,10 @@ export default {
         // this.getDBQuestion()
       }
     }
+    
+    setTimeout(() => {  // это конечно же костыль, но лучшего я не нашел
+      this.minimumLoadingTime = false
+    }, 3000)
   },
   watch: {
     "$store.state.ArticleModule.newArticle.id": {
@@ -909,6 +933,9 @@ export default {
         return user.user_fio + (user.email ? ` (${user.email})` : '');
       };
     },
+    showOverlay() {
+      return this.$store.state.ArticleModule.loadingArticle || this.minimumLoadingTime
+    }
   },
   methods: {
     setName(value) {
@@ -1038,6 +1065,11 @@ export default {
             });
           }
         });
+    },
+    closeArticle() {
+      this.$router.push({
+        path: "/articles"
+      })
     },
     async deleteArticle() {
       await this.removeFilesArticle();
