@@ -64,13 +64,14 @@
     <div v-if="dropzone_uploaded.length" class="editor-section mt-6">
       <!-- Превью с хотспотами -->
       <div ref="imageWrapper" class="diagram-wrapper" @click="onImageClick">
-        Необходимый размер изображения - 810х455
         <img
           :src="dropzone_uploaded[0].url"
           class="diagram-image"
           :style="isAddingHotspot ? 'cursor: crosshair;' : ''"
           alt="Схема спецификации"
           @load="onImageLoad"
+          :width="dropzone_uploaded[0].image_width"
+          :height="dropzone_uploaded[0].image_height"
         />
         <!-- Метки -->
         <div
@@ -282,9 +283,6 @@ export default {
     },
 
     // Грузим данные
-    getImageUrl() {
-      return this.dropzone_uploaded[0]?.orig_path || "";
-    },
     async loadFamilies() {
       try {
         const selectQuery = Request.ConstructSelectQuery(["*"]);
@@ -542,6 +540,8 @@ export default {
           filename: "specification.jpg",
           title_image: "",
           index: 1,
+          image_width: data.imageWidth,
+          image_height: data.imageHeight,
         },
       ];
 
@@ -559,6 +559,7 @@ export default {
     },
 
     // Чистим
+    //TODO удалять файл если он не связан с точками?
     clearAllData() {
       this.dropzone_uploaded = [];
       this.hotspots = [];

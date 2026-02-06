@@ -930,56 +930,55 @@ export default {
     },
     async get_citation({ commit }, elem) {
       try {
-        const selectQuery = ['*'];
+        const selectQuery = ["*"];
         const query = Request.modifyQuery([], selectQuery);
-        
+
         const citationId = parseInt(elem.component.id);
-        
+
         const result = await Request.get(
           `${this.state.BASE_URL}/entity/quotes/${citationId}${query}`
         );
-        
+
         commit("changeSelectedComponent", {
           data: result.data,
           index: elem.index,
           component: elem.component,
         });
-        
       } catch (error) {
-        console.error('Ошибка получения цитаты:', error);
+        console.error("Ошибка получения цитаты:", error);
       }
     },
 
     async get_specification({ commit }, elem) {
       try {
         const imageId = elem.component.imageId;
-        
+
         if (!imageId) {
-          console.error('❌ imageId отсутствует!');
+          console.error("❌ imageId отсутствует!");
           return;
         }
-        
-        const selectQuery = Request.ConstructSelectQuery(['*']);
-        
+
+        const selectQuery = Request.ConstructSelectQuery(["*"]);
+
         const response = await Request.get(
           `${this.state.BASE_URL}/entity/files/${imageId}?${selectQuery}`
         );
-        
+
         commit("changeSelectedComponent", {
           data: {
             imageId: imageId,
-            imageUrl: response.data.url || response.data.orig_path || '',
-            imageUuid: response.data.uuid
+            imageUrl: response.data.orig_path || "",
+            imageUuid: response.data.uuid,
+            imageWidth: response.data.image_width,
+            imageHeight: response.data.image_height,
           },
           index: elem.index,
           component: elem.component,
         });
       } catch (error) {
-        console.error('❌ Ошибка загрузки спецификации:', error);
+        console.error("❌ Ошибка загрузки спецификации:", error);
       }
     },
-
-
 
     getListQuestions({ commit, state }, params) {
       return new Promise((resolve, reject) => {

@@ -36,13 +36,15 @@
 
       <template v-else>
         <div class="specification-content">
-          <img 
-            :src="specification_data.imageUrl" 
+          <img
+            :src="specification_data.imageUrl"
             alt="Интерактивная спецификация"
             class="specification-image"
           />
           <div class="specification-overlay">
-            <v-icon color="white" size="20">mdi-image-filter-center-focus</v-icon>
+            <v-icon color="white" size="20"
+              >mdi-image-filter-center-focus</v-icon
+            >
             <span>Меток - {{ hotspotsCount }}</span>
           </div>
         </div>
@@ -68,14 +70,18 @@ export default {
     isLoading: false,
   }),
   watch: {
-    '$store.state.ArticleModule.selectedComponent': {
+    "$store.state.ArticleModule.selectedComponent": {
       handler(newVal) {
-        if (newVal && Object.keys(newVal).length && !this.specification_data.imageId) {
+        if (
+          newVal &&
+          Object.keys(newVal).length &&
+          !this.specification_data.imageId
+        ) {
           this.getData();
         }
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   mounted() {
@@ -83,10 +89,13 @@ export default {
   },
   methods: {
     getData() {
-      if (Object.keys(this.$store.state.ArticleModule.selectedComponent).length) {
-        this.index_specification = this.$store.state.ArticleModule.counters.specification;
+      if (
+        Object.keys(this.$store.state.ArticleModule.selectedComponent).length
+      ) {
+        this.index_specification =
+          this.$store.state.ArticleModule.counters.specification;
         this.index_component = this.$store.state.ArticleModule.counters.layout;
-        
+
         this.specification_data = Object.assign(
           {},
           this.$store.state.ArticleModule.selectedComponent
@@ -95,32 +104,29 @@ export default {
         if (this.specification_data.imageId) {
           this.getHotspotsCount();
         } else {
-          console.error('❌ imageId отсутствует в specification_data!');
+          console.error("❌ imageId отсутствует в specification_data!");
         }
       }
     },
 
-
     async getHotspotsCount() {
       this.isLoading = true;
-      
+
       try {
-        const selectQuery = Request.ConstructSelectQuery(['*']);
-        
+        const selectQuery = Request.ConstructSelectQuery(["*"]);
+
         const result = await Request.get(
           `${this.$store.state.BASE_URL}/entity/specifications?${selectQuery}&filter[id_image]=${this.specification_data.imageId}`
         );
-        
+
         this.hotspotsCount = result.data?.length || 0;
-        
       } catch (error) {
-        console.error('Ошибка получения меток:', error);
+        console.error("Ошибка получения меток:", error);
         this.hotspotsCount = 0;
       } finally {
         this.isLoading = false;
       }
     },
-
 
     editSpecification() {
       this.$store.commit("change_name_component", "specification");
@@ -128,61 +134,74 @@ export default {
         name: "specification",
         value: true,
       });
-      
+
       // Передаём данные для редактирования в HeaderBlock
       this.$store.commit("setEditingSpecification", {
         imageId: this.specification_data.imageId,
         imageUrl: this.specification_data.imageUrl,
         imageUuid: this.specification_data.imageUuid,
+        imageWidth: this.specification_data.imageWidth,
+        imageHeight: this.specification_data.imageHeight,
         index_component: this.index_component,
       });
     },
 
     async deleteSpecification() {
-      if (!confirm('Удалить спецификацию и все метки?')) {
+      if (!confirm("Удалить спецификацию и все метки?")) {
         return;
       }
 
       // Получаем все метки для этого изображения
       try {
-        const selectQuery = Request.ConstructSelectQuery(['*']);
-        
+        const selectQuery = Request.ConstructSelectQuery(["*"]);
+
         const result = await Request.get(
           `${this.$store.state.BASE_URL}/entity/specifications?${selectQuery}&filter[id_image]=${this.specification_data.imageId}`
         );
-        
+
         const specifications = result.data || [];
-        
+
         if (specifications.length > 0) {
           console.log(`Удаление ${specifications.length} меток...`);
-          
+
           // Удаляем все метки
-          const deletePromises = specifications.map(spec =>
+          const deletePromises = specifications.map((spec) =>
             Request.delete(
               `${this.$store.state.BASE_URL}/entity/specifications/${spec.id}`
-            ).catch(e => {
+            ).catch((e) => {
               console.error(`Ошибка удаления метки ${spec.id}:`, e);
               return { error: true, id: spec.id };
             })
           );
-          
+
           const results = await Promise.all(deletePromises);
-          const failed = results.filter(r => r?.error);
-          
+          const failed = results.filter((r) => r?.error);
+
           if (failed.length > 0) {
-            console.error(`Не удалось удалить ${failed.length} из ${specifications.length} меток`);
+            console.error(
+              `Не удалось удалить ${failed.length} из ${specifications.length} меток`
+            );
           } else {
             console.log(`Удалено ${specifications.length} меток`);
           }
         }
       } catch (error) {
-        console.error('Ошибка при удалении меток спецификации:', error);
+        console.error("Ошибка при удалении меток спецификации:", error);
       }
-      
-      // Удаляем компонент из статьи
-      this.$store.dispatch("deleteComponent", this.index_component);
-    },
 
+      //TODO
+      console.log("one");
+      await this.$store.dispatch(
+        "deleteFileGeneral",
+        this.specification_data.imageId
+      );
+      console.log("two");
+      // Передаём данные для редактирования в HeaderBlock
+      this.$store.commit("clearEditingSpecification");
+
+      // Удаляем компонент из статьи
+      await this.$store.dispatch("deleteComponent", this.index_component);
+    },
   },
 };
 </script>
@@ -207,7 +226,7 @@ export default {
 
   &:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    
+
     .specification-overlay {
       margin: 20px;
       opacity: 1;
@@ -230,12 +249,12 @@ export default {
 
 .specification-content {
   position: relative;
-  
+
   .specification-image {
     width: 100%;
     display: block;
   }
-  
+
   .specification-overlay {
     position: absolute;
     top: 10px;

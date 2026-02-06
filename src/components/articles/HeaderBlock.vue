@@ -1179,6 +1179,8 @@ export default {
           imageId: editData.imageId,
           imageUrl: editData.imageUrl,
           imageUuid: editData.imageUuid,
+          imageWidth: editData.imageWidth,
+          imageHeight: editData.imageHeight,
           hotspots: response.data.map((spec) => ({
             id: spec.id,
             x: spec.hotspot_x,
