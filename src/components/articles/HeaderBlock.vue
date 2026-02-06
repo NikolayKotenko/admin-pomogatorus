@@ -907,11 +907,18 @@ export default {
       }
     },
     "filters.tag": {
-      handler(v) {
-        if (!v.length) return;
-        this.getFilteredQuestions();
+      handler(newVal) {
+        if (newVal && newVal.length) {
+          this.getFilteredQuestions();
+        } else {
+          this.$store.commit("clear_list_questions");
+          this.$store.dispatch("getListQuestions", _store.name_component)
+            .then(() => {
+              this.getArrID();
+            });
+        }
       },
-      deep: true,
+      deep: true
     },
   },
   computed: {

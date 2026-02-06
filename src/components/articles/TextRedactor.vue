@@ -16,14 +16,20 @@
         @mouseup="onSelectionContent()"
         @keyup.enter="preventStyles(); onSelectionContent()"
     >
-      <p v-if="!check_created_article" style="font-size: 20px; color: #777777">Для начала работы введите название и URL статьи</p>
     </div>
 
     <!-- OVERLAYS -->
     <div
         v-if="!check_created_article || $store.state.ArticleModule.startRender"
         class="overlay"
-    ></div>
+    >
+    <p 
+      v-if="!check_created_article" 
+      style="font-size: 20px; color: #777777; z-index: 99; padding-top: 150px; padding-left: 50px;" 
+    >
+      Для начала работы введите название и URL статьи
+    </p>
+  </div>
   </div>
 </template>
 
