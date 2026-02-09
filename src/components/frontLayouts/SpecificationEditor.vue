@@ -56,6 +56,7 @@
           placeholder="Название схемы"
           label="Название схемы (опционально)"
           class="mb-2"
+          hide-details
         />
       </div>
     </template>
@@ -65,13 +66,13 @@
       <!-- Превью с хотспотами -->
       <div ref="imageWrapper" class="diagram-wrapper" @click="onImageClick">
         <img
-          :src="dropzone_uploaded[0].url"
+          :src="dropzone_uploaded[0].orig_path"
           class="diagram-image"
           :style="isAddingHotspot ? 'cursor: crosshair;' : ''"
           alt="Схема спецификации"
           @load="onImageLoad"
-          :width="dropzone_uploaded[0].image_width"
-          :height="dropzone_uploaded[0].image_height"
+          :width="810"
+          :height="455"
         />
         <!-- Метки -->
         <div
@@ -85,86 +86,82 @@
           {{ index + 1 }}
         </div>
       </div>
+    </div>
+    <!-- Кнопка добавления метки -->
+    <div class="controls mt-4">
+      <v-btn
+        color="primary"
+        :disabled="isAddingHotspot || !imageLoaded || hasUnsavedHotspot"
+        @click="startAddHotspot"
+      >
+        {{ isAddingHotspot ? "Кликните по изображению..." : "Добавить метку" }}
+      </v-btn>
+      <v-btn
+        v-if="hotspots.length"
+        color="warning"
+        class="ml-2"
+        :loading="isDeletingAll"
+        :disabled="isDeletingAll"
+        @click="clearAllHotspots"
+      >
+        {{ isDeletingAll ? "Удаление..." : `Очистить (${hotspots.length})` }}
+      </v-btn>
+    </div>
+    <!-- Форма активной метки -->
+    <div v-if="editedIndex !== null" class="edit-form mt-4 pa-4 border">
+      <h4>
+        Метка {{ editedIndex + 1 }} ({{ hotspots[editedIndex].x }}%,
+        {{ hotspots[editedIndex].y }}%)
+      </h4>
 
-      <!-- Кнопка добавления метки -->
-      <div class="controls mt-4">
+      <v-autocomplete
+        v-model="hotspots[editedIndex].idsFamilies"
+        :items="families"
+        item-text="name"
+        item-value="id"
+        label="Семейства (можно выбрать несколько)"
+        clearable
+        multiple
+        chips
+        small-chips
+        deletable-chips
+        class="mb-2"
+        :disabled="true || hotspots[editedIndex].isLoading"
+      />
+
+      <v-autocomplete
+        v-model="hotspots[editedIndex].idsNomenclatures"
+        :items="products"
+        :item-text="getProductDisplayName"
+        item-value="id"
+        label="Номенклатура (можно выбрать несколько)"
+        clearable
+        multiple
+        chips
+        small-chips
+        deletable-chips
+        class="mb-2"
+        :disabled="hotspots[editedIndex].isLoading"
+      />
+
+      <div class="d-flex">
         <v-btn
-          color="primary"
-          :disabled="isAddingHotspot || !imageLoaded || hasUnsavedHotspot"
-          @click="startAddHotspot"
+          small
+          color="success"
+          :disabled="
+            !hasChanges(editedIndex) || hotspots[editedIndex].isLoading
+          "
+          :loading="hotspots[editedIndex].isLoading"
+          @click="saveCurrentHotspot"
         >
-          {{
-            isAddingHotspot ? "Кликните по изображению..." : "Добавить метку"
-          }}
+          Сохранить изменения
         </v-btn>
-        <v-btn
-          v-if="hotspots.length"
-          color="warning"
-          class="ml-2"
-          :loading="isDeletingAll"
-          :disabled="isDeletingAll"
-          @click="clearAllHotspots"
-        >
-          {{ isDeletingAll ? "Удаление..." : `Очистить (${hotspots.length})` }}
+
+        <v-spacer />
+
+        <v-btn small color="error" @click="removeHotspot(editedIndex)">
+          Удалить
         </v-btn>
-      </div>
-
-      <!-- Форма активной метки -->
-      <div v-if="editedIndex !== null" class="edit-form mt-4 pa-4 border">
-        <h4>
-          Метка {{ editedIndex + 1 }} ({{ hotspots[editedIndex].x }}%,
-          {{ hotspots[editedIndex].y }}%)
-        </h4>
-
-        <v-autocomplete
-          v-model="hotspots[editedIndex].idsFamilies"
-          :items="families"
-          item-text="name"
-          item-value="id"
-          label="Семейства (можно выбрать несколько)"
-          clearable
-          multiple
-          chips
-          small-chips
-          deletable-chips
-          class="mb-2"
-          :disabled="true || hotspots[editedIndex].isLoading"
-        />
-
-        <v-autocomplete
-          v-model="hotspots[editedIndex].idsNomenclatures"
-          :items="products"
-          :item-text="getProductDisplayName"
-          item-value="id"
-          label="Номенклатура (можно выбрать несколько)"
-          clearable
-          multiple
-          chips
-          small-chips
-          deletable-chips
-          class="mb-2"
-          :disabled="hotspots[editedIndex].isLoading"
-        />
-
-        <div class="d-flex">
-          <v-btn
-            small
-            color="success"
-            :disabled="
-              !hasChanges(editedIndex) || hotspots[editedIndex].isLoading
-            "
-            :loading="hotspots[editedIndex].isLoading"
-            @click="saveCurrentHotspot"
-          >
-            Сохранить изменения
-          </v-btn>
-
-          <v-spacer />
-
-          <v-btn small color="error" @click="removeHotspot(editedIndex)">
-            Удалить
-          </v-btn>
-        </div>
       </div>
     </div>
   </div>
@@ -218,7 +215,7 @@ export default {
       this.dropzone_uploaded = [
         {
           id: this.initialData.id,
-          url: this.initialData.imageUrl,
+          orig_path: this.initialData.imageUrl,
           uuid: this.initialData.imageUuid,
           filename: "scheme.jpg",
           title_image: "",
@@ -525,6 +522,9 @@ export default {
 
         this.$toast?.success("Метка сохранена");
         this.editedIndex = null;
+        console.log("TUTA BLYAT?");
+        //TODO tut dobavit ?
+        // this.$emit("specification-save", hotspot);
       } else {
         this.$toast?.error("Ошибка сохранения метки");
       }
@@ -535,7 +535,7 @@ export default {
       this.dropzone_uploaded = [
         {
           id: data.imageId,
-          url: data.imageUrl,
+          orig_path: data.imageUrl,
           uuid: data.imageUuid,
           filename: "specification.jpg",
           title_image: "",
@@ -558,9 +558,21 @@ export default {
       this.imageLoaded = true;
     },
 
-    // Чистим
-    //TODO удалять файл если он не связан с точками?
-    clearAllData() {
+    // Функция вызывается из других компонентов,
+    // чтобы не засирать базу файлами - удаляем их если точки в базе отсутсвуют
+    // вызывается при нажатии на крестик и кнопку "отмена"
+    async clearAllData() {
+      console.log("clearAllData");
+      if (this.dropzone_uploaded.length) {
+        const file = this.dropzone_uploaded[0];
+        const selectQuery = Request.ConstructSelectQuery(["*"]);
+        const response = await Request.get(
+          `${this.$store.state.BASE_URL}/entity/specifications?${selectQuery}&filter[id_image]=${file.id}`
+        );
+        if (response.codeResponse >= 400) {
+          await this.$store.dispatch("deleteFileGeneral", file.id);
+        }
+      }
       this.dropzone_uploaded = [];
       this.hotspots = [];
       this.imageLoaded = false;
@@ -577,17 +589,21 @@ export default {
 </script>
 
 <style scoped>
-/* ваши стили + новые */
+.editor-section {
+  //max-width: 810px;
+  //max-height: 455px;
+  //max-width: 1000px;
+  //max-height: 350px;
+  //overflow-x: auto;
+  //overflow-y: auto;
+}
 .diagram-wrapper {
   position: relative;
   display: inline-block;
-  max-width: 100%;
-  //max-width: 810px;
-  //max-height: 455px;
 }
 .diagram-image {
-  max-width: 100%;
   display: block;
+  object-fit: cover;
 }
 .hotspot-dot {
   position: absolute;

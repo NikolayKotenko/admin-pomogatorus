@@ -602,8 +602,8 @@
     <v-dialog
       v-if="$store.state.ArticleModule.selectComponent.specification"
       v-model="$store.state.ArticleModule.selectComponent.specification"
-      width="900"
       persistent
+      width="1200"
     >
       <v-card>
         <v-card-title>
@@ -636,9 +636,8 @@
             <template v-slot:activator="{ on, attrs }">
               <div v-bind="attrs" v-on="on" class="d-inline-block">
                 <v-btn
-                  v-if="!isEditingSpecification"
                   color="success"
-                  :disabled="!canInsertSpecification"
+                  :disabled="!canInsertSpecification || !isEditingSpecification"
                   @click="insertSpecification"
                 >
                   Вставить спецификацию
@@ -1126,6 +1125,9 @@ export default {
 
     /* SPECIFICATION */
     saveSpecification(data) {
+      //TODO
+      console.log("CRABOTALO? saveSpecification ", data);
+      // this.isEditingSpecification = true;
       this.specificationData = data;
     },
 
