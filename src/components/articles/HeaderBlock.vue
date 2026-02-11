@@ -611,7 +611,10 @@
             {{ isEditingCitation ? 'Редактировать спецификацию' : 'Создать спецификацию' }}
           </span>
           <v-spacer />
-          <v-btn icon @click="clearSpecification()">
+          <v-btn 
+            icon 
+            @click="$refs.specEditor.dropzone_uploaded.length ? deleteSpecModal = true : closeModal('specification')"
+          >
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-card-title>
@@ -626,7 +629,10 @@
         </v-card-text>
 
         <v-card-actions>
-          <v-btn text @click="clearSpecification()">
+          <v-btn 
+            text 
+            @click="$refs.specEditor.dropzone_uploaded.length ? deleteSpecModal = true : closeModal('specification')"
+          >
             Отмена
           </v-btn>
           <v-spacer />
@@ -725,6 +731,39 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Specification delete modal-->
+    <v-dialog
+      v-if="deleteSpecModal"
+      v-model="deleteSpecModal"
+      width="800"
+      persistent
+    >
+      <v-card>
+        <v-card-title>
+          <span class="text-h6">
+            Спецификация не вставлена в редактор
+          </span>
+        </v-card-title>
+        
+        <v-card-text>
+          <span class="text-h6" style="font-size: 1em !important;">
+            Спецификация не вставлена в редактор, данные о метках пропадут. <br> Продолжить?
+          </span>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-btn text @click="deleteSpecModal = false">
+            Продолжить заполнять спецификацию
+          </v-btn>
+          <v-spacer />
+
+          <v-btn text @click="clearSpecification">
+            Очистить метки и фото
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -802,7 +841,8 @@ export default {
     /* Specification */
     isEditingSpecification: false,
     editingSpecificationIndex: null,
-    specificationData: {}
+    specificationData: {},
+    deleteSpecModal: false
   }),
   created() {
     const ComponentClass = Vue.extend(PreviewTemplate);
@@ -1224,6 +1264,7 @@ export default {
     clearSpecification() {
       this.$refs.specEditor?.clearAllData?.()
       this.specificationData = {}
+      this.deleteSpecModal = false
       this.closeModal('specification')
     },
 
