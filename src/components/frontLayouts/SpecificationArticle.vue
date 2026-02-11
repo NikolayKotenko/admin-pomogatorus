@@ -189,6 +189,8 @@ export default {
         console.error("Ошибка при удалении меток спецификации:", error);
       }
 
+      
+
       //TODO
       console.log("one");
       await this.$store.dispatch(

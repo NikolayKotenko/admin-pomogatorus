@@ -617,7 +617,7 @@
           <v-spacer />
           <v-btn 
             icon 
-            @click="$refs.specEditor.dropzone_uploaded.length ? deleteSpecModal = true : closeModal('specification')"
+            @click="handleClearClick"
           >
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -635,7 +635,7 @@
         <v-card-actions>
           <v-btn 
             text 
-            @click="$refs.specEditor.dropzone_uploaded.length ? deleteSpecModal = true : closeModal('specification')"
+            @click="handleClearClick"
           >
             Отмена
           </v-btn>
@@ -645,7 +645,6 @@
               <div v-bind="attrs" v-on="on" class="d-inline-block">
                 <v-btn
                   color="success"
-                  :disabled="!canInsertSpecification || !isEditingSpecification"
                   @click="insertSpecification"
                 >
                   Вставить спецификацию
@@ -1055,6 +1054,15 @@ export default {
     },
   },
   methods: {
+    handleClearClick() {
+      if (this.isEditingCitation) {
+        this.closeModal('specification');
+      } else if (this.$refs.specEditor?.dropzone_uploaded?.length > 0) {
+        this.deleteSpecModal = true;
+      } else {
+        this.closeModal('specification');
+      }
+    },
     setNomenclatureList(data) {
       this.selectedNomenclature.push(_clone(data));
       this.currentNomenclature = {};
@@ -1357,6 +1365,11 @@ export default {
     closeModal(name) {
       if (name === "url") {
         this.$store.commit("clear_url");
+      }
+
+      if (name === "specification") {
+        this.specificationData = {}
+        this.$store.state.ArticleModule.editingSpecification = {}
       }
 
       this.$store.commit("change_select_component", {

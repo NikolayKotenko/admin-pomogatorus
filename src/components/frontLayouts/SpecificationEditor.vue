@@ -194,6 +194,13 @@ export default {
       invalidWidthHeight: false,
     };
   },
+  watch: {
+    "$store.state.ArticleModule.deleteComponent": {
+      handler() {
+        this.clearAllData()
+      }
+    }
+  },
   computed: {
     dropzoneOptions() {
       return {
@@ -375,21 +382,19 @@ export default {
       this.hotspots.splice(index, 1);
       if (this.editedIndex === index) this.editedIndex = null;
     },
-    async clearAllHotspots() {
-      if (!confirm(`Удалить все метки (${this.hotspots.length} шт.)?`)) {
-        return;
+    async clearAllHotspots(isDeleteModal = false) {
+      if (!isDeleteModal) {
+        if (!confirm(`Удалить все метки (${this.hotspots.length} шт.)?`)) {
+          return;
+        }
       }
 
       const savedHotspots = this.hotspots.filter(
         (h) => h.saved && h.specificationId
       );
 
-      if (savedHotspots.length === 0) {
-        this.hotspots = [];
-        this.editedIndex = null;
-        console.log("Метки очищены (несохранённые)");
-        return;
-      }
+      this.hotspots = [];
+      this.editedIndex = null;
 
       const deletePromises = savedHotspots.map((hotspot) =>
         Request.delete(
@@ -563,6 +568,9 @@ export default {
     // вызывается при нажатии на крестик и кнопку "отмена"
     async clearAllData() {
       console.log("clearAllData");
+
+      this.clearAllHotspots(true)
+
       if (this.dropzone_uploaded.length) {
         const file = this.dropzone_uploaded[0];
         const selectQuery = Request.ConstructSelectQuery(["*"]);
