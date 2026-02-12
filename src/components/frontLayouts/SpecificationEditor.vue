@@ -21,11 +21,7 @@
           </v-icon>
         </h3>
         <div class="subtitle" style="color: darkgrey">
-          Загрузите схему для спецификации (1 изображение) размером 810px х
-          455px
-        </div>
-        <div class="subtitle" style="color: red" v-if="invalidWidthHeight">
-          Cхема должна быть размером: 810px (ширина) х 455px (высота)
+          Загрузите схему для спецификации (1 изображение)
         </div>
       </vue-dropzone>
 
@@ -191,15 +187,14 @@ export default {
       imageLoaded: false,
       families: [],
       isDeletingAll: false,
-      invalidWidthHeight: false,
     };
   },
   watch: {
     "$store.state.ArticleModule.deleteComponent": {
       handler() {
-        this.clearAllData()
-      }
-    }
+        this.clearAllData();
+      },
+    },
   },
   computed: {
     dropzoneOptions() {
@@ -236,12 +231,6 @@ export default {
   methods: {
     // Дропзона
     sendingData(file, xhr, formData) {
-      // if (file.width !== 810 && file.height !== 455) {
-      //   console.log("NE PRAVILNO");
-      //   this.invalidWidthHeight = true;
-      //   return;
-      // }
-      console.log("sendingData", { file, xhr, formData });
       formData.append("uuid", file.upload.uuid);
       formData.append(
         "id_article",
@@ -249,9 +238,7 @@ export default {
       );
     },
     successData(file, response) {
-      console.log("successData file", { file: file, response: response });
       const formatObj = Object.assign({}, response.data);
-      console.log("formatObj", formatObj);
       formatObj.index = this.index_uploaded;
       this.index_uploaded++;
       this.dropzone_uploaded = [formatObj];
@@ -317,11 +304,6 @@ export default {
 
       const xPixel = e.clientX - rect.left;
       const yPixel = e.clientY - rect.top;
-      console.log("Координаты в пикселях:", {
-        xPixel: Math.round(xPixel),
-        yPixel: Math.round(yPixel),
-        rect,
-      });
 
       this.hotspots.push({
         id: Date.now(),
@@ -527,16 +509,12 @@ export default {
 
         this.$toast?.success("Метка сохранена");
         this.editedIndex = null;
-        console.log("TUTA BLYAT?");
-        //TODO tut dobavit ?
-        // this.$emit("specification-save", hotspot);
       } else {
         this.$toast?.error("Ошибка сохранения метки");
       }
     },
 
     loadExistingSpecification(data) {
-      console.log("loadExistingSpecification", data);
       this.dropzone_uploaded = [
         {
           id: data.imageId,
@@ -567,9 +545,7 @@ export default {
     // чтобы не засирать базу файлами - удаляем их если точки в базе отсутсвуют
     // вызывается при нажатии на крестик и кнопку "отмена"
     async clearAllData() {
-      console.log("clearAllData");
-
-      this.clearAllHotspots(true)
+      await this.clearAllHotspots(true);
 
       if (this.dropzone_uploaded.length) {
         const file = this.dropzone_uploaded[0];

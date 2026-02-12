@@ -393,27 +393,28 @@
         </v-card-title>
         <v-card-text id="nomenclatureSelector">
           <v-autocomplete
-              ref="nomenclature"
-              v-model="currentNomenclature"
-              :disabled="$store.state.ArticleModule.loadingModalList"
-              :items="listNomenclature"
-              :loading="$store.state.ArticleModule.loadingModalList"
-              :menu-props="{ bottom: true, offsetY: true }"
-              clearable
-              :item-text="nomenclatureDisplayName"
-              placeholder="Наименование"
-              return-object
-              style="position: sticky; top: 0"
-              @change="setNomenclatureList($event)"
+            ref="nomenclature"
+            v-model="currentNomenclature"
+            :disabled="$store.state.ArticleModule.loadingModalList"
+            :items="listNomenclature"
+            :loading="$store.state.ArticleModule.loadingModalList"
+            :menu-props="{ bottom: true, offsetY: true }"
+            clearable
+            :item-text="nomenclatureDisplayName"
+            placeholder="Наименование"
+            return-object
+            style="position: sticky; top: 0"
+            @change="setNomenclatureList($event)"
           >
             <template v-slot:item="{ item }">
               <div>
-                <span v-if="item?._family?.brand?.name">{{ item._family.brand.name }} - </span>
+                <span v-if="item?._family?.brand?.name"
+                  >{{ item._family.brand.name }} -
+                </span>
                 <span v-if="item?._family?.name">
                   {{ item?._family?.name }}
                 </span>
                 <span> - {{ item?.name }}</span>
-                
               </div>
             </template>
             <template v-slot:selection="{ item }">
@@ -609,16 +610,13 @@
         <v-card-title>
           <span class="text-h6" style="font-size: 0.8em !important">
             {{
-              isEditingCitation
+              isEditingSpecification
                 ? "Редактировать спецификацию"
                 : "Создать спецификацию"
             }}
           </span>
           <v-spacer />
-          <v-btn 
-            icon 
-            @click="handleClearClick"
-          >
+          <v-btn icon @click="handleClearClick">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-card-title>
@@ -633,18 +631,18 @@
         </v-card-text>
 
         <v-card-actions>
-          <v-btn 
-            text 
-            @click="handleClearClick"
-          >
-            Отмена
-          </v-btn>
+          <v-btn text @click="handleClearClick"> Отмена </v-btn>
           <v-spacer />
           <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <div v-bind="attrs" v-on="on" class="d-inline-block">
                 <v-btn
+                  v-if="!isEditingSpecification"
                   color="success"
+                  :disabled="
+                    !canInsertSpecification ||
+                    !$refs.specEditor.dropzone_uploaded.length
+                  "
                   @click="insertSpecification"
                 >
                   Вставить спецификацию
@@ -730,7 +728,7 @@
             text
             @click="onSelectComponent()"
           >
-            {{ isEditingCitation ? 'Сохранить' : 'Создать' }}
+            {{ isEditingCitation ? "Сохранить" : "Создать" }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -745,14 +743,14 @@
     >
       <v-card>
         <v-card-title>
-          <span class="text-h6">
-            Спецификация не вставлена в редактор
-          </span>
+          <span class="text-h6"> Спецификация не вставлена в редактор </span>
         </v-card-title>
-        
+
         <v-card-text>
-          <span class="text-h6" style="font-size: 1em !important;">
-            Спецификация не вставлена в редактор, данные о метках пропадут. <br> Продолжить?
+          <span class="text-h6" style="font-size: 1em !important">
+            Спецификация не вставлена в редактор, данные о метках пропадут.
+            <br />
+            Продолжить?
           </span>
         </v-card-text>
 
@@ -845,7 +843,7 @@ export default {
     isEditingSpecification: false,
     editingSpecificationIndex: null,
     specificationData: {},
-    deleteSpecModal: false
+    deleteSpecModal: false,
   }),
   created() {
     const ComponentClass = Vue.extend(PreviewTemplate);
@@ -955,13 +953,14 @@ export default {
           this.getFilteredQuestions();
         } else {
           this.$store.commit("clear_list_questions");
-          this.$store.dispatch("getListQuestions", _store.name_component)
+          this.$store
+            .dispatch("getListQuestions", _store.name_component)
             .then(() => {
               this.getArrID();
             });
         }
       },
-      deep: true
+      deep: true,
     },
   },
   computed: {
@@ -1007,21 +1006,21 @@ export default {
     nomenclatureDisplayName() {
       return (nomenclature) => {
         const parts = [];
-        
+
         if (nomenclature._family.brand?.name) {
           parts.push(nomenclature._family.brand.name);
         }
-        
+
         parts.push(nomenclature._family.name);
-        
+
         parts.push(nomenclature.name);
-        
-        return parts.join(' ');
+
+        return parts.join(" ");
       };
     },
     userDisplayName() {
       return (user) => {
-        return user.user_fio + (user.email ? ` (${user.email})` : '');
+        return user.user_fio + (user.email ? ` (${user.email})` : "");
       };
     },
 
@@ -1055,13 +1054,15 @@ export default {
   },
   methods: {
     handleClearClick() {
-      if (this.isEditingCitation) {
-        this.closeModal('specification');
-      } else if (this.$refs.specEditor?.dropzone_uploaded?.length > 0) {
-        this.deleteSpecModal = true;
+      if (
+        this.isEditingSpecification ||
+        !this.$refs.specEditor?.dropzone_uploaded?.length
+      ) {
+        this.closeModal("specification");
       } else {
-        this.closeModal('specification');
+        this.deleteSpecModal = true;
       }
+      this.isEditingSpecification = false;
     },
     setNomenclatureList(data) {
       this.selectedNomenclature.push(_clone(data));
@@ -1208,9 +1209,6 @@ export default {
 
     /* SPECIFICATION */
     saveSpecification(data) {
-      //TODO
-      console.log("CRABOTALO? saveSpecification ", data);
-      // this.isEditingSpecification = true;
       this.specificationData = data;
     },
 
@@ -1218,8 +1216,6 @@ export default {
       const imageId = this.$refs.specEditor.dropzone_uploaded[0]?.id;
       const imageUrl = this.$refs.specEditor.dropzone_uploaded[0]?.orig_path;
       const imageUuid = this.$refs.specEditor.dropzone_uploaded[0]?.uuid;
-
-      console.log("ALARM 1", imageUrl);
 
       if (!imageId) {
         this.$toast?.error("Сначала загрузите изображение");
@@ -1259,7 +1255,6 @@ export default {
           `${this.$store.state.BASE_URL}/entity/specifications?${selectQuery}&filter[id_image]=${editData.imageId}`
         );
 
-        console.log("ALARM 2", editData);
         this.specificationData = {
           imageId: editData.imageId,
           imageUrl: editData.imageUrl,
@@ -1284,10 +1279,10 @@ export default {
     },
 
     clearSpecification() {
-      this.$refs.specEditor?.clearAllData?.()
-      this.specificationData = {}
-      this.deleteSpecModal = false
-      this.closeModal('specification')
+      this.$refs.specEditor?.clearAllData?.();
+      this.specificationData = {};
+      this.deleteSpecModal = false;
+      this.closeModal("specification");
     },
 
     /* ICONS */
@@ -1368,8 +1363,8 @@ export default {
       }
 
       if (name === "specification") {
-        this.specificationData = {}
-        this.$store.state.ArticleModule.editingSpecification = {}
+        this.specificationData = {};
+        this.$store.state.ArticleModule.editingSpecification = {};
       }
 
       this.$store.commit("change_select_component", {
@@ -1515,7 +1510,9 @@ export default {
         const payload = {
           title: this.citationForm.title,
           text: this.citationForm.text,
-          ...(this.citationForm.id_user ? { id_user: this.citationForm.id_user } : {}),
+          ...(this.citationForm.id_user
+            ? { id_user: this.citationForm.id_user }
+            : {}),
         };
 
         const response = await Request.post(
@@ -1532,7 +1529,7 @@ export default {
           id_user: this.citationForm.id_user || null,
           _uuid_user: this.citationForm._uuid_user || null,
         };
-        
+
         // Увеличиваем счётчики
         this.$store.commit("change_counter", {
           name: "layout",
@@ -1542,7 +1539,7 @@ export default {
           name: "citation",
           count: _store.counters.citation + 1,
         });
-        
+
         // Передаём данные в стор для компонента
         this.$store.commit("changeSelectedObject", elem);
 
@@ -1566,7 +1563,9 @@ export default {
         const payload = {
           title: this.citationForm.title,
           text: this.citationForm.text,
-          ...(this.citationForm.id_user ? { id_user: this.citationForm.id_user } : {}),
+          ...(this.citationForm.id_user
+            ? { id_user: this.citationForm.id_user }
+            : {}),
         };
 
         await Request.put(
