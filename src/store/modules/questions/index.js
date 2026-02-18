@@ -87,6 +87,7 @@ export default {
       mtomtags: [],
       activity: 0,
       question_image_helper: null,
+      id_article_cross_link: null,
     },
     nonEditState: {},
 
@@ -195,10 +196,10 @@ export default {
       if (localStorage.getItem("question") !== null) {
         this.state.QuestionsModule.newQuestion = Object.assign(
           {},
-          defaultQuestion
+          defaultQuestion,
         );
         this.state.QuestionsModule.newQuestion = JSON.parse(
-          localStorage.getItem("question")
+          localStorage.getItem("question"),
         );
       }
     },
@@ -238,7 +239,7 @@ export default {
     },
     async setListConfigDate({ commit }) {
       return await Request.get(
-        this.state.BASE_URL + "/entity/questions-list-config-date"
+        this.state.BASE_URL + "/entity/questions-list-config-date",
       )
         .then((response) => {
           commit("set_list_config_date", response.data);
@@ -400,7 +401,7 @@ export default {
       ];
       const queryQuestions = Request.modifyQuery([], selectsQuestions);
       const response = await Request.get(
-        `${this.state.BASE_URL}/entity/questions/${id}${queryQuestions}`
+        `${this.state.BASE_URL}/entity/questions/${id}${queryQuestions}`,
       );
       commit("set_new_question", response.data);
 
@@ -448,7 +449,7 @@ export default {
 
       const response = await Request.post(
         `${this.state.BASE_URL}/entity/questions`,
-        bodyFormData
+        bodyFormData,
       );
       if (response.codeResponse >= 400) {
         //handle error
@@ -504,7 +505,7 @@ export default {
 
         Request.put(
           `${this.state.BASE_URL}/entity/questions/${data.id}`,
-          requestData
+          requestData,
         )
           .then((response) => {
             //handle success
@@ -514,7 +515,7 @@ export default {
               dispatch("createRelationTagQuestion", data.name.value).then(
                 () => {
                   resolve();
-                }
+                },
               );
             });
             console.log(response);

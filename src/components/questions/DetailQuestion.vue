@@ -143,6 +143,30 @@
               >
               </TextAreaStyled>
             </div>
+            <div class="question_title_help">
+              <span
+                :class="{ focused: newQuestion.purpose_of_question.focused }"
+                class="question_title_help__title"
+              >
+                Ссылка на статью
+              </span>
+              <v-autocomplete
+                v-model="newQuestion.id_article_cross_link"
+                :disabled="$store.state.loadingRequestGeneral"
+                :items="$store.state.ArticleModule.listArticles"
+                :loading="$store.state.loadingRequestGeneral"
+                class="mb-5"
+                dense
+                hide-details
+                item-text="name"
+                item-value="id"
+                label="Выберите статью"
+                outlined
+                return-object
+                :menu-props="{ maxHeight: '30vh' }"
+              >
+              </v-autocomplete>
+            </div>
 
             <!-- Поясняющая картинка -->
             <div class="mt-3">
@@ -850,6 +874,7 @@ export default {
 
     /** Получаем список справочников **/
     this.getDictionaries();
+    this.getFilteredArticles();
   },
   watch: {
     "newQuestion.value_type_answer": {
@@ -875,7 +900,7 @@ export default {
             ) {
               this.newQuestion.value_type_answer.splice(
                 this.newQuestion.value_type_answer.length - 1,
-                1
+                1,
               );
             }
           } else {
@@ -890,7 +915,7 @@ export default {
 
         this.$store.dispatch(
           "setTitle",
-          this.$store.state.QuestionsModule.newQuestion.name.value
+          this.$store.state.QuestionsModule.newQuestion.name.value,
         );
       },
       deep: true,
@@ -980,20 +1005,20 @@ export default {
         null,
         parseInt(this.$route.query.question_id),
         null,
-        null
+        null,
       );
 
       /** Запрос на добавление связки тэга **/
       const response = await this.$store.dispatch(
         "addUniversalTagMToMTable",
-        objMToMTags
+        objMToMTags,
       );
 
       /** Рефрешим информацию по вопросу, чтобы получить актуальные тэги **/
       if (response.codeResponse < 400) {
         await this.$store.dispatch(
           "getDetailQuestion",
-          this.$route.query.question_id
+          this.$route.query.question_id,
         );
         this.$refs["universal-tags"].modal.state = false;
       }
@@ -1009,14 +1034,14 @@ export default {
       /** Запрос на удаление связки тэга **/
       const response = await this.$store.dispatch(
         "removeAttachedTagMToMTable",
-        data.id
+        data.id,
       );
 
       /** Рефрешим информацию по вопросу, чтобы получить актуальные тэги **/
       if (response.codeResponse < 400) {
         await this.$store.dispatch(
           "getDetailQuestion",
-          this.$route.query.question_id
+          this.$route.query.question_id,
         );
       }
     },
@@ -1032,20 +1057,20 @@ export default {
       const objMToMTags = new MToMTagsTechTask(
         data.id,
         this.$route.query.question_id,
-        null
+        null,
       );
 
       /** Запрос на добавление связки тэга **/
       const response = await this.$store.dispatch(
         "addUniversalMToMTagsTechTaskTable",
-        objMToMTags
+        objMToMTags,
       );
 
       /** Рефрешим информацию по вопросу, чтобы получить актуальные тэги **/
       if (response.codeResponse < 400) {
         await this.$store.dispatch(
           "getDetailQuestion",
-          this.$route.query.question_id
+          this.$route.query.question_id,
         );
         this.$refs["universal-tags-tech-task"].modal.state = false;
       }
@@ -1061,14 +1086,14 @@ export default {
       /** Запрос на удаление связки тэга **/
       const response = await this.$store.dispatch(
         "removeAttachedMToMTagsTechTaskTable",
-        data.id
+        data.id,
       );
 
       /** Рефрешим информацию по вопросу, чтобы получить актуальные тэги **/
       if (response.codeResponse < 400) {
         await this.$store.dispatch(
           "getDetailQuestion",
-          this.$route.query.question_id
+          this.$route.query.question_id,
         );
       }
     },
@@ -1108,12 +1133,12 @@ export default {
       const selects = ["*", "d_dictionary_attributes"];
       const query = Request.modifyQuery([], selects);
       const { data } = await Request.get(
-        this.$store.state.BASE_URL + "/dictionary/dictionaries" + query
+        this.$store.state.BASE_URL + "/dictionary/dictionaries" + query,
       );
       /** Проставляем только те справочники у которых есть параметры для заполнения **/
       this.dictionariesList = data.filter(
         (dict) =>
-          dict.d_dictionary_attributes && dict.d_dictionary_attributes.length
+          dict.d_dictionary_attributes && dict.d_dictionary_attributes.length,
       );
     },
 
@@ -1276,7 +1301,7 @@ export default {
               if (
                 Array.isArray(
                   this.$store.state.QuestionsModule.newQuestion
-                    .value_type_answer
+                    .value_type_answer,
                 )
               ) {
                 this.lastIdAnswer =
@@ -1312,17 +1337,17 @@ export default {
       ) {
         this.newQuestion.value_type_answer = [];
         this.newQuestion.value_type_answer.push(
-          new AnswerRangeMin(this.lastIdAnswer)
+          new AnswerRangeMin(this.lastIdAnswer),
         );
         this.lastIdAnswer++;
         this.newQuestion.value_type_answer.push(
-          new AnswerRangeMax(this.lastIdAnswer)
+          new AnswerRangeMax(this.lastIdAnswer),
         );
         //  if (this.newQuestion.id_type_answer.value !== 1 && this.newQuestion.id_type_answer.value !== 2)
       } else {
         this.newQuestion.value_type_answer = [];
         this.newQuestion.value_type_answer.push(
-          new AnswerVariable(this.lastIdAnswer)
+          new AnswerVariable(this.lastIdAnswer),
         );
       }
 
@@ -1332,7 +1357,7 @@ export default {
     addVariable() {
       this.lastIdAnswer++;
       this.newQuestion.value_type_answer.push(
-        new AnswerVariable(this.lastIdAnswer)
+        new AnswerVariable(this.lastIdAnswer),
       );
     },
     onFocusFrom(value) {
@@ -1396,7 +1421,7 @@ export default {
       await this.deleteDBQuestion(this.newQuestion);
       const response = await this.$store.dispatch(
         "createQuestion",
-        this.newQuestion
+        this.newQuestion,
       );
       if (response.codeResponse >= 400) return;
 
@@ -1462,7 +1487,7 @@ export default {
       this.$nextTick(() => {
         this.$refs.QuestionDropZone.manuallyAddFile(
           this.dropzone_uploaded[0],
-          this.dropzone_uploaded[0].full_path
+          this.dropzone_uploaded[0].full_path,
         );
       });
     },
@@ -1482,7 +1507,7 @@ export default {
       for (const item of this.dropzone_uploaded) {
         await Request.put(
           this.$store.state.BASE_URL + `/entity/files/${item.id}`,
-          item
+          item,
         );
       }
       await this.$store.dispatch("updateQuestion", this.newQuestion);
@@ -1499,6 +1524,14 @@ export default {
     },
     setTitleImage(data) {
       this.dropzone_uploaded[data.index].title_image = data.value;
+    },
+    getFilteredArticles() {
+      if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
+      this.debounceTimeout = setTimeout(() => {
+        const selectQuery = ["id", "name"];
+        const query = Request.modifyQuery(this.filters, selectQuery);
+        this.$store.dispatch("setFilteredListArticles", query);
+      }, 500);
     },
   },
   beforeDestroy() {
