@@ -143,6 +143,8 @@
               >
               </TextAreaStyled>
             </div>
+
+            <!-- Cсылка на статью -->
             <div class="question_title_help">
               <span
                 :class="{ focused: newQuestion.purpose_of_question.focused }"
@@ -160,9 +162,8 @@
                 hide-details
                 item-text="name"
                 item-value="id"
-                label="Выберите статью"
+                placeholder="Выберите статью"
                 outlined
-                return-object
                 :menu-props="{ maxHeight: '30vh' }"
               >
               </v-autocomplete>
@@ -1170,6 +1171,10 @@ export default {
       this.newQuestion.value_type_answer[data.index].commentary = data.value;
       this.saveDBQuestion(this.newQuestion);
     },
+    setLinkArtilce(value) {
+      this.newQuestion.id_article_cross_link.value = value;
+      this.saveDBQuestion(this.newQuestion);
+    },
 
     /* ENV */
     setEnvironment() {
@@ -1674,6 +1679,9 @@ export default {
             display: flex !important;
             align-items: center !important;
           }
+          ::v-deep input {
+            padding: 8px !important;
+          }
         }
       }
 
@@ -1692,6 +1700,7 @@ export default {
 
           ::v-deep .v-text-field input {
             font-size: 14px !important;
+            padding: 8px !important;
           }
 
           &__title {
