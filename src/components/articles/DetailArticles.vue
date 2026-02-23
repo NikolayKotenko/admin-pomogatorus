@@ -535,12 +535,8 @@
           </div>
         </div>
         <!-- LOADER -->
-        <v-overlay
-          :absolute="true"
-          :value="showOverlay"
-          :z-index="2"
-        >
-          <section style="display: flex; flex-direction: column;">
+        <v-overlay :absolute="true" :value="showOverlay" :z-index="2">
+          <section style="display: flex; flex-direction: column">
             <v-progress-circular
               v-if="showOverlay"
               :indeterminate="true"
@@ -551,7 +547,6 @@
             ></v-progress-circular>
             <h3>Загружаемся...</h3>
           </section>
-          
         </v-overlay>
       </v-form>
 
@@ -728,6 +723,7 @@
                 <v-btn
                   color="blue darken-1"
                   :loading="loadingUpdateCreateArticle"
+                  :disabled="loadingUpdateCreateArticle"
                   text
                   v-bind="attrs"
                   v-on="on"
@@ -738,9 +734,7 @@
               </template>
               <span>Перейти к списку статей без сохранения</span>
             </v-tooltip>
-            
           </section>
-          
         </template>
       </template>
     </footer>
@@ -857,7 +851,7 @@ export default {
     stateDropzone: false,
     dropzone_uploaded: [],
     loadingUpdateCreateArticle: false,
-    minimumLoadingTime: true
+    minimumLoadingTime: true,
   }),
   mounted() {
     // this.getDb()
@@ -868,10 +862,11 @@ export default {
         // this.getDBQuestion()
       }
     }
-    
-    setTimeout(() => {  // это конечно же костыль, но лучшего я не нашел
-      this.minimumLoadingTime = false
-    }, 3000)
+
+    setTimeout(() => {
+      // это конечно же костыль, но лучшего я не нашел
+      this.minimumLoadingTime = false;
+    }, 3000);
   },
   watch: {
     "$store.state.ArticleModule.newArticle.id": {
@@ -883,7 +878,7 @@ export default {
       handler() {
         this.$store.dispatch(
           "setTitle",
-          this.$store.state.ArticleModule.newArticle.name.value
+          this.$store.state.ArticleModule.newArticle.name.value,
         );
         this.saveArticle(this.newArticle);
       },
@@ -930,12 +925,15 @@ export default {
     },
     userDisplayName() {
       return (user) => {
-        return user.user_fio + (user.email ? ` (${user.email})` : '');
+        return user.user_fio + (user.email ? ` (${user.email})` : "");
       };
     },
     showOverlay() {
-      return this.$store.state.ArticleModule.loadingArticle || this.minimumLoadingTime
-    }
+      return (
+        this.$store.state.ArticleModule.loadingArticle ||
+        this.minimumLoadingTime
+      );
+    },
   },
   methods: {
     setName(value) {
@@ -1068,8 +1066,8 @@ export default {
     },
     closeArticle() {
       this.$router.push({
-        path: "/articles"
-      })
+        path: "/articles",
+      });
     },
     async deleteArticle() {
       await this.removeFilesArticle();
@@ -1115,7 +1113,7 @@ export default {
       };
       req.onblocked = function () {
         console.log(
-          "Couldn't delete database due to the operation being blocked"
+          "Couldn't delete database due to the operation being blocked",
         );
       };
     },
@@ -1162,6 +1160,7 @@ export default {
       }
     },
     initialSaveArticle() {
+      this.loadingUpdateCreateArticle = true;
       this.saveArticle(this.newArticle);
     },
     async saveArticle() {
@@ -1223,7 +1222,7 @@ export default {
       formData.append("uuid", file.upload.uuid);
       formData.append(
         "id_article",
-        this.$store.state.ArticleModule.newArticle.id
+        this.$store.state.ArticleModule.newArticle.id,
       );
       formData.append("preview_image", 1);
     },
@@ -1251,7 +1250,7 @@ export default {
       this.$nextTick(() => {
         this.$refs.TagDropZone.manuallyAddFile(
           this.dropzone_uploaded[0],
-          this.dropzone_uploaded[0].full_path
+          this.dropzone_uploaded[0].full_path,
         );
       });
     },
@@ -1261,7 +1260,7 @@ export default {
       for (const item of this.dropzone_uploaded) {
         await Request.put(
           this.$store.state.BASE_URL + "/entity/files/" + item.id,
-          item
+          item,
         );
       }
       await this.$store.dispatch("updateArticle", {
