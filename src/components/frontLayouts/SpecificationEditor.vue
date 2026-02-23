@@ -67,8 +67,8 @@
           :style="isAddingHotspot ? 'cursor: crosshair;' : ''"
           alt="Схема спецификации"
           @load="onImageLoad"
-          :width="810"
-          :height="455"
+          :width="802"
+          :height="601"
         />
         <!-- Метки -->
         <div
