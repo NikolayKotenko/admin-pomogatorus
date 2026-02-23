@@ -6,6 +6,7 @@ import store from "../store/index";
 import Desktop from "../views/Desktop";
 import Companies from "../views/Companies";
 import Stocks from "../views/Stocks.vue";
+import PrimeryRabot from "../views/PrimeryRabot.vue";
 import Questions from "../views/Questions";
 import Articles from "../views/Articles";
 import Answers from "../views/Answers";
@@ -58,6 +59,16 @@ const routes = [
     meta: {
       title: "Акции",
       ru_name: "Акции",
+      requiresAuth: true,
+    },
+  },
+  {
+    path: "/primery-rabot",
+    name: "PrimeryRabot",
+    component: PrimeryRabot,
+    meta: {
+      title: "Примеры работ",
+      ru_name: "Примеры работ",
       requiresAuth: true,
     },
   },
