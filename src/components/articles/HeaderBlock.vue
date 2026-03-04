@@ -604,15 +604,15 @@
       v-if="$store.state.ArticleModule.selectComponent.specification"
       v-model="$store.state.ArticleModule.selectComponent.specification"
       persistent
-      width="1200"
+      width="600"
     >
       <v-card>
         <v-card-title>
           <span class="text-h6" style="font-size: 0.8em !important">
             {{
               isEditingSpecification
-                ? "Редактировать спецификацию"
-                : "Создать спецификацию"
+                ? "Выбрать другую спецификацию"
+                : "Вставить спецификацию"
             }}
           </span>
           <v-spacer />
@@ -622,35 +622,23 @@
         </v-card-title>
 
         <v-card-text>
-          <SpecificationEditor
-            ref="specEditor"
-            :initial-data="specificationData"
-            :products="listNomenclature"
-            @specification-save="saveSpecification"
-          />
+          <SpecificationInsertingArticle v-model="selectedSpecification" />
         </v-card-text>
 
         <v-card-actions>
           <v-btn text @click="handleClearClick"> Отмена </v-btn>
           <v-spacer />
-          <v-tooltip top>
-            <template v-slot:activator="{ on, attrs }">
-              <div v-bind="attrs" v-on="on" class="d-inline-block">
-                <v-btn
-                  v-if="!isEditingSpecification"
-                  color="success"
-                  :disabled="
-                    !canInsertSpecification ||
-                    !$refs.specEditor.dropzone_uploaded.length
-                  "
-                  @click="insertSpecification"
-                >
-                  Вставить спецификацию
-                </v-btn>
-              </div>
-            </template>
-            <span>Сначала добавьте метку</span>
-          </v-tooltip>
+          <v-btn
+            color="success"
+            :disabled="!canInsertSpecification"
+            @click="submitSpecification"
+          >
+            {{
+              isEditingSpecification
+                ? "Сохранить спецификацию"
+                : "Вставить спецификацию"
+            }}
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -734,38 +722,6 @@
       </v-card>
     </v-dialog>
 
-    <!-- Specification delete modal-->
-    <v-dialog
-      v-if="deleteSpecModal"
-      v-model="deleteSpecModal"
-      width="800"
-      persistent
-    >
-      <v-card>
-        <v-card-title>
-          <span class="text-h6"> Спецификация не вставлена в редактор </span>
-        </v-card-title>
-
-        <v-card-text>
-          <span class="text-h6" style="font-size: 1em !important">
-            Спецификация не вставлена в редактор, данные о метках пропадут.
-            <br />
-            Продолжить?
-          </span>
-        </v-card-text>
-
-        <v-card-actions>
-          <v-btn text @click="deleteSpecModal = false">
-            Продолжить заполнять спецификацию
-          </v-btn>
-          <v-spacer />
-
-          <v-btn text @click="clearSpecification">
-            Очистить метки и фото
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </div>
 </template>
 
@@ -785,7 +741,7 @@ import TextAreaStyled from "../common/TextAreaStyled";
 import _clone from "@/helpers/deepClone";
 import SearchStyled from "@/components/common/SearchStyled.vue";
 import ComboboxStyled from "@/components/common/ComboboxStyled.vue";
-import SpecificationEditor from "../frontLayouts/SpecificationEditor.vue";
+import SpecificationInsertingArticle from "../frontLayouts/SpecificationInsertingArticle.vue";
 
 const _store = titlesStore.state;
 
@@ -797,7 +753,7 @@ export default {
     TextAreaStyled,
     InputStyled,
     vueDropzone: vue2Dropzone,
-    SpecificationEditor,
+    SpecificationInsertingArticle,
   },
   data: () => ({
     /* DROPZONE */
@@ -842,8 +798,7 @@ export default {
     /* Specification */
     isEditingSpecification: false,
     editingSpecificationIndex: null,
-    specificationData: {},
-    deleteSpecModal: false,
+    selectedSpecification: null,
   }),
   created() {
     const ComponentClass = Vue.extend(PreviewTemplate);
@@ -896,24 +851,19 @@ export default {
             window.addEventListener("scroll", this.disableInput, true);
           });
 
-          // Загружаем номенклатуру
-          if (!this.$store.state.ArticleModule.nomenclatures?.length) {
-            this.$store.dispatch("getListNomenclature", "nomenclature");
-          }
+          await this.$store.dispatch("PrimeryRabot/getListEntries");
 
-          // Чекаем режим редактирования
           const editData = this.$store.state.ArticleModule.editingSpecification;
-
-          if (editData?.imageId) {
-            // Ждём пока компонент точно отрендерится
-            await this.$nextTick();
-
-            if (this.$refs.specEditor) {
-              await this.loadSpecificationForEdit(editData);
-            }
-          }
+          this.isEditingSpecification = !!editData?.imageId;
+          this.editingSpecificationIndex = editData?.index_component ?? null;
+          this.selectedSpecification = this.findSpecificationByImageId(
+            editData?.imageId
+          );
         } else {
           window.removeEventListener("scroll", this.disableInput, true);
+          this.isEditingSpecification = false;
+          this.editingSpecificationIndex = null;
+          this.selectedSpecification = null;
         }
       },
     },
@@ -966,8 +916,11 @@ export default {
   computed: {
     isMobile() {
       return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
+        navigator.userAgent,
       );
+    },
+    isDebugMode() {
+      return !!this.$route?.query?.isDebug;
     },
     check_count_auth() {
       return _store.counters.auth >= 1;
@@ -1028,41 +981,75 @@ export default {
       return this.$store.state.ArticleModule.listUsersByFilterExpert || [];
     },
     canInsertSpecification() {
-      const editor = this.$refs.specEditor;
+      const payload = this.buildSpecificationPayload();
 
-      if (
-        !editor ||
-        !editor.dropzone_uploaded?.length ||
-        !editor.hotspots?.length
-      ) {
+      if (!payload) {
         return false;
       }
 
-      // Режим добавления активен
-      if (editor.isAddingHotspot) {
-        return false;
+      if (!this.isEditingSpecification) {
+        return true;
       }
 
-      // Есть несохранённые метки
-      const hasUnsavedHotspot = editor.hotspots.some((h) => !h.saved);
-      if (hasUnsavedHotspot) {
-        return false;
+      const currentImageId =
+        this.$store.state.ArticleModule.editingSpecification?.imageId;
+
+      if (!currentImageId) {
+        return true;
       }
 
-      return true;
+      return Number(payload.imageId) !== Number(currentImageId);
     },
   },
   methods: {
-    handleClearClick() {
-      if (
-        this.isEditingSpecification ||
-        !this.$refs.specEditor?.dropzone_uploaded?.length
-      ) {
-        this.closeModal("specification");
-      } else {
-        this.deleteSpecModal = true;
+    debugConsole(...args) {
+      if (this.isDebugMode) {
+        if (typeof args[0] === "string") {
+          const [title, ...rest] = args;
+          console.log(`[SPEC_DEBUG] ${title}`, ...rest);
+        } else {
+          console.log(...args);
+        }
       }
+    },
+    handleClearClick() {
+      this.closeModal("specification");
       this.isEditingSpecification = false;
+    },
+    findSpecificationByImageId(imageId) {
+      if (!imageId) return null;
+      const found =
+        this.$store.state.PrimeryRabot.listEntries.find(
+          (item) => Number(item.id_image) === Number(imageId),
+        ) || null;
+      return found;
+    },
+    buildSpecificationPayload() {
+      const selectedSpecification = this.selectedSpecification;
+
+      if (!selectedSpecification) {
+        return null;
+      }
+
+      const imageId =
+        selectedSpecification.id_image || selectedSpecification._image?.id;
+
+      if (!imageId) {
+        return null;
+      }
+
+      const payload = {
+        imageId,
+        imageUrl:
+          selectedSpecification._image?.orig_path ||
+          selectedSpecification.imageUrl ||
+          "",
+        imageUuid:
+          selectedSpecification._image?.uuid ||
+          selectedSpecification.imageUuid ||
+          null,
+      };
+      return payload;
     },
     setNomenclatureList(data) {
       this.selectedNomenclature.push(_clone(data));
@@ -1070,7 +1057,7 @@ export default {
     },
     removeNomenclature(id) {
       const index = this.selectedNomenclature.findIndex(
-        (elem) => elem.id === id
+        (elem) => elem.id === id,
       );
       if (index !== -1) {
         this.selectedNomenclature.splice(index, 1);
@@ -1171,7 +1158,7 @@ export default {
             this.dropzone_uploaded.splice(index, 1);
             for (let i = 0; i < this.dropzone_uploaded.length; i++) {
               const block = document.getElementById(
-                `close-${this.dropzone_uploaded[i].index}`
+                `close-${this.dropzone_uploaded[i].index}`,
               );
               block.id = `close-${i + 1}`;
               block.onclick = () => {
@@ -1203,30 +1190,22 @@ export default {
         this.$store.state.BASE_URL +
           "/entity/files/" +
           this.dropzone_uploaded[0].id,
-        this.dropzone_uploaded[0]
+        this.dropzone_uploaded[0],
       );
     },
 
     /* SPECIFICATION */
-    saveSpecification(data) {
-      this.specificationData = data;
-    },
-
     insertSpecification() {
-      const imageId = this.$refs.specEditor.dropzone_uploaded[0]?.id;
-      const imageUrl = this.$refs.specEditor.dropzone_uploaded[0]?.orig_path;
-      const imageUuid = this.$refs.specEditor.dropzone_uploaded[0]?.uuid;
+      const elem = this.buildSpecificationPayload();
+      this.debugConsole("insertSpecification called", {
+        selectedSpecification: this.selectedSpecification,
+        payload: elem,
+      });
 
-      if (!imageId) {
-        this.$toast?.error("Сначала загрузите изображение");
+      if (!elem) {
+        this.$toast?.error("Сначала выберите спецификацию");
         return;
       }
-
-      const elem = {
-        imageId: imageId,
-        imageUrl: imageUrl,
-        imageUuid: imageUuid,
-      };
 
       this.$store.commit("change_counter", {
         name: "layout",
@@ -1243,45 +1222,78 @@ export default {
 
       this.closeModal("specification");
     },
-
-    async loadSpecificationForEdit(editData) {
-      this.isEditingSpecification = true;
-      this.editingSpecificationIndex = editData.index_component;
-
-      try {
-        const selectQuery = Request.ConstructSelectQuery(["*"]);
-
-        const response = await Request.get(
-          `${this.$store.state.BASE_URL}/entity/specifications?${selectQuery}&filter[id_image]=${editData.imageId}`
-        );
-
-        this.specificationData = {
-          imageId: editData.imageId,
-          imageUrl: editData.imageUrl,
-          imageUuid: editData.imageUuid,
-          imageWidth: editData.imageWidth,
-          imageHeight: editData.imageHeight,
-          hotspots: response.data.map((spec) => ({
-            id: spec.id,
-            x: spec.hotspot_x,
-            y: spec.hotspot_y,
-            idsNomenclatures: spec.ids_nomenclatures || [],
-            idsFamilies: spec.ids_families || [],
-            saved: true,
-            specificationId: spec.id,
-          })),
-        };
-
-        this.$refs.specEditor.loadExistingSpecification(this.specificationData);
-      } catch (error) {
-        console.error("❌ Ошибка:", error);
+    submitSpecification() {
+      if (this.isEditingSpecification) {
+        this.updateSpecification();
+      } else {
+        this.insertSpecification();
       }
     },
+    updateSpecification() {
+      const elem = this.buildSpecificationPayload();
+      const indexToEdit =
+        this.editingSpecificationIndex ||
+        this.$store.state.ArticleModule.editingSpecification?.index_component;
 
-    clearSpecification() {
-      this.$refs.specEditor?.clearAllData?.();
-      this.specificationData = {};
-      this.deleteSpecModal = false;
+      this.debugConsole("updateSpecification called", {
+        indexToEdit,
+        selectedSpecification: this.selectedSpecification,
+        payload: elem,
+      });
+
+      if (!elem) {
+        this.$toast?.error("Сначала выберите спецификацию");
+        return;
+      }
+
+      if (!indexToEdit) {
+        this.$toast?.error("Не найден индекс редактируемой спецификации");
+        return;
+      }
+
+      const component = _store.list_components.find(
+        (comp) =>
+          comp.instance?.$data?.index_component === indexToEdit ||
+          comp.data?.index === indexToEdit ||
+          comp.index === indexToEdit,
+      );
+
+      if (!component) {
+        this.$toast?.error("Не найден блок спецификации для обновления");
+        return;
+      }
+
+      const updatedData = {
+        ...(component.instance.$data.specification_data || {}),
+        ...elem,
+      };
+
+      component.instance.$data.specification_data = updatedData;
+
+      if (component.instance.$el?.dataset) {
+        component.instance.$el.dataset.id = String(updatedData.imageId || "");
+        component.instance.$el.dataset.uuid = updatedData.imageUuid || "";
+      }
+
+      if (component.data?.component) {
+        component.data.component.imageId = updatedData.imageId;
+        component.data.component.imageUrl = updatedData.imageUrl;
+        component.data.component.imageUuid = updatedData.imageUuid;
+      }
+
+      if (component.component) {
+        component.component.imageId = updatedData.imageId;
+        component.component.imageUrl = updatedData.imageUrl;
+        component.component.imageUuid = updatedData.imageUuid;
+      }
+
+      if (typeof component.instance.getHotspotsCount === "function") {
+        component.instance.getHotspotsCount();
+      }
+
+      // Триггерим штатную синхронизацию TextRedactor (content + undo/redo snapshot).
+      this.$store.commit("toggleSaveArticle");
+
       this.closeModal("specification");
     },
 
@@ -1363,8 +1375,10 @@ export default {
       }
 
       if (name === "specification") {
-        this.specificationData = {};
-        this.$store.state.ArticleModule.editingSpecification = {};
+        this.selectedSpecification = null;
+        this.isEditingSpecification = false;
+        this.editingSpecificationIndex = null;
+        this.$store.commit("clearEditingSpecification");
       }
 
       this.$store.commit("change_select_component", {
@@ -1450,43 +1464,11 @@ export default {
         return;
       } else if (_store.name_component === "specification") {
         /** SPECIFICATION **/
-
-        const imageId = this.$refs.specEditor.dropzone_uploaded[0]?.id;
-        const imageUrl = this.$refs.specEditor.dropzone_uploaded[0]?.orig_path;
-        const imageUuid = this.$refs.specEditor.dropzone_uploaded[0]?.uuid;
-
-        if (!imageId) {
-          this.$toast?.error("Загрузите изображение");
-          return;
+        if (this.isEditingSpecification) {
+          this.updateSpecification();
+        } else {
+          this.insertSpecification();
         }
-
-        elem = {
-          imageId: imageId,
-          imageUrl: imageUrl,
-          imageUuid: imageUuid,
-        };
-
-        console.log("🔥 elem для callCheckout:", elem);
-
-        // Увеличиваем счётчики
-        this.$store.commit("change_counter", {
-          name: "layout",
-          count: _store.counters.layout + 1,
-        });
-        this.$store.commit("change_counter", {
-          name: "specification",
-          count: _store.counters.specification + 1,
-        });
-
-        // Передаём данные в стор
-        this.$store.commit("changeSelectedObject", elem);
-
-        // Вызываем вставку
-        this.$emit("callCheckout", elem);
-
-        // Закрываем модалку
-        this.closeModal("specification");
-
         return;
       } else {
         /** ALL **/
@@ -1517,7 +1499,7 @@ export default {
 
         const response = await Request.post(
           `${this.$store.state.BASE_URL}/entity/quotes`,
-          payload
+          payload,
         );
 
         const citationId = response.data.id;
@@ -1570,13 +1552,13 @@ export default {
 
         await Request.put(
           `${this.$store.state.BASE_URL}/entity/quotes/${this.citationForm.id}`,
-          payload
+          payload,
         );
 
         // Находим компонент в списке по индексу
         const component = _store.list_components.find(
           (comp) =>
-            comp.instance.$data.index_component === this.editingCitationIndex
+            comp.instance.$data.index_component === this.editingCitationIndex,
         );
 
         if (component) {
