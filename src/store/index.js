@@ -16,6 +16,7 @@ import Brands from "@/store/modules/brands";
 import NomenclaturesTreeModule from "@/store/modules/nomenclatures-tree";
 import Companies from "@/store/modules/companies";
 import Stocks from "@/store/modules/stocks";
+import PrimeryRabot from "@/store/modules/primery-rabot";
 
 Vue.use(Vuex);
 
@@ -200,5 +201,6 @@ export default new Vuex.Store({
     NomenclaturesTreeModule,
     Companies,
     Stocks,
+    PrimeryRabot,
   },
 });

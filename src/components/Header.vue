@@ -275,6 +275,12 @@ export default {
         link: "/brands",
       },
       {
+        id: 13,
+        icon: "mdi-format-list-text",
+        title: "Примеры работ",
+        link: "/primery-rabot",
+      },
+      {
         id: 8,
         icon: "mdi-home-alphabet",
         title: "Оборудование",
