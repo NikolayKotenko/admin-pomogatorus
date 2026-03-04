@@ -20,6 +20,7 @@ export default {
       _image: {},
     },
     listNomenclatures: [],
+    listFamilies: [],
   },
   mutations: {
     changeListEntries(state, array) {
@@ -40,6 +41,9 @@ export default {
     },
     change_list_nomenclature(state, data) {
       state.listNomenclatures = data;
+    },
+    change_list_families(state, data) {
+      state.listFamilies = data;
     },
     clearEntry(state) {
       state.entry = {
@@ -109,15 +113,19 @@ export default {
       }
     },
     async updateEntry({ commit, state }) {
-      try {
-        return await Request.put(
-          this.state.BASE_URL + "/entity/specifications/" + state.entry.id,
-          state.entry
+      commit("changeLoadingGeneral", true, { root: true });
+      const response = await Request.put(
+        this.state.BASE_URL + "/entity/specifications/" + state.entry.id,
+        state.entry
+      );
+      if (response.isError)
+        throw new Error(
+          "Ошибка put запроса /entity/specifications/state.entry.id - " +
+            response.message
         );
-      } catch (e) {
-        console.log(e);
-        commit("change_notification_modal", e, { root: true });
-      }
+
+      commit("setEntry", response.data);
+      commit("changeLoadingGeneral", false, { root: true });
     },
     async deleteEntry({ commit, state }) {
       commit("changeLoadingGeneral", true, { root: true });
@@ -154,6 +162,17 @@ export default {
         `${this.state.BASE_URL}/entity/nomenclature${query}`
       );
       commit("change_list_nomenclature", response.data);
+
+      commit("changeLoadingGeneral", false, { root: true });
+    },
+    async getListFamilies({ commit, state }) {
+      commit("changeLoadingGeneral", true, { root: true });
+
+      const selectQuery = Request.ConstructSelectQuery(["*"]);
+      const response = await Request.get(
+        `${this.state.BASE_URL}/dictionary/nomenclature-family?${selectQuery}`
+      );
+      commit("change_list_families", response.data);
 
       commit("changeLoadingGeneral", false, { root: true });
     },

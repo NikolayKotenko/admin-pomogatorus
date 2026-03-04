@@ -158,7 +158,7 @@
               <v-row>
                 <v-col cols="12">
                   <!-- DROPZONE -->
-                  <PrimeryRabotEditor />
+                  <PrimeryRabotEditor v-if="showCard" />
                 </v-col>
               </v-row>
             </v-container>
@@ -332,7 +332,7 @@ export default {
       await this.$store.dispatch("deleteFile", this.curEntry._image.id);
       await this.deleteEntry();
       await this.getListEntries();
-      this.delCard = false;
+      this.sayModalNoDeleteCard();
     },
     sayModalNoDeleteCard() {
       this.delCard = false;

@@ -1,33 +1,39 @@
 <template>
   <div>
-    <v-text-field
-      v-model="$store.state.PrimeryRabot.entry.name"
+    <TextAreaStyled
+      :data="$store.state.PrimeryRabot.entry.name"
       ref="ref_name_specification"
-      :rules="nameRules"
-      clearable
-      label="Наименование"
-      required
-    ></v-text-field>
+      is-clearable
+      :is-flat="true"
+      :placeholder="'Наименование'"
+      :rows-count="'1'"
+      @update-input="updateEntryLocal('name', $event)"
+      :is-loading="$store.state.loadingRequestGeneral"
+    ></TextAreaStyled>
     <v-text-field
       v-model="$store.state.PrimeryRabot.entry.code"
       label="code - это url детальной страницы"
       disabled
       hide-details
     ></v-text-field>
-    <v-text-field
-      v-model="$store.state.PrimeryRabot.entry.description"
-      clearable
-      label="Описание"
-    ></v-text-field>
+    <TextAreaStyled
+      :data="$store.state.PrimeryRabot.entry.description"
+      :is-flat="true"
+      :placeholder="'Описание'"
+      :rows-count="'1'"
+      class="pt-5 pb-5"
+      @update-input="updateEntryLocal('description', $event)"
+      :is-loading="$store.state.loadingRequestGeneral"
+    ></TextAreaStyled>
     <!-- Ваша дропзона -->
     <div
       v-if="!$store.state.PrimeryRabot.entry._image?.id"
       class="dialog_dropzone_wrapper"
     >
       <vue-dropzone
-        v-if="!loading_dropzone"
-        id="specDropzone"
+        id="primeryRabotDropzone"
         ref="myVueDropzone"
+        :class="{ loading_dropzone: $store.state.loadingRequestGeneral }"
         :options="dropzoneOptions"
         :use-custom-slot="true"
         @vdropzone-success="successData"
@@ -43,10 +49,13 @@
           </v-icon>
         </h3>
         <div class="subtitle" style="color: darkgrey">
-          Загрузите схему для спецификации (1 изображение)
+          {{
+            $store.state.loadingRequestGeneral
+              ? "Загрузка..."
+              : "Загрузите схему для спецификации (1 изображение)"
+          }}
         </div>
       </vue-dropzone>
-
       <!-- Превью загруженного изображения -->
       <div
         v-if="$store.state.PrimeryRabot.entry._image?.id"
@@ -141,7 +150,8 @@
     <!-- Форма активной метки -->
     <div
       v-if="
-        editedIndex !== null && $store.state.PrimeryRabot.entry._hotspots.length
+        $store.state.PrimeryRabot.entry._hotspots.length &&
+        $store.state.PrimeryRabot.entry._hotspots[editedIndex]
       "
       class="edit-form mt-4 pa-4 border"
     >
@@ -152,22 +162,24 @@
         {{ $store.state.PrimeryRabot.entry._hotspots[editedIndex].hotspot_y }}%)
       </h4>
 
-      <v-autocomplete
-        v-model="
-          $store.state.PrimeryRabot.entry._hotspots[editedIndex].ids_families
-        "
-        :items="families"
-        item-text="name"
-        item-value="id"
-        label="Семейства (можно выбрать несколько)"
-        clearable
-        multiple
-        chips
-        small-chips
-        deletable-chips
-        class="mb-2"
-        :disabled="isLoading || !hasChanges(editedIndex)"
-      />
+      <!--      <v-autocomplete-->
+      <!--        v-model="-->
+      <!--          $store.state.PrimeryRabot.entry._hotspots[editedIndex].ids_families-->
+      <!--        "-->
+      <!--        :items="$store.state.PrimeryRabot.listFamilies"-->
+      <!--        item-text="name"-->
+      <!--        item-value="id"-->
+      <!--        label="Семейства (можно выбрать несколько)"-->
+      <!--        clearable-->
+      <!--        multiple-->
+      <!--        chips-->
+      <!--        small-chips-->
+      <!--        deletable-chips-->
+      <!--        class="mb-2"-->
+      <!--        :disabled="-->
+      <!--          true || $store.state.loadingRequestGeneral || !hasChanges(editedIndex)-->
+      <!--        "-->
+      <!--      />-->
 
       <v-autocomplete
         v-model="
@@ -183,16 +195,31 @@
         chips
         small-chips
         deletable-chips
-        class="mb-2"
-        :disabled="isLoading || !hasChanges(editedIndex)"
+        class="mb-2 mt-4"
+        :disabled="
+          $store.state.loadingRequestGeneral || !hasChanges(editedIndex)
+        "
       />
+      <v-text-field
+        v-model="
+          $store.state.PrimeryRabot.entry._hotspots[editedIndex].quantity
+        "
+        :disabled="
+          $store.state.loadingRequestGeneral || !hasChanges(editedIndex)
+        "
+        clearable
+        type="number"
+        label="Количество"
+      ></v-text-field>
 
       <div class="d-flex">
         <v-btn
           small
           color="success"
-          :disabled="!hasChanges(editedIndex) || isLoading"
-          :loading="isLoading"
+          :disabled="
+            !hasChanges(editedIndex) || $store.state.loadingRequestGeneral
+          "
+          :loading="$store.state.loadingRequestGeneral"
           @click="saveCurrentHotspot"
         >
           Сохранить изменения
@@ -218,28 +245,20 @@
 import vue2Dropzone from "vue2-dropzone";
 import "vue2-dropzone/dist/vue2Dropzone.min.css";
 import Request from "@/services/request";
+import TextAreaStyled from "@/components/common/TextAreaStyled.vue";
 
 export default {
   name: "PrimeryRabotEditor",
-  components: { vueDropzone: vue2Dropzone },
+  components: { TextAreaStyled, vueDropzone: vue2Dropzone },
   data() {
     return {
-      loading_dropzone: false,
-      previewHtml: null,
       isAddingHotspot: false,
       editedIndex: null,
       imageLoaded: false,
       isDeletingAll: false,
-      nameRules: [
-        (v) => !!v || "Обязательное поле",
-        (v) =>
-          !v || v.length <= 100 || "Не должно содержать больше 100 символов",
-      ],
-      selectedNomenclature: [], //TODO
-      families: [],
-      isLoading: false,
       snackbarText: "",
       snackbar: false,
+      debounceTimeout: null,
     };
   },
   watch: {
@@ -263,9 +282,8 @@ export default {
     },
   },
   mounted() {
-    console.log("mounted SpecEditor this.initialData", this.initialData);
     // Загружаем семейства и номенклатуру, чтобы выбирать при поставновке меток
-    // this.loadFamilies();
+    this.$store.dispatch("PrimeryRabot/getListFamilies");
     this.$store.dispatch("PrimeryRabot/getListNomenclature");
   },
   methods: {
@@ -275,12 +293,10 @@ export default {
       //   this.snackbarText = "Name обязательно поле для заполнения";
       //   return false;
       // }
-
+      this.$store.state.loadingRequestGeneral = true;
       formData.append("uuid", file.upload.uuid);
     },
     async successData(file, response) {
-      console.log("successData", response);
-
       // Создаем спецификацию
       const spec = await Request.post(
         `${this.$store.state.BASE_URL}/entity/specifications`,
@@ -297,23 +313,10 @@ export default {
 
       this.$store.state.PrimeryRabot.entry.id = spec.data.id;
       await this.$store.dispatch("PrimeryRabot/getSetOnceEntry");
+      this.$store.state.loadingRequestGeneral = false;
     },
     triggerUpload() {
-      document.getElementById("specDropzone")?.click();
-    },
-
-    // Грузим данные
-    async loadFamilies() {
-      try {
-        const selectQuery = Request.ConstructSelectQuery(["*"]);
-        const response = await Request.get(
-          `${this.$store.state.BASE_URL}/dictionary/nomenclature-family?${selectQuery}`
-        );
-        this.families = response.data;
-      } catch (e) {
-        console.error("Ошибка загрузки семейств:", e);
-        this.families = [];
-      }
+      document.getElementById("primeryRabotDropzone")?.click();
     },
 
     getProductDisplayName(product) {
@@ -321,7 +324,6 @@ export default {
     },
 
     // Редактирование хотспотов
-
     startAddHotspot() {
       this.isAddingHotspot = true;
       this.editedIndex = null;
@@ -356,6 +358,15 @@ export default {
     hasChanges(index) {
       const hotspot = this.$store.state.PrimeryRabot.entry._hotspots[index];
       return !hotspot.id;
+    },
+
+    updateEntryLocal(keyEntry, valueEntry) {
+      this.$store.state.PrimeryRabot.entry[keyEntry] = valueEntry;
+
+      if (this.debounceTimeout) clearTimeout(this.debounceTimeout);
+      this.debounceTimeout = setTimeout(() => {
+        this.$store.dispatch("PrimeryRabot/updateEntry");
+      }, 1000);
     },
 
     async clearAllHotspots(isDeleteModal = false) {
@@ -399,7 +410,6 @@ export default {
       this.editedIndex = null;
       await this.$store.dispatch("PrimeryRabot/getSetOnceEntry");
     },
-
     async saveHotspot(hotspot) {
       try {
         if (!hotspot.id_specification)
@@ -413,7 +423,7 @@ export default {
             ids_families: hotspot.ids_families || [],
             hotspot_x: Math.round(hotspot.hotspot_x),
             hotspot_y: Math.round(hotspot.hotspot_y),
-            quantity: 1,
+            quantity: hotspot.quantity || 1,
           }
         );
         if (response.isError)
@@ -441,7 +451,7 @@ export default {
             ids_families: hotspot.ids_families || [],
             hotspot_x: Math.round(hotspot.hotspot_x),
             hotspot_y: Math.round(hotspot.hotspot_y),
-            quantity: 1,
+            quantity: hotspot.quantity || 1,
           }
         );
 
@@ -466,7 +476,6 @@ export default {
       this.snackbarText = "Метка удалена";
       this.editedIndex = null;
     },
-
     async saveCurrentHotspot() {
       if (this.editedIndex === null) return;
 
@@ -477,18 +486,22 @@ export default {
         this.snackbarText = "Выберите хотя бы одну номенклатуру или семейство";
         return;
       }
-      this.isLoading = true;
+      this.$store.state.loadingRequestGeneral = true;
 
       if (hotspot.id) await this.updateHotspot(hotspot);
       else await this.saveHotspot(hotspot);
 
-      this.isLoading = false;
+      this.$store.state.loadingRequestGeneral = false;
     },
   },
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+#primeryRabotDropzone.loading_dropzone {
+  cursor: not-allowed;
+  pointer-events: none;
+}
 .editor-section {
   //max-width: 810px;
   //max-height: 455px;
