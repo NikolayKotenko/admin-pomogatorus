@@ -9,6 +9,7 @@
       :rows-count="'1'"
       @update-input="updateEntryLocal('name', $event)"
       :is-loading="$store.state.loadingRequestGeneral"
+      :is-disabled="!$store.state.PrimeryRabot.entry.id"
     ></TextAreaStyled>
     <v-text-field
       v-model="$store.state.PrimeryRabot.entry.code"
@@ -24,6 +25,7 @@
       class="pt-5 pb-5"
       @update-input="updateEntryLocal('description', $event)"
       :is-loading="$store.state.loadingRequestGeneral"
+      :is-disabled="!$store.state.PrimeryRabot.entry.id"
     ></TextAreaStyled>
     <!-- Ваша дропзона -->
     <div
@@ -48,7 +50,7 @@
             mdi-image-filter-center-focus
           </v-icon>
         </h3>
-        <div class="subtitle" style="color: darkgrey">
+        <div class="subtitle" style="color: firebrick; font-size: 16px">
           {{
             $store.state.loadingRequestGeneral
               ? "Загрузка..."
@@ -498,9 +500,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#primeryRabotDropzone.loading_dropzone {
-  cursor: not-allowed;
-  pointer-events: none;
+#primeryRabotDropzone {
+  cursor: pointer;
+  &.loading_dropzone {
+    cursor: not-allowed;
+    pointer-events: none;
+  }
 }
 .editor-section {
   //max-width: 810px;
