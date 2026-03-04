@@ -7,20 +7,19 @@ export default {
     deleteModal: false,
     entry: {
       id: null,
-      name: null,
       code: null,
-      purpose: null,
+      name: null,
       description: null,
-      end_date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
-        .toISOString()
-        .substr(0, 10),
-      activity: false,
-      ids_families: [],
-      ids_brands: [],
-      _brands: [],
-      _brands_names: [],
-      _images: [],
+      seo_title: null,
+      seo_description: null,
+      seo_keywords: null,
+      created_at: null,
+      updated_at: null,
+      id_image: null,
+      _hotspots: [],
+      _image: {},
     },
+    listNomenclatures: [],
   },
   mutations: {
     changeListEntries(state, array) {
@@ -39,20 +38,23 @@ export default {
       // новая мутация
       state.entry = { ...state.entry, ...data };
     },
+    change_list_nomenclature(state, data) {
+      state.listNomenclatures = data;
+    },
     clearEntry(state) {
       state.entry = {
         id: null,
-        name: null,
         code: null,
-        purpose: null,
+        name: null,
         description: null,
-        end_date: null,
-        activity: false,
-        ids_families: [],
-        ids_brands: [],
-        _brands: [],
-        _brands_names: [],
-        _images: [],
+        seo_title: null,
+        seo_description: null,
+        seo_keywords: null,
+        created_at: null,
+        updated_at: null,
+        id_image: null,
+        _hotspots: [],
+        _image: {},
       };
     },
     deleteModalCommit(state, value) {
@@ -70,13 +72,13 @@ export default {
       commit("changeLoadingGeneral", true, { root: true });
 
       try {
-        const selects = ["*", "_brands"];
+        const selects = ["*"];
         const query = Request.modifyQuery([], selects);
         const result = await Request.get(
-          this.state.BASE_URL + `/entity/stocks${query}`
+          this.state.BASE_URL + `/entity/specifications${query}`
         );
         commit("changeListEntries", result.data);
-        const list = this.state.Stocks.listEntries;
+        const list = this.state.PrimeryRabot.listEntries;
 
         const getEntry = () => {
           if (id) {
@@ -94,7 +96,7 @@ export default {
       commit("changeLoadingGeneral", true, { root: true });
       try {
         const response = await Request.post(
-          this.state.BASE_URL + "/entity/stocks",
+          this.state.BASE_URL + "/entity/specifications",
           state.entry
         );
         commit("setEntry", response.data);
@@ -109,7 +111,7 @@ export default {
     async updateEntry({ commit, state }) {
       try {
         return await Request.put(
-          this.state.BASE_URL + "/entity/stocks/" + state.entry.id,
+          this.state.BASE_URL + "/entity/specifications/" + state.entry.id,
           state.entry
         );
       } catch (e) {
@@ -121,8 +123,37 @@ export default {
       commit("changeLoadingGeneral", true, { root: true });
 
       await Request.delete(
-        this.state.BASE_URL + "/entity/stocks/" + state.entry.id
+        this.state.BASE_URL + "/entity/specifications/" + state.entry.id
       );
+
+      commit("changeLoadingGeneral", false, { root: true });
+    },
+    async getSetOnceEntry({ commit, state }) {
+      commit("changeLoadingGeneral", true, { root: true });
+
+      const selects = ["*"];
+      const query = Request.modifyQuery([], selects);
+      const response = await Request.get(
+        this.state.BASE_URL + `/entity/specifications/${state.entry.id}${query}`
+      );
+      if (response.isError)
+        throw new Error(
+          "Ошибка get запроса /entity/specifications/state.entry.id - " +
+            response.message
+        );
+
+      commit("setEntry", response.data);
+      commit("changeLoadingGeneral", false, { root: true });
+    },
+    async getListNomenclature({ commit, state }) {
+      commit("changeLoadingGeneral", true, { root: true });
+
+      const selects = ["*", "_family"];
+      const query = Request.modifyQuery([], selects);
+      const response = await Request.get(
+        `${this.state.BASE_URL}/entity/nomenclature${query}`
+      );
+      commit("change_list_nomenclature", response.data);
 
       commit("changeLoadingGeneral", false, { root: true });
     },
