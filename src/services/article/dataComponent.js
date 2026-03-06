@@ -77,9 +77,17 @@ class Element_citation {
 
 class Element_specification {
   constructor(data) {
-    const { name, imageId, imageUrl, imageUuid, index_specification } = data;
+    const {
+      name,
+      specificationId,
+      imageId,
+      imageUrl,
+      imageUuid,
+      index_specification,
+    } = data;
 
     this.name = name;
+    this.specificationId = specificationId;
     this.imageId = imageId;
     this.imageUrl = imageUrl;
     this.imageUuid = imageUuid;

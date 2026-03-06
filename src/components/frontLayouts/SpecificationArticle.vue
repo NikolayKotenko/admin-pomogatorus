@@ -3,6 +3,7 @@
     :id="`component_wrapper-${index_component}`"
     :data-id="specification_data.imageId"
     :data-uuid="specification_data.imageUuid"
+    :data-specification-id="specification_data.specificationId"
     contenteditable="false"
     data-name="specification"
     class="componentArticle_wrapper component_container specification-container"
@@ -137,6 +138,7 @@ export default {
 
       // Передаём данные для редактирования в HeaderBlock
       this.$store.commit("setEditingSpecification", {
+        specificationId: this.specification_data.specificationId,
         imageId: this.specification_data.imageId,
         imageUrl: this.specification_data.imageUrl,
         imageUuid: this.specification_data.imageUuid,

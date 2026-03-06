@@ -646,6 +646,8 @@ export default {
             } else if (htmlCollection.dataset.name === "citation") {
               dataComponent.id = htmlCollection.dataset.id;
             } else if (htmlCollection.dataset.name === "specification") {
+              dataComponent.specificationId =
+                htmlCollection.dataset.specificationId;
               dataComponent.imageId = htmlCollection.dataset.id;
               dataComponent.imageUuid = htmlCollection.dataset.uuid;
             }
@@ -1247,6 +1249,7 @@ export default {
         imageId: elem?.imageId ?? null,
         imageUrl: elem?.imageUrl ?? "",
         imageUuid: elem?.imageUuid ?? null,
+        specificationId: elem?.specificationId ?? null,
 
         alt: elem?.alt_image ? elem?.alt_image : "",
         title: elem?.title_image ? elem?.title_image : "",
