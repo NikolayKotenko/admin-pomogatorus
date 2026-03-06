@@ -1039,6 +1039,7 @@ export default {
       }
 
       const payload = {
+        specificationId: selectedSpecification.id || null,
         imageId,
         imageUrl:
           selectedSpecification._image?.orig_path ||
@@ -1273,15 +1274,20 @@ export default {
       if (component.instance.$el?.dataset) {
         component.instance.$el.dataset.id = String(updatedData.imageId || "");
         component.instance.$el.dataset.uuid = updatedData.imageUuid || "";
+        component.instance.$el.dataset.specificationId = String(
+          updatedData.specificationId || "",
+        );
       }
 
       if (component.data?.component) {
+        component.data.component.specificationId = updatedData.specificationId;
         component.data.component.imageId = updatedData.imageId;
         component.data.component.imageUrl = updatedData.imageUrl;
         component.data.component.imageUuid = updatedData.imageUuid;
       }
 
       if (component.component) {
+        component.component.specificationId = updatedData.specificationId;
         component.component.imageId = updatedData.imageId;
         component.component.imageUrl = updatedData.imageUrl;
         component.component.imageUuid = updatedData.imageUuid;

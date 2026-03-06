@@ -965,6 +965,7 @@ export default {
 
         commit("changeSelectedComponent", {
           data: {
+            specificationId: elem.component.specificationId || null,
             imageId: imageId,
             imageUrl: response.data.orig_path || "",
             imageUuid: response.data.uuid,
